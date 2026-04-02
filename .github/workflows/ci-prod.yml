@@ -1,0 +1,197 @@
+# GitHub Actions — smartcow PROD
+# Trigger: manual (workflow_dispatch) — requiere aprobación vía Environment protection rules
+# Pipeline: typecheck → tests → build Docker → push Artifact Registry → deploy Cloud Run smartcow-prod
+# GCP project: smartcow-492119
+# Ticket: AUT-107
+#
+# Configurar en GitHub:
+#   Settings → Environments → "production" → Required reviewers → agregar a Cesar
+
+name: CI/CD — Prod (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'SHA o tag a deployar (vacío = HEAD de main)'
+        required: false
+        default: ''
+      reason:
+        description: 'Motivo del deploy'
+        required: true
+
+env:
+  GCP_PROJECT: smartcow-492119
+  REGION: southamerica-west1
+  SERVICE: smartcow-prod
+  IMAGE: southamerica-west1-docker.pkg.dev/smartcow-492119/smartcow/smartcow-prod
+
+jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sha || github.ref }}
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: typecheck
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sha || github.ref }}
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test --if-present
+
+  build-push:
+    name: Build & Push Docker image
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sha || github.ref }}
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Pull cache image (best effort)
+        run: docker pull ${{ env.IMAGE }}:latest || true
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --cache-from ${{ env.IMAGE }}:latest \
+            -t ${{ env.IMAGE }}:latest \
+            -t ${{ env.IMAGE }}:${{ github.sha }} \
+            .
+
+      - name: Push Docker image
+        run: docker push --all-tags ${{ env.IMAGE }}
+
+  deploy:
+    name: Deploy to Cloud Run (prod)
+    runs-on: ubuntu-latest
+    needs: build-push
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Validate secrets exist and are non-empty
+        run: |
+          echo "Validating prod secrets..."
+          FAILED=0
+          for SECRET in smartcow-database-url smartcow-agroapp-user smartcow-agroapp-password; do
+            VALUE=$(gcloud secrets versions access latest --secret=$SECRET --project=${{ env.GCP_PROJECT }} 2>/dev/null) || {
+              echo "FATAL: Secret $SECRET does not exist or has no versions"
+              FAILED=1
+              continue
+            }
+            if [ -z "$VALUE" ]; then
+              echo "FATAL: Secret $SECRET is empty"
+              FAILED=1
+            elif echo "$VALUE" | grep -qiE '^dummy|^placeholder|^your_|^change_me|^TODO|MOCK'; then
+              echo "FATAL: Secret $SECRET has mock/placeholder value"
+              FAILED=1
+            else
+              echo "OK: $SECRET"
+            fi
+          done
+          if [ $FAILED -eq 1 ]; then
+            echo "Deploy BLOCKED: fix secrets before deploying to production"
+            exit 1
+          fi
+          echo "All secrets validated"
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image=${{ env.IMAGE }}:${{ github.sha }} \
+            --platform=managed \
+            --region=${{ env.REGION }} \
+            --allow-unauthenticated \
+            --memory=512Mi \
+            --cpu=1 \
+            --timeout=60s \
+            --min-instances=0 \
+            --max-instances=10 \
+            --concurrency=80 \
+            --port=8080 \
+            --set-env-vars=NODE_ENV=production \
+            --update-secrets=DATABASE_URL=smartcow-database-url:latest,AGROAPP_USER=smartcow-agroapp-user:latest,AGROAPP_PASSWORD=smartcow-agroapp-password:latest \
+            --project=${{ env.GCP_PROJECT }}
+
+      - name: Ensure public access
+        run: |
+          gcloud run services add-iam-policy-binding ${{ env.SERVICE }} \
+            --region=${{ env.REGION }} \
+            --member="allUsers" \
+            --role="roles/run.invoker" \
+            --project=${{ env.GCP_PROJECT }} 2>/dev/null || true
+
+      - name: Smoke test
+        run: |
+          echo "Waiting for service to be ready..."
+          sleep 20
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE }} \
+            --region=${{ env.REGION }} \
+            --project=${{ env.GCP_PROJECT }} \
+            --format='value(status.url)')
+          echo "Service URL: $SERVICE_URL"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$SERVICE_URL/health" || echo "000")
+          if [ "$STATUS" = "200" ]; then
+            echo "Smoke test OK — $SERVICE_URL/health → $STATUS"
+          else
+            echo "Smoke test FAILED — /health returned $STATUS"
+            exit 1
+          fi
+
+      - name: Tag deploy in git
+        run: |
+          echo "Deploy completed — SHA ${{ github.sha }} — Reason: ${{ inputs.reason }}"
