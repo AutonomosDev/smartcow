@@ -1,0 +1,1199 @@
+# AgroApp — Reverse Engineer Schema
+# Fuente: bundle JS main.911f5f8d60d9fe8a4a4e.bundle.js (Angular 5 + Apache Tomcat 6.0.45)
+# Backend: http://agroapp.cl:8080/AgroAppWebV18/
+# Fecha extraccion: 2026-04-02
+# Ticket: AUT-120
+
+meta:
+  app_name: AgroApp
+  url: http://www.agroapp.cl
+  backend_url: http://agroapp.cl:8080/AgroAppWebV18/
+  stack:
+    frontend: Angular 5 (webpack, webpackJsonp chunk 19)
+    backend: Apache Tomcat 6.0.45 (Java servlets)
+    auth: localStorage (usuario + clave en cada request)
+  auth_pattern: "Cada request incluye: usuario=localStorage.getItem('usuario'), clave=localStorage.getItem('clave')"
+  export_formats: [Excel (.xlsx), PDF (algunos modulos)]
+  upload_formats: [Excel (.xlsx) — pesaje, leche]
+  excel_templates:
+    - url: http://agroapp.cl/formatos/Formato Pesaje.xlsx
+    - url: http://agroapp.cl/formatos/Formato Leche.xlsx
+
+# ─────────────────────────────────────────────
+# ENTIDADES CORE
+# ─────────────────────────────────────────────
+
+entidades_core:
+
+  fundo:
+    descripcion: Predio / establecimiento ganadero (unidad organizacional principal)
+    servlet: Fundo
+    campos_respuesta:
+      - fundo_id: integer (PK)
+      - name: string
+    servicio: getFundos
+
+  usuario:
+    descripcion: Usuario del sistema (operador)
+    servlet: Usuarios
+    campos_respuesta:
+      - usuario_id: integer (PK)
+      - usuario: string (username)
+      - clave: string (password — enviada en cada request)
+    servicio: getUsuario
+
+  tipo_ganado:
+    descripcion: Clasificacion del animal (vaca, novilla, ternero, etc.)
+    servlet: GanadoActual
+    servicio: getAllTipoGanado
+    campos_respuesta:
+      - tipo_ganado_id: integer (PK)
+      - tipo_ganado: string
+
+  raza:
+    descripcion: Raza del animal
+    servlet: GanadoActual
+    servicio: getAllRaza
+    campos_respuesta:
+      - raza_id: integer (PK)
+      - raza: string
+
+  estado_reproductivo:
+    descripcion: Estado reproductivo del animal
+    servlet: GanadoActual
+    servicios:
+      - getAllEstadoReproductivo
+      - getAllEstadoReproductivoSimple
+    campos_respuesta:
+      - estado_reproductivo_id: integer (PK)
+      - estado_reproductivo: string
+
+  inseminacion_semen:
+    descripcion: Toro / pajuela de semen para inseminacion
+    servlet: InseminacionSemen
+    servicio: getAllInseminacionSemen
+    params: [fundo_id]
+    campos_respuesta:
+      - inseminacion_semen_id: integer (PK)
+      - toro: string
+
+  inseminacion_inseminador:
+    descripcion: Persona que realiza la inseminacion
+    servlet: Parto (reutilizado)
+    servicio: getAllInseminacionInseminador
+    campos_respuesta:
+      - inseminacion_inseminador_id: integer (PK)
+
+  tipo_parto:
+    descripcion: Tipo de parto (normal, distocico, etc.)
+    servlet: Parto
+    servicio: getAllTipoParto
+    campos_respuesta:
+      - tipo_parto_id: integer (PK)
+      - tipo_parto: string
+
+  subtipo_parto:
+    descripcion: Subtipo de parto
+    servlet: Parto
+    servicio: getAllSubtipoParto
+
+  baja_motivo:
+    descripcion: Motivo de baja del animal
+    servlet: Baja
+    servicio: getAllBajaMotivo
+    campos_respuesta:
+      - baja_motivo_org_id: integer (PK)
+      - baja_motivo: string
+
+  baja_causa:
+    descripcion: Causa especifica de baja (depende de motivo)
+    servlet: Baja
+    servicio: getAllBajaCausa
+    params: [baja_motivo_org_id]
+    campos_respuesta:
+      - baja_causa_org_id: integer (PK)
+      - baja_causa: string
+
+  medicamento:
+    descripcion: Medicamento / producto
+    servlet: Medicamento
+    servicio: getAllMedicamento
+    params: [fundo_id]
+    campos_respuesta:
+      - medicamento_id: integer (PK)
+      - medicamento: string
+
+  medicamento_serie:
+    descripcion: Serie / lote de medicamento
+    servlet: MedicamentoSerie
+    servicio: getAllMedicamentoSerie
+    params: [jsonFiltros]
+
+# ─────────────────────────────────────────────
+# MODULOS (17 en la app)
+# ─────────────────────────────────────────────
+
+modulos:
+
+  dashboard_general:
+    ruta: /menu/dashboard/general
+    descripcion: Resumen general del fundo — pie charts por tipo ganado, estado reproductivo, estado leche
+    servlet: Dashboard
+    servicios:
+      - getDashboard
+    filtros:
+      tipo_ganado: integer (id)
+      fundos: array[fundo_id]
+      fecha: date (YYYY-MM-DD)
+    respuesta:
+      - pie_chart: array[{tipo_ganado, animales}]
+      - estado_reproductivo: array
+      - estado_leche: array
+      - ingresos: integer (nuevos animales)
+      - egresos: integer (bajas)
+      - manejos_pendientes: array
+      - partos_pendientes: array
+      - total_animales: integer
+      - total_partos_pendientes: integer
+      - enable_manejos_pendientes: boolean
+    exporta: no
+
+  dashboard_reproductivo:
+    ruta: /menu/dashboard/reproductivo
+    descripcion: Indices reproductivos del fundo
+    servlet: DashboardReproductivo
+    servicios:
+      - getDashboardReproductivo
+      - getTasasReproductivas
+    filtros_reproductivo:
+      tipo_ganado: integer
+      fundos: array[fundo_id]
+      desecho: boolean
+    filtros_tasas:
+      tipo_ganado: integer
+      fundos: array[fundo_id]
+      desecho: boolean
+      fecha_inicio: date (YYYY-MM-DD)
+    exporta: no
+
+  ganado_actual:
+    ruta: /menu/ganadoactual
+    descripcion: Listado de animales activos en el fundo
+    servlet: GanadoActual
+    servicios:
+      - getGanadoActual
+      - generarExcel
+    filtros:
+      fundo_id: integer
+      tipo_ganado: integer
+      raza_id: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      desecho: boolean
+      observaciones: string
+      fundos: array[fundo_id]
+      fecha: date (YYYY-MM-DD)
+      order: string
+      tipo_order: string
+      cbInventario: boolean
+      cbFechaNacimiento: boolean
+      cbTipoGanado: boolean
+      cbRaza: boolean
+      cbFundo: boolean
+      cbEstadoReproductivo: boolean
+      cbEstadoLeche: boolean
+      cbDesecho: boolean
+      cbObservaciones: boolean
+      cbDiasGestacion: boolean
+      cbProximoParto: boolean
+      cbUltimoParto: boolean
+      cbPartos: boolean
+      cbUltimaEcografia: boolean
+      cbUltimaInseminacion: boolean
+      cbUltimoInseminador: boolean
+      cbToro: boolean
+      cbTotalIA: boolean
+      cbDiasEnLeche: boolean
+      cbUltimoSecado: boolean
+      cbDiasSeca: boolean
+      cbDiioMadre: boolean
+      cbPadre: boolean
+      cbAbuelo: boolean
+      cbOrigen: boolean
+      cbFechaCreado: boolean
+      cbUltimoControlLeche: boolean
+      cbUltimoLitros: boolean
+      cbUltimoRCS: boolean
+      cbUltimoGrasa: boolean
+      cbUltimoProteina: boolean
+      cbUltimoUrea: boolean
+      cbPromedioLitros: boolean
+      cbPromedioRCS: boolean
+      cbPromedioGrasa: boolean
+      cbPromedioProteina: boolean
+      cbPromedioUrea: boolean
+      cbPesaje: boolean
+    columnas_sort:
+      - Diio
+      - "Dias gestacion"
+      - Fecha nacimiento
+      - Partos
+      - "Proximo parto"
+      - "Ultima inseminacion"
+      - Total IA
+      - "Ultimo parto"
+      - "Dias En Leche"
+      - "Ultimo secado"
+      - "Dias Seca"
+    campos_animal:
+      diio: string (identificador principal del animal — tagg/arete)
+      fecha_nacimiento: date
+      tipo_ganado: string
+      raza: string
+      fundo: string
+      estado_reproductivo: string
+      estado_leche: string
+      desecho: boolean
+      dias_gestacion: integer
+      proximo_parto: date
+      ultimo_parto: date
+      partos: integer
+      ultima_ecografia: date
+      ultima_inseminacion: date
+      ultimo_inseminador: string
+      toro: string
+      total_ia: integer
+      dias_en_leche: integer
+      ultimo_secado: date
+      dias_seca: integer
+      diio_madre: string
+      padre: string
+      abuelo: string
+      origen: string
+      fecha_creado: datetime
+      ultimo_control_leche: date
+      ultimo_litros: decimal
+      ultimo_rcs: decimal
+      ultimo_grasa: decimal
+      ultimo_proteina: decimal
+      ultimo_urea: decimal
+      promedio_litros: decimal
+      promedio_rcs: decimal
+      promedio_grasa: decimal
+      promedio_proteina: decimal
+      promedio_urea: decimal
+      pesaje: decimal
+    exporta: Excel
+
+  areteo_alta:
+    ruta: /menu/areteo/alta
+    descripcion: Alta de animales (ingreso al sistema con asignacion de DIIO/arete)
+    servlet: Areteo
+    servicios:
+      - getAllUsuarioAlta
+      - getAllAlta
+      - generarExcelHistorialAlta
+    filtros:
+      fundo_id: integer
+      tipo_ganado: integer
+      raza_id: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    columnas_sort:
+      - Diio
+      - Fecha nacimiento
+      - Fecha creado
+    exporta: Excel
+
+  areteo_aparicion:
+    ruta: /menu/areteo/aparicion
+    descripcion: Aparicion de animales (nacimiento o ingreso sin DIIO previo)
+    servlet: Areteo
+    servicios:
+      - getAllUsuarioAparicion
+      - getAllAparicion
+      - generarExcelHistorialAparicion
+    filtros:
+      fundo_id: integer
+      tipo_ganado: integer
+      raza_id: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    exporta: Excel
+
+  areteo_cambio_diio:
+    ruta: /menu/areteo/cambiodiio
+    descripcion: Cambio de numero de DIIO (rearreteo)
+    servlet: Areteo
+    servicios:
+      - getAllUsuarioCambioDiio
+      - getAllCambioDiio
+      - generarExcelHistorialCambioDiio
+    filtros:
+      fundo_id: integer
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    columnas_sort:
+      - Diio nuevo
+      - Diio anterior
+      - Fecha cambio diio
+      - Fecha creado
+    exporta: Excel
+
+  bajas:
+    ruta: /menu/baja
+    descripcion: Registro de bajas de animales (muerte, venta forzosa, descarte)
+    servlet: Baja
+    servicios:
+      - getAllBajaMotivo
+      - getAllBajaCausa (param baja_motivo_org_id)
+      - getAllUsuario
+      - getAllBaja
+      - generarExcelHistorial
+    filtros:
+      fundo_id: integer
+      tipo_ganado: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      baja_motivo_org_id: integer
+      baja_causa_org_id: integer
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    columnas_sort:
+      - Diio
+      - Fecha nacimiento
+      - Fecha baja
+      - Fecha creado
+    exporta: Excel
+
+  bastoneos:
+    ruta: /menu/bastoneo
+    descripcion: Registro de deteccion de celo (bastoneo/pintura de rabadilla)
+    servlet: Bastoneo
+    servicios:
+      - getAllUsuario
+      - getAllBastoneo (historial)
+      - generarExcelHistorial
+      - getAllBastoneoGanado (detalle por manada)
+      - generarExcelDetalle
+    filtros_historial:
+      fundo_id: integer
+      descripcion: string
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    filtros_detalle:
+      bastoneo_id: integer
+      tipo_ganado: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      descripcion: string
+      order: string
+      tipo_order: string
+    columnas_historial_sort:
+      - ID
+      - Animales
+      - Fecha creado
+    columnas_detalle_sort:
+      - Diio
+      - Mangada
+      - Fecha creado
+    exporta: Excel (historial + detalle)
+
+  busquedas:
+    ruta: /menu/busqueda
+    descripcion: Registro de busqueda de animales (animales buscados en campo)
+    servlet: Busqueda
+    servicios:
+      - getAllUsuario
+      - getAllBusqueda (historial)
+      - generarExcelHistorial
+      - getAllBusquedaGanado (detalle)
+      - generarExcelDetalle
+    filtros_historial:
+      estado: string (encontrado/no_encontrado)
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    filtros_detalle:
+      busqueda_id: integer
+      tipo_ganado: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      encontrado: boolean
+      order: string
+      tipo_order: string
+    columnas_historial_sort:
+      - ID
+      - Fecha creado
+    columnas_detalle_sort:
+      - Ingreso
+      - Diio
+      - Observaciones
+      - Fecha encontrado
+    exporta: Excel (historial + detalle)
+
+  consulta:
+    ruta: /menu/consulta
+    descripcion: Consulta individual de animal por DIIO — historial completo
+    servlet: Consulta
+    servicios:
+      - getConsulta
+    params:
+      diio: string (DIIO del animal a consultar)
+    exporta: no
+
+  desechos:
+    ruta: /menu/desecho/pendiente y /menu/desecho/historial
+    descripcion: Animales desechados (marcados para baja futura)
+    servlet: Desecho
+    servicios_deducidos_del_patron:
+      - getAllDesecho (historial)
+      - getCandidatosDesecho (pendientes)
+      - generarExcelHistorial
+      - generarExcelPendientes
+    filtros_deducidos:
+      fundo_id: integer
+      tipo_ganado: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    nota: modulo lazy-loaded, API deducida por patron de otros modulos similares
+    exporta: Excel
+
+  ecografias:
+    ruta: /menu/ecografia/pendiente y /menu/ecografia/historial
+    descripcion: Registro de ecografias reproductivas (confirmacion de preñez)
+    servlet: Ecografia
+    filtros_deducidos:
+      fundo_id: integer
+      tipo_ganado: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      desecho: boolean
+      inseminacion_semen_id: integer
+      inseminacion_inseminador_id: integer
+      fecha: date
+      order: string
+      tipo_order: string
+    columnas_sort:
+      - Diio
+      - "Dias gestacion"
+      - "Fecha inseminacion"
+      - "Fecha ecografia"
+      - "Proximo parto"
+      - Total IA
+    nota: modulo lazy-loaded, filtros deducidos del patron de preparto (mismo contexto JS)
+    exporta: Excel
+
+  estimulacion_celo:
+    ruta: /menu/estimulacion/pendiente y /menu/estimulacion/historial
+    descripcion: Protocolo de estimulacion de celo (sincronizacion)
+    servlet: Estimulacion
+    servicios_deducidos:
+      - getAllEstimulacion (historial)
+      - getCandidatosEstimulacion (pendientes)
+      - generarExcelHistorial
+      - generarExcelPendientes
+    nota: modulo lazy-loaded
+    exporta: Excel
+
+  inseminaciones:
+    ruta: /menu/inseminacion/pendiente y /menu/inseminacion/historial
+    descripcion: Registro de inseminaciones artificiales
+    servlet: Inseminacion
+    servicios_deducidos:
+      - getAllInseminacion (historial)
+      - getCandidatosInseminacion (pendientes)
+      - generarExcelHistorial
+      - generarExcelPendientes
+    campos_relevantes:
+      diio: string
+      toro: string (inseminacion_semen_id)
+      inseminador: string (inseminacion_inseminador_id)
+      fecha_inseminacion: date
+      total_ia: integer (acumulado por animal)
+    nota: modulo lazy-loaded
+    exporta: Excel
+
+  inventarios:
+    ruta: /menu/inventario
+    descripcion: Inventarios de animales por fecha (snapshot del hato)
+    servlet: Inventario
+    servicios:
+      - getAllUsuarioHistorial
+      - getAllUsuarioDetalle
+      - getAllInventario (historial)
+      - generarExcelHistorial
+      - getAllInventarioGanado (detalle por inventario)
+      - generarExcelDetalle
+    filtros_historial:
+      fundo_id: integer
+      estado: string
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    filtros_detalle:
+      inventario_id: integer
+      tipo_ganado: integer
+      raza_id: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      usuario_id: integer
+      estado: string
+      inventario: string
+      order: string
+      tipo_order: string
+    columnas_historial_sort:
+      - ID
+      - Fecha creado
+    columnas_detalle_sort:
+      - Diio
+      - Fecha nacimiento
+      - Mangada
+      - Ingreso
+    exporta: Excel (historial + detalle)
+
+  partos:
+    ruta: /menu/parto/historial y /menu/parto/pendiente
+    descripcion: Registro de partos realizados y animales proximos a parir
+    servlet: Parto
+    servicios:
+      - getAllInseminacionSemen
+      - getAllInseminacionInseminador
+      - getAllTipoParto
+      - getAllSubtipoParto
+      - getAllNumeroPartos
+      - getAllUsuario
+      - getPartos (historial)
+      - generarExcelHistorial
+      - getPartosPendientes (pendientes — animales por parir)
+      - generarExcelPendientes
+    filtros_partos_historial:
+      fundo_id: integer
+      tipo_ganado: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    filtros_partos_pendientes:
+      fundo_id: integer
+      tipo_ganado: integer
+      estado_leche: integer
+      desecho: boolean
+      inseminacion_semen_id: integer
+      inseminacion_inseminador_id: integer
+      fecha: date (YYYY-MM-DD)
+      order: string
+      tipo_order: string
+    campos_parto:
+      diio_madre: string
+      tipo_parto_id: integer
+      subtipo_parto_id: integer
+      numero_partos: integer
+      inseminacion_semen_id: integer (toro)
+      inseminacion_inseminador_id: integer
+      fecha_parto: date
+      diio_cria: string (opcional)
+      tipo_ganado_cria: integer
+    columnas_sort_pendientes:
+      - Diio
+      - "Dias gestacion"
+      - "Proximo parto"
+      - "Fecha pre-parto"
+      - Fecha creado
+    exporta: Excel (historial + pendientes)
+
+  pesajes:
+    ruta: /menu/pesaje/historial y /menu/pesaje/ganancia
+    descripcion: Registro de pesajes de animales (kg) y calculos de ganancia diaria
+    servlet: Pesaje2
+    servicios:
+      - getAllUsuario
+      - getAllGanancias (vista de ganancias con proyecciones)
+      - generarExcelGanancias
+      - getAllPesajes (historial)
+      - generarExcelHistorial
+      - postPesaje (carga masiva via Excel)
+    filtros_ganancias:
+      tipo_ganado: integer
+      estado_reproductivo: integer
+      fundo_id: integer
+      order: string
+      tipo_order: string
+      fecha: date (YYYY-MM-DD)
+      proyeccion: date (YYYY-MM-DD)
+    filtros_historial:
+      tipo_ganado: integer
+      estado_reproductivo: integer
+      fundo_id: integer
+      descripcion: string
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    post_body:
+      animales: array (cargado desde Excel — columnas: Diio, Peso, Fecha)
+    columnas_ganancias_sort:
+      - Diio
+      - "Edad (meses)"
+      - "Ultimo peso (kg)"
+      - "Ultimo pesaje"
+      - "Ganancia periodo (kg/dia)"
+      - "Proyeccion periodo (kg)"
+      - "Ganancia acumulada (kg/dia)"
+      - "Proyeccion acumulada (kg)"
+    columnas_historial_sort:
+      - Diio
+      - "Edad (meses)"
+      - Peso
+      - Fecha creado
+    exporta: Excel (ganancias + historial)
+    carga_masiva: Excel (.xlsx) via Formato Pesaje.xlsx
+
+  pre_partos:
+    ruta: /menu/preparto/historial y /menu/preparto/pendiente
+    descripcion: Pre-partos — animales que se acercan al parto (marcados para seguimiento)
+    servlet: PreParto
+    servicios:
+      - getAllUsuario
+      - getAllPreParto (historial)
+      - generarExcelHistorial
+      - getCandidatosPrePartoListos (animales listos para pre-parto)
+      - generarExcelPendientes
+    filtros:
+      fundo_id: integer
+      tipo_ganado: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    columnas_sort:
+      - Diio
+      - "Dias gestacion"
+      - "Proximo parto"
+      - "Fecha pre-parto"
+      - Fecha creado
+    exporta: Excel (historial + pendientes)
+
+  revisiones_post_parto:
+    ruta: /menu/revisionpp/historial y /menu/revisionpp/pendiente
+    descripcion: Revisiones post-parto — seguimiento de la vaca despues del parto
+    servlet: RevisionPostParto
+    servicios_deducidos:
+      - getAllRevisionPostParto
+      - getCandidatosRevisionPostParto
+      - generarExcelHistorial
+      - generarExcelPendientes
+    nota: modulo lazy-loaded
+    exporta: Excel
+
+  secados:
+    ruta: /menu/secado/historial y /menu/secado/pendiente
+    descripcion: Secado de vacas (cese de ordena antes del parto)
+    servlet: Secado
+    servicios_deducidos:
+      - getAllSecado
+      - getCandidatosSecado
+      - generarExcelHistorial
+      - generarExcelPendientes
+    nota: modulo lazy-loaded
+    exporta: Excel
+
+  tratamientos:
+    ruta: /menu/tratamiento
+    descripcion: Tratamientos veterinarios aplicados a animales
+    servlet: Tratamiento
+    servicios_deducidos:
+      - getAllTratamiento
+      - generarExcelHistorial
+    nota: modulo lazy-loaded
+    exporta: Excel
+
+  indices_reproductivos:
+    ruta: /menu/dashboard/reproductivo
+    descripcion: Tasas reproductivas (tasa de preñez, tasa de servicio, etc.)
+    servlet: DashboardReproductivo
+    servicios:
+      - getDashboardReproductivo
+      - getTasasReproductivas
+    filtros:
+      tipo_ganado: integer
+      fundos: array[fundo_id]
+      desecho: boolean
+      fecha_inicio: date (para tasas)
+    exporta: no
+
+  leche_historial:
+    ruta: /menu/leche/historial y /menu/leche/historial/detalle
+    descripcion: Controles lecheros (produccion individual y por hato)
+    servlet: Leche
+    servicios:
+      - getAllLeche (historial de controles)
+      - postLeche (cargar nuevo control)
+      - getAllLecheGanado (detalle por animal)
+      - postLecheGanado (cargar detalle)
+      - generarExcelHistorial
+      - generarExcelHistorialDetalle
+      - deleteLeche (eliminar control)
+    filtros_historial:
+      fundo_id: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      desecho: boolean
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    filtros_detalle:
+      leche_id: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      desecho: boolean
+      order: string
+      tipo_order: string
+    columnas_historial_sort:
+      - ID
+      - Litros
+      - RCS
+      - Grasa
+      - Proteina
+      - Urea
+      - "Fecha control"
+      - Fecha creado
+    columnas_detalle_sort:
+      - Ingreso
+      - Diio
+      - Litros
+      - RCS
+      - Grasa
+      - Proteina
+      - Urea
+    campos_control:
+      leche_id: integer (PK)
+      fundo_id: integer
+      litros: decimal
+      rcs: decimal (recuento celular somatico)
+      grasa: decimal (%)
+      proteina: decimal (%)
+      urea: decimal
+      fecha_control: date
+      fecha_creado: datetime
+    post_body:
+      jsonData: string (JSON con datos del control)
+    carga_masiva: Excel (.xlsx) via Formato Leche.xlsx
+    exporta: Excel (historial + detalle)
+
+  leche_comparativo:
+    ruta: /menu/leche/comparativo
+    descripcion: Comparativo de produccion lechera entre animales
+    servlet: Leche
+    servicios:
+      - getComparativoGanado
+      - generarExcelComparativo
+    filtros:
+      tipo_leche: string
+      fundo_id: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      desecho: boolean
+      order: string
+      tipo_order: string
+    columnas_sort:
+      - Diio
+      - "Ultimo parto"
+      - "Dias En Leche"
+    exporta: Excel
+
+  stock_semen:
+    ruta: /menu/stock/semen
+    descripcion: Inventario de stock de semen (pajuelas)
+    servlet: Stock
+    servicios:
+      - getMovtosSemen
+    filtros:
+      tipo_movto: string (entrada/salida)
+      fundo_id: integer
+      inseminacion_semen_id: integer
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    exporta: deducido Excel
+
+  stock_series:
+    ruta: /menu/stock/serie
+    descripcion: Inventario de stock de medicamentos por serie/lote
+    servlet: Stock
+    servicios:
+      - getMovtosSeries
+    filtros:
+      tipo_movto: string (entrada/salida)
+      fundo_id: integer
+      medicamento_id: integer
+      medicamento_serie_id: integer
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    exporta: deducido Excel
+
+  traslados:
+    ruta: /menu/traslado
+    descripcion: Movimiento de animales entre fundos
+    servlet: Traslado
+    servicios:
+      - getAllUsuario
+      - getAllTraslado (historial)
+      - generarExcelHistorial
+      - getAllTrasladoGanado (animales del traslado)
+      - generarExcelDetalle
+    filtros_historial:
+      fundo_origen_id: integer
+      fundo_destino_id: integer
+      descripcion: string
+      estado: string
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    filtros_detalle:
+      traslado_id: integer
+      tipo_ganado: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      order: string
+      tipo_order: string
+    columnas_historial_sort:
+      - ID
+      - Fecha traslado
+      - Fecha creado
+    columnas_detalle_sort:
+      - Ingreso
+      - Diio
+      - Mangada
+    exporta: Excel (historial + detalle)
+
+  ventas:
+    ruta: /menu/venta
+    descripcion: Registro de ventas de animales
+    servlet: Venta
+    servicios:
+      - getAllUsuario
+      - getAllVenta (historial)
+      - generarExcelHistorial
+      - getAllVentaGanado (animales de la venta)
+      - generarExcelDetalle
+    filtros_historial:
+      fundo_id: integer
+      estado: string
+      descripcion: string
+      usuario_id: integer
+      order: string
+      tipo_order: string
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    filtros_detalle:
+      venta_id: integer
+      tipo_ganado: integer
+      estado_reproductivo: integer
+      estado_leche: integer
+      order: string
+      tipo_order: string
+    columnas_historial_sort:
+      - ID
+      - Fecha venta
+      - Fecha creado
+    columnas_detalle_sort:
+      - Ingreso
+      - Diio
+      - Peso
+      - Mangada
+    exporta: Excel (historial + detalle)
+
+  cartola_fundo:
+    ruta: /menu/cartola/cartolafundo
+    descripcion: Cartola historica del fundo (movimientos de animales)
+    servlet: ReporteCartola
+    servicios_deducidos:
+      - getCartolaFundo
+    nota: modulo en routes, sin servicio explicitado en bundle principal
+    exporta: deducido Excel/PDF
+
+  cartola_global:
+    ruta: /menu/cartola/global
+    descripcion: Cartola global (consolidado de todos los fundos)
+    servlet: ReporteCartola
+    nota: modulo en routes
+    exporta: deducido Excel/PDF
+
+  logs:
+    ruta: /menu/logs
+    descripcion: Auditoria de acciones del sistema
+    servlet: Logs
+    servicios:
+      - getAllLogs
+    filtros:
+      desde: date (YYYY-MM-DD)
+      hasta: date (YYYY-MM-DD)
+    exporta: no
+
+# ─────────────────────────────────────────────
+# ENTIDAD CENTRAL: ANIMAL (deducida)
+# ─────────────────────────────────────────────
+
+animal_entity:
+  descripcion: Entidad central del sistema — un bovino individual
+  identificador_principal: diio (string — numero de arete/tag electrónico)
+  campos_observados:
+    # Identidad
+    diio: string (identificador unico — puede cambiar via cambio_diio)
+    diio_madre: string (FK a madre)
+    padre: string
+    abuelo: string
+    origen: string
+    # Clasificacion
+    tipo_ganado_id: integer (FK)
+    raza_id: integer (FK)
+    fundo_id: integer (FK)
+    # Fechas
+    fecha_nacimiento: date
+    fecha_creado: datetime
+    ingreso: date (fecha de ingreso al sistema)
+    # Estado
+    estado_reproductivo_id: integer (FK)
+    estado_leche: string/integer (en lactacion, seca, vaquillona, etc.)
+    desecho: boolean (marcado para descarte)
+    # Produccion lechera
+    ultimo_control_leche: date
+    ultimo_litros: decimal
+    ultimo_rcs: decimal
+    ultimo_grasa: decimal
+    ultimo_proteina: decimal
+    ultimo_urea: decimal
+    promedio_litros: decimal
+    promedio_rcs: decimal
+    promedio_grasa: decimal
+    promedio_proteina: decimal
+    promedio_urea: decimal
+    # Reproductivo
+    dias_gestacion: integer
+    proximo_parto: date
+    ultimo_parto: date
+    partos: integer
+    ultima_ecografia: date
+    ultima_inseminacion: date
+    ultimo_inseminador: string
+    toro: string
+    total_ia: integer
+    dias_en_leche: integer
+    ultimo_secado: date
+    dias_seca: integer
+    # Pesaje
+    ultimo_peso: decimal (kg)
+    ultimo_pesaje: date
+    # Agrupacion
+    mangada: string (grupo/lote de animales)
+
+# ─────────────────────────────────────────────
+# MAPA DE EQUIVALENCIAS AgroApp → Schema Propio
+# ─────────────────────────────────────────────
+
+equivalencias:
+
+  animal:
+    agroapp_field: diio
+    smartcow_field: tag_id (string — DIIO / EID)
+    nota: DIIO es el termino chileno para el numero de arete electronico (EID)
+
+  animal_group:
+    agroapp_field: mangada
+    smartcow_field: lote / grupo / paddock
+    nota: "mangada" = grupo de animales manejados juntos
+
+  fundo:
+    agroapp_field: fundo_id / fundo
+    smartcow_field: establecimiento / farm / predio
+
+  estado_reproductivo:
+    agroapp_field: estado_reproductivo
+    smartcow_field: reproductive_status
+    valores_comunes: [gestante, vacia, en_celo, descarte]
+
+  estado_leche:
+    agroapp_field: estado_leche
+    smartcow_field: lactation_status
+    valores_comunes: [en_ordeña, seca, vaquillona, ternera]
+
+  desecho:
+    agroapp_field: desecho (boolean)
+    smartcow_field: flagged_for_cull / culling_flag
+    nota: animales marcados para baja futura pero aun en el hato
+
+  litros:
+    agroapp_field: litros (control lechero)
+    smartcow_field: milk_yield_liters
+    frecuencia: por evento de control lechero (no diario)
+
+  rcs:
+    agroapp_field: rcs (recuento celular somatico)
+    smartcow_field: somatic_cell_count (SCC)
+    unidad: miles de celulas/ml
+
+  ganancia_diaria:
+    agroapp_field: ganancia periodo (kg/dia)
+    smartcow_field: average_daily_gain (ADG)
+    unidad: kg/dia
+
+# ─────────────────────────────────────────────
+# CAMPOS SIN EQUIVALENTE DIRECTO (nuevos en schema propio)
+# ─────────────────────────────────────────────
+
+campos_nuevos_sin_equivalente:
+  - nombre: sensor_id
+    descripcion: ID de sensor IoT (collar, bolus, podometro) — AgroApp no tiene sensores
+    modulo: animal
+
+  - nombre: gps_location
+    descripcion: Ubicacion GPS del animal — no existe en AgroApp
+    modulo: animal
+
+  - nombre: health_alert
+    descripcion: Alertas automaticas de salud por sensor — no existe en AgroApp
+    modulo: alertas
+
+  - nombre: feeding_record
+    descripcion: Registro de consumo de alimento individual — AgroApp no lo registra
+    modulo: nutricion
+
+  - nombre: body_condition_score
+    descripcion: Score de condicion corporal (BCS 1-5) — no registrado en AgroApp
+    modulo: animal
+
+  - nombre: genetic_index
+    descripcion: Indices geneticos (DEP, IPG) — AgroApp solo registra padre/abuelo
+    modulo: animal
+
+  - nombre: milking_frequency
+    descripcion: Frecuencia de ordena (1x, 2x, 3x dia) — AgroApp no distingue
+    modulo: leche
+
+  - nombre: quarter_data
+    descripcion: Datos por cuarto (mastitis individual por cuarto) — no existe en AgroApp
+    modulo: salud
+
+# ─────────────────────────────────────────────
+# PLAN DE MIGRACION DE DATOS
+# ─────────────────────────────────────────────
+
+plan_migracion:
+
+  prioridad_1_core:
+    descripcion: Datos que se deben migrar primero (entidades base)
+    tablas:
+      - fundo → establecimiento
+      - usuario → user
+      - tipo_ganado → categoria_animal
+      - raza → raza
+      - estado_reproductivo → estado_reproductivo
+      - inseminacion_semen → toro / material_genetico
+    fuente: APIs getAllXxx sin filtros (catalogs)
+    metodo: GET requests a cada servlet con usuario/clave
+
+  prioridad_2_animales:
+    descripcion: Hato actual (animales vivos)
+    servlet: GanadoActual
+    servicio: getGanadoActual
+    params_recomendados:
+      fundo_id: 0 (todos los fundos)
+      cbInventario: true
+      cbFechaNacimiento: true
+      cbTipoGanado: true
+      cbRaza: true
+      cbFundo: true
+      cbEstadoReproductivo: true
+      cbEstadoLeche: true
+      cbDesecho: true
+      cbDiioMadre: true
+      cbPadre: true
+      cbAbuelo: true
+      cbOrigen: true
+      cbFechaCreado: true
+    nota: paginar con order=diio
+
+  prioridad_3_historial_reproductivo:
+    descripcion: Historial de eventos reproductivos
+    modulos:
+      - inseminaciones (desde 2020 a hoy)
+      - ecografias
+      - partos
+      - pre_partos
+      - revisiones_post_parto
+      - estimulacion_celo
+      - secados
+    params: desde=2020-01-01, hasta=hoy, todos los fundos
+
+  prioridad_4_historial_productivo:
+    descripcion: Historial productivo
+    modulos:
+      - leche_historial (todos los controles)
+      - pesajes
+    params: desde=2018-01-01, hasta=hoy
+
+  prioridad_5_movimientos:
+    descripcion: Movimientos de animales
+    modulos:
+      - areteo_alta
+      - areteo_aparicion
+      - areteo_cambio_diio
+      - bajas
+      - traslados
+      - ventas
+      - inventarios
+    nota: importante para reconstruir historia del hato
+
+  prioridad_6_stock:
+    descripcion: Stock de insumos
+    modulos:
+      - stock_semen
+      - stock_series (medicamentos)
+    nota: no critico para MVP
+
+  advertencias:
+    - AgroApp usa autenticacion por usuario/clave en query params — NO usar en produccion sin HTTPS
+    - Las fechas estan en formato YYYY-MM-DD
+    - Los IDs son integers sin UUID — requieren mapeo al insertar en schema nuevo
+    - "desecho=true" significa animal aun en el hato pero marcado para descarte — no confundir con baja
+    - "mangada" no tiene ID — es un string libre (nombre del grupo)
+    - El DIIO puede cambiar (ver modulo cambio_diio) — usar areteo_cambio_diio para trazabilidad
+    - Modulos lazy-loaded (ecografia, estimulacion, inseminacion, desecho, secado, revisionpp, tratamiento) necesitan verificacion en campo para confirmar campos exactos del API
