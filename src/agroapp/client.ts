@@ -74,12 +74,17 @@ async function createSession(): Promise<AgroAppSession> {
   const { usuario, clave } = getCredentials();
 
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: "shell",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
       "--disable-gpu",
+      // Chrome 115+ fuerza HTTPS upgrades — AgroApp solo tiene HTTP
+      "--disable-features=HttpsUpgrades,HttpsFirstBalancedModeAutoEnable",
+      // Permitir fetch cross-origin al backend (agroapp.cl:8080 desde www.agroapp.cl)
+      "--disable-web-security",
+      "--allow-running-insecure-content",
     ],
   });
 
@@ -156,31 +161,25 @@ export async function servletPost<T>(
   const payload = {
     usuario: session.usuario,
     clave: session.clave,
-    servicio,
+    service: servicio,
     ...params,
   };
 
-  const url = `${BACKEND_URL}${servlet}`;
+  // AgroApp usa GET con query params (no POST JSON) — ver bundle getRequest()
+  const qs = Object.entries(payload)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+    .join("&");
+  const url = `${BACKEND_URL}${servlet}?${qs}`;
 
   const result = await session.page.evaluate(
-    async ({
-      url,
-      body,
-    }: {
-      url: string;
-      body: Record<string, unknown>;
-    }): Promise<unknown> => {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+    async ({ url }: { url: string }): Promise<unknown> => {
+      const response = await fetch(url, { method: "GET" });
       if (!response.ok) {
         throw new Error(`Servlet ${url} returned ${response.status}`);
       }
       return response.json();
     },
-    { url, body: payload }
+    { url }
   );
 
   return result as T;
