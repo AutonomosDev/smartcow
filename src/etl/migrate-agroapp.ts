@@ -204,6 +204,7 @@ interface AgroBaja {
 function extractArray<T>(raw: unknown): T[] {
   if (Array.isArray(raw)) return raw as T[];
   const obj = raw as Record<string, unknown>;
+  if (obj.results && Array.isArray(obj.results)) return obj.results as T[];
   if (obj.data && Array.isArray(obj.data)) return obj.data as T[];
   if (obj.rows && Array.isArray(obj.rows)) return obj.rows as T[];
   return [];
@@ -583,8 +584,11 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
   log("P4:animales", "Fetching ganado_actual...");
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
-    const raw = await servletPost<unknown>(session, "GanadoActual", "getGanadoActual", {
-      fundo_id: agroFundoId,
+    // AgroApp espera jsonFiltros como JSON stringificado (ver bundle getJsonFiltros())
+    // fundos es array de IDs, fecha = hoy para obtener inventario completo
+    const filtros = {
+      fundos: [agroFundoId],
+      fecha: HASTA,
       cbInventario: true,
       cbFechaNacimiento: true,
       cbTipoGanado: true,
@@ -599,6 +603,9 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
       cbAbuelo: true,
       cbOrigen: true,
       cbFechaCreado: true,
+    };
+    const raw = await servletPost<unknown>(session, "GanadoActual", "getGanadoActual", {
+      jsonFiltros: JSON.stringify(filtros),
     });
 
     const items = extractArray<AgroAnimal>(raw);
