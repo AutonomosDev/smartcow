@@ -586,9 +586,18 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
     // AgroApp espera jsonFiltros como JSON stringificado (ver bundle getJsonFiltros())
     // fundos es array de IDs, fecha = hoy para obtener inventario completo
+    // Todos los campos cb* son obligatorios — el servlet lanza error si falta alguno
     const filtros = {
       fundos: [agroFundoId],
       fecha: HASTA,
+      tipo_ganado: "Todos",
+      raza_id: 0,
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      desecho: "Todos",
+      observaciones: "",
+      order: "Ascendente",
+      tipo_order: "Diio",
       cbInventario: true,
       cbFechaNacimiento: true,
       cbTipoGanado: true,
@@ -603,6 +612,30 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
       cbAbuelo: true,
       cbOrigen: true,
       cbFechaCreado: true,
+      cbDiasGestacion: false,
+      cbProximoParto: false,
+      cbUltimoParto: false,
+      cbPartos: false,
+      cbUltimaEcografia: false,
+      cbUltimaInseminacion: false,
+      cbUltimoInseminador: false,
+      cbToro: false,
+      cbTotalIA: false,
+      cbDiasEnLeche: false,
+      cbUltimoSecado: false,
+      cbDiasSeca: false,
+      cbUltimoControlLeche: false,
+      cbUltimoLitros: false,
+      cbUltimoRCS: false,
+      cbUltimoGrasa: false,
+      cbUltimoProteina: false,
+      cbUltimoUrea: false,
+      cbPromedioLitros: false,
+      cbPromedioRCS: false,
+      cbPromedioGrasa: false,
+      cbPromedioProteina: false,
+      cbPromedioUrea: false,
+      cbPesaje: false,
     };
     const raw = await servletPost<unknown>(session, "GanadoActual", "getGanadoActual", {
       jsonFiltros: JSON.stringify(filtros),
@@ -693,10 +726,20 @@ async function migrarPesajes(session: Awaited<ReturnType<typeof getSession>>): P
   log("P5:pesajes", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
-    const raw = await servletPost<unknown>(session, "Pesaje2", "getAllPesajes", {
+    // AgroApp getAllPesajes requiere jsonFiltros (ver bundle getJsonFiltros() para pesajes)
+    const filtrosPesajes = {
       fundo_id: agroFundoId,
+      tipo_ganado: "Todos",
+      estado_reproductivo: "Todos",
+      descripcion: "",
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
       desde: DESDE,
       hasta: HASTA,
+    };
+    const raw = await servletPost<unknown>(session, "Pesaje2", "getAllPesajes", {
+      jsonFiltros: JSON.stringify(filtrosPesajes),
     });
 
     const items = extractArray<AgroPesaje>(raw);
@@ -746,10 +789,27 @@ async function migrarPartos(session: Awaited<ReturnType<typeof getSession>>): Pr
   log("P6:partos", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
-    const raw = await servletPost<unknown>(session, "Parto", "getPartos", {
+    // AgroApp getPartos requiere jsonFiltros con campos completos (ver bundle)
+    const filtrosPartos = {
       fundo_id: agroFundoId,
+      tipo_ganado: "Todos",
+      estado_reproductivo: "Todos",
+      tipo_parto: "Todos",
+      subtipo_parto: "Todos",
+      tipo_parto_id: 0,
+      subtipo_parto_id: 0,
+      numero_partos: "Todos",
+      estado: "Todos",
+      sexo: "Todos",
+      partos: 0,
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
       desde: DESDE,
       hasta: HASTA,
+    };
+    const raw = await servletPost<unknown>(session, "Parto", "getPartos", {
+      jsonFiltros: JSON.stringify(filtrosPartos),
     });
 
     const items = extractArray<AgroParto>(raw);
@@ -832,10 +892,24 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
   log("P7:inseminaciones", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
-    const raw = await servletPost<unknown>(session, "Inseminacion", "getAllInseminacion", {
+    // AgroApp: servicio real es getInseminaciones con jsonFiltros (ver bundle)
+    const filtrosInsem = {
       fundo_id: agroFundoId,
+      tipo_ganado: "Todos",
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      desecho: "Todos",
+      inseminacion_semen_id: 0,
+      inseminacion_inseminador_id: 0,
+      fecha: HASTA,
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
       desde: DESDE,
       hasta: HASTA,
+    };
+    const raw = await servletPost<unknown>(session, "Inseminacion", "getInseminaciones", {
+      jsonFiltros: JSON.stringify(filtrosInsem),
     });
 
     const items = extractArray<AgroInseminacion>(raw);
@@ -914,10 +988,23 @@ async function migrarEcografias(session: Awaited<ReturnType<typeof getSession>>)
   log("P8:ecografias", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
-    const raw = await servletPost<unknown>(session, "Ecografia", "getAllEcografia", {
+    // AgroApp getAllEcografia requiere jsonFiltros con campos completos (ver bundle)
+    const filtrosEcog = {
       fundo_id: agroFundoId,
+      tipo_ganado: "Todos",
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      desecho: "Todos",
+      estado: "Todos",
+      usuario_id: 0,
+      descripcion: "",
+      order: "Descendente",
+      tipo_order: "Diio",
       desde: DESDE,
       hasta: HASTA,
+    };
+    const raw = await servletPost<unknown>(session, "Ecografia", "getAllEcografia", {
+      jsonFiltros: JSON.stringify(filtrosEcog),
     });
 
     const items = extractArray<AgroEcografia>(raw);
@@ -972,11 +1059,22 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
   log("P9:areteos", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
-    // Alta
-    const rawAlta = await servletPost<unknown>(session, "Areteo", "getAllAlta", {
+    // Alta — AgroApp getAllAlta requiere jsonFiltros (ver bundle impl 5)
+    const filtrosAlta = {
       fundo_id: agroFundoId,
+      fundo_origen_id: 0,
+      tipo_ganado: "Todos",
+      raza_id: 0,
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
       desde: DESDE,
       hasta: HASTA,
+    };
+    const rawAlta = await servletPost<unknown>(session, "Areteo", "getAllAlta", {
+      jsonFiltros: JSON.stringify(filtrosAlta),
     });
     const altas = extractArray<AgroAreteoAlta>(rawAlta);
 
@@ -1005,11 +1103,22 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
       counts.areteos += altas.length;
     }
 
-    // Aparición
-    const rawAparicion = await servletPost<unknown>(session, "Areteo", "getAllAparicion", {
+    // Aparición — mismo filtro que Alta
+    const filtrosAparicion = {
       fundo_id: agroFundoId,
+      fundo_origen_id: 0,
+      tipo_ganado: "Todos",
+      raza_id: 0,
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
       desde: DESDE,
       hasta: HASTA,
+    };
+    const rawAparicion = await servletPost<unknown>(session, "Areteo", "getAllAparicion", {
+      jsonFiltros: JSON.stringify(filtrosAparicion),
     });
     const apariciones = extractArray<AgroAreteoAlta>(rawAparicion);
 
@@ -1038,13 +1147,26 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
       counts.areteos += apariciones.length;
     }
 
-    // Cambio DIIO
-    const rawCambio = await servletPost<unknown>(session, "Areteo", "getAllCambioDiio", {
-      fundo_id: agroFundoId,
-      desde: DESDE,
-      hasta: HASTA,
-    });
-    const cambios = extractArray<AgroCambioDiio>(rawCambio);
+    // Cambio DIIO — bug conocido en AgroApp: getAllCambioDiio tiene SQL inválido en servidor
+    // el ORDER BY genera error de sintaxis independientemente del valor enviado
+    // Se intenta igualmente para no bloquear la migración; se captura el error
+    let cambios: AgroCambioDiio[] = [];
+    try {
+      const filtrosCambio = {
+        fundo_id: agroFundoId,
+        usuario_id: 0,
+        order: "Descendente",
+        tipo_order: "Diio",
+        desde: DESDE,
+        hasta: HASTA,
+      };
+      const rawCambio = await servletPost<unknown>(session, "Areteo", "getAllCambioDiio", {
+        jsonFiltros: JSON.stringify(filtrosCambio),
+      });
+      cambios = extractArray<AgroCambioDiio>(rawCambio);
+    } catch (e) {
+      warn("P9:areteos", `getAllCambioDiio fundo=${agroFundoId}: bug SQL en servidor AgroApp — skipping`);
+    }
 
     if (!DRY_RUN) {
       for (const item of cambios) {
@@ -1087,10 +1209,22 @@ async function migrarBajas(session: Awaited<ReturnType<typeof getSession>>): Pro
   log("P10:bajas", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
-    const raw = await servletPost<unknown>(session, "Baja", "getAllBaja", {
+    // AgroApp getAllBaja requiere jsonFiltros (ver bundle impl 7)
+    const filtrosBaja = {
       fundo_id: agroFundoId,
+      tipo_ganado: "Todos",
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      baja_motivo_org_id: 0,
+      baja_causa_org_id: 0,
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
       desde: DESDE,
       hasta: HASTA,
+    };
+    const raw = await servletPost<unknown>(session, "Baja", "getAllBaja", {
+      jsonFiltros: JSON.stringify(filtrosBaja),
     });
 
     const items = extractArray<AgroBaja>(raw);
