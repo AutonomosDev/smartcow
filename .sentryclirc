@@ -1,0 +1,8 @@
+# Sentry CLI config — SmartCow
+# Ticket: AUT-108
+# Auth token: set via SENTRY_AUTH_TOKEN env var o GitHub Secret SENTRY_AUTH_TOKEN
+# Para configurar localmente: sentry-cli login
+[defaults]
+org=autonomosdev
+project=smartcow-web
+url=https://sentry.io/

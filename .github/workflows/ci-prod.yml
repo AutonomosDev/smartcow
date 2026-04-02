@@ -127,7 +127,7 @@ jobs:
         run: |
           echo "Validating prod secrets..."
           FAILED=0
-          for SECRET in smartcow-database-url smartcow-agroapp-user smartcow-agroapp-password; do
+          for SECRET in smartcow-database-url smartcow-agroapp-user smartcow-agroapp-password sentry-dsn-web; do
             VALUE=$(gcloud secrets versions access latest --secret=$SECRET --project=${{ env.GCP_PROJECT }} 2>/dev/null) || {
               echo "FATAL: Secret $SECRET does not exist or has no versions"
               FAILED=1
@@ -163,8 +163,8 @@ jobs:
             --max-instances=10 \
             --concurrency=80 \
             --port=8080 \
-            --set-env-vars=NODE_ENV=production \
-            --update-secrets=DATABASE_URL=smartcow-database-url:latest,AGROAPP_USER=smartcow-agroapp-user:latest,AGROAPP_PASSWORD=smartcow-agroapp-password:latest \
+            --set-env-vars=NODE_ENV=production,SENTRY_RELEASE=${{ github.sha }} \
+            --update-secrets=DATABASE_URL=smartcow-database-url:latest,AGROAPP_USER=smartcow-agroapp-user:latest,AGROAPP_PASSWORD=smartcow-agroapp-password:latest,SENTRY_DSN=sentry-dsn-web:latest \
             --project=${{ env.GCP_PROJECT }}
 
       - name: Ensure public access
@@ -195,3 +195,14 @@ jobs:
       - name: Tag deploy in git
         run: |
           echo "Deploy completed — SHA ${{ github.sha }} — Reason: ${{ inputs.reason }}"
+
+      - name: Create Sentry release
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: autonomosdev
+          SENTRY_PROJECT: smartcow-web
+        run: |
+          sentry-cli releases new "${{ github.sha }}"
+          sentry-cli releases set-commits "${{ github.sha }}" --auto
+          sentry-cli releases finalize "${{ github.sha }}"
+          sentry-cli releases deploys "${{ github.sha }}" new -e production

@@ -121,8 +121,8 @@ jobs:
             --max-instances=5 \
             --concurrency=80 \
             --port=8080 \
-            --set-env-vars=NODE_ENV=development \
-            --update-secrets=DATABASE_URL=smartcow-database-url:latest,AGROAPP_USER=smartcow-agroapp-user:latest,AGROAPP_PASSWORD=smartcow-agroapp-password:latest \
+            --set-env-vars=NODE_ENV=development,SENTRY_RELEASE=${{ github.sha }} \
+            --update-secrets=DATABASE_URL=smartcow-database-url:latest,AGROAPP_USER=smartcow-agroapp-user:latest,AGROAPP_PASSWORD=smartcow-agroapp-password:latest,SENTRY_DSN=sentry-dsn-web:latest \
             --project=${{ env.GCP_PROJECT }}
 
       - name: Ensure public access
@@ -149,3 +149,14 @@ jobs:
             echo "Smoke test FAILED — /health returned $STATUS"
             exit 1
           fi
+
+      - name: Create Sentry release
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: autonomosdev
+          SENTRY_PROJECT: smartcow-web
+        run: |
+          sentry-cli releases new "${{ github.sha }}"
+          sentry-cli releases set-commits "${{ github.sha }}" --auto
+          sentry-cli releases finalize "${{ github.sha }}"
+          sentry-cli releases deploys "${{ github.sha }}" new -e development
