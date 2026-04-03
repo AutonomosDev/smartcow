@@ -2,7 +2,7 @@ import { pgTable, serial, integer, varchar, pgEnum, timestamp, primaryKey } from
 import { organizaciones } from "./organizaciones.js";
 import { fundos } from "./fundos.js";
 
-export const rolEnum = pgEnum("rol", ["admin_org", "admin_fundo", "operador", "veterinario", "viewer"]);
+export const rolEnum = pgEnum("rol", ["superadmin", "admin_org", "admin_fundo", "operador", "veterinario", "viewer"]);
 
 /**
  * users — Usuarios del sistema.

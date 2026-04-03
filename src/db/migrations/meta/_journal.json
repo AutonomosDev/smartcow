@@ -15,6 +15,13 @@
       "when": 1775244000000,
       "tag": "0001_organizaciones_multi_tenant",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775358000000,
+      "tag": "0002_auth_jwt_multi_fundo",
+      "breakpoints": true
     }
   ]
 }
