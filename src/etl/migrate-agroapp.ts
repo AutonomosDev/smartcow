@@ -246,6 +246,9 @@ function inferSexo(tipoGanado: string | undefined): "M" | "H" {
 // MAPEOS EN MEMORIA (AgroApp ID → SmartCow ID)
 // ─────────────────────────────────────────────
 
+// ID de la organización dueña de todos los fundos migrados (se resuelve en main)
+let defaultOrgId: number = 0;
+
 const mapFundo = new Map<number, number>(); // agroFundoId → smartcowFundoId
 const mapTipoGanado = new Map<string, number>(); // nombre → id
 const mapRaza = new Map<string, number>(); // nombre → id
@@ -292,6 +295,36 @@ const counts: Counts = {
   skipped_animales: 0,
   skipped_eventos: 0,
 };
+
+// ─────────────────────────────────────────────
+// P0 — ORGANIZACIÓN (prerequisito de fundos)
+// ─────────────────────────────────────────────
+
+async function asegurarOrg(nombre: string): Promise<number> {
+  if (DRY_RUN) {
+    log("P0:org", `DRY_RUN — skipping org lookup for "${nombre}"`);
+    return -1;
+  }
+
+  const existing = await db
+    .select()
+    .from(schema.organizaciones)
+    .where(eq(schema.organizaciones.nombre, nombre))
+    .limit(1);
+
+  if (existing.length > 0) {
+    log("P0:org", `Org "${nombre}" already exists (id=${existing[0].id})`);
+    return existing[0].id;
+  }
+
+  const inserted = await db
+    .insert(schema.organizaciones)
+    .values({ nombre, plan: "pro" })
+    .returning({ id: schema.organizaciones.id });
+
+  log("P0:org", `Org "${nombre}" created (id=${inserted[0].id})`);
+  return inserted[0].id;
+}
 
 // ─────────────────────────────────────────────
 // P1 — CATÁLOGOS GLOBALES
@@ -516,7 +549,7 @@ async function migrarFundos(session: Awaited<ReturnType<typeof getSession>>): Pr
     } else {
       const inserted = await db
         .insert(schema.fundos)
-        .values({ nombre })
+        .values({ nombre, orgId: defaultOrgId })
         .returning({ id: schema.fundos.id });
       mapFundo.set(item.fundo_id, inserted[0].id);
       counts.fundos++;
@@ -1233,6 +1266,9 @@ async function main(): Promise<void> {
     await migrarRazas(session);
     await migrarEstadoReproductivo(session);
     await migrarBajaMotivos(session);
+
+    // P0 — Organización raíz
+    defaultOrgId = await asegurarOrg("JP Ferrada");
 
     // P2 — Fundos
     await migrarFundos(session);

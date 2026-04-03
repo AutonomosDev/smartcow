@@ -1,4 +1,5 @@
 // Tablas base
+export * from "./organizaciones.js";
 export * from "./fundos.js";
 export * from "./users.js";
 

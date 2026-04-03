@@ -22,6 +22,7 @@ const ROL_RANK: Record<UserRol, number> = {
   operador: 1,
   veterinario: 2,
   admin_fundo: 3,
+  admin_org: 4,
 };
 
 export class AuthError extends Error {

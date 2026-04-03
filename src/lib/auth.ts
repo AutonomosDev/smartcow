@@ -1,9 +1,9 @@
 /**
  * auth.ts — Configuración NextAuth v5 (Auth.js beta)
  * Provider: credentials (email + password)
- * JWT payload: { userId, fundoId, rol }
- * Roles: admin_fundo | operador | veterinario | viewer
- * Ticket: AUT-110
+ * JWT payload: { userId, orgId, rol }
+ * Roles: admin_org | admin_fundo | operador | veterinario | viewer
+ * Ticket: AUT-110 | AUT-128
  */
 
 import NextAuth from "next-auth";
@@ -20,21 +20,21 @@ import type { Session, User as AuthUser } from "@auth/core/types";
 // TIPOS — extensión de sesión
 // ─────────────────────────────────────────────
 
-export type UserRol = "admin_fundo" | "operador" | "veterinario" | "viewer";
+export type UserRol = "admin_org" | "admin_fundo" | "operador" | "veterinario" | "viewer";
 
 export interface SmartCowSession extends Session {
   user: {
     id: string;
     email: string;
     nombre: string;
-    fundoId: number;
+    orgId: number;
     rol: UserRol;
   };
 }
 
 export interface SmartCowJWT extends JWT {
   userId: number;
-  fundoId: number;
+  orgId: number;
   rol: UserRol;
   nombre: string;
 }
@@ -43,7 +43,7 @@ export interface SmartCowUser extends AuthUser {
   id: string;
   email: string;
   nombre: string;
-  fundoId: number;
+  orgId: number;
   rol: UserRol;
 }
 
@@ -88,7 +88,7 @@ const nextAuth = NextAuth({
           id: String(user.id),
           email: user.email,
           nombre: user.nombre,
-          fundoId: user.fundoId,
+          orgId: user.orgId,
           rol: user.rol as UserRol,
         };
 
@@ -103,7 +103,7 @@ const nextAuth = NextAuth({
         const u = user as SmartCowUser;
         const t = token as SmartCowJWT;
         t.userId = Number(u.id);
-        t.fundoId = u.fundoId;
+        t.orgId = u.orgId;
         t.rol = u.rol;
         t.nombre = u.nombre;
       }
@@ -118,7 +118,7 @@ const nextAuth = NextAuth({
           id: String(t.userId),
           email: t.email ?? "",
           nombre: t.nombre,
-          fundoId: t.fundoId,
+          orgId: t.orgId,
           rol: t.rol,
         },
       } as unknown as SmartCowSession;

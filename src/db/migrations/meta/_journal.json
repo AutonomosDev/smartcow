@@ -8,6 +8,13 @@
       "when": 1775158385948,
       "tag": "0000_futuristic_deathbird",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1775244000000,
+      "tag": "0001_organizaciones_multi_tenant",
+      "breakpoints": true
     }
   ]
 }
