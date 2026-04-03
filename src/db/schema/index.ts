@@ -8,6 +8,7 @@ export * from "./catalogos.js";
 
 // Dominio ganadero
 export * from "./animales.js";
+export * from "./lotes.js";
 export * from "./pesajes.js";
 export * from "./partos.js";
 export * from "./inseminaciones.js";

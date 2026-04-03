@@ -1,16 +1,16 @@
 /**
  * auth.ts — Configuración NextAuth v5 (Auth.js beta)
  * Provider: credentials (email + password)
- * JWT payload: { userId, orgId, rol }
- * Roles: admin_org | admin_fundo | operador | veterinario | viewer
- * Ticket: AUT-110 | AUT-128
+ * JWT payload: { userId, orgId, fundos, rol, modulos }
+ * Roles: superadmin | admin_org | admin_fundo | operador | veterinario | viewer
+ * Ticket: AUT-110 | AUT-128 | AUT-130
  */
 
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { db } from "@/src/db/client";
-import { users } from "@/src/db/schema/index";
+import { users, userFundos, organizaciones } from "@/src/db/schema/index";
 import { eq } from "drizzle-orm";
 import type { AuthError as NextAuthError } from "@auth/core/errors";
 import type { JWT } from "@auth/core/jwt";
@@ -20,7 +20,13 @@ import type { Session, User as AuthUser } from "@auth/core/types";
 // TIPOS — extensión de sesión
 // ─────────────────────────────────────────────
 
-export type UserRol = "admin_org" | "admin_fundo" | "operador" | "veterinario" | "viewer";
+export type UserRol =
+  | "superadmin"
+  | "admin_org"
+  | "admin_fundo"
+  | "operador"
+  | "veterinario"
+  | "viewer";
 
 export interface SmartCowSession extends Session {
   user: {
@@ -28,15 +34,21 @@ export interface SmartCowSession extends Session {
     email: string;
     nombre: string;
     orgId: number;
+    /** IDs de fundos accesibles para este usuario */
+    fundos: number[];
     rol: UserRol;
+    /** Feature flags activos en la org: { feedlot: true, crianza: true, … } */
+    modulos: Record<string, boolean>;
   };
 }
 
 export interface SmartCowJWT extends JWT {
   userId: number;
   orgId: number;
+  fundos: number[];
   rol: UserRol;
   nombre: string;
+  modulos: Record<string, boolean>;
 }
 
 export interface SmartCowUser extends AuthUser {
@@ -44,7 +56,9 @@ export interface SmartCowUser extends AuthUser {
   email: string;
   nombre: string;
   orgId: number;
+  fundos: number[];
   rol: UserRol;
+  modulos: Record<string, boolean>;
 }
 
 // ─────────────────────────────────────────────
@@ -83,13 +97,32 @@ const nextAuth = NextAuth({
         const passwordOk = await compare(credentials.password, user.passwordHash);
         if (!passwordOk) return null;
 
+        // Obtener fundos asignados al usuario
+        const fundoRows = await db
+          .select({ fundoId: userFundos.fundoId })
+          .from(userFundos)
+          .where(eq(userFundos.userId, user.id));
+
+        const fundoIds = fundoRows.map((r) => r.fundoId);
+
+        // Obtener módulos activos de la org
+        const orgRows = await db
+          .select({ modulos: organizaciones.modulos })
+          .from(organizaciones)
+          .where(eq(organizaciones.id, user.orgId))
+          .limit(1);
+
+        const modulos = (orgRows[0]?.modulos as Record<string, boolean>) ?? {};
+
         // No incluir passwordHash en el objeto retornado
         const smartCowUser: SmartCowUser = {
           id: String(user.id),
           email: user.email,
           nombre: user.nombre,
           orgId: user.orgId,
+          fundos: fundoIds,
           rol: user.rol as UserRol,
+          modulos,
         };
 
         return smartCowUser;
@@ -104,8 +137,10 @@ const nextAuth = NextAuth({
         const t = token as SmartCowJWT;
         t.userId = Number(u.id);
         t.orgId = u.orgId;
+        t.fundos = u.fundos;
         t.rol = u.rol;
         t.nombre = u.nombre;
+        t.modulos = u.modulos;
       }
       return token;
     },
@@ -119,7 +154,9 @@ const nextAuth = NextAuth({
           email: t.email ?? "",
           nombre: t.nombre,
           orgId: t.orgId,
+          fundos: t.fundos ?? [],
           rol: t.rol,
+          modulos: t.modulos ?? {},
         },
       } as unknown as SmartCowSession;
     },

@@ -16,6 +16,14 @@ export const sexoEnum = pgEnum("sexo", ["M", "H"]);
 export const estadoAnimalEnum = pgEnum("estado_animal", ["activo", "baja", "desecho"]);
 
 /**
+ * moduloAnimalEnum — módulo de producción al que pertenece el animal.
+ * Opcional: permite filtros rápidos en UI sin consultar org.modulos.
+ * Un animal puede cambiar de módulo sin cambiar de tabla.
+ * Ticket: AUT-129
+ */
+export const moduloAnimalEnum = pgEnum("modulo_animal", ["feedlot", "crianza", "ambos"]);
+
+/**
  * animales — Registro maestro de animales del hato.
  * Toda tabla de evento lleva fundo_id + animal_id.
  *
@@ -48,6 +56,12 @@ export const animales = pgTable(
     abuelo: varchar("abuelo", { length: 200 }),
     origen: varchar("origen", { length: 200 }),
     // Metadata
+    /**
+     * modulo_actual — filtro rápido por módulo de producción.
+     * Derivado de org.modulos pero guardado en el animal para
+     * evitar joins en listados. Nullable: sin clasificación explícita.
+     */
+    moduloActual: moduloAnimalEnum("modulo_actual"),
     observaciones: varchar("observaciones", { length: 500 }),
     desecho: boolean("desecho").notNull().default(false),
     creadoEn: timestamp("creado_en", { withTimezone: true }).defaultNow().notNull(),
