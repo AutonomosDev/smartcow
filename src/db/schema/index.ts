@@ -6,6 +6,9 @@ export * from "./users.js";
 // Catálogos de referencia
 export * from "./catalogos.js";
 
+// Mediería (antes de animales — animales importa desde aquí)
+export * from "./medieros.js";
+
 // Dominio ganadero
 export * from "./animales.js";
 export * from "./lotes.js";

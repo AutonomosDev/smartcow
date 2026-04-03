@@ -258,6 +258,7 @@ const mapBajaMotivo = new Map<string, number>(); // nombre → id
 const mapBajaCausa = new Map<string, number>(); // nombre → id
 const mapAnimal = new Map<string, number>(); // `${fundoId}:${diio}` → animalId
 const mapAnimalSexo = new Map<string, "M" | "H">(); // `${fundoId}:${diio}` → sexo
+const mapMediero = new Map<string, number>(); // `${fundoId}:${nombre}` → medieroId
 
 // ─────────────────────────────────────────────
 // CONTADORES
@@ -269,6 +270,7 @@ interface Counts {
   razas: number;
   estado_reproductivo: number;
   semen: number;
+  medieros: number;
   animales: number;
   pesajes: number;
   partos: number;
@@ -310,6 +312,7 @@ const counts: Counts = {
   razas: 0,
   estado_reproductivo: 0,
   semen: 0,
+  medieros: 0,
   animales: 0,
   pesajes: 0,
   partos: 0,
@@ -656,6 +659,79 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
 }
 
 // ─────────────────────────────────────────────
+// HELPER — Detectar mediería por campo origen de AgroApp
+// Animales de mediería en AgroApp llevan el nombre/código del mediero
+// en el campo 'origen'. Heurística: si origen contiene "medi" o "mediero"
+// (case-insensitive) se trata como mediería y se extrae el código.
+// Ticket: AUT-135
+// ─────────────────────────────────────────────
+
+function detectarMedieria(origen: string | undefined): { esMedieria: boolean; nombreMediero: string | null } {
+  if (!origen) return { esMedieria: false, nombreMediero: null };
+  const lower = origen.toLowerCase();
+  if (lower.includes("medi")) {
+    // Extraer nombre: remover prefijos comunes ("MEDIERO:", "MED:") y trim
+    const nombre = origen
+      .replace(/^medi(ero)?[:\s]*/i, "")
+      .trim() || origen.trim();
+    return { esMedieria: true, nombreMediero: nombre };
+  }
+  return { esMedieria: false, nombreMediero: null };
+}
+
+// ─────────────────────────────────────────────
+// HELPER — Crear o recuperar mediero por fundo + nombre
+// Ticket: AUT-135
+// ─────────────────────────────────────────────
+
+async function asegurarMediero(smartFundoId: number, nombre: string): Promise<number> {
+  const mKey = `${smartFundoId}:${nombre}`;
+  const cached = mapMediero.get(mKey);
+  if (cached !== undefined) return cached;
+
+  if (DRY_RUN) {
+    mapMediero.set(mKey, -1);
+    counts.medieros++;
+    return -1;
+  }
+
+  const existing = await db
+    .select()
+    .from(schema.medieros)
+    .where(
+      and(
+        eq(schema.medieros.fundoId, smartFundoId),
+        eq(schema.medieros.nombre, nombre)
+      )
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    mapMediero.set(mKey, existing[0].id);
+    return existing[0].id;
+  }
+
+  // Obtener org_id del fundo
+  const fundo = await db
+    .select({ orgId: schema.fundos.orgId })
+    .from(schema.fundos)
+    .where(eq(schema.fundos.id, smartFundoId))
+    .limit(1);
+
+  const orgId = fundo[0]?.orgId ?? defaultOrgId;
+
+  const inserted = await db
+    .insert(schema.medieros)
+    .values({ orgId, fundoId: smartFundoId, nombre })
+    .returning({ id: schema.medieros.id });
+
+  mapMediero.set(mKey, inserted[0].id);
+  counts.medieros++;
+  log("P4:medieros", `Mediero "${nombre}" creado en fundo ${smartFundoId} (id=${inserted[0].id})`);
+  return inserted[0].id;
+}
+
+// ─────────────────────────────────────────────
 // P4 — ANIMALES
 // ─────────────────────────────────────────────
 
@@ -738,6 +814,15 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
       const sexo = inferSexo(tipoGanadoNombre);
       const desecho = toBoolean(item.desecho);
 
+      // Detectar mediería por campo origen (AUT-135)
+      const origenRaw = item.origen?.trim() || null;
+      const { esMedieria, nombreMediero } = detectarMedieria(origenRaw ?? undefined);
+      let medieroId: number | null = null;
+      if (esMedieria && nombreMediero) {
+        medieroId = await asegurarMediero(smartFundoId, nombreMediero);
+        if (medieroId === -1) medieroId = null; // DRY_RUN
+      }
+
       const inserted = await db
         .insert(schema.animales)
         .values({
@@ -752,9 +837,11 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
           diioMadre: item.diio_madre?.trim() || null,
           padre: item.padre?.trim() || null,
           abuelo: item.abuelo?.trim() || null,
-          origen: item.origen?.trim() || null,
+          origen: origenRaw,
           observaciones: item.observaciones?.trim() || null,
           desecho,
+          tipoPropiedad: esMedieria ? "medieria" : "propio",
+          medieroId: medieroId ?? null,
         })
         .returning({ id: schema.animales.id });
 
@@ -1304,6 +1391,7 @@ async function validar(): Promise<void> {
     { name: "fundos", table: schema.fundos },
     { name: "tipo_ganado", table: schema.tipoGanado },
     { name: "razas", table: schema.razas },
+    { name: "medieros", table: schema.medieros },
     { name: "animales", table: schema.animales },
     { name: "pesajes", table: schema.pesajes },
     { name: "partos", table: schema.partos },
@@ -1335,6 +1423,7 @@ function printResumen(): void {
   console.log(`Razas               : ${counts.razas}`);
   console.log(`Estado reproductivo : ${counts.estado_reproductivo}`);
   console.log(`Semen               : ${counts.semen}`);
+  console.log(`Medieros            : ${counts.medieros}`);
   console.log(`Animales            : ${counts.animales}`);
   console.log(`Pesajes             : ${counts.pesajes}`);
   console.log(`Partos              : ${counts.partos}`);

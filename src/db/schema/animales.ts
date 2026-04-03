@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { fundos } from "./fundos.js";
 import { tipoGanado, razas, estadoReproductivo } from "./catalogos.js";
+import { tipoPropiedadEnum, medieros } from "./medieros.js";
 
 export const sexoEnum = pgEnum("sexo", ["M", "H"]);
 export const estadoAnimalEnum = pgEnum("estado_animal", ["activo", "baja", "desecho"]);
@@ -55,6 +56,19 @@ export const animales = pgTable(
     padre: varchar("padre", { length: 200 }),
     abuelo: varchar("abuelo", { length: 200 }),
     origen: varchar("origen", { length: 200 }),
+    // Propiedad
+    /**
+     * tipo_propiedad — distingue animales del fundo vs. de mediería.
+     * Default 'propio' para compatibilidad con datos existentes.
+     * Ticket: AUT-135
+     */
+    tipoPropiedad: tipoPropiedadEnum("tipo_propiedad").notNull().default("propio"),
+    /**
+     * mediero_id — FK nullable a medieros.
+     * Solo se asigna cuando tipo_propiedad = 'medieria'.
+     * Ticket: AUT-135
+     */
+    medieroId: integer("mediero_id").references(() => medieros.id, { onDelete: "set null" }),
     // Metadata
     /**
      * modulo_actual — filtro rápido por módulo de producción.
