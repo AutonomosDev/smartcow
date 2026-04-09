@@ -1,20 +1,15 @@
 /**
- * with-auth.ts — Helper withAuth() para server actions.
- * Toda server action que toque datos de fundo DEBE usar withAuth().
- * Ticket: AUT-110
+ * with-auth.ts — Helper withAuth() para server actions y route handlers.
+ * Toda server action que toque datos de predio DEBE usar withAuth().
  *
- * Uso:
- *   export async function miServerAction() {
- *     const session = await withAuth();
- *     // session.user.fundoId, session.user.rol garantizados
- *   }
- *
- *   // Con verificación de rol mínimo:
- *   const session = await withAuth("admin_fundo");
+ * withAuth()        — para Server Components y server actions (session cookie)
+ * withAuthBearer()  — para endpoints REST mobile (Firebase ID token)
  */
 
-import { auth } from "./auth";
+import { NextRequest } from "next/server";
+import { auth, loadUserByFirebaseUid } from "./auth";
 import type { SmartCowSession, UserRol } from "./auth";
+import { adminAuth } from "./firebase/admin";
 
 // Jerarquía de roles (mayor índice = mayor privilegio)
 const ROL_RANK: Record<UserRol, number> = {
@@ -22,6 +17,8 @@ const ROL_RANK: Record<UserRol, number> = {
   operador: 1,
   veterinario: 2,
   admin_fundo: 3,
+  admin_org: 4,
+  superadmin: 5,
 };
 
 export class AuthError extends Error {
@@ -34,31 +31,82 @@ export class AuthError extends Error {
   }
 }
 
+export interface WithAuthOptions {
+  /** Rol mínimo requerido para ejecutar la acción */
+  rolMinimo?: UserRol;
+  /** Módulo que debe estar activo en la org del usuario */
+  modulo?: string;
+  /** ID de predio al que el usuario debe tener acceso explícito */
+  predioId?: number;
+}
+
+function applyOptions(session: SmartCowSession, options?: WithAuthOptions): void {
+  const { rolMinimo, modulo, predioId } = options ?? {};
+  const { rol, predios, modulos } = session.user;
+
+  if (rolMinimo !== undefined) {
+    if ((ROL_RANK[rol] ?? -1) < (ROL_RANK[rolMinimo] ?? 0)) {
+      throw new AuthError("Permisos insuficientes", "FORBIDDEN");
+    }
+  }
+
+  if (modulo !== undefined && !modulos[modulo]) {
+    throw new AuthError("Módulo no disponible para esta organización", "FORBIDDEN");
+  }
+
+  if (predioId !== undefined) {
+    const tieneAccesoTotal = rol === "superadmin" || rol === "admin_org";
+    if (!tieneAccesoTotal && !predios.includes(predioId)) {
+      throw new AuthError("Sin acceso a este predio", "FORBIDDEN");
+    }
+  }
+}
+
 /**
- * Verifica que la sesión existe y, opcionalmente, que el rol del usuario
- * tiene rango >= al rol mínimo requerido.
- *
+ * Verifica autenticación via session cookie (web).
  * Lanza AuthError en caso de fallo — nunca retorna null.
  */
-export async function withAuth(rolMinimo?: UserRol): Promise<SmartCowSession> {
+export async function withAuth(options?: WithAuthOptions): Promise<SmartCowSession> {
   const session = await auth();
 
   if (!session?.user) {
     throw new AuthError("No autenticado", "UNAUTHENTICATED");
   }
 
-  if (rolMinimo !== undefined) {
-    const rankUsuario = ROL_RANK[session.user.rol] ?? -1;
-    const rankRequerido = ROL_RANK[rolMinimo] ?? 0;
+  applyOptions(session, options);
+  return session;
+}
 
-    if (rankUsuario < rankRequerido) {
-      throw new AuthError(
-        // No exponer el rol del usuario en el mensaje de error
-        "Permisos insuficientes",
-        "FORBIDDEN"
-      );
-    }
+/**
+ * Verifica autenticación via Firebase ID token (Bearer, para mobile).
+ * Header: Authorization: Bearer <firebase-id-token>
+ *
+ * Lanza AuthError si el token falta, es inválido o expiró.
+ */
+export async function withAuthBearer(
+  req: NextRequest,
+  options?: WithAuthOptions
+): Promise<SmartCowSession> {
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    throw new AuthError("Token Bearer requerido", "UNAUTHENTICATED");
   }
 
+  const token = authHeader.slice(7).trim();
+
+  let uid: string;
+  try {
+    const decoded = await adminAuth.verifyIdToken(token);
+    uid = decoded.uid;
+  } catch {
+    throw new AuthError("Token inválido o expirado", "UNAUTHENTICATED");
+  }
+
+  const session = await loadUserByFirebaseUid(uid);
+  if (!session) {
+    throw new AuthError("Usuario no encontrado", "UNAUTHENTICATED");
+  }
+
+  applyOptions(session, options);
   return session;
 }

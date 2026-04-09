@@ -1,10 +1,10 @@
 /**
- * client.ts — Puppeteer session manager para AgroApp.
+ * client.ts — Cliente HTTP para AgroApp.
  *
- * AgroApp (Angular 5 + Apache Tomcat 6.0.45) no usa cookies de sesión.
- * Cada request incluye usuario + clave desde localStorage.
- * Estrategia: mantener browser headless con localStorage inicializado
- * y reutilizar para evitar logins repetidos.
+ * AgroApp (Angular 5 + Apache Tomcat 6.0.45) usa GET con query params.
+ * Patrón real (verificado en campo 2026-04-09):
+ *   GET http://agroapp.cl:8080/AgroAppWebV18/{Servlet}
+ *       ?usuario={user}&clave={pass}&service={action}&jsonFiltros={JSON}
  *
  * Credenciales: GCP Secret Manager → env vars
  *   AGROAPP_USER / AGROAPP_PASSWORD
@@ -12,9 +12,6 @@
  * Ticket: AUT-124
  */
 
-import puppeteer, { type Browser, type Page } from "puppeteer";
-
-const BASE_URL = "http://www.agroapp.cl";
 const BACKEND_URL = "http://agroapp.cl:8080/AgroAppWebV18/";
 
 /** Retorna las credenciales desde env vars (resueltas vía GCP Secret Manager en Cloud Run). */
@@ -31,8 +28,6 @@ function getCredentials(): { usuario: string; clave: string } {
 }
 
 export interface AgroAppSession {
-  browser: Browser;
-  page: Page;
   usuario: string;
   clave: string;
 }
@@ -40,112 +35,31 @@ export interface AgroAppSession {
 /** Singleton de sesión activa. */
 let activeSession: AgroAppSession | null = null;
 
-/**
- * Obtiene (o crea) la sesión Puppeteer con localStorage inicializado.
- * Verifica que la sesión siga activa antes de retornarla.
- */
+/** Obtiene (o crea) la sesión AgroApp. Sin estado de browser — solo credenciales. */
 export async function getSession(): Promise<AgroAppSession> {
-  if (activeSession) {
-    const alive = await isSessionAlive(activeSession);
-    if (alive) return activeSession;
-    // Sesión expirada — cerrar y crear nueva
-    await destroySession();
-  }
+  if (activeSession) return activeSession;
   return createSession();
 }
 
-async function isSessionAlive(session: AgroAppSession): Promise<boolean> {
-  try {
-    // Verificar que el browser siga abierto y la página accesible
-    if (!session.browser.connected) return false;
-    const pages = await session.browser.pages();
-    if (pages.length === 0) return false;
-    // Verificar que localStorage siga con credenciales
-    const usuario = await session.page.evaluate(
-      () => window.localStorage.getItem("usuario") ?? ""
-    );
-    return usuario.length > 0;
-  } catch {
-    return false;
-  }
-}
-
-async function createSession(): Promise<AgroAppSession> {
+function createSession(): AgroAppSession {
   const { usuario, clave } = getCredentials();
-
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-gpu",
-    ],
-  });
-
-  const page = await browser.newPage();
-
-  // Bloquear recursos innecesarios para reducir consumo
-  await page.setRequestInterception(true);
-  page.on("request", (req) => {
-    const type = req.resourceType();
-    if (type === "image" || type === "font" || type === "media") {
-      req.abort();
-    } else {
-      req.continue();
-    }
-  });
-
-  // Navegar al sitio para tener el origen correcto antes de set localStorage
-  await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 30_000 });
-
-  // Inyectar credenciales en localStorage (patrón AgroApp)
-  await page.evaluate(
-    ({ u, c }: { u: string; c: string }) => {
-      window.localStorage.setItem("usuario", u);
-      window.localStorage.setItem("clave", c);
-    },
-    { u: usuario, c: clave }
-  );
-
-  // Navegar al dashboard para confirmar que el login funciona
-  await page.goto(`${BASE_URL}/menu/dashboard/general`, {
-    waitUntil: "networkidle2",
-    timeout: 30_000,
-  });
-
-  // Verificar que no redirigió a login
-  const currentUrl = page.url();
-  if (currentUrl.includes("login") || currentUrl.includes("index")) {
-    await browser.close();
-    throw new Error(
-      `AgroApp login failed. Redirected to: ${currentUrl}. ` +
-        "Check AGROAPP_USER / AGROAPP_PASSWORD credentials."
-    );
-  }
-
-  activeSession = { browser, page, usuario, clave };
+  activeSession = { usuario, clave };
   return activeSession;
 }
 
-/** Cierra el browser y limpia la sesión. */
+/** Limpia la sesión activa. */
 export async function destroySession(): Promise<void> {
-  if (activeSession) {
-    try {
-      await activeSession.browser.close();
-    } catch {
-      // ignorar errores al cerrar
-    }
-    activeSession = null;
-  }
+  activeSession = null;
 }
 
 /**
- * Ejecuta una llamada POST al servlet de AgroApp via fetch en el contexto
- * del browser (para que use las credenciales de localStorage).
+ * Ejecuta una llamada GET al servlet de AgroApp.
  *
- * AgroApp pattern: POST http://agroapp.cl:8080/AgroAppWebV18/<Servlet>
- * Body: JSON con usuario, clave y parámetros del servicio.
+ * Formato real AgroApp:
+ *   GET /AgroAppWebV18/{Servlet}?usuario=X&clave=Y&service=Z&jsonFiltros={...}
+ *
+ * El parámetro `servicio` (nombre interno) se mapea a `service` en la URL.
+ * Los filtros se pasan como JSON string en `jsonFiltros`.
  */
 export async function servletPost<T>(
   session: AgroAppSession,
@@ -153,35 +67,20 @@ export async function servletPost<T>(
   servicio: string,
   params: Record<string, unknown> = {}
 ): Promise<T> {
-  const payload = {
-    usuario: session.usuario,
-    clave: session.clave,
-    servicio,
-    ...params,
-  };
+  const url = new URL(`${BACKEND_URL}${servlet}`);
+  url.searchParams.set("usuario", session.usuario);
+  url.searchParams.set("clave", session.clave);
+  url.searchParams.set("service", servicio);
 
-  const url = `${BACKEND_URL}${servlet}`;
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null) {
+      url.searchParams.set(key, Array.isArray(value) ? JSON.stringify(value) : String(value));
+    }
+  }
 
-  const result = await session.page.evaluate(
-    async ({
-      url,
-      body,
-    }: {
-      url: string;
-      body: Record<string, unknown>;
-    }): Promise<unknown> => {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) {
-        throw new Error(`Servlet ${url} returned ${response.status}`);
-      }
-      return response.json();
-    },
-    { url, body: payload }
-  );
-
-  return result as T;
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`AgroApp servlet ${servlet}/${servicio} returned ${response.status}`);
+  }
+  return response.json() as Promise<T>;
 }

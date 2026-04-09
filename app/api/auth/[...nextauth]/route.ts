@@ -1,9 +1,11 @@
 /**
- * NextAuth v5 route handler.
- * Maneja /api/auth/signin, /api/auth/callback, /api/auth/session, etc.
- * Ticket: AUT-110
+ * app/api/auth/[...nextauth]/route.ts — obsoleto post-migración Firebase.
+ * La lógica de sesión está en /api/auth/session (POST/DELETE).
  */
+export async function GET() {
+  return Response.json({ error: "Usar /api/auth/session" }, { status: 410 });
+}
 
-import { handlers } from "@/src/lib/auth";
-
-export const { GET, POST } = handlers;
+export async function POST() {
+  return Response.json({ error: "Usar /api/auth/session" }, { status: 410 });
+}

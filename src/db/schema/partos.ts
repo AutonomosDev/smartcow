@@ -8,10 +8,10 @@ import {
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
-import { fundos } from "./fundos.js";
-import { animales } from "./animales.js";
-import { tipoParto, subtipoParto, semen, inseminadores, tipoGanado } from "./catalogos.js";
-import { users } from "./users.js";
+import { predios } from "./predios";
+import { animales } from "./animales";
+import { tipoParto, subtipoParto, semen, inseminadores, tipoGanado } from "./catalogos";
+import { users } from "./users";
 
 export const resultadoPartoEnum = pgEnum("resultado_parto", [
   "vivo",
@@ -29,9 +29,9 @@ export const partos = pgTable(
   "partos",
   {
     id: serial("id").primaryKey(),
-    fundoId: integer("fundo_id")
+    predioId: integer("predio_id")
       .notNull()
-      .references(() => fundos.id, { onDelete: "restrict" }),
+      .references(() => predios.id, { onDelete: "restrict" }),
     madreId: integer("madre_id")
       .notNull()
       .references(() => animales.id, { onDelete: "restrict" }),
@@ -58,7 +58,7 @@ export const partos = pgTable(
   },
   (t) => [
     index("partos_madre_fecha_idx").on(t.madreId, t.fecha),
-    index("partos_fundo_fecha_idx").on(t.fundoId, t.fecha),
+    index("partos_predio_fecha_idx").on(t.predioId, t.fecha),
   ]
 );
 

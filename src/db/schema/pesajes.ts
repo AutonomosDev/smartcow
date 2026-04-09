@@ -8,9 +8,9 @@ import {
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
-import { fundos } from "./fundos.js";
-import { animales } from "./animales.js";
-import { users } from "./users.js";
+import { predios } from "./predios";
+import { animales } from "./animales";
+import { users } from "./users";
 
 /**
  * pesajes — Registro de pesajes de animales (kg).
@@ -21,9 +21,9 @@ export const pesajes = pgTable(
   "pesajes",
   {
     id: serial("id").primaryKey(),
-    fundoId: integer("fundo_id")
+    predioId: integer("predio_id")
       .notNull()
-      .references(() => fundos.id, { onDelete: "restrict" }),
+      .references(() => predios.id, { onDelete: "restrict" }),
     animalId: integer("animal_id")
       .notNull()
       .references(() => animales.id, { onDelete: "restrict" }),
@@ -35,7 +35,7 @@ export const pesajes = pgTable(
   },
   (t) => [
     index("pesajes_animal_fecha_idx").on(t.animalId, t.fecha),
-    index("pesajes_fundo_fecha_idx").on(t.fundoId, t.fecha),
+    index("pesajes_predio_fecha_idx").on(t.predioId, t.fecha),
   ]
 );
 
