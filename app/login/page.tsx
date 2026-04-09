@@ -1,20 +1,19 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 /**
  * /login — Página de autenticación.
  * Firebase Client SDK — email/password.
+ * LoginContent envuelto en Suspense para cumplir requisito de useSearchParams().
  */
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { clientAuth } from "@/src/lib/firebase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { SignIn2 } from "@/src/components/ui/clean-minimal-sign-in";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
@@ -50,15 +49,21 @@ export default function LoginPage() {
     }
   }
 
-  async function handleGoogleSignIn() {
-    // Google sign-in: implementar con signInWithPopup si se necesita
-  }
+  return (
+    <SignIn2
+      onSignIn={handleCredentialsSignIn}
+      onGoogleSignIn={() => {}}
+      loading={loading}
+      externalError={error}
+    />
+  );
+}
 
+export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white">
-      {/* Panel izquierdo — Branding & "Vaca Agentic" */}
+      {/* Panel izquierdo — Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-brand-dark flex-col justify-between p-12 relative overflow-hidden">
-        {/* Fondo con degradado radial para resaltar la vaca */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--color-brand-light)_0%,_transparent_70%)] opacity-5" />
 
         <div className="relative z-10">
@@ -68,7 +73,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Hero: Vaca Agentic */}
         <div className="relative z-10 flex flex-col items-center justify-center flex-1 py-10">
           <div className="relative w-full max-w-[440px] aspect-square">
             <Image
@@ -96,12 +100,9 @@ export default function LoginPage() {
 
       {/* Panel derecho — Formulario */}
       <div className="flex-1 flex items-center justify-center bg-farm-base">
-        <SignIn2
-          onSignIn={handleCredentialsSignIn}
-          onGoogleSignIn={handleGoogleSignIn}
-          loading={loading}
-          externalError={error}
-        />
+        <Suspense fallback={<div className="animate-pulse text-white/40 text-sm">Cargando...</div>}>
+          <LoginContent />
+        </Suspense>
       </div>
     </div>
   );
