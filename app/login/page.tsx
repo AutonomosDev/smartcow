@@ -1,9 +1,11 @@
+"use client";
+
+export const dynamic = "force-dynamic";
+
 /**
  * /login — Página de autenticación.
  * Firebase Client SDK — email/password.
  */
-
-"use client";
 
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
