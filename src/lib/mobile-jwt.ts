@@ -9,7 +9,20 @@
  */
 
 import { SignJWT, jwtVerify } from "jose";
-import type { SmartCowJWT } from "./auth";
+import type { UserRol } from "./auth";
+
+export interface SmartCowJWT {
+  userId: number;
+  orgId: number;
+  predios: number[];
+  rol: UserRol;
+  nombre: string;
+  email?: string | null;
+  modulos: Record<string, boolean>;
+  iat?: number;
+  exp?: number;
+  jti?: string;
+}
 
 const getSecret = () => {
   const s = process.env.AUTH_SECRET;

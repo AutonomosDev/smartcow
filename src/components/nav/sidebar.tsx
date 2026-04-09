@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import {
   LayoutDashboard,
   MessageSquare,
@@ -40,7 +39,6 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
 
   return (
     <aside className="w-64 min-h-screen bg-brand-dark flex flex-col">
@@ -93,25 +91,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      {/* User footer */}
-      {session?.user && (
-        <div className="px-4 py-4 border-t border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-pill bg-brand-light/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-brand-light text-xs font-bold uppercase">
-                {session.user.name?.[0] ?? "U"}
-              </span>
-            </div>
-            <div className="min-w-0">
-              <p className="text-white text-sm font-medium truncate">
-                {session.user.name ?? "Usuario"}
-              </p>
-              <p className="text-white/40 text-xs truncate">{session.user.email}</p>
-            </div>
-          </div>
-        </div>
-      )}
     </aside>
   );
 }
