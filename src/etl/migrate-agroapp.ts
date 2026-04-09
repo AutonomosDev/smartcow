@@ -570,7 +570,7 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
       const existing = await db
         .select()
         .from(schema.semen)
-        .where(and(eq(schema.semen.fundoId, smartFundoId), eq(schema.semen.toro, toro)))
+        .where(and(eq(schema.semen.predioId, smartFundoId), eq(schema.semen.toro, toro)))
         .limit(1);
 
       if (existing.length > 0) {
@@ -578,7 +578,7 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
       } else {
         const inserted = await db
           .insert(schema.semen)
-          .values({ fundoId: smartFundoId, toro })
+          .values({ predioId: smartFundoId, toro })
           .returning({ id: schema.semen.id });
         mapSemen.set(sKey, inserted[0].id);
         counts.semen++;
@@ -665,7 +665,7 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
         .select()
         .from(schema.animales)
         .where(
-          and(eq(schema.animales.fundoId, smartFundoId), eq(schema.animales.diio, diio))
+          and(eq(schema.animales.predioId, smartFundoId), eq(schema.animales.diio, diio))
         )
         .limit(1);
 
@@ -681,7 +681,7 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
       const inserted = await db
         .insert(schema.animales)
         .values({
-          fundoId: smartFundoId,
+          predioId: smartFundoId,
           diio,
           tipoGanadoId,
           razaId: razaId ?? null,
@@ -774,7 +774,7 @@ async function migrarPesajes(session: Awaited<ReturnType<typeof getSession>>): P
       const animalId = mapAnimal.get(aKey)!;
 
       await db.insert(schema.pesajes).values({
-        fundoId: smartFundoId,
+        predioId: smartFundoId,
         animalId,
         pesoKg: String(pesoRaw),
         fecha,
@@ -860,7 +860,7 @@ async function migrarPartos(session: Awaited<ReturnType<typeof getSession>>): Pr
       const numeroPartos = item["Total partos"] ? Number(item["Total partos"]) : null;
 
       await db.insert(schema.partos).values({
-        fundoId: smartFundoId,
+        predioId: smartFundoId,
         madreId,
         fecha,
         resultado: "vivo", // AgroApp no registra resultado — default vivo
@@ -943,7 +943,7 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
           .from(schema.inseminadores)
           .where(
             and(
-              eq(schema.inseminadores.fundoId, smartFundoId),
+              eq(schema.inseminadores.predioId, smartFundoId),
               eq(schema.inseminadores.nombre, nombre)
             )
           )
@@ -953,14 +953,14 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
         } else {
           const created = await db
             .insert(schema.inseminadores)
-            .values({ fundoId: smartFundoId, nombre })
+            .values({ predioId: smartFundoId, nombre })
             .returning({ id: schema.inseminadores.id });
           inseminadorId = created[0].id;
         }
       }
 
       await db.insert(schema.inseminaciones).values({
-        fundoId: smartFundoId,
+        predioId: smartFundoId,
         animalId,
         fecha,
         semenId: semenId ?? null,
@@ -1030,7 +1030,7 @@ async function migrarEcografias(session: Awaited<ReturnType<typeof getSession>>)
       else if (resultadoRaw.includes("vac") || resultadoRaw.includes("neg")) resultado = "vacia";
 
       await db.insert(schema.ecografias).values({
-        fundoId: smartFundoId,
+        predioId: smartFundoId,
         animalId,
         fecha,
         resultado,
@@ -1073,7 +1073,7 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
         if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
-          fundoId: smartFundoId,
+          predioId: smartFundoId,
           animalId,
           tipo: "alta",
           fecha,
@@ -1108,7 +1108,7 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
         if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
-          fundoId: smartFundoId,
+          predioId: smartFundoId,
           animalId,
           tipo: "aparicion",
           fecha,
@@ -1147,7 +1147,7 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
         if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
-          fundoId: smartFundoId,
+          predioId: smartFundoId,
           animalId,
           tipo: "cambio_diio",
           fecha,
@@ -1218,7 +1218,7 @@ async function migrarBajas(session: Awaited<ReturnType<typeof getSession>>): Pro
       const causaId = undefined;
 
       await db.insert(schema.bajas).values({
-        fundoId: smartFundoId,
+        predioId: smartFundoId,
         animalId,
         fecha,
         motivoId,
