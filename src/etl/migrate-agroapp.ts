@@ -519,8 +519,8 @@ async function migrarFundos(session: Awaited<ReturnType<typeof getSession>>): Pr
 
     const existing = await db
       .select()
-      .from(schema.fundos)
-      .where(eq(schema.fundos.nombre, nombre))
+      .from(schema.predios)
+      .where(eq(schema.predios.nombre, nombre))
       .limit(1);
 
     if (existing.length > 0) {
@@ -528,9 +528,9 @@ async function migrarFundos(session: Awaited<ReturnType<typeof getSession>>): Pr
       log("P2:fundos", `Fundo "${nombre}" already exists (id=${existing[0].id})`);
     } else {
       const inserted = await db
-        .insert(schema.fundos)
+        .insert(schema.predios)
         .values({ nombre, orgId: defaultOrgId })
-        .returning({ id: schema.fundos.id });
+        .returning({ id: schema.predios.id });
       mapFundo.set(item.fundo_id, inserted[0].id);
       counts.fundos++;
       log("P2:fundos", `Inserted fundo "${nombre}" → id=${inserted[0].id}`);
@@ -1259,7 +1259,7 @@ async function validar(): Promise<void> {
 
   // Conteo final por tabla
   const tables = [
-    { name: "fundos", table: schema.fundos },
+    { name: "fundos", table: schema.predios },
     { name: "tipo_ganado", table: schema.tipoGanado },
     { name: "razas", table: schema.razas },
     { name: "animales", table: schema.animales },
@@ -1272,7 +1272,7 @@ async function validar(): Promise<void> {
   ] as const;
 
   for (const { name, table } of tables) {
-    const rows = await db.select().from(table as typeof schema.fundos);
+    const rows = await db.select().from(table as typeof schema.predios);
     log("VALIDACION", `${name}: ${rows.length} rows in DB`);
   }
 }
