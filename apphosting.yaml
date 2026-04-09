@@ -1,6 +1,7 @@
 # Firebase App Hosting — smartcow
 # Docs: https://firebase.google.com/docs/app-hosting/configure
-# GCP project: smartcow-492119
+# Firebase project: smartcow-prod
+# GCP secrets project: smartcow-492119 (cross-project)
 
 # Cloud Run runtime settings (managed by Firebase App Hosting)
 runConfig:
@@ -11,34 +12,32 @@ runConfig:
   memoryMiB: 512
 
 # Environment variables and secrets
-# Secrets → GCP Secret Manager proyecto smartcow-492119
+# Secrets usan path completo porque viven en smartcow-492119,
+# distinto al Firebase project smartcow-prod.
 env:
   # ── Database ──
   - variable: DATABASE_URL
-    secret: database-url
+    secret: projects/smartcow-492119/secrets/database-url
 
   # ── Claude / Anthropic ──
   - variable: ANTHROPIC_API_KEY
-    secret: anthropic-api-key
+    secret: projects/smartcow-492119/secrets/anthropic-api-key
 
   # ── AgroApp ──
   - variable: AGROAPP_USER
-    secret: agroapp-user
+    secret: projects/smartcow-492119/secrets/agroapp-user
   - variable: AGROAPP_PASSWORD
-    secret: agroapp-password
+    secret: projects/smartcow-492119/secrets/agroapp-password
 
-  # ── Firebase Admin SDK (server-side, pendiente crear en Secret Manager) ──
-  # Descomentar cuando estén creados:
-  #   gcloud secrets create firebase-client-email --project=smartcow-492119
-  #   gcloud secrets create firebase-private-key --project=smartcow-492119
+  # ── Firebase Admin SDK (pendiente crear en smartcow-492119) ──
   # - variable: FIREBASE_CLIENT_EMAIL
-  #   secret: firebase-client-email
+  #   secret: projects/smartcow-492119/secrets/firebase-client-email
   # - variable: FIREBASE_PRIVATE_KEY
-  #   secret: firebase-private-key
+  #   secret: projects/smartcow-492119/secrets/firebase-private-key
 
   # ── Observabilidad ──
   - variable: SENTRY_DSN
-    secret: sentry-dsn-web
+    secret: projects/smartcow-492119/secrets/sentry-dsn-web
 
   # ── GCP ──
   - variable: GCP_PROJECT_ID
