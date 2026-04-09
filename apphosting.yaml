@@ -1,0 +1,72 @@
+# Firebase App Hosting — smartcow
+# Docs: https://firebase.google.com/docs/app-hosting/configure
+# GCP project: smartcow-492119
+
+# Cloud Run runtime settings (managed by Firebase App Hosting)
+runConfig:
+  minInstances: 0
+  maxInstances: 10
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+# Environment variables and secrets
+# Secrets → GCP Secret Manager proyecto smartcow-492119
+env:
+  # ── Database ──
+  - variable: DATABASE_URL
+    secret: database-url
+
+  # ── Claude / Anthropic ──
+  - variable: ANTHROPIC_API_KEY
+    secret: anthropic-api-key
+
+  # ── AgroApp ──
+  - variable: AGROAPP_USER
+    secret: agroapp-user
+  - variable: AGROAPP_PASSWORD
+    secret: agroapp-password
+
+  # ── Firebase Admin SDK (server-side, pendiente crear en Secret Manager) ──
+  # Descomentar cuando estén creados:
+  #   gcloud secrets create firebase-client-email --project=smartcow-492119
+  #   gcloud secrets create firebase-private-key --project=smartcow-492119
+  # - variable: FIREBASE_CLIENT_EMAIL
+  #   secret: firebase-client-email
+  # - variable: FIREBASE_PRIVATE_KEY
+  #   secret: firebase-private-key
+
+  # ── Observabilidad ──
+  - variable: SENTRY_DSN
+    secret: sentry-dsn-web
+
+  # ── GCP ──
+  - variable: GCP_PROJECT_ID
+    value: smartcow-492119
+
+  # ── Firebase Client SDK (públicas, browser-safe) ──
+  # PENDIENTE: completar API_KEY desde Firebase Console
+  #   → Project Settings → Your apps → smartcow-web → Config (no npm)
+  # - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+  #   value: AIzaSy...
+  #   availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: smartcow-prod.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: smartcow-prod
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "1008198697712"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:1008198697712:web:a34ce64e71ef22c855f835"
+    availability:
+      - BUILD
+      - RUNTIME
