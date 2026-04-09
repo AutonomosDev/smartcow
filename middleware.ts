@@ -1,33 +1,34 @@
 /**
- * middleware.ts — Protege /api/* y /dashboard/* con NextAuth v5.
- * Rutas públicas: /login, /api/auth/* (callbacks de NextAuth)
- * Ticket: AUT-110
+ * middleware.ts — Protege rutas verificando presencia de session cookie.
+ * La verificación criptográfica real ocurre en auth() (Node.js runtime).
+ * Edge Runtime: solo chequeo de cookie, sin firebase-admin ni pg.
  */
-
-import { auth } from "@/src/lib/auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export default async function middleware(req: NextRequest) {
+export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Rutas públicas — dejar pasar siempre
   const isPublic =
-    pathname.startsWith("/api/auth") ||
     pathname === "/login" ||
     pathname === "/" ||
+    pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon");
 
   if (isPublic) return NextResponse.next();
 
-  // Rutas protegidas: /dashboard/* y /api/* (excepto /api/auth/*)
+  // En desarrollo no hay verificación — auth() retorna DEV_SESSION
+  if (process.env.NODE_ENV === "development") return NextResponse.next();
+
   const isProtected =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/api");
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/chat") ||
+    (pathname.startsWith("/api") && !pathname.startsWith("/api/auth"));
 
   if (isProtected) {
-    const session = await auth();
-    if (!session) {
+    const sessionCookie = req.cookies.get("__session")?.value;
+    if (!sessionCookie) {
       if (pathname.startsWith("/api")) {
         return NextResponse.json({ error: "No autenticado" }, { status: 401 });
       }
@@ -41,8 +42,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    // Proteger dashboard y API, excluir rutas estáticas de Next.js
-    "/((?!_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

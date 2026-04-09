@@ -37,10 +37,10 @@ const WRITE_TOOLS = new Set(["registrar_pesaje", "registrar_parto"]);
 // ─── ChatPanel ────────────────────────────────────────────────────────────────
 
 interface ChatPanelProps {
-  fundoId: number;
+  predioId: number;
 }
 
-export function ChatPanel({ fundoId }: ChatPanelProps) {
+export function ChatPanel({ predioId }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [agentTasks, setAgentTasks] = useState<AgentTask[]>([]);
@@ -127,7 +127,7 @@ export function ChatPanel({ fundoId }: ChatPanelProps) {
               role: m.role,
               content: m.content,
             })),
-            fundo_id: fundoId,
+            predio_id: predioId,
           }),
           signal: abortControllerRef.current.signal,
         });
@@ -225,7 +225,7 @@ export function ChatPanel({ fundoId }: ChatPanelProps) {
         abortControllerRef.current = null;
       }
     },
-    [messages, isLoading, fundoId, handleToolUse, handleToolResult]
+    [messages, isLoading, predioId, handleToolUse, handleToolResult]
   );
 
   const handleStop = useCallback(() => {

@@ -3,16 +3,16 @@
  * Ticket: AUT-112
  *
  * Tools disponibles:
- *   query_animales           — Lista animales de un fundo con filtros
- *   query_pesajes            — Historial de pesajes de un animal o fundo
+ *   query_animales           — Lista animales de un predio con filtros
+ *   query_pesajes            — Historial de pesajes de un animal o predio
  *   query_partos             — Historial de partos en un rango de fechas
- *   query_indices_reproductivos — Resumen reproductivo del fundo
+ *   query_indices_reproductivos — Resumen reproductivo del predio
  *   registrar_pesaje         — Registra un nuevo pesaje (escritura)
  *   registrar_parto          — Registra un nuevo parto (escritura)
  *
  * Reglas:
  *   - No PII en logs
- *   - No exponer datos de otros fundos (fundoId siempre validado upstream)
+ *   - No exponer datos de otros predios (predioId siempre validado upstream)
  *   - Tool calls de escritura requieren rol >= operador (validado en route)
  */
 
@@ -74,13 +74,13 @@ export const CATTLE_TOOLS: Anthropic.Tool[] = [
   {
     name: "query_animales",
     description:
-      "Consulta la lista de animales activos en el fundo. Permite filtrar por tipo de ganado, estado reproductivo y estado del animal. Retorna hasta 50 animales por defecto.",
+      "Consulta la lista de animales activos en el predio. Permite filtrar por tipo de ganado, estado reproductivo y estado del animal. Retorna hasta 50 animales por defecto.",
     input_schema: {
       type: "object" as const,
       properties: {
-        fundo_id: {
+        predio_id: {
           type: "number",
-          description: "ID del fundo (obligatorio)",
+          description: "ID del predio (obligatorio)",
         },
         filtros: {
           type: "object",
@@ -105,23 +105,23 @@ export const CATTLE_TOOLS: Anthropic.Tool[] = [
           },
         },
       },
-      required: ["fundo_id"],
+      required: ["predio_id"],
     },
   },
   {
     name: "query_pesajes",
     description:
-      "Consulta el historial de pesajes de un fundo o de un animal específico. Permite filtrar por rango de fechas.",
+      "Consulta el historial de pesajes de un predio o de un animal específico. Permite filtrar por rango de fechas.",
     input_schema: {
       type: "object" as const,
       properties: {
-        fundo_id: {
+        predio_id: {
           type: "number",
-          description: "ID del fundo (obligatorio)",
+          description: "ID del predio (obligatorio)",
         },
         animal_id: {
           type: "number",
-          description: "ID del animal (opcional — si se omite, retorna todos los pesajes del fundo)",
+          description: "ID del animal (opcional — si se omite, retorna todos los pesajes del predio)",
         },
         rango_fechas: {
           type: "object",
@@ -141,19 +141,19 @@ export const CATTLE_TOOLS: Anthropic.Tool[] = [
           description: "Máximo de resultados (default 100)",
         },
       },
-      required: ["fundo_id"],
+      required: ["predio_id"],
     },
   },
   {
     name: "query_partos",
     description:
-      "Consulta el historial de partos en el fundo dentro de un rango de fechas.",
+      "Consulta el historial de partos en el predio dentro de un rango de fechas.",
     input_schema: {
       type: "object" as const,
       properties: {
-        fundo_id: {
+        predio_id: {
           type: "number",
-          description: "ID del fundo (obligatorio)",
+          description: "ID del predio (obligatorio)",
         },
         rango_fechas: {
           type: "object",
@@ -173,22 +173,22 @@ export const CATTLE_TOOLS: Anthropic.Tool[] = [
           description: "Máximo de resultados (default 50)",
         },
       },
-      required: ["fundo_id"],
+      required: ["predio_id"],
     },
   },
   {
     name: "query_indices_reproductivos",
     description:
-      "Calcula y retorna los índices reproductivos del fundo: total animales, total partos últimos 12 meses, tasa de concepción estimada, animales preñadas, vacías e inseminadas.",
+      "Calcula y retorna los índices reproductivos del predio: total animales, total partos últimos 12 meses, tasa de concepción estimada, animales preñadas, vacías e inseminadas.",
     input_schema: {
       type: "object" as const,
       properties: {
-        fundo_id: {
+        predio_id: {
           type: "number",
-          description: "ID del fundo (obligatorio)",
+          description: "ID del predio (obligatorio)",
         },
       },
-      required: ["fundo_id"],
+      required: ["predio_id"],
     },
   },
   {
@@ -198,9 +198,9 @@ export const CATTLE_TOOLS: Anthropic.Tool[] = [
     input_schema: {
       type: "object" as const,
       properties: {
-        fundo_id: {
+        predio_id: {
           type: "number",
-          description: "ID del fundo (obligatorio)",
+          description: "ID del predio (obligatorio)",
         },
         eid: {
           type: "string",
@@ -215,7 +215,7 @@ export const CATTLE_TOOLS: Anthropic.Tool[] = [
           description: "Fecha del pesaje YYYY-MM-DD (default: hoy)",
         },
       },
-      required: ["fundo_id", "eid", "peso_kg"],
+      required: ["predio_id", "eid", "peso_kg"],
     },
   },
   {
@@ -225,9 +225,9 @@ export const CATTLE_TOOLS: Anthropic.Tool[] = [
     input_schema: {
       type: "object" as const,
       properties: {
-        fundo_id: {
+        predio_id: {
           type: "number",
-          description: "ID del fundo (obligatorio)",
+          description: "ID del predio (obligatorio)",
         },
         madre_eid: {
           type: "string",
@@ -247,7 +247,7 @@ export const CATTLE_TOOLS: Anthropic.Tool[] = [
           description: "Observaciones adicionales (opcional)",
         },
       },
-      required: ["fundo_id", "madre_eid", "resultado"],
+      required: ["predio_id", "madre_eid", "resultado"],
     },
   },
 ];
@@ -258,30 +258,30 @@ export const CATTLE_TOOLS: Anthropic.Tool[] = [
 
 /**
  * Ejecuta el tool_use solicitado por Claude.
- * fundosPermitidos: lista de fundo_ids a los que el usuario tiene acceso.
+ * prediosPermitidos: lista de predio_ids a los que el usuario tiene acceso.
  * userId: para registrar autoría en escrituras.
  */
 export async function ejecutarTool(
   toolName: string,
   toolInput: Record<string, unknown>,
-  fundosPermitidos: number[],
+  prediosPermitidos: number[],
   userId: number,
   rolRank: number
 ): Promise<unknown> {
-  const fundoId = Number(toolInput["fundo_id"]);
+  const predioId = Number(toolInput["predio_id"]);
 
-  // Verificar que el fundo_id solicitado está entre los permitidos del usuario
-  // (superadmin y admin_org pasan con fundosPermitidos = [] como señal de acceso total)
-  if (fundosPermitidos.length > 0 && !fundosPermitidos.includes(fundoId)) {
-    return { error: "Sin acceso a este fundo", code: "FORBIDDEN" };
+  // Verificar que el predio_id solicitado está entre los permitidos del usuario
+  // (superadmin y admin_org pasan con prediosPermitidos = [] como señal de acceso total)
+  if (prediosPermitidos.length > 0 && !prediosPermitidos.includes(predioId)) {
+    return { error: "Sin acceso a este predio", code: "FORBIDDEN" };
   }
 
   switch (toolName) {
     case "query_animales":
-      return queryAnimales(fundoId, toolInput["filtros"] as FiltrosAnimales | undefined);
+      return queryAnimales(predioId, toolInput["filtros"] as FiltrosAnimales | undefined);
 
     case "query_pesajes":
-      return queryPesajes(fundoId, {
+      return queryPesajes(predioId, {
         animal_id: toolInput["animal_id"] as number | undefined,
         fecha_inicio: (toolInput["rango_fechas"] as Record<string, string> | undefined)?.inicio,
         fecha_fin: (toolInput["rango_fechas"] as Record<string, string> | undefined)?.fin,
@@ -289,21 +289,20 @@ export async function ejecutarTool(
       });
 
     case "query_partos":
-      return queryPartos(fundoId, {
+      return queryPartos(predioId, {
         fecha_inicio: (toolInput["rango_fechas"] as Record<string, string> | undefined)?.inicio,
         fecha_fin: (toolInput["rango_fechas"] as Record<string, string> | undefined)?.fin,
         limite: toolInput["limite"] as number | undefined,
       });
 
     case "query_indices_reproductivos":
-      return queryIndicesReproductivos(fundoId);
+      return queryIndicesReproductivos(predioId);
 
     case "registrar_pesaje": {
-      // Escritura: requiere rol >= operador (rank >= 1)
       if (rolRank < 1) {
         return { error: "Se requiere rol operador o superior para registrar pesajes", code: "FORBIDDEN" };
       }
-      return registrarPesaje(fundoId, {
+      return registrarPesaje(predioId, {
         eid: String(toolInput["eid"]),
         peso_kg: Number(toolInput["peso_kg"]),
         fecha: toolInput["fecha"] as string | undefined,
@@ -311,11 +310,10 @@ export async function ejecutarTool(
     }
 
     case "registrar_parto": {
-      // Escritura: requiere rol >= operador (rank >= 1)
       if (rolRank < 1) {
         return { error: "Se requiere rol operador o superior para registrar partos", code: "FORBIDDEN" };
       }
-      return registrarParto(fundoId, {
+      return registrarParto(predioId, {
         madre_eid: String(toolInput["madre_eid"]),
         resultado: toolInput["resultado"] as DatosRegistrarParto["resultado"],
         fecha: toolInput["fecha"] as string | undefined,
@@ -332,7 +330,7 @@ export async function ejecutarTool(
 // QUERIES INTERNAS
 // ─────────────────────────────────────────────
 
-async function queryAnimales(fundoId: number, filtros?: FiltrosAnimales) {
+async function queryAnimales(predioId: number, filtros?: FiltrosAnimales) {
   const limite = Math.min(filtros?.limite ?? 50, 200);
 
   const rows = await db
@@ -355,7 +353,7 @@ async function queryAnimales(fundoId: number, filtros?: FiltrosAnimales) {
     .leftJoin(estadoReproductivo, eq(animales.estadoReproductivoId, estadoReproductivo.id))
     .where(
       and(
-        eq(animales.fundoId, fundoId),
+        eq(animales.predioId, predioId),
         filtros?.estado ? eq(animales.estado, filtros.estado) : undefined,
         filtros?.tipo_ganado
           ? eq(tipoGanado.nombre, filtros.tipo_ganado)
@@ -370,11 +368,11 @@ async function queryAnimales(fundoId: number, filtros?: FiltrosAnimales) {
   return { total: rows.length, animales: rows };
 }
 
-async function queryPesajes(fundoId: number, filtros: FiltrosPesajes) {
+async function queryPesajes(predioId: number, filtros: FiltrosPesajes) {
   const limite = Math.min(filtros.limite ?? 100, 500);
 
   const condiciones = [
-    eq(pesajes.fundoId, fundoId),
+    eq(pesajes.predioId, predioId),
     filtros.animal_id ? eq(pesajes.animalId, filtros.animal_id) : undefined,
     filtros.fecha_inicio ? gte(pesajes.fecha, filtros.fecha_inicio) : undefined,
     filtros.fecha_fin ? lte(pesajes.fecha, filtros.fecha_fin) : undefined,
@@ -397,11 +395,11 @@ async function queryPesajes(fundoId: number, filtros: FiltrosPesajes) {
   return { total: rows.length, pesajes: rows };
 }
 
-async function queryPartos(fundoId: number, filtros: FiltrosPartos) {
+async function queryPartos(predioId: number, filtros: FiltrosPartos) {
   const limite = Math.min(filtros.limite ?? 50, 200);
 
   const condiciones = [
-    eq(partos.fundoId, fundoId),
+    eq(partos.predioId, predioId),
     filtros.fecha_inicio ? gte(partos.fecha, filtros.fecha_inicio) : undefined,
     filtros.fecha_fin ? lte(partos.fecha, filtros.fecha_fin) : undefined,
   ].filter(Boolean) as Parameters<typeof and>;
@@ -425,16 +423,14 @@ async function queryPartos(fundoId: number, filtros: FiltrosPartos) {
   return { total: rows.length, partos: rows };
 }
 
-async function queryIndicesReproductivos(fundoId: number) {
-  // Total animales activos
+async function queryIndicesReproductivos(predioId: number) {
   const totalAnimalesRows = await db
     .select({ id: animales.id })
     .from(animales)
-    .where(and(eq(animales.fundoId, fundoId), eq(animales.estado, "activo")));
+    .where(and(eq(animales.predioId, predioId), eq(animales.estado, "activo")));
 
   const totalAnimales = totalAnimalesRows.length;
 
-  // Partos últimos 12 meses
   const hace12Meses = new Date();
   hace12Meses.setFullYear(hace12Meses.getFullYear() - 1);
   const fechaCorte = hace12Meses.toISOString().split("T")[0];
@@ -442,13 +438,12 @@ async function queryIndicesReproductivos(fundoId: number) {
   const partosRows = await db
     .select({ id: partos.id, resultado: partos.resultado })
     .from(partos)
-    .where(and(eq(partos.fundoId, fundoId), gte(partos.fecha, fechaCorte)));
+    .where(and(eq(partos.predioId, predioId), gte(partos.fecha, fechaCorte)));
 
   const totalPartos = partosRows.length;
   const partosVivos = partosRows.filter((p) => p.resultado === "vivo").length;
   const partosGemelos = partosRows.filter((p) => p.resultado === "gemelar").length;
 
-  // Conteo por estado reproductivo
   const estadosRows = await db
     .select({
       estadoNombre: estadoReproductivo.nombre,
@@ -456,7 +451,7 @@ async function queryIndicesReproductivos(fundoId: number) {
     })
     .from(animales)
     .leftJoin(estadoReproductivo, eq(animales.estadoReproductivoId, estadoReproductivo.id))
-    .where(and(eq(animales.fundoId, fundoId), eq(animales.estado, "activo")));
+    .where(and(eq(animales.predioId, predioId), eq(animales.estado, "activo")));
 
   const conteoEstados: Record<string, number> = {};
   for (const row of estadosRows) {
@@ -465,7 +460,7 @@ async function queryIndicesReproductivos(fundoId: number) {
   }
 
   return {
-    fundo_id: fundoId,
+    predio_id: predioId,
     total_animales_activos: totalAnimales,
     partos_ultimos_12_meses: totalPartos,
     partos_vivos: partosVivos,
@@ -476,17 +471,16 @@ async function queryIndicesReproductivos(fundoId: number) {
 }
 
 async function registrarPesaje(
-  fundoId: number,
+  predioId: number,
   datos: DatosRegistrarPesaje,
   usuarioId: number
 ) {
-  // Buscar animal por EID en el fundo
   const animalRow = await db
     .select({ id: animales.id, diio: animales.diio })
     .from(animales)
     .where(
       and(
-        eq(animales.fundoId, fundoId),
+        eq(animales.predioId, predioId),
         eq(animales.eid, datos.eid),
         eq(animales.estado, "activo")
       )
@@ -494,7 +488,7 @@ async function registrarPesaje(
     .limit(1);
 
   if (!animalRow[0]) {
-    return { error: `Animal con EID ${datos.eid} no encontrado en el fundo`, code: "NOT_FOUND" };
+    return { error: `Animal con EID ${datos.eid} no encontrado en el predio`, code: "NOT_FOUND" };
   }
 
   const animal = animalRow[0];
@@ -503,7 +497,7 @@ async function registrarPesaje(
   const inserted = await db
     .insert(pesajes)
     .values({
-      fundoId,
+      predioId,
       animalId: animal.id,
       pesoKg: String(datos.peso_kg),
       fecha,
@@ -522,17 +516,16 @@ async function registrarPesaje(
 }
 
 async function registrarParto(
-  fundoId: number,
+  predioId: number,
   datos: DatosRegistrarParto,
   usuarioId: number
 ) {
-  // Buscar madre por EID en el fundo
   const madreRow = await db
     .select({ id: animales.id, diio: animales.diio })
     .from(animales)
     .where(
       and(
-        eq(animales.fundoId, fundoId),
+        eq(animales.predioId, predioId),
         eq(animales.eid, datos.madre_eid),
         eq(animales.estado, "activo")
       )
@@ -541,7 +534,7 @@ async function registrarParto(
 
   if (!madreRow[0]) {
     return {
-      error: `Madre con EID ${datos.madre_eid} no encontrada en el fundo`,
+      error: `Madre con EID ${datos.madre_eid} no encontrada en el predio`,
       code: "NOT_FOUND",
     };
   }
@@ -552,7 +545,7 @@ async function registrarParto(
   const inserted = await db
     .insert(partos)
     .values({
-      fundoId,
+      predioId,
       madreId: madre.id,
       fecha,
       resultado: datos.resultado,
@@ -576,11 +569,11 @@ async function registrarParto(
 // ─────────────────────────────────────────────
 
 /**
- * Construye el system prompt con contexto del fundo y usuario autenticado.
+ * Construye el system prompt con contexto del predio y usuario autenticado.
  * No incluir PII ni datos sensibles en el prompt.
  */
-export function buildSystemPrompt(session: SmartCowSession, fundoId: number): string {
-  const { nombre, rol, modulos, fundos } = session.user;
+export function buildSystemPrompt(session: SmartCowSession, predioId: number): string {
+  const { nombre, rol, modulos, predios } = session.user;
   const modulosActivos = Object.entries(modulos)
     .filter(([, v]) => v)
     .map(([k]) => k)
@@ -591,12 +584,12 @@ export function buildSystemPrompt(session: SmartCowSession, fundoId: number): st
 Contexto del usuario:
 - Nombre: ${nombre}
 - Rol: ${rol}
-- Fundo activo: ${fundoId}
-- Fundos con acceso: ${fundos.join(", ")}
+- Predio activo: ${predioId}
+- Predios con acceso: ${predios.join(", ")}
 - Módulos activos: ${modulosActivos || "ninguno"}
 
 Reglas de comportamiento:
-1. Solo puedes consultar datos del fundo ${fundoId}. Nunca accedas a datos de otros fundos.
+1. Solo puedes consultar datos del predio ${predioId}. Nunca accedas a datos de otros predios.
 2. Para escrituras (registrar_pesaje, registrar_parto), confirma los datos antes de ejecutar si hay ambigüedad.
 3. Responde en español, de forma concisa y directa.
 4. No inventes datos. Si no encuentras información, dilo claramente.

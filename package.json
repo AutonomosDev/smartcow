@@ -2,6 +2,9 @@
   "name": "smartcow",
   "version": "1.0.0",
   "description": "SmartCow — plataforma ganadera sobre PostgreSQL + Drizzle ORM",
+  "bin": {
+    "smartcow": "bin/smartcow"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,15 +22,14 @@
     "@anthropic-ai/sdk": "^0.82.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
+    "firebase": "^12.11.0",
+    "firebase-admin": "^13.7.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.7.0",
     "next": "^16.2.2",
-    "next-auth": "^5.0.0-beta.30",
     "pg": "^8.20.0",
-    "puppeteer": "^24.40.0",
-    "react": "^19.2.4",
+"react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-markdown": "^10.1.0",
     "recharts": "^3.8.1",
@@ -35,7 +37,6 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
-    "@types/bcryptjs": "^2.4.6",
     "@types/pg": "^8.20.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

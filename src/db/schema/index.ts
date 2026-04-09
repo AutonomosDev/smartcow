@@ -1,17 +1,20 @@
 // Tablas base
-export * from "./organizaciones.js";
-export * from "./fundos.js";
-export * from "./users.js";
+export * from "./organizaciones";
+export * from "./predios";
+export * from "./users";
 
 // Catálogos de referencia
-export * from "./catalogos.js";
+export * from "./catalogos";
 
 // Dominio ganadero
-export * from "./animales.js";
-export * from "./lotes.js";
-export * from "./pesajes.js";
-export * from "./partos.js";
-export * from "./inseminaciones.js";
-export * from "./ecografias.js";
-export * from "./areteos.js";
-export * from "./bajas.js";
+export * from "./animales";
+export * from "./lotes";
+export * from "./pesajes";
+export * from "./partos";
+export * from "./inseminaciones";
+export * from "./ecografias";
+export * from "./areteos";
+export * from "./bajas";
+export * from "./medieros";
+export * from "./potreros";
+export * from "./movimientos_potrero";

@@ -8,8 +8,8 @@ import {
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
-import { fundos } from "./fundos.js";
-import { organizaciones } from "./organizaciones.js";
+import { predios } from "./predios";
+import { organizaciones } from "./organizaciones";
 
 export const tipoPotrero = pgEnum("tipo_potrero", [
   "pradera",
@@ -19,7 +19,7 @@ export const tipoPotrero = pgEnum("tipo_potrero", [
 ]);
 
 /**
- * potreros — Subdivisiones de un fundo donde pastan los animales.
+ * potreros — Subdivisiones de un predio donde pastan los animales.
  * Permite responder: "¿dónde están las vacas preñadas ahora?".
  * Solo aplica si org.modulos.crianza = true.
  */
@@ -27,9 +27,9 @@ export const potreros = pgTable(
   "potreros",
   {
     id: serial("id").primaryKey(),
-    fundoId: integer("fundo_id")
+    predioId: integer("predio_id")
       .notNull()
-      .references(() => fundos.id, { onDelete: "restrict" }),
+      .references(() => predios.id, { onDelete: "restrict" }),
     orgId: integer("org_id")
       .notNull()
       .references(() => organizaciones.id, { onDelete: "restrict" }),
@@ -41,7 +41,7 @@ export const potreros = pgTable(
     actualizadoEn: timestamp("actualizado_en", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
-    index("potreros_fundo_idx").on(t.fundoId),
+    index("potreros_predio_idx").on(t.predioId),
   ]
 );
 

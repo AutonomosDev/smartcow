@@ -9,8 +9,8 @@ import {
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
-import { fundos } from "./fundos.js";
-import { tipoGanado, razas, estadoReproductivo } from "./catalogos.js";
+import { predios } from "./predios";
+import { tipoGanado, razas, estadoReproductivo } from "./catalogos";
 
 export const sexoEnum = pgEnum("sexo", ["M", "H"]);
 export const estadoAnimalEnum = pgEnum("estado_animal", ["activo", "baja", "desecho"]);
@@ -25,7 +25,7 @@ export const moduloAnimalEnum = pgEnum("modulo_animal", ["feedlot", "crianza", "
 
 /**
  * animales — Registro maestro de animales del hato.
- * Toda tabla de evento lleva fundo_id + animal_id.
+ * Toda tabla de evento lleva predio_id + animal_id.
  *
  * diio: identificador principal (DIIO/arete electrónico).
  * eid: Electronic Identification (tag RFID, puede coincidir con diio).
@@ -34,9 +34,9 @@ export const animales = pgTable(
   "animales",
   {
     id: serial("id").primaryKey(),
-    fundoId: integer("fundo_id")
+    predioId: integer("predio_id")
       .notNull()
-      .references(() => fundos.id, { onDelete: "restrict" }),
+      .references(() => predios.id, { onDelete: "restrict" }),
     diio: varchar("diio", { length: 50 }).notNull(),
     eid: varchar("eid", { length: 50 }),
     tipoGanadoId: integer("tipo_ganado_id")
@@ -68,8 +68,8 @@ export const animales = pgTable(
     actualizadoEn: timestamp("actualizado_en", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
-    index("animales_fundo_diio_idx").on(t.fundoId, t.diio),
-    index("animales_fundo_estado_idx").on(t.fundoId, t.estado),
+    index("animales_predio_diio_idx").on(t.predioId, t.diio),
+    index("animales_predio_estado_idx").on(t.predioId, t.estado),
   ]
 );
 

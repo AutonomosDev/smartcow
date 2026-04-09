@@ -1,13 +1,13 @@
 import { pgTable, serial, integer, varchar, pgEnum, timestamp, primaryKey } from "drizzle-orm/pg-core";
-import { organizaciones } from "./organizaciones.js";
-import { fundos } from "./fundos.js";
+import { organizaciones } from "./organizaciones";
+import { predios } from "./predios";
 
 export const rolEnum = pgEnum("rol", ["superadmin", "admin_org", "admin_fundo", "operador", "veterinario", "viewer"]);
 
 /**
  * users — Usuarios del sistema.
- * Pertenecen a una organización. El acceso a fundos específicos se gestiona via user_fundos.
- * passwordHash: bcrypt hash de la contraseña. Nunca exponer en logs ni responses.
+ * Pertenecen a una organización. El acceso a predios específicos se gestiona via user_predios.
+ * firebaseUid: UID del usuario en Firebase Auth. Vincula identidad Firebase con datos SmartCow.
  */
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -15,7 +15,7 @@ export const users = pgTable("users", {
     .notNull()
     .references(() => organizaciones.id, { onDelete: "restrict" }),
   email: varchar("email", { length: 255 }).notNull().unique(),
-  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  firebaseUid: varchar("firebase_uid", { length: 128 }).unique(),
   nombre: varchar("nombre", { length: 200 }).notNull(),
   rol: rolEnum("rol").notNull().default("operador"),
   creadoEn: timestamp("creado_en", { withTimezone: true }).defaultNow().notNull(),
@@ -23,25 +23,25 @@ export const users = pgTable("users", {
 });
 
 /**
- * user_fundos — Relación N:M entre users y fundos.
- * Un operador puede tener acceso a N fundos dentro de su org.
- * admin_org ve todos los fundos de su org sin necesitar registro aquí.
+ * user_predios — Relación N:M entre users y predios.
+ * Un operador puede tener acceso a N predios dentro de su org.
+ * admin_org ve todos los predios de su org sin necesitar registro aquí.
  */
-export const userFundos = pgTable(
-  "user_fundos",
+export const userPredios = pgTable(
+  "user_predios",
   {
     userId: integer("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    fundoId: integer("fundo_id")
+    predioId: integer("predio_id")
       .notNull()
-      .references(() => fundos.id, { onDelete: "cascade" }),
+      .references(() => predios.id, { onDelete: "cascade" }),
     rol: rolEnum("rol").notNull().default("operador"),
   },
-  (t) => [primaryKey({ columns: [t.userId, t.fundoId] })]
+  (t) => [primaryKey({ columns: [t.userId, t.predioId] })]
 );
 
 export type User = typeof users.$inferSelect;
 export type NuevoUser = typeof users.$inferInsert;
-export type UserFundo = typeof userFundos.$inferSelect;
-export type NuevoUserFundo = typeof userFundos.$inferInsert;
+export type UserPredio = typeof userPredios.$inferSelect;
+export type NuevoUserPredio = typeof userPredios.$inferInsert;

@@ -1,28 +1,15 @@
 /**
- * with-auth.ts — Helper withAuth() para server actions.
- * Toda server action que toque datos de fundo DEBE usar withAuth().
- * Ticket: AUT-110 | AUT-130
+ * with-auth.ts — Helper withAuth() para server actions y route handlers.
+ * Toda server action que toque datos de predio DEBE usar withAuth().
  *
- * Uso básico:
- *   const session = await withAuth();
- *
- * Con rol mínimo requerido:
- *   const session = await withAuth({ rolMinimo: "admin_fundo" });
- *
- * Con validación de módulo:
- *   const session = await withAuth({ modulo: "feedlot" });
- *   // Lanza 403 si la org no tiene feedlot activado
- *
- * Con validación de fundo:
- *   const session = await withAuth({ fundoId: 3 });
- *   // Lanza 403 si el usuario no tiene acceso al fundo
- *
- * Combinado:
- *   const session = await withAuth({ rolMinimo: "operador", modulo: "crianza", fundoId: 5 });
+ * withAuth()        — para Server Components y server actions (session cookie)
+ * withAuthBearer()  — para endpoints REST mobile (Firebase ID token)
  */
 
-import { auth } from "./auth";
+import { NextRequest } from "next/server";
+import { auth, loadUserByFirebaseUid } from "./auth";
 import type { SmartCowSession, UserRol } from "./auth";
+import { adminAuth } from "./firebase/admin";
 
 // Jerarquía de roles (mayor índice = mayor privilegio)
 const ROL_RANK: Record<UserRol, number> = {
@@ -49,17 +36,34 @@ export interface WithAuthOptions {
   rolMinimo?: UserRol;
   /** Módulo que debe estar activo en la org del usuario */
   modulo?: string;
-  /** ID de fundo al que el usuario debe tener acceso explícito */
-  fundoId?: number;
+  /** ID de predio al que el usuario debe tener acceso explícito */
+  predioId?: number;
+}
+
+function applyOptions(session: SmartCowSession, options?: WithAuthOptions): void {
+  const { rolMinimo, modulo, predioId } = options ?? {};
+  const { rol, predios, modulos } = session.user;
+
+  if (rolMinimo !== undefined) {
+    if ((ROL_RANK[rol] ?? -1) < (ROL_RANK[rolMinimo] ?? 0)) {
+      throw new AuthError("Permisos insuficientes", "FORBIDDEN");
+    }
+  }
+
+  if (modulo !== undefined && !modulos[modulo]) {
+    throw new AuthError("Módulo no disponible para esta organización", "FORBIDDEN");
+  }
+
+  if (predioId !== undefined) {
+    const tieneAccesoTotal = rol === "superadmin" || rol === "admin_org";
+    if (!tieneAccesoTotal && !predios.includes(predioId)) {
+      throw new AuthError("Sin acceso a este predio", "FORBIDDEN");
+    }
+  }
 }
 
 /**
- * Verifica autenticación y, opcionalmente:
- * - que el rol del usuario tenga rango >= rolMinimo
- * - que el módulo solicitado esté activo en la org
- * - que el usuario tenga acceso al fundoId indicado
- *   (superadmin y admin_org pasan sin verificación de fundo)
- *
+ * Verifica autenticación via session cookie (web).
  * Lanza AuthError en caso de fallo — nunca retorna null.
  */
 export async function withAuth(options?: WithAuthOptions): Promise<SmartCowSession> {
@@ -69,34 +73,40 @@ export async function withAuth(options?: WithAuthOptions): Promise<SmartCowSessi
     throw new AuthError("No autenticado", "UNAUTHENTICATED");
   }
 
-  const { rolMinimo, modulo, fundoId } = options ?? {};
-  const { rol, fundos, modulos } = session.user;
+  applyOptions(session, options);
+  return session;
+}
 
-  // Verificar rol mínimo
-  if (rolMinimo !== undefined) {
-    const rankUsuario = ROL_RANK[rol] ?? -1;
-    const rankRequerido = ROL_RANK[rolMinimo] ?? 0;
-
-    if (rankUsuario < rankRequerido) {
-      throw new AuthError("Permisos insuficientes", "FORBIDDEN");
-    }
+/**
+ * Verifica autenticación via Firebase ID token (Bearer, para mobile).
+ * Header: Authorization: Bearer <firebase-id-token>
+ *
+ * Lanza AuthError si el token falta, es inválido o expiró.
+ */
+export async function withAuthBearer(
+  req: NextRequest,
+  options?: WithAuthOptions
+): Promise<SmartCowSession> {
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    throw new AuthError("Token Bearer requerido", "UNAUTHENTICATED");
   }
 
-  // Verificar que el módulo está activo en la org
-  if (modulo !== undefined) {
-    if (!modulos[modulo]) {
-      throw new AuthError("Módulo no disponible para esta organización", "FORBIDDEN");
-    }
+  const token = authHeader.slice(7).trim();
+
+  let uid: string;
+  try {
+    const decoded = await adminAuth.verifyIdToken(token);
+    uid = decoded.uid;
+  } catch {
+    throw new AuthError("Token inválido o expirado", "UNAUTHENTICATED");
   }
 
-  // Verificar acceso al fundo solicitado
-  // superadmin y admin_org tienen acceso implícito a todos los fundos de su org
-  if (fundoId !== undefined) {
-    const tieneAccesoTotal = rol === "superadmin" || rol === "admin_org";
-    if (!tieneAccesoTotal && !fundos.includes(fundoId)) {
-      throw new AuthError("Sin acceso a este fundo", "FORBIDDEN");
-    }
+  const session = await loadUserByFirebaseUid(uid);
+  if (!session) {
+    throw new AuthError("Usuario no encontrado", "UNAUTHENTICATED");
   }
 
+  applyOptions(session, options);
   return session;
 }

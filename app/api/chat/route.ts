@@ -3,7 +3,7 @@
  * Ticket: AUT-112
  *
  * POST /api/chat
- * Body: { messages: MessageParam[], fundo_id: number }
+ * Body: { messages: MessageParam[], predio_id: number }
  * Response: text/event-stream (SSE)
  *
  * Eventos SSE:
@@ -15,7 +15,7 @@
  *
  * Seguridad:
  *   - withAuth() en cada request
- *   - fundoId validado contra fundos del usuario
+ *   - predioId validado contra predios del usuario
  *   - No PII en logs
  */
 
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 2. Parsear body
-  let body: { messages: Anthropic.MessageParam[]; fundo_id: number };
+  let body: { messages: Anthropic.MessageParam[]; predio_id: number };
   try {
     body = await req.json();
   } catch {
@@ -72,10 +72,10 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { messages, fundo_id: fundoId } = body;
+  const { messages, predio_id: predioId } = body;
 
-  if (!fundoId || typeof fundoId !== "number") {
-    return new Response(JSON.stringify({ error: "fundo_id requerido" }), {
+  if (!predioId || typeof predioId !== "number") {
+    return new Response(JSON.stringify({ error: "predio_id requerido" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
@@ -88,19 +88,19 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // 3. Validar acceso al fundo
-  const { rol, fundos, id: userId } = session.user;
+  // 3. Validar acceso al predio
+  const { rol, predios, id: userId } = session.user;
   const tieneAccesoTotal = rol === "superadmin" || rol === "admin_org";
 
-  if (!tieneAccesoTotal && !fundos.includes(fundoId)) {
-    return new Response(JSON.stringify({ error: "Sin acceso a este fundo", code: "FORBIDDEN" }), {
+  if (!tieneAccesoTotal && !predios.includes(predioId)) {
+    return new Response(JSON.stringify({ error: "Sin acceso a este predio", code: "FORBIDDEN" }), {
       status: 403,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  // fundosPermitidos vacío = acceso total (superadmin / admin_org)
-  const fundosPermitidos = tieneAccesoTotal ? [] : fundos;
+  // prediosPermitidos vacío = acceso total (superadmin / admin_org)
+  const prediosPermitidos = tieneAccesoTotal ? [] : predios;
   const rolRank = ROL_RANK[rol] ?? 0;
 
   // 4. Inicializar cliente Anthropic
@@ -129,17 +129,14 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        const systemPrompt = buildSystemPrompt(session, fundoId);
-        // Copia mutable del historial para el agentic loop
+        const systemPrompt = buildSystemPrompt(session, predioId);
         const conversationMessages: Anthropic.MessageParam[] = [...messages];
 
         let iteraciones = 0;
 
-        // Agentic loop: Claude puede llamar tools múltiples veces
         while (iteraciones < MAX_TOOL_ITERATIONS) {
           iteraciones++;
 
-          // Streaming request a Claude
           const stream = anthropic.messages.stream({
             model: "claude-sonnet-4-6",
             max_tokens: 4096,
@@ -151,7 +148,6 @@ export async function POST(req: NextRequest) {
           let fullText = "";
           const toolUses: Anthropic.ToolUseBlock[] = [];
 
-          // Emitir texto en tiempo real
           stream.on("text", (delta) => {
             fullText += delta;
             sendEvent({ type: "text_delta", delta });
@@ -159,27 +155,23 @@ export async function POST(req: NextRequest) {
 
           const finalMessage = await stream.finalMessage();
 
-          // Recolectar tool_use blocks
           for (const block of finalMessage.content) {
             if (block.type === "tool_use") {
               toolUses.push(block);
             }
           }
 
-          // Si no hay tool calls, Claude terminó su respuesta
           if (toolUses.length === 0 || finalMessage.stop_reason !== "tool_use") {
             sendEvent({ type: "done" });
             controller.close();
             return;
           }
 
-          // Agregar respuesta de Claude al historial
           conversationMessages.push({
             role: "assistant",
             content: finalMessage.content,
           });
 
-          // Ejecutar tools y agregar resultados al historial
           const toolResults: Anthropic.ToolResultBlockParam[] = [];
 
           for (const toolUse of toolUses) {
@@ -192,7 +184,7 @@ export async function POST(req: NextRequest) {
             const result = await ejecutarTool(
               toolUse.name,
               toolUse.input as Record<string, unknown>,
-              fundosPermitidos,
+              prediosPermitidos,
               Number(userId),
               rolRank
             );
@@ -210,18 +202,15 @@ export async function POST(req: NextRequest) {
             });
           }
 
-          // Agregar resultados de tools al historial para siguiente iteración
           conversationMessages.push({
             role: "user",
             content: toolResults,
           });
         }
 
-        // Se alcanzó el máximo de iteraciones
         sendEvent({ type: "done" });
         controller.close();
       } catch (err) {
-        // No loguear detalles del error que puedan exponer PII o datos del fundo
         console.error("[chat] error en stream:", err instanceof Error ? err.message : "unknown");
         sendError("Error procesando la consulta");
       }
