@@ -1,0 +1,259 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const { execSync, spawn } = require('child_process');
+
+const projectRoot = path.resolve(__dirname, '..');
+const command = process.argv[2];
+
+// NEVER kill 5432 (local PostgreSQL)
+const PORTS_TO_KILL = [3003, 8081, 19000, 19001, 19002];
+
+const commands = {
+  dev:       'Start Next.js dev server only',
+  mobile:    'Start Expo dev server (SmartCowExpo/)',
+  status:    'Check health of local services',
+  db:        'Open Drizzle Studio',
+  typecheck: 'TypeScript check (web + mobile)',
+  build:     'Production build',
+  help:      'Show this help message',
+};
+
+function printHelp() {
+  console.log(`
+SmartCow CLI
+Plataforma ganadera — Autonomos Lab
+
+Usage:
+  smartcow <command>
+
+Commands:
+`);
+  Object.entries(commands).forEach(([cmd, desc]) => {
+    console.log(`  ${cmd.padEnd(12)} ${desc}`);
+  });
+
+  console.log(`
+Examples:
+  smartcow           # Start everything (kill ports + Next.js dev)
+  smartcow dev       # Start Next.js dev server only
+  smartcow mobile    # Start Expo dev server
+  smartcow status    # Check what's running
+  smartcow db        # Open Drizzle Studio
+`);
+}
+
+function killNextDevServer() {
+  const lockFile = path.join(projectRoot, '.next', 'dev', 'lock');
+  if (!fs.existsSync(lockFile)) return;
+  try {
+    const lock = JSON.parse(fs.readFileSync(lockFile, 'utf8'));
+    if (lock.pid) {
+      execSync(`kill -9 ${lock.pid} 2>/dev/null || true`);
+      console.log(`   Killed existing Next.js dev server (PID ${lock.pid}, port ${lock.port})`);
+    }
+  } catch (e) { /* lock file malformed or process already gone */ }
+}
+
+function killPorts() {
+  console.log('Killing processes on conflicting ports...');
+  for (const port of PORTS_TO_KILL) {
+    try {
+      const result = execSync(`lsof -ti :${port} 2>/dev/null`, { encoding: 'utf8' }).trim();
+      if (result) {
+        const pids = result.split('\n').filter(Boolean);
+        for (const pid of pids) {
+          try {
+            execSync(`kill -9 ${pid} 2>/dev/null`);
+            console.log(`   Killed PID ${pid} on port ${port}`);
+          } catch (e) { /* already exited */ }
+        }
+      }
+    } catch (e) { /* no process on port */ }
+  }
+  console.log('   Done\n');
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function isPortOpen(port) {
+  try {
+    const result = execSync(`lsof -ti :${port} 2>/dev/null`, { encoding: 'utf8' }).trim();
+    return result.length > 0;
+  } catch (e) {
+    return false;
+  }
+}
+
+function readEnvLocal() {
+  const envPath = path.join(projectRoot, '.env.local');
+  if (!fs.existsSync(envPath)) return {};
+  const content = fs.readFileSync(envPath, 'utf8');
+  const env = {};
+  for (const line of content.split('\n')) {
+    const match = line.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
+    if (match) env[match[1]] = match[2].replace(/^"|"$/g, '');
+  }
+  return env;
+}
+
+function checkDb() {
+  const env = readEnvLocal();
+  const dbUrl = env['DATABASE_URL'];
+
+  if (!dbUrl) {
+    console.log('  ⚠  DATABASE_URL no configurada en .env.local');
+    console.log('     Copia .env.example → .env.local y configura la URL\n');
+    return;
+  }
+
+  const isRemote = !dbUrl.includes('localhost') && !dbUrl.includes('127.0.0.1');
+
+  if (isRemote) {
+    // Cloud SQL — verificar si el proxy corre en 5433
+    if (!isPortOpen(5433)) {
+      console.log('  ⚠  DATABASE_URL apunta a Cloud SQL pero el proxy no corre en :5433');
+      console.log('     Levanta el proxy antes de usar la DB:');
+      console.log('     cloud-sql-proxy <INSTANCE_CONNECTION_NAME> --port 5433\n');
+    } else {
+      console.log('  Cloud SQL Proxy   :5433  UP\n');
+    }
+  } else {
+    if (!isPortOpen(5432)) {
+      console.log('  ⚠  PostgreSQL local no detectado en :5432');
+      console.log('     Asegúrate de que postgres esté corriendo\n');
+    }
+  }
+}
+
+function checkStatus() {
+  console.log('\nService Status:\n');
+
+  const checks = [
+    { name: 'Next.js dev',       port: 3003 },
+    { name: 'Expo Metro',        port: 8081 },
+    { name: 'PostgreSQL (local)', port: 5432 },
+    { name: 'Cloud SQL Proxy',   port: 5433 },
+  ];
+
+  for (const check of checks) {
+    const up = isPortOpen(check.port);
+    console.log(`  ${check.name.padEnd(22)} :${check.port}  ${up ? 'UP' : '--'}`);
+  }
+
+  const env = readEnvLocal();
+  const dbUrl = env['DATABASE_URL'];
+  if (!dbUrl) {
+    console.log('\n  ⚠  DATABASE_URL no configurada en .env.local');
+  } else {
+    const masked = dbUrl.replace(/:\/\/[^@]+@/, '://<credentials>@');
+    console.log(`\n  DB: ${masked}`);
+  }
+  console.log('');
+}
+
+function runNpmScript(script) {
+  try {
+    process.chdir(projectRoot);
+    execSync(`npm run ${script}`, { stdio: 'inherit' });
+  } catch (error) {
+    process.exit(1);
+  }
+}
+
+function startMobile() {
+  const mobileRoot = path.join(projectRoot, 'SmartCowExpo');
+  if (!fs.existsSync(mobileRoot)) {
+    console.error('\nSmartCowExpo/ no encontrado en el proyecto\n');
+    process.exit(1);
+  }
+
+  console.log('\nStarting Expo dev server...\n');
+  const expo = spawn('npx', ['expo', 'start'], {
+    stdio: 'inherit',
+    shell: true,
+    cwd: mobileRoot,
+  });
+
+  const cleanup = () => {
+    try { expo.kill('SIGTERM'); } catch (e) {}
+    process.exit();
+  };
+  process.on('SIGINT', cleanup);
+  process.on('SIGTERM', cleanup);
+}
+
+async function startAll() {
+  console.log(`
++--------------------------------------------------------------+
+|              SmartCow — Dev Startup                          |
++--------------------------------------------------------------+
+`);
+
+  process.chdir(projectRoot);
+
+  // Kill existing Next.js dev server (by lock file PID)
+  killNextDevServer();
+  // Kill conflicting ports
+  killPorts();
+  await sleep(1000);
+
+  // Check DB
+  checkDb();
+
+  // Start Next.js dev
+  console.log('Starting Next.js dev server...\n');
+  const dev = spawn('npm', ['run', 'dev', '--', '-p', '3003'], {
+    stdio: 'inherit',
+    shell: true,
+    cwd: projectRoot,
+  });
+
+  await sleep(2000);
+
+  console.log(`
++--------------------------------------------------------------+
+|  App:  http://localhost:3003                                  |
+|  DB Studio:  smartcow db                                     |
+|  Mobile:     smartcow mobile (en otra terminal)              |
++--------------------------------------------------------------+
+
+Press Ctrl+C to stop.
+`);
+
+  const cleanup = () => {
+    console.log('\n\nShutting down...');
+    try { dev.kill('SIGTERM'); } catch (e) {}
+    console.log('   Done. Goodbye!\n');
+    process.exit();
+  };
+
+  process.on('SIGINT', cleanup);
+  process.on('SIGTERM', cleanup);
+}
+
+// Main
+if (!command) {
+  startAll();
+} else if (command === 'help' || command === '-h' || command === '--help') {
+  printHelp();
+} else if (command === 'status') {
+  checkStatus();
+} else if (command === 'mobile') {
+  startMobile();
+} else if (command === 'dev') {
+  runNpmScript('dev');
+} else if (command === 'db') {
+  runNpmScript('db:studio');
+} else if (command === 'typecheck') {
+  runNpmScript('typecheck');
+} else if (command === 'build') {
+  runNpmScript('build');
+} else {
+  console.error(`Unknown command: ${command}\n`);
+  printHelp();
+  process.exit(1);
+}

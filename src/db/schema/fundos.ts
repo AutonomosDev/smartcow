@@ -1,11 +1,15 @@
-import { pgTable, serial, varchar, text, jsonb, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, varchar, text, jsonb, timestamp } from "drizzle-orm/pg-core";
+import { organizaciones } from "./organizaciones.js";
 
 /**
  * fundos — Predio / establecimiento ganadero.
- * Unidad organizacional raíz. Toda tabla de dominio lleva fundo_id.
+ * Pertenece a una organización. Toda tabla de dominio lleva fundo_id.
  */
 export const fundos = pgTable("fundos", {
   id: serial("id").primaryKey(),
+  orgId: integer("org_id")
+    .notNull()
+    .references(() => organizaciones.id, { onDelete: "restrict" }),
   nombre: varchar("nombre", { length: 200 }).notNull(),
   region: varchar("region", { length: 100 }),
   config: jsonb("config").$type<Record<string, unknown>>().default({}),

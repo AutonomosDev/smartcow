@@ -8,9 +8,9 @@ import {
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
-import { fundos } from "./fundos.js";
-import { animales } from "./animales.js";
-import { users } from "./users.js";
+import { predios } from "./predios";
+import { animales } from "./animales";
+import { users } from "./users";
 
 export const tipoAreteoEnum = pgEnum("tipo_areteo", ["alta", "aparicion", "cambio_diio"]);
 
@@ -25,9 +25,9 @@ export const areteos = pgTable(
   "areteos",
   {
     id: serial("id").primaryKey(),
-    fundoId: integer("fundo_id")
+    predioId: integer("predio_id")
       .notNull()
-      .references(() => fundos.id, { onDelete: "restrict" }),
+      .references(() => predios.id, { onDelete: "restrict" }),
     animalId: integer("animal_id")
       .notNull()
       .references(() => animales.id, { onDelete: "restrict" }),
@@ -41,7 +41,7 @@ export const areteos = pgTable(
   },
   (t) => [
     index("areteos_animal_fecha_idx").on(t.animalId, t.fecha),
-    index("areteos_fundo_tipo_idx").on(t.fundoId, t.tipo),
+    index("areteos_predio_tipo_idx").on(t.predioId, t.tipo),
   ]
 );
 

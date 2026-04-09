@@ -1,157 +1,124 @@
 /**
- * auth.ts — Configuración NextAuth v5 (Auth.js beta)
- * Provider: credentials (email + password)
- * JWT payload: { userId, fundoId, rol }
- * Roles: admin_fundo | operador | veterinario | viewer
- * Ticket: AUT-110
+ * src/lib/auth.ts — Autenticación via Firebase Admin SDK.
+ * Verifica session cookie __session y carga datos del usuario desde DB.
+ * Server-only (Node.js runtime).
+ *
+ * Reemplaza NextAuth v5 + auth.config.ts.
  */
-
-import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { compare } from "bcryptjs";
+import "server-only";
+import { cookies } from "next/headers";
+import { adminAuth } from "./firebase/admin";
 import { db } from "@/src/db/client";
-import { users } from "@/src/db/schema/index";
+import { users, userPredios, organizaciones } from "@/src/db/schema/index";
 import { eq } from "drizzle-orm";
-import type { AuthError as NextAuthError } from "@auth/core/errors";
-import type { JWT } from "@auth/core/jwt";
-import type { Session, User as AuthUser } from "@auth/core/types";
 
 // ─────────────────────────────────────────────
-// TIPOS — extensión de sesión
+// TIPOS
 // ─────────────────────────────────────────────
 
-export type UserRol = "admin_fundo" | "operador" | "veterinario" | "viewer";
+export type UserRol =
+  | "superadmin"
+  | "admin_org"
+  | "admin_fundo"
+  | "operador"
+  | "veterinario"
+  | "viewer";
 
-export interface SmartCowSession extends Session {
+export interface SmartCowSession {
+  expires: string;
   user: {
     id: string;
     email: string;
     nombre: string;
-    fundoId: number;
+    orgId: number;
+    predios: number[];
     rol: UserRol;
+    modulos: Record<string, boolean>;
   };
 }
 
-export interface SmartCowJWT extends JWT {
-  userId: number;
-  fundoId: number;
-  rol: UserRol;
-  nombre: string;
-}
-
-export interface SmartCowUser extends AuthUser {
-  id: string;
-  email: string;
-  nombre: string;
-  fundoId: number;
-  rol: UserRol;
-}
-
 // ─────────────────────────────────────────────
-// CONFIGURACIÓN
+// DEV SESSION (bypass en desarrollo)
 // ─────────────────────────────────────────────
 
-const nextAuth = NextAuth({
-  providers: [
-    Credentials({
-      name: "Credenciales",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Contraseña", type: "password" },
-      },
-      async authorize(credentials) {
-        if (
-          !credentials?.email ||
-          !credentials?.password ||
-          typeof credentials.email !== "string" ||
-          typeof credentials.password !== "string"
-        ) {
-          return null;
-        }
-
-        const email = credentials.email.toLowerCase().trim();
-
-        const result = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, email))
-          .limit(1);
-
-        const user = result[0];
-        if (!user) return null;
-
-        const passwordOk = await compare(credentials.password, user.passwordHash);
-        if (!passwordOk) return null;
-
-        // No incluir passwordHash en el objeto retornado
-        const smartCowUser: SmartCowUser = {
-          id: String(user.id),
-          email: user.email,
-          nombre: user.nombre,
-          fundoId: user.fundoId,
-          rol: user.rol as UserRol,
-        };
-
-        return smartCowUser;
-      },
-    }),
-  ],
-
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        const u = user as SmartCowUser;
-        const t = token as SmartCowJWT;
-        t.userId = Number(u.id);
-        t.fundoId = u.fundoId;
-        t.rol = u.rol;
-        t.nombre = u.nombre;
-      }
-      return token;
-    },
-
-    async session({ session, token }) {
-      const t = token as SmartCowJWT;
-      return {
-        ...session,
-        user: {
-          id: String(t.userId),
-          email: t.email ?? "",
-          nombre: t.nombre,
-          fundoId: t.fundoId,
-          rol: t.rol,
-        },
-      } as unknown as SmartCowSession;
-    },
+const DEV_SESSION: SmartCowSession = {
+  user: {
+    id: "1",
+    email: "admin@smartcow.cl",
+    nombre: "Admin Dev",
+    orgId: 1,
+    predios: [9, 3, 4, 5, 6, 7, 8],
+    rol: "admin_org",
+    modulos: { feedlot: true, crianza: true },
   },
+  expires: "2099-12-31",
+};
 
-  session: {
-    strategy: "jwt",
-    maxAge: 8 * 60 * 60, // 8 horas
-  },
-
-  pages: {
-    signIn: "/login",
-    error: "/login",
-  },
-
-  // No registrar datos del usuario en logs
-  logger: {
-    error(error: unknown) {
-      // Solo loguear el código de error, nunca credenciales ni PII
-      const authErr = error as NextAuthError;
-      console.error("[auth error]", authErr?.type ?? "unknown");
-    },
-  },
-});
-
-export const { handlers, signIn, signOut } = nextAuth;
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
 
 /**
- * auth() tipado — retorna SmartCowSession | null.
- * Usar en Server Components y server actions.
+ * Carga datos del usuario SmartCow a partir de su Firebase UID.
+ * Retorna null si el UID no existe en nuestra DB.
+ */
+export async function loadUserByFirebaseUid(
+  uid: string
+): Promise<SmartCowSession | null> {
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.firebaseUid, uid))
+    .limit(1);
+
+  const user = result[0];
+  if (!user) return null;
+
+  const [predioRows, orgRows] = await Promise.all([
+    db
+      .select({ predioId: userPredios.predioId })
+      .from(userPredios)
+      .where(eq(userPredios.userId, user.id)),
+    db
+      .select({ modulos: organizaciones.modulos })
+      .from(organizaciones)
+      .where(eq(organizaciones.id, user.orgId))
+      .limit(1),
+  ]);
+
+  return {
+    expires: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+    user: {
+      id: String(user.id),
+      email: user.email,
+      nombre: user.nombre,
+      orgId: user.orgId,
+      predios: predioRows.map((r) => r.predioId),
+      rol: user.rol as UserRol,
+      modulos: (orgRows[0]?.modulos as Record<string, boolean>) ?? {},
+    },
+  };
+}
+
+// ─────────────────────────────────────────────
+// auth() — Para Server Components y server actions
+// ─────────────────────────────────────────────
+
+/**
+ * Verifica la session cookie __session y retorna SmartCowSession | null.
+ * En development retorna DEV_SESSION sin verificar cookie.
  */
 export async function auth(): Promise<SmartCowSession | null> {
-  const session = await nextAuth.auth();
-  return session as unknown as SmartCowSession | null;
+  if (process.env.NODE_ENV === "development") return DEV_SESSION;
+
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("__session")?.value;
+  if (!sessionCookie) return null;
+
+  try {
+    const decoded = await adminAuth.verifySessionCookie(sessionCookie, true);
+    return loadUserByFirebaseUid(decoded.uid);
+  } catch {
+    return null;
+  }
 }

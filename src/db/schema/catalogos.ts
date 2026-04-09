@@ -1,9 +1,9 @@
 import { pgTable, serial, integer, varchar } from "drizzle-orm/pg-core";
-import { fundos } from "./fundos.js";
+import { predios } from "./predios";
 
 /**
  * tipo_ganado — Clasificación del animal (vaca, novilla, ternero, etc.)
- * Catálogo global (no depende de fundo).
+ * Catálogo global (no depende de predio).
  */
 export const tipoGanado = pgTable("tipo_ganado", {
   id: serial("id").primaryKey(),
@@ -72,25 +72,25 @@ export const bajaCausa = pgTable("baja_causa", {
 
 /**
  * semen — Toros / pajuelas de semen para inseminación.
- * Scoped por fundo (cada fundo maneja su propio catálogo de toros).
+ * Scoped por predio (cada predio maneja su propio catálogo de toros).
  */
 export const semen = pgTable("semen", {
   id: serial("id").primaryKey(),
-  fundoId: integer("fundo_id")
+  predioId: integer("predio_id")
     .notNull()
-    .references(() => fundos.id, { onDelete: "cascade" }),
+    .references(() => predios.id, { onDelete: "cascade" }),
   toro: varchar("toro", { length: 200 }).notNull(),
 });
 
 /**
  * inseminadores — Personas que realizan la inseminación.
- * Scoped por fundo.
+ * Scoped por predio.
  */
 export const inseminadores = pgTable("inseminadores", {
   id: serial("id").primaryKey(),
-  fundoId: integer("fundo_id")
+  predioId: integer("predio_id")
     .notNull()
-    .references(() => fundos.id, { onDelete: "cascade" }),
+    .references(() => predios.id, { onDelete: "cascade" }),
   nombre: varchar("nombre", { length: 200 }).notNull(),
 });
 

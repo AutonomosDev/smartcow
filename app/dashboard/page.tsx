@@ -14,7 +14,7 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const { nombre, rol, fundoId } = session.user;
+  const { nombre, rol, orgId } = session.user;
 
   return (
     <main style={{ padding: 32 }}>
@@ -23,8 +23,8 @@ export default async function DashboardPage() {
       <dl>
         <dt>Rol</dt>
         <dd>{rol}</dd>
-        <dt>Fundo ID</dt>
-        <dd>{fundoId}</dd>
+        <dt>Organización ID</dt>
+        <dd>{orgId}</dd>
       </dl>
     </main>
   );

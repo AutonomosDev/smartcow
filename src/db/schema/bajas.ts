@@ -8,10 +8,10 @@ import {
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
-import { fundos } from "./fundos.js";
-import { animales } from "./animales.js";
-import { bajaMotivo, bajaCausa } from "./catalogos.js";
-import { users } from "./users.js";
+import { predios } from "./predios";
+import { animales } from "./animales";
+import { bajaMotivo, bajaCausa } from "./catalogos";
+import { users } from "./users";
 
 /**
  * bajas — Registro de bajas de animales (muerte, venta forzosa, descarte).
@@ -22,9 +22,9 @@ export const bajas = pgTable(
   "bajas",
   {
     id: serial("id").primaryKey(),
-    fundoId: integer("fundo_id")
+    predioId: integer("predio_id")
       .notNull()
-      .references(() => fundos.id, { onDelete: "restrict" }),
+      .references(() => predios.id, { onDelete: "restrict" }),
     animalId: integer("animal_id")
       .notNull()
       .references(() => animales.id, { onDelete: "restrict" }),
@@ -40,7 +40,7 @@ export const bajas = pgTable(
   },
   (t) => [
     index("bajas_animal_idx").on(t.animalId),
-    index("bajas_fundo_fecha_idx").on(t.fundoId, t.fecha),
+    index("bajas_predio_fecha_idx").on(t.predioId, t.fecha),
   ]
 );
 
