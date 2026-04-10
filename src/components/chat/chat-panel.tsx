@@ -257,73 +257,84 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, className }:
   }, []);
 
   return (
-    <div className={`flex flex-col h-full min-h-0 bg-white ${className ?? ""}`}>
+    <div className={`flex flex-col h-full min-h-0 bg-[#efedec] ${className ?? ""}`}>
       {/* Mensajes */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-2">
-        {messages.length === 0 && (
-          <ChatEmptyState nombrePredio={nombrePredio} />
-        )}
-
-        {messages.map((msg, idx) => (
-          <MessageRenderer key={idx} message={msg} />
-        ))}
-
-        {/* Agent Plan — solo durante tool use de escritura */}
-        {showAgentPlan && agentTasks.length > 0 && (
-          <div className="px-2 pb-2">
-            <AgentPlan tasks={agentTasks} />
-          </div>
-        )}
-
-        {/* Thought — agente pensando en tiempo real */}
-        {thinkingText && (
-          <div className="flex gap-3 items-start mb-4 px-2">
-            <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-pulse" />
+          {messages.length === 0 && (
+            <ChatEmptyState 
+              nombrePredio={nombrePredio}
+              onSuggestionClick={(text) => handleSend(text)} 
+            />
+          )}
+  
+          {messages.map((msg, idx) => (
+            <MessageRenderer key={idx} message={msg} />
+          ))}
+  
+          {/* Agent Plan — solo durante tool use de escritura */}
+          {showAgentPlan && agentTasks.length > 0 && (
+            <div className="px-2 pb-2">
+              <AgentPlan tasks={agentTasks} />
             </div>
-            <details className="flex-1" open>
-              <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-600 select-none list-none flex items-center gap-1">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 animate-pulse" />
-                Pensando...
-              </summary>
-              <p className="text-xs text-gray-400 mt-1 leading-relaxed font-mono border-l border-gray-100 pl-3 max-h-24 overflow-y-auto">
-                {thinkingText}
-              </p>
-            </details>
-          </div>
-        )}
-
-        {/* Indicador de carga cuando no hay thinking text */}
-        {isLoading && !thinkingText && messages[messages.length - 1]?.role === "assistant" && messages[messages.length - 1]?.content === "" && (
-          <div className="flex gap-3 items-center mb-4 px-2">
-            <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0">
-              <div className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-pulse" />
+          )}
+  
+          {/* Thought — agente pensando en tiempo real */}
+          {thinkingText && (
+            <div className="flex gap-3 items-start mb-4 px-2">
+              <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-pulse" />
+              </div>
+              <details className="flex-1" open>
+                <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-600 select-none list-none flex items-center gap-1">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 animate-pulse" />
+                  Pensando...
+                </summary>
+                <p className="text-xs text-gray-400 mt-1 leading-relaxed font-mono border-l border-gray-100 pl-3 max-h-24 overflow-y-auto">
+                  {thinkingText}
+                </p>
+              </details>
             </div>
-            <span className="text-xs text-gray-400">Procesando...</span>
+          )}
+  
+          {/* Indicador de carga cuando no hay thinking text */}
+          {isLoading && !thinkingText && messages[messages.length - 1]?.role === "assistant" && messages[messages.length - 1]?.content === "" && (
+            <div className="flex gap-3 items-center mb-4 px-2">
+              <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-pulse" />
+              </div>
+              <span className="text-xs text-gray-400">Procesando...</span>
+            </div>
+          )}
+  
+          <div ref={messagesEndRef} />
+        </div>
+  
+        {/* Input */}
+        <div className="px-4 pb-8 pt-4 flex flex-col items-center">
+          <div className="w-full max-w-3xl bg-white rounded-[28px] shadow-sm border border-[#e5e5e5] overflow-hidden">
+            <PromptInputBox
+              onSend={handleSend}
+              isLoading={isLoading}
+              placeholder="Pregunta sobre tus animales..."
+              className="!shadow-none !border-0 bg-transparent"
+            />
           </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <div className="px-4 pb-4 pt-2 border-t border-gray-100">
-        <PromptInputBox
-          onSend={handleSend}
-          isLoading={isLoading}
-          placeholder="Pregunta sobre tus animales..."
-        />
-        {isLoading && (
-          <div className="flex justify-center mt-2">
-            <button
-              onClick={handleStop}
-              className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              Detener respuesta
-            </button>
-          </div>
-        )}
-      </div>
+          
+          <p className="text-center text-[10px] text-gray-400 mt-3 font-medium">
+            AI can make mistakes. Please double-check responses.
+          </p>
+  
+          {isLoading && (
+            <div className="flex justify-center mt-2">
+              <button
+                onClick={handleStop}
+                className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                Detener respuesta
+              </button>
+            </div>
+          )}
+        </div>
     </div>
   );
 }
@@ -354,7 +365,7 @@ function formatToolInput(input: unknown): string {
 function isSuccessResult(result: unknown): boolean {
   if (!result || typeof result !== "object") return false;
   const obj = result as Record<string, unknown>;
-  return obj.success === true || (obj.error === undefined && obj.id !== undefined);
+  return obj.ok === true || obj.success === true;
 }
 
 // ─── Tipo re-exportado para el chart ─────────────────────────────────────────

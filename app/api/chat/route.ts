@@ -1,9 +1,9 @@
 /**
- * app/api/chat/route.ts — Endpoint SSE para chat ganadero con Claude.
- * Ticket: AUT-112
+ * app/api/chat/route.ts — Endpoint SSE para chat ganadero con Gemma 4.
+ * Ticket: AUT-112 (migrado de Anthropic → OpenRouter/Gemma 4 26B A4B)
  *
  * POST /api/chat
- * Body: { messages: MessageParam[], predio_id: number }
+ * Body: { messages: Array<{role: string, content: string}>, predio_id: number }
  * Response: text/event-stream (SSE)
  *
  * Eventos SSE:
@@ -20,10 +20,10 @@
  */
 
 import { NextRequest } from "next/server";
-import type Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { withAuth } from "@/src/lib/with-auth";
 import {
-  getAnthropicClient,
+  getOpenRouterClient,
   buildSystemPrompt,
   CATTLE_TOOLS,
   ejecutarTool,
@@ -39,6 +39,8 @@ const ROL_RANK: Record<string, number> = {
   admin_org: 4,
   superadmin: 5,
 };
+
+const GEMMA_MODEL = "google/gemma-4-26b-a4b-it";
 
 // Máximo de iteraciones de tool use por request (evitar loops infinitos)
 const MAX_TOOL_ITERATIONS = 5;
@@ -62,7 +64,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 2. Parsear body
-  let body: { messages: Anthropic.MessageParam[]; predio_id: number };
+  let body: { messages: Array<{ role: string; content: string }>; predio_id: number };
   try {
     body = await req.json();
   } catch {
@@ -99,14 +101,13 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // prediosPermitidos vacío = acceso total (superadmin / admin_org)
   const prediosPermitidos = tieneAccesoTotal ? [] : predios;
   const rolRank = ROL_RANK[rol] ?? 0;
 
-  // 4. Inicializar cliente Anthropic
-  let anthropic;
+  // 4. Inicializar cliente OpenRouter
+  let openrouter: OpenAI;
   try {
-    anthropic = getAnthropicClient();
+    openrouter = getOpenRouterClient();
   } catch {
     return new Response(JSON.stringify({ error: "Servicio no disponible" }), {
       status: 503,
@@ -130,82 +131,104 @@ export async function POST(req: NextRequest) {
 
       try {
         const systemPrompt = buildSystemPrompt(session, predioId);
-        const conversationMessages: Anthropic.MessageParam[] = [...messages];
+
+        // Historial en formato OpenAI
+        const conversationMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+          { role: "system", content: systemPrompt },
+          ...messages.map((m) => ({
+            role: (m.role === "assistant" ? "assistant" : "user") as "user" | "assistant",
+            content: m.content,
+          })),
+        ];
 
         let iteraciones = 0;
 
         while (iteraciones < MAX_TOOL_ITERATIONS) {
           iteraciones++;
 
-          const stream = anthropic.messages.stream({
-            model: "claude-sonnet-4-6",
-            max_tokens: 4096,
-            system: systemPrompt,
-            tools: CATTLE_TOOLS,
+          const streamResponse = await openrouter.chat.completions.create({
+            model: GEMMA_MODEL,
             messages: conversationMessages,
+            tools: CATTLE_TOOLS,
+            stream: true,
           });
 
-          let fullText = "";
-          const toolUses: Anthropic.ToolUseBlock[] = [];
+          // Acumular tool calls parciales y emitir text deltas
+          const accToolCalls: Record<number, { id: string; name: string; arguments: string }> = {};
+          let finishReason = "";
 
-          stream.on("text", (delta) => {
-            fullText += delta;
-            sendEvent({ type: "text_delta", delta });
-          });
+          for await (const chunk of streamResponse) {
+            const choice = chunk.choices[0];
+            if (!choice) continue;
 
-          const finalMessage = await stream.finalMessage();
+            const delta = choice.delta;
 
-          for (const block of finalMessage.content) {
-            if (block.type === "tool_use") {
-              toolUses.push(block);
+            if (delta.content) {
+              sendEvent({ type: "text_delta", delta: delta.content });
+            }
+
+            if (delta.tool_calls) {
+              for (const tc of delta.tool_calls) {
+                if (!accToolCalls[tc.index]) {
+                  accToolCalls[tc.index] = { id: "", name: "", arguments: "" };
+                }
+                if (tc.id) accToolCalls[tc.index].id = tc.id;
+                if (tc.function?.name) accToolCalls[tc.index].name = tc.function.name;
+                if (tc.function?.arguments) accToolCalls[tc.index].arguments += tc.function.arguments;
+              }
+            }
+
+            if (choice.finish_reason) {
+              finishReason = choice.finish_reason;
             }
           }
 
-          if (toolUses.length === 0 || finalMessage.stop_reason !== "tool_use") {
+          // Sin tool calls → terminado
+          const toolCallsList = Object.values(accToolCalls);
+          if (finishReason !== "tool_calls" || toolCallsList.length === 0) {
             sendEvent({ type: "done" });
             controller.close();
             return;
           }
 
+          // Agregar mensaje del asistente con tool calls al historial
           conversationMessages.push({
             role: "assistant",
-            content: finalMessage.content,
+            content: null,
+            tool_calls: toolCallsList.map((tc) => ({
+              id: tc.id,
+              type: "function" as const,
+              function: { name: tc.name, arguments: tc.arguments },
+            })),
           });
 
-          const toolResults: Anthropic.ToolResultBlockParam[] = [];
+          // Ejecutar cada tool y agregar resultado al historial
+          for (const tc of toolCallsList) {
+            let toolInput: Record<string, unknown>;
+            try {
+              toolInput = JSON.parse(tc.arguments);
+            } catch {
+              toolInput = {};
+            }
 
-          for (const toolUse of toolUses) {
-            sendEvent({
-              type: "tool_use",
-              tool: toolUse.name,
-              input: toolUse.input,
-            });
+            sendEvent({ type: "tool_use", tool: tc.name, input: toolInput });
 
             const result = await ejecutarTool(
-              toolUse.name,
-              toolUse.input as Record<string, unknown>,
+              tc.name,
+              toolInput,
               prediosPermitidos,
               Number(userId),
               rolRank
             );
 
-            sendEvent({
-              type: "tool_result",
-              tool: toolUse.name,
-              result,
-            });
+            sendEvent({ type: "tool_result", tool: tc.name, result });
 
-            toolResults.push({
-              type: "tool_result",
-              tool_use_id: toolUse.id,
+            conversationMessages.push({
+              role: "tool",
+              tool_call_id: tc.id,
               content: JSON.stringify(result),
             });
           }
-
-          conversationMessages.push({
-            role: "user",
-            content: toolResults,
-          });
         }
 
         sendEvent({ type: "done" });
