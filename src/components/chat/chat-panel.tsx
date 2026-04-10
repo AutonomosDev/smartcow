@@ -19,11 +19,12 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { PromptInputBox } from "@/src/components/ui/ai-prompt-box";
 import { MessageRenderer, type ChatMessage, type ChartData } from "@/src/components/chat/message-renderer";
 import { AgentPlan, type AgentTask, type AgentTaskStatus } from "@/src/components/ui/agent-plan";
+import { ChatEmptyState } from "@/src/components/chat/chat-empty-state";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SSEEvent {
-  type: "text_delta" | "tool_use" | "tool_result" | "done" | "error";
+  type: "text_delta" | "thinking_delta" | "tool_use" | "tool_result" | "done" | "error";
   delta?: string;
   tool?: string;
   input?: unknown;
@@ -38,16 +39,21 @@ const WRITE_TOOLS = new Set(["registrar_pesaje", "registrar_parto"]);
 
 interface ChatPanelProps {
   predioId: number;
+  initialMessage?: string;
+  nombrePredio?: string | null;
+  className?: string;
 }
 
-export function ChatPanel({ predioId }: ChatPanelProps) {
+export function ChatPanel({ predioId, initialMessage, nombrePredio, className }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [thinkingText, setThinkingText] = useState("");
   const [agentTasks, setAgentTasks] = useState<AgentTask[]>([]);
   const [showAgentPlan, setShowAgentPlan] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const hasSentInitial = useRef(false);
 
   // Scroll al último mensaje
   const scrollToBottom = useCallback(() => {
@@ -57,6 +63,15 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
+
+  // Enviar initialMessage al montar (una sola vez)
+  useEffect(() => {
+    if (initialMessage && !hasSentInitial.current) {
+      hasSentInitial.current = true;
+      handleSend(initialMessage);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Manejar tool_use para Agent Plan
   const handleToolUse = useCallback(
@@ -103,9 +118,10 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
     async (content: string) => {
       if (!content.trim() || isLoading) return;
 
-      // Reset agent plan
+      // Reset agent plan y thinking
       setAgentTasks([]);
       setShowAgentPlan(false);
+      setThinkingText("");
 
       const userMessage: ChatMessage = { role: "user", content };
       const updatedMessages = [...messages, userMessage];
@@ -166,8 +182,15 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
             }
 
             switch (event.type) {
+              case "thinking_delta":
+                if (event.delta) {
+                  setThinkingText((prev) => prev + event.delta);
+                }
+                break;
+
               case "text_delta":
                 if (event.delta) {
+                  setThinkingText(""); // limpiar thinking cuando empieza la respuesta
                   setMessages((prev) => {
                     const last = prev[prev.length - 1];
                     if (last?.role === "assistant") {
@@ -222,6 +245,7 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
         }
       } finally {
         setIsLoading(false);
+        setThinkingText("");
         abortControllerRef.current = null;
       }
     },
@@ -233,18 +257,11 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
   }, []);
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-[#111111]">
+    <div className={`flex flex-col h-full min-h-0 bg-white ${className ?? ""}`}>
       {/* Mensajes */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-2">
         {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-            <div className="text-center space-y-2">
-              <p className="text-lg font-medium text-gray-400">SmartCow IA</p>
-              <p className="text-gray-500">
-                Consulta sobre tus animales, pesajes, partos o índices reproductivos.
-              </p>
-            </div>
-          </div>
+          <ChatEmptyState nombrePredio={nombrePredio} />
         )}
 
         {messages.map((msg, idx) => (
@@ -258,11 +275,39 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
           </div>
         )}
 
+        {/* Thought — agente pensando en tiempo real */}
+        {thinkingText && (
+          <div className="flex gap-3 items-start mb-4 px-2">
+            <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-pulse" />
+            </div>
+            <details className="flex-1" open>
+              <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-600 select-none list-none flex items-center gap-1">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-300 animate-pulse" />
+                Pensando...
+              </summary>
+              <p className="text-xs text-gray-400 mt-1 leading-relaxed font-mono border-l border-gray-100 pl-3 max-h-24 overflow-y-auto">
+                {thinkingText}
+              </p>
+            </details>
+          </div>
+        )}
+
+        {/* Indicador de carga cuando no hay thinking text */}
+        {isLoading && !thinkingText && messages[messages.length - 1]?.role === "assistant" && messages[messages.length - 1]?.content === "" && (
+          <div className="flex gap-3 items-center mb-4 px-2">
+            <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0">
+              <div className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-pulse" />
+            </div>
+            <span className="text-xs text-gray-400">Procesando...</span>
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
-      <div className="px-4 pb-4 pt-2 border-t border-[#222]">
+      <div className="px-4 pb-4 pt-2 border-t border-gray-100">
         <PromptInputBox
           onSend={handleSend}
           isLoading={isLoading}

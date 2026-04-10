@@ -1,7 +1,7 @@
 import { auth } from "@/src/lib/auth";
 import { redirect } from "next/navigation";
 import { getPredioKpis, getNombrePredio, type PredioKpis } from "@/src/lib/queries/predio";
-import { Target, Sparkles, Search, ChevronRight, Layers, ChevronDown, Bell, Weight, Baby, Stethoscope } from "lucide-react";
+import { Target, Sparkles, Search, ChevronRight, Layers, Bell, Weight, Baby, Stethoscope } from "lucide-react";
 import Link from "next/link";
 
 export default async function DashboardPage() {
@@ -77,39 +77,27 @@ function DesktopView({ nombre, kpis, nombrePredio }: { nombre: string | null | u
           </div>
       </div>
 
-      {/* 3. FLOATING SEARCH PILL */}
+      {/* 3. FLOATING SEARCH PILL — link al chat IA */}
       <div className="w-full max-w-4xl mx-auto -mt-8 relative z-20 px-4">
-          <div className="bg-farm-surface rounded-pill p-2 pl-6 shadow-float flex flex-col md:flex-row items-center gap-2">
-              
-              <div className="flex-1 flex w-full border-b md:border-b-0 md:border-r border-gray-100 py-3 md:py-0 px-2 justify-between cursor-pointer">
-                  <div>
-                      <p className="text-[10px] text-ink-meta font-bold uppercase tracking-wider mb-1">Localización</p>
-                      <h4 className="text-sm font-bold text-ink-title">{nombrePredio ?? "Predio"}</h4>
-                  </div>
-                  <ChevronDown size={18} className="text-gray-400 self-center" />
+          <Link
+            href="/chat"
+            className="group bg-farm-surface rounded-pill shadow-float flex items-center overflow-hidden border border-gray-100 hover:shadow-lg transition-all"
+          >
+              {/* Sección izquierda: nombre del fundo */}
+              <div className="flex-1 px-6 py-4 border-r border-gray-100">
+                  <p className="text-[10px] text-ink-meta font-semibold uppercase tracking-wider mb-0.5">Fundo</p>
+                  <h4 className="text-sm font-medium text-ink-title">{nombrePredio ?? "Predio"}</h4>
               </div>
-              
-              <div className="flex-1 flex w-full border-b md:border-b-0 md:border-r border-gray-100 py-3 md:py-0 px-4 justify-between cursor-pointer">
-                  <div>
-                      <p className="text-[10px] text-ink-meta font-bold uppercase tracking-wider mb-1">Categoría</p>
-                      <h4 className="text-sm font-bold text-ink-title">Vacas Lecheras</h4>
-                  </div>
-                  <ChevronDown size={18} className="text-gray-400 self-center" />
+              {/* Sección derecha: placeholder consulta */}
+              <div className="flex-1 px-6 py-4">
+                  <p className="text-[10px] text-ink-meta font-semibold uppercase tracking-wider mb-0.5">Consultar IA</p>
+                  <h4 className="text-sm text-ink-meta">¿Qué quieres saber hoy?</h4>
               </div>
-
-              <div className="flex-1 flex w-full py-3 md:py-0 px-4 justify-between cursor-pointer">
-                  <div>
-                      <p className="text-[10px] text-ink-meta font-bold uppercase tracking-wider mb-1">Estado</p>
-                      <h4 className="text-sm font-bold text-ink-title">Requiere Atención</h4>
-                  </div>
-                  <ChevronDown size={18} className="text-gray-400 self-center" />
+              {/* Botón circular verde */}
+              <div className="mr-2 w-12 h-12 rounded-full bg-brand-dark flex items-center justify-center flex-shrink-0 group-hover:bg-black transition-colors">
+                  <Search size={18} className="text-brand-light" />
               </div>
-
-              <button className="w-full md:w-auto bg-brand-dark text-brand-light px-8 py-4 rounded-pill font-bold flex items-center justify-center gap-2 hover:bg-black transition-colors mt-2 md:mt-0">
-                  <Search size={18} />
-                  <span>Filtrar</span>
-              </button>
-          </div>
+          </Link>
       </div>
 
       {/* 4. MAIN DASHBOARD KPIs */}

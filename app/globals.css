@@ -17,6 +17,8 @@
   --radius-card: 1.5rem;
   --radius-pill: 9999px;
   --radius-inner: 0.75rem;
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
 }
 
 :root {
@@ -30,20 +32,6 @@
   --secondary: #f3f4f6;
   --secondary-foreground: #111111;
   --ring: #3b82f6;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #111111;
-    --foreground: #f9fafb;
-    --card: #1f2023;
-    --card-foreground: #f9fafb;
-    --border: #374151;
-    --muted: #1f2937;
-    --muted-foreground: #9ca3af;
-    --secondary: #1f2937;
-    --secondary-foreground: #f9fafb;
-  }
 }
 
 body {

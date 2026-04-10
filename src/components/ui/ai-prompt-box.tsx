@@ -11,7 +11,7 @@
 import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { ArrowUp, Paperclip, Square, X, StopCircle, Mic } from "lucide-react";
+import { ArrowUp, Paperclip, Square, X, StopCircle, Globe, MapPin, MoreHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Utility ────────────────────────────────────────────────────────────────
@@ -29,7 +29,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => (
     <textarea
       className={cn(
-        "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base text-gray-100 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none",
+        "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none",
         className
       )}
       ref={ref}
@@ -334,8 +334,8 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           <div
             ref={ref}
             className={cn(
-              "rounded-3xl border border-[#444444] bg-[#1F2023] p-2 shadow-[0_8px_30px_rgba(0,0,0,0.24)] transition-all duration-300",
-              isLoading && "border-red-500/70",
+              "rounded-2xl bg-white border-0 p-2 transition-all duration-300",
+              isLoading && "ring-1 ring-red-400/50",
               className
             )}
             onDragOver={onDragOver}
@@ -545,8 +545,8 @@ export const PromptInputBox = React.forwardRef(
           isLoading={isLoading}
           onSubmit={handleSubmit}
           className={cn(
-            "w-full bg-[#1F2023] border-[#444444] shadow-[0_8px_30px_rgba(0,0,0,0.24)] transition-all duration-300 ease-in-out",
-            isRecording && "border-red-500/70",
+            "w-full bg-white border-0 shadow-none transition-all duration-300 ease-in-out",
+            isRecording && "ring-1 ring-red-400/50",
             className
           )}
           disabled={isLoading || isRecording}
@@ -619,10 +619,10 @@ export const PromptInputBox = React.forwardRef(
               <PromptInputAction tooltip="Adjuntar imagen">
                 <button
                   onClick={() => uploadInputRef.current?.click()}
-                  className="flex h-8 w-8 text-[#9CA3AF] cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-gray-600/30 hover:text-[#D1D5DB]"
+                  className="flex h-8 w-8 text-gray-400 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-white transition-colors hover:bg-gray-50"
                   disabled={isRecording}
                 >
-                  <Paperclip className="h-5 w-5 transition-colors" />
+                  <Paperclip className="h-4 w-4" />
                   <input
                     ref={uploadInputRef}
                     type="file"
@@ -636,45 +636,47 @@ export const PromptInputBox = React.forwardRef(
                   />
                 </button>
               </PromptInputAction>
+              <PromptInputAction tooltip="Buscar en web">
+                <button className="flex h-8 w-8 text-gray-400 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-white transition-colors hover:bg-gray-50">
+                  <Globe className="h-4 w-4" />
+                </button>
+              </PromptInputAction>
+              <PromptInputAction tooltip="Ubicación">
+                <button className="flex h-8 w-8 text-gray-400 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-white transition-colors hover:bg-gray-50">
+                  <MapPin className="h-4 w-4" />
+                </button>
+              </PromptInputAction>
+              <PromptInputAction tooltip="Más opciones">
+                <button className="flex h-8 w-8 text-gray-400 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-white transition-colors hover:bg-gray-50">
+                  <MoreHorizontal className="h-4 w-4" />
+                </button>
+              </PromptInputAction>
             </div>
 
             <PromptInputAction
-              tooltip={
-                isLoading
-                  ? "Detener generación"
-                  : isRecording
-                  ? "Detener grabación"
-                  : hasContent
-                  ? "Enviar mensaje"
-                  : "Mensaje de voz"
-              }
+              tooltip={isLoading ? "Detener generación" : isRecording ? "Detener grabación" : "Enviar mensaje"}
             >
               <Button
                 variant="default"
                 size="icon"
                 className={cn(
-                  "h-8 w-8 rounded-full transition-all duration-200",
-                  isRecording
-                    ? "bg-transparent hover:bg-gray-600/30 text-red-500 hover:text-red-400"
-                    : hasContent
-                    ? "bg-white hover:bg-white/80 text-[#1F2023]"
-                    : "bg-transparent hover:bg-gray-600/30 text-[#9CA3AF] hover:text-[#D1D5DB]"
+                  "h-9 w-9 rounded-xl transition-all duration-200",
+                  isLoading || isRecording
+                    ? "bg-gray-900 hover:bg-black text-white"
+                    : "bg-gray-900 hover:bg-black text-white"
                 )}
                 onClick={() => {
                   if (isRecording) setIsRecording(false);
-                  else if (hasContent) handleSubmit();
-                  else setIsRecording(true);
+                  else if (isLoading) handleSubmit();
+                  else handleSubmit();
                 }}
-                disabled={isLoading && !hasContent}
               >
                 {isLoading ? (
-                  <Square className="h-4 w-4 fill-[#1F2023] animate-pulse" />
+                  <Square className="h-3.5 w-3.5 fill-white animate-pulse" />
                 ) : isRecording ? (
-                  <StopCircle className="h-5 w-5 text-red-500" />
-                ) : hasContent ? (
-                  <ArrowUp className="h-4 w-4 text-[#1F2023]" />
+                  <StopCircle className="h-4 w-4 text-white" />
                 ) : (
-                  <Mic className="h-5 w-5 text-[#1F2023] transition-colors" />
+                  <ArrowUp className="h-4 w-4 text-white" />
                 )}
               </Button>
             </PromptInputAction>
