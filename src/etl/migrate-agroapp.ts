@@ -6,8 +6,8 @@
  *
  * Orden de migración (respeta dependencias FK):
  *   P1. Catálogos   — tipo_ganado, razas, estado_reproductivo
- *   P2. Fundos      — fundo → fundos
- *   P3. Semen       — inseminacion_semen → semen (scoped por fundo)
+ *   P2. Predios      — predio → predios
+ *   P3. Semen       — inseminacion_semen → semen (scoped por predio)
  *   P4. Animales    — ganado_actual → animales
  *   P5. Pesajes     — pesajes → pesajes
  *   P6. Partos      — partos → partos
@@ -178,10 +178,10 @@ function inferSexo(tipoGanado: string | undefined): "M" | "H" {
 // MAPEOS EN MEMORIA (AgroApp ID → SmartCow ID)
 // ─────────────────────────────────────────────
 
-// ID de la organización dueña de todos los fundos migrados (se resuelve en main)
+// ID de la organización dueña de todos los predios migrados (se resuelve en main)
 let defaultOrgId: number = 0;
 
-const mapFundo = new Map<number, number>(); // agroFundoId → smartcowFundoId
+const mapPredio = new Map<number, number>(); // agroFundoId → smartcowFundoId
 const mapTipoGanado = new Map<string, number>(); // nombre → id
 const mapRaza = new Map<string, number>(); // nombre → id
 const mapEstadoRep = new Map<string, number>(); // nombre → id
@@ -196,7 +196,7 @@ const mapAnimalSexo = new Map<string, "M" | "H">(); // `${fundoId}:${diio}` → 
 // ─────────────────────────────────────────────
 
 interface Counts {
-  fundos: number;
+  predios: number;
   tipo_ganado: number;
   razas: number;
   estado_reproductivo: number;
@@ -237,7 +237,7 @@ interface Counts {
 }
 
 const counts: Counts = {
-  fundos: 0,
+  predios: 0,
   tipo_ganado: 0,
   razas: 0,
   estado_reproductivo: 0,
@@ -276,7 +276,7 @@ const counts: Counts = {
 };
 
 // ─────────────────────────────────────────────
-// P0 — ORGANIZACIÓN (prerequisito de fundos)
+// P0 — ORGANIZACIÓN (prerequisito de predios)
 // ─────────────────────────────────────────────
 
 async function asegurarOrg(nombre: string): Promise<number> {
@@ -497,11 +497,11 @@ async function migrarBajaMotivos(session: Awaited<ReturnType<typeof getSession>>
 // P2 — FUNDOS
 // ─────────────────────────────────────────────
 
-async function migrarFundos(session: Awaited<ReturnType<typeof getSession>>): Promise<void> {
-  log("P2:fundos", "Fetching...");
+async function migrarPredios(session: Awaited<ReturnType<typeof getSession>>): Promise<void> {
+  log("P2:predios", "Fetching...");
   const raw = await servletPost<unknown>(session, "Fundo", "getFundos", {});
   const items = extractArray<AgroFundo>(raw);
-  log("P2:fundos", `Fetched ${items.length} items`);
+  log("P2:predios", `Fetched ${items.length} items`);
 
   const toProcess = FUNDO_FILTER
     ? items.filter((f) => f.fundo_id === FUNDO_FILTER)
@@ -512,41 +512,41 @@ async function migrarFundos(session: Awaited<ReturnType<typeof getSession>>): Pr
     if (!nombre) continue;
 
     if (DRY_RUN) {
-      mapFundo.set(item.fundo_id, -1);
-      counts.fundos++;
+      mapPredio.set(item.fundo_id, -1);
+      counts.predios++;
       continue;
     }
 
     const existing = await db
       .select()
-      .from(schema.fundos)
-      .where(eq(schema.fundos.nombre, nombre))
+      .from(schema.predios)
+      .where(eq(schema.predios.nombre, nombre))
       .limit(1);
 
     if (existing.length > 0) {
-      mapFundo.set(item.fundo_id, existing[0].id);
-      log("P2:fundos", `Fundo "${nombre}" already exists (id=${existing[0].id})`);
+      mapPredio.set(item.fundo_id, existing[0].id);
+      log("P2:predios", `Fundo "${nombre}" already exists (id=${existing[0].id})`);
     } else {
       const inserted = await db
-        .insert(schema.fundos)
+        .insert(schema.predios)
         .values({ nombre, orgId: defaultOrgId })
-        .returning({ id: schema.fundos.id });
-      mapFundo.set(item.fundo_id, inserted[0].id);
-      counts.fundos++;
-      log("P2:fundos", `Inserted fundo "${nombre}" → id=${inserted[0].id}`);
+        .returning({ id: schema.predios.id });
+      mapPredio.set(item.fundo_id, inserted[0].id);
+      counts.predios++;
+      log("P2:predios", `Inserted fundo "${nombre}" → id=${inserted[0].id}`);
     }
   }
-  log("P2:fundos", `Done — ${counts.fundos} inserted, ${mapFundo.size} mapped`);
+  log("P2:predios", `Done — ${counts.predios} inserted, ${mapPredio.size} mapped`);
 }
 
 // ─────────────────────────────────────────────
-// P3 — SEMEN (por fundo)
+// P3 — SEMEN (por predio)
 // ─────────────────────────────────────────────
 
 async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Promise<void> {
-  log("P3:semen", "Fetching per fundo...");
+  log("P3:semen", "Fetching per predio...");
 
-  for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+  for (const [agroFundoId, smartPredioId] of mapPredio.entries()) {
     const raw = await servletPost<unknown>(
       session,
       "InseminacionSemen",
@@ -559,7 +559,7 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
       const toro = item.toro?.trim();
       if (!toro) continue;
 
-      const sKey = `${smartFundoId}:${toro}`;
+      const sKey = `${smartPredioId}:${toro}`;
 
       if (DRY_RUN) {
         mapSemen.set(sKey, -1);
@@ -570,7 +570,7 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
       const existing = await db
         .select()
         .from(schema.semen)
-        .where(and(eq(schema.semen.fundoId, smartFundoId), eq(schema.semen.toro, toro)))
+        .where(and(eq(schema.semen.predioId, smartPredioId), eq(schema.semen.toro, toro)))
         .limit(1);
 
       if (existing.length > 0) {
@@ -578,7 +578,7 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
       } else {
         const inserted = await db
           .insert(schema.semen)
-          .values({ fundoId: smartFundoId, toro })
+          .values({ predioId: smartPredioId, toro })
           .returning({ id: schema.semen.id });
         mapSemen.set(sKey, inserted[0].id);
         counts.semen++;
@@ -595,7 +595,7 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
 async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): Promise<void> {
   log("P4:animales", "Fetching ganado_actual...");
 
-  for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+  for (const [agroFundoId, smartPredioId] of mapPredio.entries()) {
     const raw = await servletPost<unknown>(session, "GanadoActual", "getGanadoActual", {
       jsonFiltros: JSON.stringify({
         tipo_ganado: "Todos", raza_id: 0, estado_reproductivo: "Todos",
@@ -631,7 +631,7 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
         continue;
       }
 
-      const aKey = `${smartFundoId}:${diio}`;
+      const aKey = `${smartPredioId}:${diio}`;
 
       if (DRY_RUN) {
         mapAnimal.set(aKey, -1);
@@ -665,7 +665,7 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
         .select()
         .from(schema.animales)
         .where(
-          and(eq(schema.animales.fundoId, smartFundoId), eq(schema.animales.diio, diio))
+          and(eq(schema.animales.predioId, smartPredioId), eq(schema.animales.diio, diio))
         )
         .limit(1);
 
@@ -681,7 +681,7 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
       const inserted = await db
         .insert(schema.animales)
         .values({
-          fundoId: smartFundoId,
+          predioId: smartPredioId,
           diio,
           tipoGanadoId,
           razaId: razaId ?? null,
@@ -714,7 +714,7 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
 async function migrarPesajes(session: Awaited<ReturnType<typeof getSession>>): Promise<void> {
   log("P5:pesajes", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
-  for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+  for (const [agroFundoId, smartPredioId] of mapPredio.entries()) {
     const raw = await servletPost<unknown>(session, "Pesaje2", "getAllPesajes", {
       jsonFiltros: JSON.stringify({
         tipo_ganado: "Todos", estado_reproductivo: "Todos",
@@ -739,7 +739,7 @@ async function migrarPesajes(session: Awaited<ReturnType<typeof getSession>>): P
       const diio = str(item["Diio"]);
       if (!diio) { counts.skip_pesaje_diio_vacio++; continue; }
 
-      const aKey = `${smartFundoId}:${diio}`;
+      const aKey = `${smartPredioId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P5:pesajes", `Animal ${diio} not found in map, skipping pesaje`);
@@ -770,11 +770,11 @@ async function migrarPesajes(session: Awaited<ReturnType<typeof getSession>>): P
     }
 
     for (const [, { pesoRaw, diio, fecha }] of dedupMap.entries()) {
-      const aKey = `${smartFundoId}:${diio}`;
+      const aKey = `${smartPredioId}:${diio}`;
       const animalId = mapAnimal.get(aKey)!;
 
       await db.insert(schema.pesajes).values({
-        fundoId: smartFundoId,
+        predioId: smartPredioId,
         animalId,
         pesoKg: String(pesoRaw),
         fecha,
@@ -793,7 +793,7 @@ async function migrarPesajes(session: Awaited<ReturnType<typeof getSession>>): P
 async function migrarPartos(session: Awaited<ReturnType<typeof getSession>>): Promise<void> {
   log("P6:partos", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
-  for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+  for (const [agroFundoId, smartPredioId] of mapPredio.entries()) {
     const raw = await servletPost<unknown>(session, "Parto", "getPartos", {
       jsonFiltros: JSON.stringify({
         fundo_id: agroFundoId, tipo_parto_id: 0, subtipo_parto_id: 0,
@@ -815,7 +815,7 @@ async function migrarPartos(session: Awaited<ReturnType<typeof getSession>>): Pr
       const diio = str(item["Diio"]); // DIIO de la madre en AgroApp
       if (!diio) { counts.skip_parto_sin_diio_madre++; continue; }
 
-      const aKey = `${smartFundoId}:${diio}`;
+      const aKey = `${smartPredioId}:${diio}`;
       const madreId = mapAnimal.get(aKey);
       if (!madreId) {
         warn("P6:partos", `Madre ${diio} not found in map, skipping parto`);
@@ -854,13 +854,13 @@ async function migrarPartos(session: Awaited<ReturnType<typeof getSession>>): Pr
 
       // Resolver semen (AgroApp partos no siempre traen toro)
       const toroNombre = str(item["Toro"]);
-      const sKey = toroNombre ? `${smartFundoId}:${toroNombre}` : undefined;
+      const sKey = toroNombre ? `${smartPredioId}:${toroNombre}` : undefined;
       const semenId = sKey ? mapSemen.get(sKey) : undefined;
 
       const numeroPartos = item["Total partos"] ? Number(item["Total partos"]) : null;
 
       await db.insert(schema.partos).values({
-        fundoId: smartFundoId,
+        predioId: smartPredioId,
         madreId,
         fecha,
         resultado: "vivo", // AgroApp no registra resultado — default vivo
@@ -884,7 +884,7 @@ async function migrarPartos(session: Awaited<ReturnType<typeof getSession>>): Pr
 async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSession>>): Promise<void> {
   log("P7:inseminaciones", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
-  for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+  for (const [agroFundoId, smartPredioId] of mapPredio.entries()) {
     const raw = await servletPost<unknown>(session, "Inseminacion", "getAllInseminacion", {
       jsonFiltros: JSON.stringify({
         tipo_ganado: "Todos", estado_reproductivo: "Todos", estado_leche: "Todos",
@@ -907,7 +907,7 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
       const diio = str(item["Diio"]);
       if (!diio) { counts.skip_inseminacion_sin_diio++; continue; }
 
-      const aKey = `${smartFundoId}:${diio}`;
+      const aKey = `${smartPredioId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P7:inseminaciones", `Animal ${diio} not found, skipping`);
@@ -930,7 +930,7 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
       }
 
       const toroNombre = str(item["Toro"]);
-      const sKey = toroNombre ? `${smartFundoId}:${toroNombre}` : undefined;
+      const sKey = toroNombre ? `${smartPredioId}:${toroNombre}` : undefined;
       const semenId = sKey ? mapSemen.get(sKey) : undefined;
 
       // Inseminador — buscar por nombre en la tabla inseminadores
@@ -943,7 +943,7 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
           .from(schema.inseminadores)
           .where(
             and(
-              eq(schema.inseminadores.fundoId, smartFundoId),
+              eq(schema.inseminadores.predioId, smartPredioId),
               eq(schema.inseminadores.nombre, nombre)
             )
           )
@@ -953,14 +953,14 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
         } else {
           const created = await db
             .insert(schema.inseminadores)
-            .values({ fundoId: smartFundoId, nombre })
+            .values({ predioId: smartPredioId, nombre })
             .returning({ id: schema.inseminadores.id });
           inseminadorId = created[0].id;
         }
       }
 
       await db.insert(schema.inseminaciones).values({
-        fundoId: smartFundoId,
+        predioId: smartPredioId,
         animalId,
         fecha,
         semenId: semenId ?? null,
@@ -982,7 +982,7 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
 async function migrarEcografias(session: Awaited<ReturnType<typeof getSession>>): Promise<void> {
   log("P8:ecografias", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
-  for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+  for (const [agroFundoId, smartPredioId] of mapPredio.entries()) {
     const raw = await servletPost<unknown>(session, "Ecografia", "getAllEcografia", {
       jsonFiltros: JSON.stringify({
         tipo_ganado: "Todos", estado: "Todos",
@@ -1004,7 +1004,7 @@ async function migrarEcografias(session: Awaited<ReturnType<typeof getSession>>)
       const diio = str(item["Diio"]);
       if (!diio) { counts.skip_ecografia_sin_diio++; continue; }
 
-      const aKey = `${smartFundoId}:${diio}`;
+      const aKey = `${smartPredioId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P8:ecografias", `Animal ${diio} not found, skipping`);
@@ -1030,7 +1030,7 @@ async function migrarEcografias(session: Awaited<ReturnType<typeof getSession>>)
       else if (resultadoRaw.includes("vac") || resultadoRaw.includes("neg")) resultado = "vacia";
 
       await db.insert(schema.ecografias).values({
-        fundoId: smartFundoId,
+        predioId: smartPredioId,
         animalId,
         fecha,
         resultado,
@@ -1051,7 +1051,7 @@ async function migrarEcografias(session: Awaited<ReturnType<typeof getSession>>)
 async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): Promise<void> {
   log("P9:areteos", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
-  for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+  for (const [agroFundoId, smartPredioId] of mapPredio.entries()) {
     // Alta
     const rawAlta = await servletPost<unknown>(session, "Areteo", "getAllAlta", {
       jsonFiltros: JSON.stringify({
@@ -1066,14 +1066,14 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
       for (const item of altas) {
         const diio = str(item["Diio"]);
         if (!diio) { continue; }
-        const aKey = `${smartFundoId}:${diio}`;
+        const aKey = `${smartPredioId}:${diio}`;
         const animalId = mapAnimal.get(aKey);
         if (!animalId) { continue; }
         const fecha = toDate(item["Fecha creado"]);
         if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
-          fundoId: smartFundoId,
+          predioId: smartPredioId,
           animalId,
           tipo: "alta",
           fecha,
@@ -1101,14 +1101,14 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
       for (const item of apariciones) {
         const diio = str(item["Diio"]);
         if (!diio) { continue; }
-        const aKey = `${smartFundoId}:${diio}`;
+        const aKey = `${smartPredioId}:${diio}`;
         const animalId = mapAnimal.get(aKey);
         if (!animalId) { continue; }
         const fecha = toDate(item["Fecha creado"]);
         if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
-          fundoId: smartFundoId,
+          predioId: smartPredioId,
           animalId,
           tipo: "aparicion",
           fecha,
@@ -1139,7 +1139,7 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
         if (!diioNuevo) { continue; }
 
         // Buscar animal por DIIO nuevo (ya migrado con DIIO actual)
-        const aKey = `${smartFundoId}:${diioNuevo}`;
+        const aKey = `${smartPredioId}:${diioNuevo}`;
         const animalId = mapAnimal.get(aKey);
         if (!animalId) { continue; }
 
@@ -1147,7 +1147,7 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
         if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
-          fundoId: smartFundoId,
+          predioId: smartPredioId,
           animalId,
           tipo: "cambio_diio",
           fecha,
@@ -1172,7 +1172,7 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
 async function migrarBajas(session: Awaited<ReturnType<typeof getSession>>): Promise<void> {
   log("P10:bajas", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
-  for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+  for (const [agroFundoId, smartPredioId] of mapPredio.entries()) {
     const raw = await servletPost<unknown>(session, "Baja", "getAllBaja", {
       jsonFiltros: JSON.stringify({
         fundo_id: agroFundoId, tipo_ganado: "Todos", estado_reproductivo: "Todos",
@@ -1194,7 +1194,7 @@ async function migrarBajas(session: Awaited<ReturnType<typeof getSession>>): Pro
       const diio = str(item["Diio"]);
       if (!diio) { counts.skip_baja_sin_diio++; continue; }
 
-      const aKey = `${smartFundoId}:${diio}`;
+      const aKey = `${smartPredioId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P10:bajas", `Animal ${diio} not found, skipping baja`);
@@ -1218,7 +1218,7 @@ async function migrarBajas(session: Awaited<ReturnType<typeof getSession>>): Pro
       const causaId = undefined;
 
       await db.insert(schema.bajas).values({
-        fundoId: smartFundoId,
+        predioId: smartPredioId,
         animalId,
         fecha,
         motivoId,
@@ -1259,7 +1259,7 @@ async function validar(): Promise<void> {
 
   // Conteo final por tabla
   const tables = [
-    { name: "fundos", table: schema.fundos },
+    { name: "predios", table: schema.predios },
     { name: "tipo_ganado", table: schema.tipoGanado },
     { name: "razas", table: schema.razas },
     { name: "animales", table: schema.animales },
@@ -1272,7 +1272,7 @@ async function validar(): Promise<void> {
   ] as const;
 
   for (const { name, table } of tables) {
-    const rows = await db.select().from(table as typeof schema.fundos);
+    const rows = await db.select().from(table as typeof schema.predios);
     log("VALIDACION", `${name}: ${rows.length} rows in DB`);
   }
 }
@@ -1288,7 +1288,7 @@ function printResumen(): void {
   console.log(`Periodo: ${DESDE} → ${HASTA}`);
   if (FUNDO_FILTER) console.log(`Fundo filtrado: ${FUNDO_FILTER}`);
   console.log("-".repeat(60));
-  console.log(`Fundos              : ${counts.fundos}`);
+  console.log(`Predios              : ${counts.predios}`);
   console.log(`Tipo ganado         : ${counts.tipo_ganado}`);
   console.log(`Razas               : ${counts.razas}`);
   console.log(`Estado reproductivo : ${counts.estado_reproductivo}`);
@@ -1357,10 +1357,10 @@ async function main(): Promise<void> {
     // P0 — Organización raíz
     defaultOrgId = await asegurarOrg("JP Ferrada");
 
-    // P2 — Fundos
-    await migrarFundos(session);
+    // P2 — Predios
+    await migrarPredios(session);
 
-    // P3 — Semen (requiere fundos)
+    // P3 — Semen (requiere predios)
     await migrarSemen(session);
 
     // P4 — Animales (requiere catálogos + fundos)
