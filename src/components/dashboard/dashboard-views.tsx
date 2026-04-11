@@ -8,6 +8,7 @@ import { TopNav } from "@/src/components/dashboard/top-nav";
 import { MetricCard } from "@/src/components/dashboard/metric-card";
 import { SearchPill } from "@/src/components/dashboard/search-pill";
 import { InsightBanner } from "@/src/components/dashboard/insight-banner";
+import { InteractiveMap } from "@/src/components/dashboard/interactive-map";
 
 interface ViewProps {
   nombre: string | null | undefined;
@@ -110,8 +111,8 @@ export function DesktopView({ nombre, kpis, nombrePredio, recentActivity }: View
 
           {/* Secondary Sections */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 shadow-sm border border-gray-50 h-[400px] flex items-center justify-center">
-              <p className="text-ink-meta text-xs font-bold uppercase tracking-[0.2em]">Gráficos de Producción (Próximamente)</p>
+            <div className="lg:col-span-2 h-[450px] animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <InteractiveMap />
             </div>
             <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-50 flex flex-col">
               <h3 className="text-ink-title text-sm font-bold mb-4">Actividad Reciente</h3>

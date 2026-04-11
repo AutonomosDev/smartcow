@@ -47,8 +47,8 @@ function NavItem({ href, icon: Icon, label, badge, active, disabled }: NavItemPr
       href={href}
       className={`${base} ${
         active
-          ? "bg-white shadow-sm border border-brand-light/30 text-brand-dark font-semibold"
-          : "text-gray-600 hover:bg-white/80 hover:text-gray-900"
+          ? "bg-white shadow-sm border border-blue-500/20 text-blue-600 font-bold"
+          : "text-gray-500 hover:bg-white/80 hover:text-gray-900"
       }`}
       title={label}
     >
@@ -75,7 +75,8 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
 
   return (
     <aside 
-      className={`min-h-screen bg-[#F4F6F5]/60 backdrop-blur-xl border-r border-gray-200/50 flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-[260px]'}`}
+      className={`min-h-screen bg-[#F4F6F5]/60 backdrop-blur-xl border-r border-gray-200/50 flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out font-inter ${isCollapsed ? 'w-16' : 'w-[260px]'}`}
+      suppressHydrationWarning
     >
       {/* Logo + Organization dropdown */}
       <div className="px-3 py-3 border-b border-[#EAE8E4]">
@@ -83,10 +84,10 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-2 py-1 mb-2`}>
           {!isCollapsed && (
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded bg-brand-dark flex items-center justify-center flex-shrink-0">
-                <Target size={11} className="text-brand-light" />
+              <div className="w-5 h-5 rounded bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm shadow-blue-100">
+                <Target size={11} className="text-white" />
               </div>
-              <span className="text-gray-900 text-sm font-semibold whitespace-nowrap overflow-hidden">SmartCow</span>
+              <span className="text-gray-900 text-sm font-bold tracking-tight whitespace-nowrap overflow-hidden">SmartCow</span>
             </div>
           )}
           <button 
@@ -125,6 +126,7 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
           label="Chat"
           active={pathname === "/chat"}
         />
+
         <NavItem href="#" icon={BarChart2} label="Reportes" disabled />
         <NavItem href="/lotes" icon={Layers} label="Lotes" active={pathname === "/lotes"} />
         <NavItem href="/animales" icon={Users} label="Animales" active={pathname === "/animales"} />
