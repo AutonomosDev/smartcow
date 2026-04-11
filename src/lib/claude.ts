@@ -29,6 +29,7 @@ import {
 } from "@/src/db/schema/index";
 import { eq, and, gte, lte, desc } from "drizzle-orm";
 import type { SmartCowSession } from "./auth";
+import type { PredioKpis } from "@/src/lib/queries/predio";
 
 // ─────────────────────────────────────────────
 // TIPOS INTERNOS
@@ -509,23 +510,45 @@ async function registrarParto(
 
 /**
  * Construye el system prompt con contexto del predio y usuario autenticado.
- * No incluir PII ni datos sensibles en el prompt.
+ * ctx incluye nombres reales de predios y KPIs pre-cargados para eliminar alucinaciones.
  */
-export function buildSystemPrompt(session: SmartCowSession, predioId: number): string {
+export function buildSystemPrompt(
+  session: SmartCowSession,
+  predioId: number,
+  ctx: { nombrePredio: string; prediosNombres: Map<number, string>; kpis: PredioKpis }
+): string {
   const { nombre, rol, modulos, predios } = session.user;
   const modulosActivos = Object.entries(modulos)
     .filter(([, v]) => v)
     .map(([k]) => k)
     .join(", ");
 
+  const prediosConNombres = predios
+    .map((id) => `${ctx.prediosNombres.get(id) ?? `Predio ${id}`} (${id})`)
+    .join(", ");
+
+  const kpisText = [
+    `Animales activos: ${ctx.kpis.totalAnimales}`,
+    `Total pesajes: ${ctx.kpis.totalPesajes}  |  Total partos: ${ctx.kpis.totalPartos}`,
+    ctx.kpis.ultimoPesaje
+      ? `Último pesaje: ${ctx.kpis.ultimoPesaje.fecha} · ${ctx.kpis.ultimoPesaje.pesoKg} kg`
+      : "Sin pesajes registrados",
+  ].join("\n");
+
   return `Eres el asistente ganadero de SmartCow, una plataforma de gestión de hatos bovinos.
 
 Contexto del usuario:
 - Nombre: ${nombre}
 - Rol: ${rol}
-- Predio activo: ${predioId}
-- Predios con acceso: ${predios.join(", ")}
+- Predio activo: ${ctx.nombrePredio} (ID: ${predioId})
+- Predios con acceso: ${prediosConNombres}
 - Módulos activos: ${modulosActivos || "ninguno"}
+
+== DATOS REALES DEL PREDIO (consultados ahora) ==
+${kpisText}
+
+INSTRUCCIÓN: Para totales generales usa los datos de arriba directamente.
+Usa tools solo para: historial filtrado, animales específicos, o registrar datos.
 
 Reglas de comportamiento:
 1. Solo puedes consultar datos del predio ${predioId}. Nunca accedas a datos de otros predios.
@@ -556,4 +579,5 @@ export function getOpenRouterClient(): OpenAI {
   });
 }
 
-export const OPENROUTER_MODEL = "google/gemma-4-31b-it";
+export const OPENROUTER_FLASH_MODEL = "google/gemini-3-flash-preview";
+export const OPENROUTER_REASONING_MODEL = "google/gemma-4-31b-it";

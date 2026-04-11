@@ -28,8 +28,10 @@ import {
   buildSystemPrompt,
   CATTLE_TOOLS,
   ejecutarTool,
-  OPENROUTER_MODEL,
+  OPENROUTER_FLASH_MODEL,
+  OPENROUTER_REASONING_MODEL,
 } from "@/src/lib/claude";
+import { getNombrePredio, getPredioKpis, getPrediosNombres } from "@/src/lib/queries/predio";
 import { AuthError } from "@/src/lib/with-auth";
 
 // Jerarquía de roles — sincronizada con with-auth.ts
@@ -68,6 +70,7 @@ export async function POST(req: NextRequest) {
     messages: Array<{ role: "user" | "assistant"; content: string }>;
     predio_id: number;
     web_search?: boolean;
+    reasoning_mode?: boolean;
   };
   try {
     body = await req.json();
@@ -78,7 +81,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { messages, predio_id: predioId } = body;
+  const { messages, predio_id: predioId, reasoning_mode: reasoningMode } = body;
 
   if (!predioId || typeof predioId !== "number") {
     return new Response(JSON.stringify({ error: "predio_id requerido" }), {
@@ -134,7 +137,20 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        const systemPrompt = buildSystemPrompt(session, predioId);
+        // Pre-fetch contexto real del predio para eliminar alucinaciones
+        const [nombrePredio, prediosNombres, kpis] = await Promise.all([
+          getNombrePredio(predioId),
+          getPrediosNombres(session.user.predios),
+          getPredioKpis(predioId),
+        ]);
+
+        const systemPrompt = buildSystemPrompt(session, predioId, {
+          nombrePredio: nombrePredio ?? `Predio ${predioId}`,
+          prediosNombres,
+          kpis,
+        });
+
+        const model = reasoningMode ? OPENROUTER_REASONING_MODEL : OPENROUTER_FLASH_MODEL;
 
         // Historial de conversación en formato OpenAI
         const conversationMessages: OpenAI.Chat.ChatCompletionMessageParam[] = messages.map((m) => ({
@@ -148,7 +164,7 @@ export async function POST(req: NextRequest) {
           iteraciones++;
 
           const aiStream = await client.chat.completions.create({
-            model: OPENROUTER_MODEL,
+            model,
             max_tokens: 4096,
             messages: [
               { role: "system", content: systemPrompt },
