@@ -556,4 +556,4 @@ export function getOpenRouterClient(): OpenAI {
   });
 }
 
-export const OPENROUTER_MODEL = "google/gemma-4";
+export const OPENROUTER_MODEL = "google/gemma-4-31b-it";
