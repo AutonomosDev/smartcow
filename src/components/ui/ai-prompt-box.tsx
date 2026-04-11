@@ -206,15 +206,24 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
         <span className="font-mono text-sm text-gray-700">{formatTime(time)}</span>
       </div>
-      <div className="w-full h-10 flex items-center justify-center gap-0.5 px-4">
+      <div className="w-full h-12 flex items-center justify-center gap-1 px-8">
         {[...Array(visualizerBars)].map((_, i) => (
-          <div
+          <motion.div
             key={i}
-            className="w-0.5 rounded-full bg-gray-300 animate-pulse"
-            style={{
-              height: `${Math.max(15, Math.random() * 100)}%`,
-              animationDelay: `${i * 0.05}s`,
-              animationDuration: `${0.5 + Math.random() * 0.5}s`,
+            className="w-1 rounded-full bg-brand-light/40"
+            animate={{
+              height: [
+                Math.max(8, Math.random() * 40),
+                Math.max(20, Math.random() * 100),
+                Math.max(8, Math.random() * 40)
+              ],
+              backgroundColor: isRecording ? ["#9ADF59", "#06200F", "#9ADF59"] : "#EAEAEA"
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 0.6 + Math.random() * 0.4,
+              delay: i * 0.05,
+              ease: "easeInOut"
             }}
           />
         ))}
@@ -638,46 +647,53 @@ export const PromptInputBox = React.forwardRef(
               </PromptInputAction>
             </div>
 
-            <PromptInputAction
-              tooltip={
-                isLoading
-                  ? "Detener generación"
-                  : isRecording
-                  ? "Detener grabación"
-                  : hasContent
-                  ? "Enviar mensaje"
-                  : "Mensaje de voz"
-              }
-            >
-              <Button
-                variant="default"
-                size="icon"
-                className={cn(
-                  "h-8 w-8 rounded-full transition-all duration-200",
-                  isRecording
-                    ? "bg-transparent hover:bg-gray-100 text-red-500 hover:text-red-400"
-                    : hasContent
-                    ? "bg-brand-dark hover:bg-black text-white"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-500"
-                )}
-                onClick={() => {
-                  if (isRecording) setIsRecording(false);
-                  else if (hasContent) handleSubmit();
-                  else setIsRecording(true);
-                }}
-                disabled={isLoading && !hasContent}
+            <div className="flex items-center gap-1.5 font-medium">
+              <PromptInputAction
+                tooltip={isRecording ? "Detener grabación" : "Mensaje de voz"}
               >
-                {isLoading ? (
-                  <Square className="h-4 w-4 fill-white animate-pulse" />
-                ) : isRecording ? (
-                  <StopCircle className="h-5 w-5 text-red-500" />
-                ) : hasContent ? (
-                  <ArrowUp className="h-4 w-4 text-white" />
-                ) : (
-                  <Mic className="h-4 w-4 text-gray-500 transition-colors" />
-                )}
-              </Button>
-            </PromptInputAction>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-9 w-9 rounded-full transition-all duration-300",
+                    isRecording 
+                      ? "bg-red-50 hover:bg-red-100 text-red-500" 
+                      : "text-gray-400 hover:text-brand-dark hover:bg-brand-light/10"
+                  )}
+                  onClick={() => setIsRecording(!isRecording)}
+                  disabled={isLoading}
+                >
+                  {isRecording ? (
+                    <StopCircle className="h-5 w-5" />
+                  ) : (
+                    <Mic className="h-5 w-5" />
+                  )}
+                </Button>
+              </PromptInputAction>
+
+              <PromptInputAction
+                tooltip={isLoading ? "Detener generación" : "Enviar mensaje"}
+              >
+                <Button
+                  variant="default"
+                  size="icon"
+                  className={cn(
+                    "h-9 w-9 rounded-full shadow-sm transition-all duration-300",
+                    hasContent || isLoading 
+                      ? "bg-brand-dark hover:shadow-md scale-100" 
+                      : "bg-gray-100 text-gray-400 scale-95 opacity-50 cursor-not-allowed"
+                  )}
+                  onClick={handleSubmit}
+                  disabled={(!hasContent && !isLoading) || isRecording}
+                >
+                  {isLoading ? (
+                    <Square className="h-4 w-4 fill-white animate-pulse" />
+                  ) : (
+                    <ArrowUp className={cn("h-5 w-5 transition-transform", hasContent ? "translate-y-0" : "translate-y-0.5")} />
+                  )}
+                </Button>
+              </PromptInputAction>
+            </div>
           </PromptInputActions>
         </PromptInput>
 
