@@ -75,6 +75,19 @@ export async function getNombrePredio(predioId: number): Promise<string | null> 
 }
 
 /**
+ * Mapa id → nombre para una lista de predios.
+ * Usado para inyectar nombres reales en el system prompt.
+ */
+export async function getPrediosNombres(predioIds: number[]): Promise<Map<number, string>> {
+  if (predioIds.length === 0) return new Map();
+  const rows = await db
+    .select({ id: predios.id, nombre: predios.nombre })
+    .from(predios)
+    .where(inArray(predios.id, predioIds));
+  return new Map(rows.map((r) => [r.id, r.nombre]));
+}
+
+/**
  * KPIs del predio para el dashboard/home:
  * - Lotes activos (estado = 'activo')
  * - Total animales activos

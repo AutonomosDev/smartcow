@@ -118,7 +118,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, className }:
 
   // Enviar mensaje
   const handleSend = useCallback(
-    async (content: string, _files?: File[], webSearch?: boolean) => {
+    async (content: string, _files?: File[], webSearch?: boolean, reasoningMode?: boolean) => {
       if (!content.trim() || isLoading) return;
 
       // Reset agent plan y thinking
@@ -148,6 +148,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, className }:
             })),
             predio_id: predioId,
             web_search: webSearch ?? false,
+            reasoning_mode: reasoningMode ?? false,
           }),
           signal: abortControllerRef.current.signal,
         });
@@ -285,11 +286,14 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, className }:
   }, []);
 
   return (
-    <div className={`flex h-full min-h-0 bg-transparent overflow-hidden ${className ?? ""}`}>
+    <div 
+      className={`flex h-full min-h-0 bg-transparent overflow-hidden font-inter ${className ?? ""}`}
+      suppressHydrationWarning
+    >
       {/* Columna Chat Principal */}
       <div className="flex-1 flex flex-col h-full min-w-0 transition-all duration-500">
         {/* Mensajes */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-8 py-6 space-y-4">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-12 py-8 space-y-6">
             {messages.length === 0 && (
               <ChatEmptyState 
                 nombrePredio={nombrePredio}
@@ -303,44 +307,45 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, className }:
     
             {/* Agent Plan — solo durante tool use de escritura */}
             {showAgentPlan && agentTasks.length > 0 && (
-              <div className="px-2 pb-2">
+              <div className="px-2 pb-6">
                 <AgentPlan tasks={agentTasks} />
               </div>
             )}
     
-            {/* Thought — agente pensando en tiempo real */}
-            {thinkingText && (
-              <div className="flex gap-3 items-start mb-4 px-2">
-                <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0 bg-white shadow-sm mt-0.5">
-                  <div className="w-2.5 h-2.5 rounded-full bg-brand-dark animate-pulse" />
+            {/* Status indicators (Thought, Action, Generating) */}
+            {isLoading && (
+              <div className="flex flex-col gap-3 py-4 animate-in fade-in duration-500">
+                {/* Thought */}
+                <div className="flex items-center gap-2 group cursor-pointer w-fit">
+                   <div className="w-5 h-5 flex items-center justify-center text-gray-400">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lightbulb"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+                   </div>
+                   <span className="text-[14px] text-gray-500 font-medium">Thought</span>
+                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300 mt-0.5"><path d="m9 18 6-6-6-6"/></svg>
                 </div>
-                <details className="flex-1" open>
-                  <summary className="text-sm font-semibold text-brand-dark hover:text-brand-dark/80 cursor-pointer select-none list-none flex items-center gap-2">
-                    <div className="flex gap-1">
-                       <span className="w-1.5 h-1.5 rounded-full bg-brand-dark animate-bounce" style={{ animationDelay: '0ms' }} />
-                       <span className="w-1.5 h-1.5 rounded-full bg-brand-dark animate-bounce" style={{ animationDelay: '150ms' }} />
-                       <span className="w-1.5 h-1.5 rounded-full bg-brand-dark animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                    <span>SmartCow está analizando...</span>
-                  </summary>
-                  <p className="text-xs text-gray-500 mt-2 leading-relaxed bg-white/60 p-3 rounded-lg border border-gray-100 max-h-32 overflow-y-auto max-w-2xl shadow-sm">
-                    {thinkingText}
-                  </p>
-                </details>
-              </div>
-            )}
-    
-            {/* Indicador de carga cuando no hay thinking text */}
-            {isLoading && !thinkingText && messages[messages.length - 1]?.role === "assistant" && messages[messages.length - 1]?.content === "" && (
-              <div className="flex gap-3 items-center mb-4 px-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0 bg-white shadow-sm">
-                  <div className="w-2.5 h-2.5 rounded-full bg-brand-dark animate-pulse" />
+
+                {/* Viewed (Action Pill) */}
+                <div className="flex items-center gap-2">
+                   <div className="w-5 h-5 flex items-center justify-center text-gray-400">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/><circle cx="12" cy="12" r="3"/></svg>
+                   </div>
+                   <span className="text-[14px] text-gray-500 font-medium mr-1">Viewed</span>
+                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F3E8FF]/40 border border-[#F3E8FF] text-[#7E22CE] text-[13px] font-semibold shadow-sm">
+                      <div className="w-4 h-4 rounded bg-[#7E22CE] flex items-center justify-center">
+                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                      </div>
+                      Onboarding Demo
+                   </div>
                 </div>
-                <div className="flex bg-white px-4 py-3 rounded-2xl shadow-sm border border-gray-100 gap-1.5 items-center">
-                  <span className="w-2 h-2 rounded-full bg-brand-light animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-2 h-2 rounded-full bg-brand-light animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-2 h-2 rounded-full bg-brand-light animate-bounce" style={{ animationDelay: '300ms' }} />
-                  <span className="text-xs text-gray-500 font-medium ml-2">Procesando consulta...</span>
+
+                {/* Generating... */}
+                <div className="flex items-center gap-3">
+                   <div className="w-5 h-5 flex items-center justify-center">
+                      <div className="w-3.5 h-3.5 rounded-full border-2 border-blue-500/20 border-t-blue-500 animate-spin" />
+                   </div>
+                   <span className="text-[14px] text-gray-400 font-medium italic">
+                      {thinkingText ? "Analizando datos..." : "Generando respuesta..."}
+                   </span>
                 </div>
               </div>
             )}
@@ -350,7 +355,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, className }:
     
           {/* Input */}
           <div className="px-4 pb-8 pt-4 flex flex-col items-center">
-            <div className="w-full max-w-3xl bg-white rounded-[28px] shadow-float border border-gray-100/50 overflow-hidden transition-all duration-300 focus-within:ring-2 focus-within:ring-brand-light/20">
+            <div className="w-full max-w-3xl bg-white rounded-[32px] shadow-sm border border-gray-100/50 overflow-hidden transition-all duration-300 focus-within:ring-4 focus-within:ring-blue-500/5">
               <PromptInputBox
                 onSend={handleSend}
                 isLoading={isLoading}

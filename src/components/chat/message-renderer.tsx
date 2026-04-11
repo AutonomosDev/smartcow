@@ -64,21 +64,21 @@ function CodeBlock({ language, code }: CodeBlockProps) {
   };
 
   return (
-    <div className="relative my-4 rounded-xl overflow-hidden border border-gray-100 bg-[#FAFBFA] shadow-sm font-outfit">
+    <div className="relative my-4 rounded-xl overflow-hidden border border-gray-100 bg-[#FAFBFA] shadow-sm font-inter">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#252525] border-b border-[#333]">
-        <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">
+        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
           {language ?? "texto"}
         </span>
         <button
           onClick={handleCopy}
-          className="text-[10px] text-brand-dark/60 hover:text-brand-dark transition-colors px-2 py-1 rounded bg-gray-50 hover:bg-gray-100 border border-gray-100 font-medium"
+          className="text-[10px] text-gray-400 hover:text-white transition-colors px-2 py-1 rounded bg-[#333] hover:bg-[#444] border border-[#444] font-medium"
         >
           {copied ? "copiado" : "copiar"}
         </button>
       </div>
       {/* Code */}
-      <pre className="overflow-x-auto p-4 text-sm text-gray-700 font-mono leading-relaxed">
+      <pre className="overflow-x-auto p-4 text-sm text-gray-300 font-mono leading-relaxed">
         <code>{code}</code>
       </pre>
     </div>
@@ -223,7 +223,7 @@ const markdownComponents: Components = {
     if (!className) {
       return (
         <code
-          className="bg-gray-100 text-brand-dark px-1.5 py-0.5 rounded text-[13px] font-mono border border-gray-200/50"
+          className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-[13px] font-mono border border-gray-200/50"
           {...props}
         >
           {children}
@@ -305,7 +305,7 @@ const markdownComponents: Components = {
   // Blockquote
   blockquote({ children }) {
     return (
-      <blockquote className="border-l-4 border-brand-light/40 pl-4 italic text-gray-500 my-4 bg-gray-50/50 py-1 rounded-r-lg">
+      <blockquote className="border-l-4 border-gray-200 pl-4 italic text-gray-500 my-4 bg-gray-50/50 py-1 rounded-r-lg">
         {children}
       </blockquote>
     );
@@ -313,7 +313,7 @@ const markdownComponents: Components = {
 
   // HR
   hr() {
-    return <hr className="border-[#333] my-4" />;
+    return <hr className="border-gray-100 my-4" />;
   },
 };
 
@@ -328,36 +328,31 @@ export function MessageRenderer({ message }: MessageRendererProps) {
 
   return (
     <div
-      className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}
+      className={`flex ${isUser ? "justify-end" : "justify-start"} mb-8 font-inter`}
     >
-      <div
-        className={`max-w-[85%] rounded-[20px] px-5 py-3.5 shadow-sm transition-all duration-300 ${
-          isUser
-            ? "bg-white border border-brand-light/20 text-gray-800 rounded-br-sm shadow-card"
-            : "bg-[#E8F5E9]/60 text-gray-800 border border-[#C8E6C9]/30 rounded-bl-sm backdrop-blur-sm"
-        }`}
-      >
-        {isUser ? (
-          <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
-        ) : (
-          <>
+      {isUser ? (
+        <div className="max-w-[80%] bg-[#F4F4F4] text-gray-800 rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed font-medium shadow-sm">
+          <p className="whitespace-pre-wrap">{message.content}</p>
+        </div>
+      ) : (
+        <div className="flex-1 min-w-0">
+          <div className="text-[15px] leading-[1.8] text-[#1a1a1a] font-inter prose prose-neutral max-w-none prose-p:mb-4 prose-p:last:mb-0">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={markdownComponents}
             >
               {message.content}
             </ReactMarkdown>
+            
             {/* Gráficos (artifacts) */}
             {message.charts && message.charts.length > 0 && (
-              <div className="mt-3 space-y-2">
-                {message.charts.map((chart, idx) => (
-                  <ChartRenderer key={idx} chart={chart} />
-                ))}
+              <div className="mt-6 border border-gray-100 rounded-xl overflow-hidden bg-gray-50/50">
+                <ChartRenderer chart={message.charts[0]} />
               </div>
             )}
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
