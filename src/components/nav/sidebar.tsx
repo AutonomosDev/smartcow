@@ -41,11 +41,11 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 min-h-screen bg-brand-dark flex flex-col">
+    <aside className="w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col font-inter">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-        <div className="w-7 h-7 rounded-inner bg-brand-light flex-shrink-0" />
-        <span className="text-white font-bold text-base tracking-tight">SmartCow</span>
+      <div className="flex items-center gap-3 px-6 py-6 border-b border-gray-50">
+        <div className="w-8 h-8 rounded-xl bg-blue-600 flex-shrink-0 shadow-sm shadow-blue-100" />
+        <span className="text-gray-900 font-bold text-lg tracking-tight">SmartCow</span>
       </div>
 
       {/* Nav */}
@@ -58,11 +58,11 @@ export function Sidebar() {
             return (
               <div
                 key={item.href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-inner opacity-30 cursor-not-allowed"
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl opacity-40 cursor-not-allowed group"
               >
-                <Icon size={18} className="text-white/60" />
-                <span className="text-white/60 text-sm">{item.label}</span>
-                <span className="ml-auto text-[10px] text-white/40 font-medium uppercase tracking-wider">
+                <Icon size={18} className="text-gray-400 group-hover:text-gray-500 transition-colors" />
+                <span className="text-gray-400 text-sm font-medium">{item.label}</span>
+                <span className="ml-auto text-[9px] text-gray-400 font-bold uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded-lg border border-gray-100/50">
                   Pronto
                 </span>
               </div>
@@ -73,19 +73,19 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-inner transition-colors group ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${
                 isActive
-                  ? "bg-brand-light/15 text-brand-light"
-                  : "text-white/60 hover:text-white hover:bg-white/5"
+                  ? "bg-blue-50 text-blue-600 shadow-sm shadow-blue-50"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
               <Icon
                 size={18}
-                className={isActive ? "text-brand-light" : "text-white/60 group-hover:text-white"}
+                className={isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-900 transition-colors"}
               />
-              <span className="text-sm font-medium">{item.label}</span>
+              <span className="text-sm font-bold tracking-tight">{item.label}</span>
               {isActive && (
-                <ChevronRight size={14} className="ml-auto text-brand-light/60" />
+                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
               )}
             </Link>
           );

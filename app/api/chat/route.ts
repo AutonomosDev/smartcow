@@ -1,9 +1,10 @@
 /**
- * app/api/chat/route.ts — Endpoint SSE para chat ganadero con Claude.
+ * app/api/chat/route.ts — Endpoint SSE para chat ganadero con OpenRouter/Gemma.
  * Ticket: AUT-112
+ * Migrado: Anthropic SDK → OpenRouter (OpenAI-compatible) + Gemma
  *
  * POST /api/chat
- * Body: { messages: MessageParam[], predio_id: number }
+ * Body: { messages: {role, content}[], predio_id: number, web_search?: boolean }
  * Response: text/event-stream (SSE)
  *
  * Eventos SSE:
@@ -20,14 +21,17 @@
  */
 
 import { NextRequest } from "next/server";
-import type Anthropic from "@anthropic-ai/sdk";
+import type OpenAI from "openai";
 import { withAuth } from "@/src/lib/with-auth";
 import {
-  getAnthropicClient,
+  getOpenRouterClient,
   buildSystemPrompt,
   CATTLE_TOOLS,
   ejecutarTool,
+  OPENROUTER_FLASH_MODEL,
+  OPENROUTER_REASONING_MODEL,
 } from "@/src/lib/claude";
+import { getNombrePredio, getPredioKpis, getPrediosNombres } from "@/src/lib/queries/predio";
 import { AuthError } from "@/src/lib/with-auth";
 
 // Jerarquía de roles — sincronizada con with-auth.ts
@@ -62,7 +66,12 @@ export async function POST(req: NextRequest) {
   }
 
   // 2. Parsear body
-  let body: { messages: Anthropic.MessageParam[]; predio_id: number };
+  let body: {
+    messages: Array<{ role: "user" | "assistant"; content: string }>;
+    predio_id: number;
+    web_search?: boolean;
+    reasoning_mode?: boolean;
+  };
   try {
     body = await req.json();
   } catch {
@@ -72,7 +81,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { messages, predio_id: predioId } = body;
+  const { messages, predio_id: predioId, reasoning_mode: reasoningMode } = body;
 
   if (!predioId || typeof predioId !== "number") {
     return new Response(JSON.stringify({ error: "predio_id requerido" }), {
@@ -99,14 +108,13 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // prediosPermitidos vacío = acceso total (superadmin / admin_org)
   const prediosPermitidos = tieneAccesoTotal ? [] : predios;
   const rolRank = ROL_RANK[rol] ?? 0;
 
-  // 4. Inicializar cliente Anthropic
-  let anthropic;
+  // 4. Inicializar cliente OpenRouter
+  let client: OpenAI;
   try {
-    anthropic = getAnthropicClient();
+    client = getOpenRouterClient();
   } catch {
     return new Response(JSON.stringify({ error: "Servicio no disponible" }), {
       status: 503,
@@ -129,83 +137,126 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        const systemPrompt = buildSystemPrompt(session, predioId);
-        const conversationMessages: Anthropic.MessageParam[] = [...messages];
+        // Pre-fetch contexto real del predio para eliminar alucinaciones
+        const [nombrePredio, prediosNombres, kpis] = await Promise.all([
+          getNombrePredio(predioId),
+          getPrediosNombres(session.user.predios),
+          getPredioKpis(predioId),
+        ]);
+
+        const systemPrompt = buildSystemPrompt(session, predioId, {
+          nombrePredio: nombrePredio ?? `Predio ${predioId}`,
+          prediosNombres,
+          kpis,
+        });
+
+        const model = reasoningMode ? OPENROUTER_REASONING_MODEL : OPENROUTER_FLASH_MODEL;
+
+        // Historial de conversación en formato OpenAI
+        const conversationMessages: OpenAI.Chat.ChatCompletionMessageParam[] = messages.map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
 
         let iteraciones = 0;
 
         while (iteraciones < MAX_TOOL_ITERATIONS) {
           iteraciones++;
 
-          const stream = anthropic.messages.stream({
-            model: "claude-sonnet-4-6",
+          const aiStream = await client.chat.completions.create({
+            model,
             max_tokens: 4096,
-            system: systemPrompt,
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...conversationMessages,
+            ],
             tools: CATTLE_TOOLS,
-            messages: conversationMessages,
+            tool_choice: "auto",
+            stream: true,
           });
 
-          let fullText = "";
-          const toolUses: Anthropic.ToolUseBlock[] = [];
+          let accumulatedText = "";
+          // índice → { id, name, arguments }
+          const pendingToolCalls: Record<number, { id: string; name: string; arguments: string }> = {};
+          let finishReason = "";
 
-          stream.on("text", (delta) => {
-            fullText += delta;
-            sendEvent({ type: "text_delta", delta });
-          });
+          for await (const chunk of aiStream) {
+            const choice = chunk.choices[0];
+            if (!choice) continue;
 
-          const finalMessage = await stream.finalMessage();
+            const delta = choice.delta;
 
-          for (const block of finalMessage.content) {
-            if (block.type === "tool_use") {
-              toolUses.push(block);
+            // Texto streameado
+            if (delta.content) {
+              accumulatedText += delta.content;
+              sendEvent({ type: "text_delta", delta: delta.content });
+            }
+
+            // Acumular tool call deltas
+            if (delta.tool_calls) {
+              for (const tc of delta.tool_calls) {
+                const idx = tc.index;
+                if (!pendingToolCalls[idx]) {
+                  pendingToolCalls[idx] = { id: "", name: "", arguments: "" };
+                }
+                if (tc.id) pendingToolCalls[idx].id = tc.id;
+                if (tc.function?.name) pendingToolCalls[idx].name = tc.function.name;
+                if (tc.function?.arguments) pendingToolCalls[idx].arguments += tc.function.arguments;
+              }
+            }
+
+            if (choice.finish_reason) {
+              finishReason = choice.finish_reason;
             }
           }
 
-          if (toolUses.length === 0 || finalMessage.stop_reason !== "tool_use") {
+          const toolCalls = Object.values(pendingToolCalls);
+
+          // Sin tool calls → respuesta final
+          if (finishReason !== "tool_calls" || toolCalls.length === 0) {
             sendEvent({ type: "done" });
             controller.close();
             return;
           }
 
+          // Agregar turno del asistente con tool calls al historial
           conversationMessages.push({
             role: "assistant",
-            content: finalMessage.content,
+            content: accumulatedText || null,
+            tool_calls: toolCalls.map((tc) => ({
+              id: tc.id,
+              type: "function" as const,
+              function: { name: tc.name, arguments: tc.arguments },
+            })),
           });
 
-          const toolResults: Anthropic.ToolResultBlockParam[] = [];
+          // Ejecutar tools y agregar resultados
+          for (const tc of toolCalls) {
+            let parsedInput: Record<string, unknown> = {};
+            try {
+              parsedInput = JSON.parse(tc.arguments);
+            } catch {
+              parsedInput = {};
+            }
 
-          for (const toolUse of toolUses) {
-            sendEvent({
-              type: "tool_use",
-              tool: toolUse.name,
-              input: toolUse.input,
-            });
+            sendEvent({ type: "tool_use", tool: tc.name, input: parsedInput });
 
             const result = await ejecutarTool(
-              toolUse.name,
-              toolUse.input as Record<string, unknown>,
+              tc.name,
+              parsedInput,
               prediosPermitidos,
               Number(userId),
               rolRank
             );
 
-            sendEvent({
-              type: "tool_result",
-              tool: toolUse.name,
-              result,
-            });
+            sendEvent({ type: "tool_result", tool: tc.name, result });
 
-            toolResults.push({
-              type: "tool_result",
-              tool_use_id: toolUse.id,
+            conversationMessages.push({
+              role: "tool",
+              tool_call_id: tc.id,
               content: JSON.stringify(result),
             });
           }
-
-          conversationMessages.push({
-            role: "user",
-            content: toolResults,
-          });
         }
 
         sendEvent({ type: "done" });

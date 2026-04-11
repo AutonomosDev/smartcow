@@ -17,6 +17,8 @@ import {
   partos,
   ecografias,
   predios,
+  tipoGanado,
+  razas,
 } from "@/src/db/schema/index";
 import { eq, and, desc, isNull, inArray } from "drizzle-orm";
 
@@ -37,6 +39,7 @@ export interface LoteResumen {
   nombre: string;
   totalAnimales: number;
   fechaEntrada: string;
+  fechaSalidaEstimada: string | null;
   objetivoPesoKg: number | null;
   estado: string;
 }
@@ -69,6 +72,19 @@ export async function getNombrePredio(predioId: number): Promise<string | null> 
     .where(eq(predios.id, predioId))
     .limit(1);
   return rows[0]?.nombre ?? null;
+}
+
+/**
+ * Mapa id → nombre para una lista de predios.
+ * Usado para inyectar nombres reales en el system prompt.
+ */
+export async function getPrediosNombres(predioIds: number[]): Promise<Map<number, string>> {
+  if (predioIds.length === 0) return new Map();
+  const rows = await db
+    .select({ id: predios.id, nombre: predios.nombre })
+    .from(predios)
+    .where(inArray(predios.id, predioIds));
+  return new Map(rows.map((r) => [r.id, r.nombre]));
 }
 
 /**
@@ -132,6 +148,7 @@ export async function getLotesActivos(predioId: number): Promise<LoteResumen[]> 
       id: lotes.id,
       nombre: lotes.nombre,
       fechaEntrada: lotes.fechaEntrada,
+      fechaSalidaEstimada: lotes.fechaSalidaEstimada,
       objetivoPesoKg: lotes.objetivoPesoKg,
       estado: lotes.estado,
     })
@@ -160,6 +177,7 @@ export async function getLotesActivos(predioId: number): Promise<LoteResumen[]> 
     nombre: l.nombre,
     totalAnimales: countByLote.get(l.id) ?? 0,
     fechaEntrada: l.fechaEntrada,
+    fechaSalidaEstimada: l.fechaSalidaEstimada ?? null,
     objetivoPesoKg: l.objetivoPesoKg ? Number(l.objetivoPesoKg) : null,
     estado: l.estado,
   }));
@@ -273,4 +291,112 @@ export async function getLoteDetalle(
     diasEnLote,
     gdpKgDia: gdpKgDia !== null ? Math.round(gdpKgDia * 100) / 100 : null,
   };
+}
+
+// ─────────────────────────────────────────────
+// ANIMALES
+// ─────────────────────────────────────────────
+
+export interface AnimalResumen {
+  id: number;
+  diio: string;
+  eid: string | null;
+  tipoGanado: string;
+  raza: string | null;
+  sexo: "M" | "H";
+  fechaNacimiento: string | null;
+  estado: "activo" | "baja" | "desecho";
+  moduloActual: "feedlot" | "crianza" | "ambos" | null;
+}
+
+/**
+ * Lista de animales activos del predio con tipo y raza resueltos.
+ */
+export async function getAnimales(
+  predioId: number,
+  limit = 500
+): Promise<AnimalResumen[]> {
+  const rows = await db
+    .select({
+      id: animales.id,
+      diio: animales.diio,
+      eid: animales.eid,
+      tipoGanado: tipoGanado.nombre,
+      raza: razas.nombre,
+      sexo: animales.sexo,
+      fechaNacimiento: animales.fechaNacimiento,
+      estado: animales.estado,
+      moduloActual: animales.moduloActual,
+    })
+    .from(animales)
+    .leftJoin(tipoGanado, eq(animales.tipoGanadoId, tipoGanado.id))
+    .leftJoin(razas, eq(animales.razaId, razas.id))
+    .where(and(eq(animales.predioId, predioId), eq(animales.estado, "activo")))
+    .orderBy(animales.diio)
+    .limit(limit);
+
+  return rows.map((r) => ({
+    id: r.id,
+    diio: r.diio,
+    eid: r.eid,
+    tipoGanado: r.tipoGanado ?? "—",
+    raza: r.raza ?? null,
+    sexo: r.sexo,
+    fechaNacimiento: r.fechaNacimiento,
+    estado: r.estado,
+    moduloActual: r.moduloActual,
+  }));
+}
+
+// ─────────────────────────────────────────────
+// ACTIVIDAD RECIENTE
+// ─────────────────────────────────────────────
+
+export interface RecentEvent {
+  type: "pesaje" | "parto";
+  fecha: string;
+  descripcion: string;
+  creadoEn: string;
+}
+
+/**
+ * Últimos N eventos del predio (pesajes + partos) ordenados por fecha de creación.
+ */
+export async function getRecentActivity(
+  predioId: number,
+  limit = 8
+): Promise<RecentEvent[]> {
+  const [pesajesRows, partosRows] = await Promise.all([
+    db
+      .select({ fecha: pesajes.fecha, pesoKg: pesajes.pesoKg, creadoEn: pesajes.creadoEn })
+      .from(pesajes)
+      .where(eq(pesajes.predioId, predioId))
+      .orderBy(desc(pesajes.creadoEn))
+      .limit(limit),
+    db
+      .select({ fecha: partos.fecha, resultado: partos.resultado, creadoEn: partos.creadoEn })
+      .from(partos)
+      .where(eq(partos.predioId, predioId))
+      .orderBy(desc(partos.creadoEn))
+      .limit(limit),
+  ]);
+
+  const events: RecentEvent[] = [
+    ...pesajesRows.map((p) => ({
+      type: "pesaje" as const,
+      fecha: p.fecha,
+      descripcion: `Pesaje · ${Number(p.pesoKg).toFixed(1)} kg`,
+      creadoEn: p.creadoEn.toISOString(),
+    })),
+    ...partosRows.map((p) => ({
+      type: "parto" as const,
+      fecha: p.fecha,
+      descripcion: `Parto · ${p.resultado}`,
+      creadoEn: p.creadoEn.toISOString(),
+    })),
+  ];
+
+  return events
+    .sort((a, b) => new Date(b.creadoEn).getTime() - new Date(a.creadoEn).getTime())
+    .slice(0, limit);
 }

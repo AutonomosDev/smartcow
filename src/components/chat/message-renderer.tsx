@@ -64,21 +64,21 @@ function CodeBlock({ language, code }: CodeBlockProps) {
   };
 
   return (
-    <div className="relative my-3 rounded-lg overflow-hidden border border-[#333] bg-[#1a1a1a]">
+    <div className="relative my-4 rounded-xl overflow-hidden border border-gray-100 bg-[#FAFBFA] shadow-sm font-inter">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#252525] border-b border-[#333]">
-        <span className="text-xs text-gray-400 font-mono">
+        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
           {language ?? "texto"}
         </span>
         <button
           onClick={handleCopy}
-          className="text-xs text-gray-400 hover:text-gray-200 transition-colors px-2 py-0.5 rounded hover:bg-white/10"
+          className="text-[10px] text-gray-400 hover:text-white transition-colors px-2 py-1 rounded bg-[#333] hover:bg-[#444] border border-[#444] font-medium"
         >
           {copied ? "copiado" : "copiar"}
         </button>
       </div>
       {/* Code */}
-      <pre className="overflow-x-auto p-4 text-sm text-gray-200 font-mono leading-relaxed">
+      <pre className="overflow-x-auto p-4 text-sm text-gray-300 font-mono leading-relaxed">
         <code>{code}</code>
       </pre>
     </div>
@@ -223,7 +223,7 @@ const markdownComponents: Components = {
     if (!className) {
       return (
         <code
-          className="bg-[#2a2a2a] text-[#e2e8f0] px-1.5 py-0.5 rounded text-sm font-mono"
+          className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-[13px] font-mono border border-gray-200/50"
           {...props}
         >
           {children}
@@ -237,21 +237,21 @@ const markdownComponents: Components = {
   // Tablas
   table({ children }) {
     return (
-      <div className="my-3 overflow-x-auto rounded-lg border border-[#333]">
-        <table className="w-full text-sm text-left">{children}</table>
+      <div className="my-4 overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+        <table className="w-full text-sm text-left border-collapse">{children}</table>
       </div>
     );
   },
   thead({ children }) {
     return (
-      <thead className="bg-[#252525] text-gray-300 text-xs uppercase">
+      <thead className="bg-[#F8FAFC] text-gray-600 text-[10px] font-bold uppercase tracking-wider border-b border-gray-100">
         {children}
       </thead>
     );
   },
   tbody({ children }) {
     return (
-      <tbody className="divide-y divide-[#333] bg-[#1a1a1a] text-gray-200">
+      <tbody className="divide-y divide-gray-50 bg-white text-gray-700 text-[13px]">
         {children}
       </tbody>
     );
@@ -271,12 +271,12 @@ const markdownComponents: Components = {
   // Listas
   ul({ children }) {
     return (
-      <ul className="mb-3 ml-4 list-disc space-y-1 text-gray-200">{children}</ul>
+      <ul className="mb-3 ml-4 list-disc space-y-1 text-gray-700">{children}</ul>
     );
   },
   ol({ children }) {
     return (
-      <ol className="mb-3 ml-4 list-decimal space-y-1 text-gray-200">{children}</ol>
+      <ol className="mb-3 ml-4 list-decimal space-y-1 text-gray-700">{children}</ol>
     );
   },
   li({ children }) {
@@ -285,27 +285,27 @@ const markdownComponents: Components = {
 
   // Headers — mínimos, el chat no es un documento
   h1({ children }) {
-    return <h1 className="text-lg font-semibold mb-2 text-gray-100">{children}</h1>;
+    return <h1 className="text-lg font-semibold mb-2 text-gray-900">{children}</h1>;
   },
   h2({ children }) {
-    return <h2 className="text-base font-semibold mb-2 text-gray-100">{children}</h2>;
+    return <h2 className="text-base font-semibold mb-2 text-gray-900">{children}</h2>;
   },
   h3({ children }) {
-    return <h3 className="text-sm font-semibold mb-1 text-gray-200">{children}</h3>;
+    return <h3 className="text-sm font-semibold mb-1 text-gray-800">{children}</h3>;
   },
 
   // Strong / em
   strong({ children }) {
-    return <strong className="font-semibold text-gray-100">{children}</strong>;
+    return <strong className="font-semibold text-gray-900">{children}</strong>;
   },
   em({ children }) {
-    return <em className="italic text-gray-300">{children}</em>;
+    return <em className="italic text-gray-600">{children}</em>;
   },
 
   // Blockquote
   blockquote({ children }) {
     return (
-      <blockquote className="border-l-4 border-blue-500/50 pl-4 italic text-gray-400 my-3">
+      <blockquote className="border-l-4 border-gray-200 pl-4 italic text-gray-500 my-4 bg-gray-50/50 py-1 rounded-r-lg">
         {children}
       </blockquote>
     );
@@ -313,7 +313,7 @@ const markdownComponents: Components = {
 
   // HR
   hr() {
-    return <hr className="border-[#333] my-4" />;
+    return <hr className="border-gray-100 my-4" />;
   },
 };
 
@@ -328,36 +328,31 @@ export function MessageRenderer({ message }: MessageRendererProps) {
 
   return (
     <div
-      className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}
+      className={`flex ${isUser ? "justify-end" : "justify-start"} mb-8 font-inter`}
     >
-      <div
-        className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-          isUser
-            ? "bg-blue-600 text-white rounded-br-sm"
-            : "bg-[#1F2023] text-gray-100 border border-[#333] rounded-bl-sm"
-        }`}
-      >
-        {isUser ? (
-          <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
-        ) : (
-          <>
+      {isUser ? (
+        <div className="max-w-[80%] bg-[#F4F4F4] text-gray-800 rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed font-medium shadow-sm">
+          <p className="whitespace-pre-wrap">{message.content}</p>
+        </div>
+      ) : (
+        <div className="flex-1 min-w-0">
+          <div className="text-[15px] leading-[1.8] text-[#1a1a1a] font-inter prose prose-neutral max-w-none prose-p:mb-4 prose-p:last:mb-0">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={markdownComponents}
             >
               {message.content}
             </ReactMarkdown>
+            
             {/* Gráficos (artifacts) */}
             {message.charts && message.charts.length > 0 && (
-              <div className="mt-3 space-y-2">
-                {message.charts.map((chart, idx) => (
-                  <ChartRenderer key={idx} chart={chart} />
-                ))}
+              <div className="mt-6 border border-gray-100 rounded-xl overflow-hidden bg-gray-50/50">
+                <ChartRenderer chart={message.charts[0]} />
               </div>
             )}
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
