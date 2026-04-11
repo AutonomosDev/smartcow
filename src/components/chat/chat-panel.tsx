@@ -259,7 +259,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, cl
 
   return (
     <div 
-      className={`relative flex h-full min-h-0 bg-[#FAFAFA] overflow-hidden font-inter ${className ?? ""}`}
+      className={`relative flex h-full min-h-0 bg-white overflow-hidden font-inherit ${className ?? ""}`}
       suppressHydrationWarning
     >
       <div className="flex-1 flex flex-col h-full min-w-0 transition-all duration-500 items-center">

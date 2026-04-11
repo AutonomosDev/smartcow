@@ -45,7 +45,7 @@ export interface ChatMessage {
 
 // ─── Chart colors ─────────────────────────────────────────────────────────────
 
-const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
+const COLORS = ["#06200F", "#9ADF59", "#1B3A26", "#4C7C54", "#8FB996", "#E1E8E2"];
 
 // ─── CodeBlock con highlighting ───────────────────────────────────────────────
 
@@ -64,7 +64,7 @@ function CodeBlock({ language, code }: CodeBlockProps) {
   };
 
   return (
-    <div className="relative my-4 rounded-xl overflow-hidden border border-gray-100 bg-[#FAFBFA] shadow-sm font-inter">
+    <div className="relative my-4 rounded-xl overflow-hidden border border-gray-100 bg-white shadow-sm font-inter">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#252525] border-b border-[#333]">
         <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
@@ -223,7 +223,7 @@ const markdownComponents: Components = {
     if (!className) {
       return (
         <code
-          className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded text-[13px] font-mono border border-gray-200/50"
+          className="bg-white text-[#06200F] px-1.5 py-0.5 rounded text-[13px] font-mono border border-gray-100"
           {...props}
         >
           {children}
@@ -244,14 +244,14 @@ const markdownComponents: Components = {
   },
   thead({ children }) {
     return (
-      <thead className="bg-[#F8FAFC] text-gray-600 text-[10px] font-bold uppercase tracking-wider border-b border-gray-100">
+      <thead className="bg-white text-gray-600 text-[10px] font-bold uppercase tracking-wider border-b border-gray-100">
         {children}
       </thead>
     );
   },
   tbody({ children }) {
     return (
-      <tbody className="divide-y divide-gray-50 bg-white text-gray-700 text-[13px]">
+      <tbody className="divide-y divide-gray-100 bg-white text-gray-700 text-[13px]">
         {children}
       </tbody>
     );
@@ -328,28 +328,38 @@ export function MessageRenderer({ message }: MessageRendererProps) {
 
   return (
     <div
-      className={`flex ${isUser ? "justify-end" : "justify-start"} mb-8 font-inter`}
+      className={`flex ${isUser ? "justify-end" : "justify-start"} mb-8 font-inherit`}
     >
       {isUser ? (
-        <div className="max-w-[80%] bg-[#F4F4F4] text-gray-800 rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed font-medium shadow-sm">
-          <p className="whitespace-pre-wrap">{message.content}</p>
+        <div className="flex gap-4 max-w-[85%] ml-auto">
+          <div className="bg-white text-gray-900 border border-gray-100 rounded-[20px] rounded-tr-none px-5 py-3 text-[14px] leading-relaxed font-medium shadow-sm">
+            <p className="whitespace-pre-wrap">{message.content}</p>
+          </div>
+          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 border border-gray-100 text-[10px] font-bold text-gray-400 shadow-sm">
+            U
+          </div>
         </div>
       ) : (
-        <div className="flex-1 min-w-0">
-          <div className="text-[15px] leading-[1.8] text-[#1a1a1a] font-inter prose prose-neutral max-w-none prose-p:mb-4 prose-p:last:mb-0">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={markdownComponents}
-            >
-              {message.content}
-            </ReactMarkdown>
-            
-            {/* Gráficos (artifacts) */}
-            {message.charts && message.charts.length > 0 && (
-              <div className="mt-6 border border-gray-100 rounded-xl overflow-hidden bg-gray-50/50">
-                <ChartRenderer chart={message.charts[0]} />
-              </div>
-            )}
+        <div className="flex gap-4 max-w-[90%]">
+          <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 mt-1 mix-blend-multiply">
+            <img src="/cow_robot.png" alt="smartCow" className="w-full h-full object-contain" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[15px] leading-[1.8] text-[#1a1a1a] font-inherit prose prose-neutral max-w-none prose-p:mb-4 prose-p:last:mb-0">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={markdownComponents}
+              >
+                {message.content}
+              </ReactMarkdown>
+
+              {/* Gráficos (artifacts) */}
+              {message.charts && message.charts.length > 0 && (
+                <div className="mt-6 border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm p-4">
+                  <ChartRenderer chart={message.charts[0]} />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
