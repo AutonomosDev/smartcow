@@ -4,13 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  BarChart2,
   MessageSquare,
   Layers,
   Users,
   GitCompare,
   BookOpen,
-  MessageCircle,
   FileSearch,
   Settings,
   ChevronsUpDown,
@@ -47,7 +45,7 @@ function NavItem({ href, icon: Icon, label, badge, active, disabled }: NavItemPr
       href={href}
       className={`${base} ${
         active
-          ? "bg-white shadow-sm border border-blue-500/20 text-blue-600 font-bold"
+          ? "bg-white shadow-sm border border-gray-200/60 text-[#06200F] font-semibold"
           : "text-gray-500 hover:bg-white/80 hover:text-gray-900"
       }`}
       title={label}
@@ -84,10 +82,8 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-2 py-1 mb-2`}>
           {!isCollapsed && (
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm shadow-blue-100">
-                <Target size={11} className="text-white" />
-              </div>
-              <span className="text-gray-900 text-sm font-bold tracking-tight whitespace-nowrap overflow-hidden">SmartCow</span>
+              <img src="/cow_robot.png" alt="smartCow" className="w-8 h-8 object-contain flex-shrink-0 mix-blend-multiply" />
+              <span className="text-gray-900 text-sm font-bold tracking-tight whitespace-nowrap overflow-hidden">smartCow</span>
             </div>
           )}
           <button 
@@ -127,12 +123,10 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
           active={pathname === "/chat"}
         />
 
-        <NavItem href="#" icon={BarChart2} label="Reportes" disabled />
         <NavItem href="/lotes" icon={Layers} label="Lotes" active={pathname === "/lotes"} />
         <NavItem href="/animales" icon={Users} label="Animales" active={pathname === "/animales"} />
         <NavItem href="#" icon={GitCompare} label="Potreros" disabled />
         <NavItem href="/conocimiento" icon={BookOpen} label="Base de Conocimiento" active={pathname === "/conocimiento"} />
-        <NavItem href="#" icon={MessageCircle} label="Feedback" disabled />
         <NavItem href="/reportes" icon={FileSearch} label="Reportes PDF" active={pathname === "/reportes"} />
       </nav>
 

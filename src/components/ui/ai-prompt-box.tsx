@@ -396,13 +396,14 @@ export const PromptInputBox = React.forwardRef(
     const isImageFile = (file: File) => file.type.startsWith("image/");
 
     const processFile = (file: File) => {
-      if (!isImageFile(file)) return;
-      if (file.size > 10 * 1024 * 1024) return;
+      if (file.size > 20 * 1024 * 1024) return;
       setFiles([file]);
-      const reader = new FileReader();
-      reader.onload = (e) =>
-        setFilePreviews({ [file.name]: e.target?.result as string });
-      reader.readAsDataURL(file);
+      if (isImageFile(file)) {
+        const reader = new FileReader();
+        reader.onload = (e) =>
+          setFilePreviews({ [file.name]: e.target?.result as string });
+        reader.readAsDataURL(file);
+      }
     };
 
     const handleDragOver = React.useCallback((e: React.DragEvent) => {
@@ -419,8 +420,7 @@ export const PromptInputBox = React.forwardRef(
       e.preventDefault();
       e.stopPropagation();
       const droppedFiles = Array.from(e.dataTransfer.files);
-      const imageFiles = droppedFiles.filter((f) => isImageFile(f));
-      if (imageFiles.length > 0) processFile(imageFiles[0]);
+      if (droppedFiles.length > 0) processFile(droppedFiles[0]);
     }, []);
 
     const handleRemoveFile = (index: number) => {
@@ -489,7 +489,7 @@ export const PromptInputBox = React.forwardRef(
             <div className="flex flex-wrap gap-2 p-0 pb-2 transition-all duration-300">
               {files.map((file, index) => (
                 <div key={index} className="relative group">
-                  {file.type.startsWith("image/") && filePreviews[file.name] && (
+                  {file.type.startsWith("image/") && filePreviews[file.name] ? (
                     <div
                       className="w-14 h-14 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border border-gray-100 shadow-sm"
                       onClick={() => setSelectedImage(filePreviews[file.name])}
@@ -508,6 +508,17 @@ export const PromptInputBox = React.forwardRef(
                         className="absolute top-1 right-1 rounded-full bg-black/70 p-0.5 opacity-100 transition-opacity"
                       >
                         <X className="h-3 w-3 text-white" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-700 max-w-[200px]">
+                      <Paperclip className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                      <span className="truncate">{file.name}</span>
+                      <button
+                        onClick={() => handleRemoveFile(index)}
+                        className="flex-shrink-0 ml-1"
+                      >
+                        <X className="h-3 w-3 text-gray-400 hover:text-gray-700" />
                       </button>
                     </div>
                   )}
@@ -558,7 +569,7 @@ export const PromptInputBox = React.forwardRef(
                                processFile(e.target.files[0]);
                              if (e.target) e.target.value = "";
                            }}
-                           accept="image/*"
+                           accept="image/*,.pdf,.xlsx,.xls,.csv"
                        />
                      </button>
                   </TooltipTrigger>
