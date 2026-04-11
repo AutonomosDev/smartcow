@@ -11,7 +11,7 @@
 import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { ArrowUp, Paperclip, Square, X, StopCircle, Mic } from "lucide-react";
+import { ArrowUp, Globe, Paperclip, Square, X, StopCircle, Mic } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Utility ────────────────────────────────────────────────────────────────
@@ -206,22 +206,22 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
         <span className="font-mono text-sm text-gray-700">{formatTime(time)}</span>
       </div>
-      <div className="w-full h-12 flex items-center justify-center gap-1 px-8">
+      <div className="w-full h-8 flex items-center justify-center gap-1 px-8">
         {[...Array(visualizerBars)].map((_, i) => (
           <motion.div
             key={i}
-            className="w-1 rounded-full bg-brand-light/40"
+            className="w-1 rounded-full bg-blue-100"
             animate={{
               height: [
-                Math.max(8, Math.random() * 40),
-                Math.max(20, Math.random() * 100),
-                Math.max(8, Math.random() * 40)
+                Math.max(6, Math.random() * 15),
+                Math.max(12, Math.random() * 32),
+                Math.max(6, Math.random() * 15)
               ],
-              backgroundColor: isRecording ? ["#9ADF59", "#06200F", "#9ADF59"] : "#EAEAEA"
+              backgroundColor: isRecording ? ["#E3F2FD", "#BBDEFB", "#E3F2FD"] : "#EAEAEA"
             }}
             transition={{
               repeat: Infinity,
-              duration: 0.6 + Math.random() * 0.4,
+              duration: 0.8 + Math.random() * 0.4,
               delay: i * 0.05,
               ease: "easeInOut"
             }}
@@ -450,7 +450,7 @@ const PromptInputAction: React.FC<PromptInputActionProps> = ({
 // ─── PromptInputBox (componente principal) ────────────────────────────────────
 
 export interface PromptInputBoxProps {
-  onSend?: (message: string, files?: File[]) => void;
+  onSend?: (message: string, files?: File[], webSearch?: boolean) => void;
   isLoading?: boolean;
   placeholder?: string;
   className?: string;
@@ -470,6 +470,7 @@ export const PromptInputBox = React.forwardRef(
     const [filePreviews, setFilePreviews] = React.useState<{ [key: string]: string }>({});
     const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
     const [isRecording, setIsRecording] = React.useState(false);
+    const [webSearchEnabled, setWebSearchEnabled] = React.useState(false);
     const uploadInputRef = React.useRef<HTMLInputElement>(null);
     const promptBoxRef = React.useRef<HTMLDivElement>(null);
 
@@ -531,7 +532,7 @@ export const PromptInputBox = React.forwardRef(
 
     const handleSubmit = () => {
       if (input.trim() || files.length > 0) {
-        onSend(input, files);
+        onSend(input, files, webSearchEnabled);
         setInput("");
         setFiles([]);
         setFilePreviews({});
@@ -648,6 +649,23 @@ export const PromptInputBox = React.forwardRef(
             </div>
 
             <div className="flex items-center gap-1.5 font-medium">
+              <PromptInputAction tooltip={webSearchEnabled ? "Búsqueda web activada" : "Activar búsqueda web"}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-9 w-9 rounded-full transition-all duration-300",
+                    webSearchEnabled
+                      ? "bg-blue-50 text-blue-500 hover:bg-blue-100 hover:text-blue-600 ring-1 ring-blue-200"
+                      : "text-gray-400 hover:text-blue-500 hover:bg-blue-50"
+                  )}
+                  onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                  disabled={isLoading || isRecording}
+                >
+                  <Globe className="h-5 w-5" />
+                </Button>
+              </PromptInputAction>
+
               <PromptInputAction
                 tooltip={isRecording ? "Detener grabación" : "Mensaje de voz"}
               >
