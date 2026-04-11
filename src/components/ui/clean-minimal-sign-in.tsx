@@ -35,17 +35,18 @@ const SignIn2 = ({ onSignIn, onGoogleSignIn, loading, externalError }: SignIn2Pr
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-white rounded-xl z-1">
-      <div className="w-full max-w-sm bg-gradient-to-b from-sky-50/50 to-white rounded-3xl shadow-xl shadow-opacity-10 p-8 flex flex-col items-center border border-blue-100 text-black">
-        <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white mb-6 shadow-lg shadow-opacity-5">
+    <div className="w-full flex items-center justify-center relative z-10">
+      {/* Caja de login sin bordes exteriores ni sombras pesadas */}
+      <div className="w-full max-w-sm bg-gradient-to-b from-sky-50/50 to-white rounded-3xl p-8 flex flex-col items-center text-black">
+        <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white mb-6 shadow-sm border border-gray-50">
           <LogIn className="w-7 h-7 text-black" />
         </div>
         
-        <h2 className="text-2xl font-semibold mb-2 text-center">
+        <h2 className="text-2xl font-semibold mb-2 text-center text-ink-title">
           Ingresar con email
         </h2>
         
-        <p className="text-gray-500 text-sm mb-6 text-center">
+        <p className="text-ink-meta text-sm mb-6 text-center">
           Gestiona tu predio con inteligencia. <br /> Todo en un solo lugar.
         </p>
 
@@ -59,7 +60,7 @@ const SignIn2 = ({ onSignIn, onGoogleSignIn, loading, externalError }: SignIn2Pr
               type="email"
               value={email}
               autoComplete="email"
-              className="w-full pl-10 pr-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-50 text-black text-sm"
+              className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-light/20 bg-gray-50/50 text-black text-sm transition-all"
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
             />
@@ -74,7 +75,7 @@ const SignIn2 = ({ onSignIn, onGoogleSignIn, loading, externalError }: SignIn2Pr
               type="password"
               value={password}
               autoComplete="current-password"
-              className="w-full pl-10 pr-10 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-50 text-black text-sm"
+              className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-light/20 bg-gray-50/50 text-black text-sm transition-all"
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
             />
@@ -82,13 +83,13 @@ const SignIn2 = ({ onSignIn, onGoogleSignIn, loading, externalError }: SignIn2Pr
 
           <div className="w-full flex flex-col items-end gap-1">
             {(error || externalError) && (
-              <div className="text-sm text-red-500 text-right w-full">
+              <div className="text-xs text-red-500 text-right w-full bg-red-50 p-2 rounded-lg border border-red-100/50 mb-2">
                 {error || externalError}
               </div>
             )}
             <button 
               type="button"
-              className="text-xs hover:underline font-medium text-gray-600"
+              className="text-[11px] hover:text-brand-light font-medium text-ink-meta transition-colors"
             >
               ¿Olvidaste tu contraseña?
             </button>
@@ -97,31 +98,31 @@ const SignIn2 = ({ onSignIn, onGoogleSignIn, loading, externalError }: SignIn2Pr
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-b from-gray-700 to-gray-900 text-white font-medium py-2 rounded-xl shadow hover:brightness-105 cursor-pointer transition mb-4 mt-2 disabled:opacity-50"
+            className="w-full bg-brand-dark text-white font-medium py-3 rounded-xl shadow-lg shadow-brand-dark/10 hover:brightness-110 cursor-pointer transition-all mb-4 mt-2 disabled:opacity-50"
           >
             {loading ? "Ingresando..." : "Ingresar"}
           </button>
         </form>
 
-        <div className="flex items-center w-full my-2">
-          <div className="flex-grow border-t border-dashed border-gray-200"></div>
-          <span className="mx-2 text-xs text-gray-400">O ingresa con</span>
-          <div className="flex-grow border-t border-dashed border-gray-200"></div>
+        <div className="flex items-center w-full my-4">
+          <div className="flex-grow h-[1px] bg-gray-100"></div>
+          <span className="mx-3 text-[10px] uppercase tracking-widest text-gray-300 font-bold">O ingresar con</span>
+          <div className="flex-grow h-[1px] bg-gray-100"></div>
         </div>
 
-        <div className="flex gap-3 w-full justify-center mt-2">
+        <div className="flex gap-3 w-full justify-center">
           <button 
             type="button"
             onClick={onGoogleSignIn}
             disabled={loading}
-            className="flex items-center justify-center w-full h-12 rounded-xl border bg-white hover:bg-gray-100 transition grow disabled:opacity-50"
+            className="flex items-center justify-center w-full h-12 rounded-xl border border-gray-100 bg-white hover:bg-gray-50 transition-all grow disabled:opacity-50"
           >
             <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              src="/google.svg"
               alt="Google"
-              className="w-6 h-6 mr-2"
+              className="w-5 h-5 mr-3"
             />
-            <span className="text-sm font-medium">Google</span>
+            <span className="text-sm font-semibold text-ink-title">Google</span>
           </button>
         </div>
       </div>
