@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Target, Sparkles, ChevronRight, Layers, Bell, Weight, Baby, Stethoscope } from "lucide-react";
 import Link from "next/link";
-import type { PredioKpis } from "@/src/lib/queries/predio";
+import type { PredioKpis, RecentEvent } from "@/src/lib/queries/predio";
 import { TopNav } from "@/src/components/dashboard/top-nav";
 import { MetricCard } from "@/src/components/dashboard/metric-card";
 import { SearchPill } from "@/src/components/dashboard/search-pill";
@@ -13,9 +13,10 @@ interface ViewProps {
   nombre: string | null | undefined;
   kpis: PredioKpis;
   nombrePredio: string | null;
+  recentActivity: RecentEvent[];
 }
 
-export function DesktopView({ nombre, kpis, nombrePredio }: ViewProps) {
+export function DesktopView({ nombre, kpis, nombrePredio, recentActivity }: ViewProps) {
   return (
     <div className="min-h-screen bg-[#FAFBFA] relative overflow-x-hidden font-sans pb-20 md:pb-0">
 
@@ -23,10 +24,18 @@ export function DesktopView({ nombre, kpis, nombrePredio }: ViewProps) {
       <TopNav userName={nombre} predioName={nombrePredio} />
 
       {/* 2. PREMIUM HERO SECTION */}
-      <div className="relative w-full h-[45vh] min-h-[400px] flex items-center justify-center overflow-hidden bg-brand-dark">
-          {/* Subtle Background Pattern/Gradient */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(154,223,89,0.08)_0%,transparent_50%)]" />
-          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+      <div className="relative w-full h-[45vh] min-h-[400px] flex items-center justify-center overflow-hidden">
+          {/* Background Image with Overlay */}
+          <div className="absolute inset-0 z-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src="/1.jpg" 
+              alt="Campo SmartCow" 
+              className="w-full h-full object-cover object-center"
+            />
+            {/* Dark gradient overlay for readability */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[#FAFBFA]" />
+          </div>
 
           {/* Hero Content */}
           <motion.div
@@ -35,14 +44,14 @@ export function DesktopView({ nombre, kpis, nombrePredio }: ViewProps) {
             transition={{ duration: 0.8 }}
             className="relative z-10 flex flex-col items-center text-center px-6"
           >
-              <span className="text-brand-light font-bold text-[10px] tracking-[0.3em] uppercase mb-6 bg-brand-light/10 px-4 py-1.5 rounded-full border border-brand-light/20">
+              <span className="text-brand-light font-bold text-[10px] tracking-[0.3em] uppercase mb-6 bg-brand-light/10 px-4 py-1.5 rounded-full border border-brand-light/20 backdrop-blur-md">
                 Sistema de Gestión Inteligente
               </span>
-              <h1 className="text-white text-5xl md:text-7xl font-bold max-w-5xl leading-[1.05] tracking-tight mb-8">
+              <h1 className="text-white text-5xl md:text-7xl font-bold max-w-5xl leading-[1.05] tracking-tight mb-8 drop-shadow-2xl">
                   Controla tu Predio con <br/>
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-light to-white/80">Precisión Absoluta</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-light to-white/90">Precisión Absoluta</span>
               </h1>
-              <p className="text-white/50 text-xl max-w-2xl font-medium leading-relaxed">
+              <p className="text-white/80 text-xl max-w-2xl font-medium leading-relaxed drop-shadow-md">
                   Monitorea animales, pesajes y salud preventiva desde una interfaz unificada y potente.
               </p>
           </motion.div>
@@ -56,11 +65,11 @@ export function DesktopView({ nombre, kpis, nombrePredio }: ViewProps) {
           <div className="flex justify-between items-end mb-12">
               <div>
                   <h2 className="text-ink-title text-3xl font-bold tracking-tight">Estado Operacional</h2>
-                  <p className="text-ink-meta mt-2 text-sm font-medium">Dashboard consolidado · {nombrePredio ?? "Predio Principal"}</p>
+                  <p className="text-ink-meta mt-2 text-sm font-medium">Inicio · {nombrePredio ?? "Predio Principal"}</p>
               </div>
               <div className="flex gap-3">
                 <button className="px-5 py-2.5 rounded-xl border border-gray-200 text-ink-body text-xs font-bold uppercase tracking-widest hover:bg-white hover:shadow-sm transition-all">
-                  Exportar PDF
+                  Ir a Consola
                 </button>
               </div>
           </div>
@@ -99,13 +108,30 @@ export function DesktopView({ nombre, kpis, nombrePredio }: ViewProps) {
           {/* 5. INSIGHT BANNER (Atomic) */}
           <InsightBanner />
 
-          {/* Secondary Sections Placeholder */}
+          {/* Secondary Sections */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 shadow-sm border border-gray-50 h-[400px] flex items-center justify-center">
               <p className="text-ink-meta text-xs font-bold uppercase tracking-[0.2em]">Gráficos de Producción (Próximamente)</p>
             </div>
-            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-50 h-[400px] flex items-center justify-center">
-              <p className="text-ink-meta text-xs font-bold uppercase tracking-[0.2em]">Actividad Reciente</p>
+            <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-50 flex flex-col">
+              <h3 className="text-ink-title text-sm font-bold mb-4">Actividad Reciente</h3>
+              {recentActivity.length === 0 ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <p className="text-ink-meta text-xs font-medium">Sin actividad registrada</p>
+                </div>
+              ) : (
+                <ul className="space-y-3 overflow-y-auto">
+                  {recentActivity.map((event, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <div className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${event.type === "pesaje" ? "bg-brand-light" : "bg-blue-400"}`} />
+                      <div className="min-w-0">
+                        <p className="text-ink-body text-sm font-medium truncate">{event.descripcion}</p>
+                        <p className="text-ink-meta text-[11px] mt-0.5">{event.fecha}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
       </main>
@@ -114,7 +140,7 @@ export function DesktopView({ nombre, kpis, nombrePredio }: ViewProps) {
   );
 }
 
-export function MobileView({ nombre, kpis, nombrePredio }: ViewProps) {
+export function MobileView({ nombre, kpis, nombrePredio, recentActivity: _recentActivity }: ViewProps) {
   return (
     <div className="min-h-[100dvh] relative font-sans flex flex-col overflow-hidden">
 
@@ -122,11 +148,11 @@ export function MobileView({ nombre, kpis, nombrePredio }: ViewProps) {
       <div className="absolute inset-0 w-full h-full z-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://images.unsplash.com/photo-1594771804886-a933bb2d609b?q=80&w=800&auto=format&fit=crop"
+            src="/1.jpg"
             alt="Fundo Background"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#06200F]/80 via-[#06200F]/30 to-[#06200F]"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-[#06200F]/60 via-[#06200F]/30 to-[#FAFBFA]"></div>
       </div>
 
       <div className="relative z-10 flex flex-col flex-1 pt-12 pb-24 px-6 overflow-y-auto">
