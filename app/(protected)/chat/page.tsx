@@ -61,6 +61,15 @@ export default async function ChatPage({
                 </span>
               </div>
             </div>
+            
+            {/* Centro: Nombre / Title */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-colors text-[#06200F] cursor-pointer hover:bg-gray-50">
+               <span className="text-[15px] font-semibold tracking-tight">
+                  {session.user.nombre ?? nombrePredio ?? "Juan Pablo"}
+               </span>
+               <ChevronDown size={14} className="text-gray-400"/>
+            </div>
+
             {/* Derecha: acciones */}
             <div className="flex items-center gap-1">
               <button className="p-1.5 rounded-md hover:bg-gray-50 transition-colors text-gray-400 hover:text-gray-600">
@@ -83,6 +92,7 @@ export default async function ChatPage({
               predioId={predioId}
               initialMessage={initialMessage}
               nombrePredio={nombrePredio}
+              userName={session.user.nombre}
             />
           </div>
         </div>
@@ -106,6 +116,7 @@ export default async function ChatPage({
             predioId={predioId}
             initialMessage={initialMessage}
             nombrePredio={nombrePredio}
+            userName={session.user.nombre}
             className="bg-transparent"
           />
         </div>

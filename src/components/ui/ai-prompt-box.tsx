@@ -1,9 +1,6 @@
 /**
  * src/components/ui/ai-prompt-box.tsx
- * Adaptado de 21st.dev/r/easemize/ai-prompt-box para SmartCow.
- * Ticket: AUT-113
- *
- * Deps: @radix-ui/react-tooltip, @radix-ui/react-dialog, lucide-react, framer-motion
+ * Versión Final — Estilo Open WebUI (Sin Model Pill).
  */
 
 "use client";
@@ -11,8 +8,8 @@
 import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { ArrowUp, Globe, Camera, Paperclip, Square, X, StopCircle, Mic, Brain } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowUp, Globe, Paperclip, Square, X, Mic, Brain } from "lucide-react";
+import { motion } from "framer-motion";
 
 // ─── Utility ────────────────────────────────────────────────────────────────
 
@@ -118,42 +115,6 @@ const DialogTitle = React.forwardRef<
 ));
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
 
-// ─── Button ─────────────────────────────────────────────────────────────────
-
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "outline" | "ghost";
-  size?: "default" | "sm" | "lg" | "icon";
-}
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "default", ...props }, ref) => {
-    const variantClasses = {
-      default: "bg-[#252525] hover:bg-black text-white",
-      outline: "border border-gray-100 bg-transparent hover:bg-gray-50",
-      ghost: "bg-transparent hover:bg-gray-50",
-    };
-    const sizeClasses = {
-      default: "h-10 px-4 py-2",
-      sm: "h-8 px-3 text-sm",
-      lg: "h-12 px-6",
-      icon: "h-10 w-10 rounded-full aspect-square",
-    };
-    return (
-      <button
-        className={cn(
-          "inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
-          variantClasses[variant],
-          sizeClasses[size],
-          className
-        )}
-        ref={ref}
-        {...props}
-      />
-    );
-  }
-);
-Button.displayName = "Button";
-
 // ─── VoiceRecorder ──────────────────────────────────────────────────────────
 
 interface VoiceRecorderProps {
@@ -210,7 +171,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         {[...Array(visualizerBars)].map((_, i) => (
           <motion.div
             key={i}
-            className="w-[2px] rounded-full bg-blue-400"
+            className="w-[2px] rounded-full bg-red-400"
             animate={{
               height: [
                 Math.max(2, Math.random() * 8),
@@ -290,7 +251,7 @@ function usePromptInput() {
   return context;
 }
 
-// ─── PromptInput ─────────────────────────────────────────────────────────────
+// ─── PromptInput Component ─────────────────────────────────────────────────────
 
 interface PromptInputProps {
   isLoading?: boolean;
@@ -343,8 +304,8 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           <div
             ref={ref}
             className={cn(
-              "rounded-[32px] border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 focus-within:shadow-md focus-within:border-blue-100 font-inter",
-              isLoading && "border-blue-500/30",
+              "rounded-xl border border-gray-200/60 bg-white/50 p-3 shadow-sm transition-all duration-300 focus-within:shadow-md focus-within:border-gray-300 font-inter",
+              isLoading && "border-gray-500/30",
               className
             )}
             onDragOver={onDragOver}
@@ -396,54 +357,11 @@ const PromptInputTextarea: React.FC<
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
-      className={cn("text-[15px] font-inter placeholder:text-gray-400/80 px-4", className)}
+      className={cn("text-[15px] font-inter placeholder:text-gray-400 px-2", className)}
       disabled={disabled}
       placeholder={placeholder}
       {...props}
     />
-  );
-};
-
-// ─── PromptInputActions ───────────────────────────────────────────────────────
-
-interface PromptInputActionsProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const PromptInputActions: React.FC<PromptInputActionsProps> = ({
-  children,
-  className,
-  ...props
-}) => (
-  <div className={cn("flex items-center gap-2", className)} {...props}>
-    {children}
-  </div>
-);
-
-// ─── PromptInputAction ────────────────────────────────────────────────────────
-
-interface PromptInputActionProps extends React.ComponentProps<typeof Tooltip> {
-  tooltip: React.ReactNode;
-  children: React.ReactNode;
-  side?: "top" | "bottom" | "left" | "right";
-  className?: string;
-}
-
-const PromptInputAction: React.FC<PromptInputActionProps> = ({
-  tooltip,
-  children,
-  className,
-  side = "top",
-  ...props
-}) => {
-  const { disabled } = usePromptInput();
-  return (
-    <Tooltip {...props}>
-      <TooltipTrigger asChild disabled={disabled}>
-        {children}
-      </TooltipTrigger>
-      <TooltipContent side={side} className={className}>
-        {tooltip}
-      </TooltipContent>
-    </Tooltip>
   );
 };
 
@@ -461,7 +379,7 @@ export const PromptInputBox = React.forwardRef(
     const {
       onSend = () => {},
       isLoading = false,
-      placeholder = "Pregunta sobre tus animales...",
+      placeholder = "Mensaje a SmartCow...",
       className,
     } = props;
 
@@ -556,8 +474,8 @@ export const PromptInputBox = React.forwardRef(
           isLoading={isLoading}
           onSubmit={handleSubmit}
           className={cn(
-            "w-full bg-white border border-gray-100 shadow-sm transition-all duration-500",
-            isRecording && "border-blue-400/50 shadow-blue-50/20",
+            "w-full bg-white transition-all duration-300",
+            isRecording && "border-red-400/50 shadow-red-50/20",
             className
           )}
           disabled={isLoading || isRecording}
@@ -568,12 +486,12 @@ export const PromptInputBox = React.forwardRef(
         >
           {/* Adjuntos */}
           {files.length > 0 && !isRecording && (
-            <div className="flex flex-wrap gap-2 p-0 pb-3 transition-all duration-300">
+            <div className="flex flex-wrap gap-2 p-0 pb-2 transition-all duration-300">
               {files.map((file, index) => (
                 <div key={index} className="relative group">
                   {file.type.startsWith("image/") && filePreviews[file.name] && (
                     <div
-                      className="w-16 h-16 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 border border-gray-100 shadow-sm"
+                      className="w-14 h-14 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border border-gray-100 shadow-sm"
                       onClick={() => setSelectedImage(filePreviews[file.name])}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -619,83 +537,82 @@ export const PromptInputBox = React.forwardRef(
             />
           )}
 
-          {/* Toolbar Estilo Perplexity */}
-          <PromptInputActions className="flex items-center justify-between mt-1 pt-2 border-t border-gray-50/30">
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-              {/* Botón Plus */}
-              <button 
-                className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors"
-                onClick={() => uploadInputRef.current?.click()}
-              >
-                <Paperclip className="h-4 w-4" />
-                <input
-                    ref={uploadInputRef}
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files.length > 0)
-                        processFile(e.target.files[0]);
-                      if (e.target) e.target.value = "";
-                    }}
-                    accept="image/*"
-                />
-              </button>
-
-              {/* Model Pill */}
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50/50 border border-blue-100/50 text-blue-600 text-[12px] font-bold cursor-pointer hover:bg-blue-50 transition-colors whitespace-nowrap">
-                <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                </div>
-                Gemini 3 Pro Beta
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-0.5"><path d="m6 9 6 6 6-6"/></svg>
-              </div>
+          {/* Toolbar Estilo Open WebUI V2 - Sin Model Pill y sin Azules */}
+          <div className="flex items-center justify-between mt-1 pt-1">
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+              {/* Botón Plus / Clip */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                     <button 
+                       className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
+                       onClick={() => uploadInputRef.current?.click()}
+                     >
+                       <Paperclip className="h-4 w-4" />
+                       <input
+                           ref={uploadInputRef}
+                           type="file"
+                           className="hidden"
+                           onChange={(e) => {
+                             if (e.target.files && e.target.files.length > 0)
+                               processFile(e.target.files[0]);
+                             if (e.target) e.target.value = "";
+                           }}
+                           accept="image/*"
+                       />
+                     </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Adjuntar Imagen</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
               {/* Web Search Icon */}
-              <button
-                onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
-                  webSearchEnabled ? "text-blue-600 bg-blue-50" : "text-gray-400 hover:bg-gray-100"
-                )}
-              >
-                <Globe className="h-[17px] w-[17px]" />
-              </button>
+              <TooltipProvider>
+                <Tooltip>
+                   <TooltipTrigger asChild>
+                     <button 
+                       onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                       className={cn(
+                         "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+                         webSearchEnabled ? "text-[#06200F] bg-gray-100" : "text-gray-400 hover:bg-gray-100"
+                       )}
+                     >
+                       <Globe className="h-[17px] w-[17px]" />
+                     </button>
+                   </TooltipTrigger>
+                   <TooltipContent>Búsqueda Web</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-              {/* Reasoning Mode (Gemma 4) */}
-              <button
-                onClick={() => setReasoningMode(!reasoningMode)}
-                title={reasoningMode ? "Modo razonamiento activo (Gemma 4)" : "Activar razonamiento profundo"}
-                className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
-                  reasoningMode
-                    ? "text-emerald-700 bg-emerald-50"
-                    : "text-gray-400 hover:bg-gray-100"
-                )}
-              >
-                <Brain className="h-[17px] w-[17px]" />
-              </button>
-
-              {/* Sparkle Icon */}
-              <button className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-              </button>
-
-              {/* More Icon */}
-              <button className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-              </button>
+              {/* Reasoning Mode Icon */}
+              <TooltipProvider>
+                <Tooltip>
+                   <TooltipTrigger asChild>
+                     <button 
+                       onClick={() => setReasoningMode(!reasoningMode)}
+                       className={cn(
+                         "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+                         reasoningMode ? "text-emerald-700 bg-emerald-50" : "text-gray-400 hover:bg-gray-100"
+                       )}
+                     >
+                       <Brain className="h-[17px] w-[17px]" />
+                     </button>
+                   </TooltipTrigger>
+                   <TooltipContent>Razonamiento Profundo</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {/* Voice icon */}
               <button 
                 onClick={() => setIsRecording(!isRecording)}
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300",
+                  "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300",
                   isRecording ? "bg-red-50 text-red-500" : "text-gray-400 hover:bg-gray-100"
                 )}
               >
-                <Mic className="h-5 w-5" />
+                <Mic className="h-[18px] w-[18px]" />
               </button>
 
               {/* Send Button */}
@@ -703,20 +620,20 @@ export const PromptInputBox = React.forwardRef(
                 onClick={handleSubmit}
                 disabled={(!hasContent && !isLoading) || isRecording}
                 className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 shadow-sm",
+                  "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300",
                   hasContent || isLoading 
-                    ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md" 
+                    ? "bg-[#06200F] text-white hover:bg-black" 
                     : "bg-gray-100 text-gray-300 cursor-not-allowed"
                 )}
               >
                 {isLoading ? (
-                  <Square className="h-3.5 w-3.5 fill-white" />
+                  <Square className="h-3 w-3 fill-white" />
                 ) : (
-                  <ArrowUp className="h-5 w-5" />
+                  <ArrowUp className="h-[17px] w-[17px]" />
                 )}
               </button>
             </div>
-          </PromptInputActions>
+          </div>
         </PromptInput>
 
         <ImageViewDialog imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />
