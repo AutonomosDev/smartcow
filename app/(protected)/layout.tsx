@@ -18,7 +18,7 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F4F6F5]">
+    <div className="flex min-h-screen bg-[#FAFBFA]">
       <main className="flex-1 w-full mx-auto flex flex-col relative pb-20 md:pb-0">
         {children}
       </main>

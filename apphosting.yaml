@@ -1,7 +1,7 @@
 # Firebase App Hosting — smartcow
 # Docs: https://firebase.google.com/docs/app-hosting/configure
 # Firebase project: smartcow-prod
-# GCP secrets project: smartcow-492119 (cross-project)
+# GCP secrets project: smartcow-493015 (cross-project)
 
 # Cloud Run runtime settings (managed by Firebase App Hosting)
 runConfig:
@@ -12,36 +12,36 @@ runConfig:
   memoryMiB: 512
 
 # Environment variables and secrets
-# Secrets usan path completo porque viven en smartcow-492119,
+# Secrets usan path completo porque viven en smartcow-493015,
 # distinto al Firebase project smartcow-prod.
 env:
   # ── Database ──
   - variable: DATABASE_URL
-    secret: projects/smartcow-492119/secrets/database-url
+    secret: projects/smartcow-493015/secrets/database-url
 
   # ── OpenRouter (Gemma 4 / AI chat) ──
   - variable: OPENROUTER_API_KEY
-    secret: projects/smartcow-492119/secrets/openrouter-api-key
+    secret: projects/smartcow-493015/secrets/openrouter-api-key
 
   # ── AgroApp ──
   - variable: AGROAPP_USER
-    secret: projects/smartcow-492119/secrets/agroapp-user
+    secret: projects/smartcow-493015/secrets/agroapp-user
   - variable: AGROAPP_PASSWORD
-    secret: projects/smartcow-492119/secrets/agroapp-password
+    secret: projects/smartcow-493015/secrets/agroapp-password
 
   # ── Firebase Admin SDK ──
   - variable: FIREBASE_CLIENT_EMAIL
-    secret: projects/smartcow-492119/secrets/firebase-client-email
+    secret: projects/smartcow-493015/secrets/firebase-client-email
   - variable: FIREBASE_PRIVATE_KEY
-    secret: projects/smartcow-492119/secrets/firebase-private-key
+    secret: projects/smartcow-493015/secrets/firebase-private-key
 
   # ── Observabilidad ──
   - variable: SENTRY_DSN
-    secret: projects/smartcow-492119/secrets/sentry-dsn-web
+    secret: projects/smartcow-493015/secrets/sentry-dsn-web
 
   # ── GCP ──
   - variable: GCP_PROJECT_ID
-    value: smartcow-492119
+    value: smartcow-493015
 
   # ── Firebase Client SDK (públicas, browser-safe) ──
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY

@@ -29,7 +29,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => (
     <textarea
       className={cn(
-        "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base text-gray-100 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none",
+        "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none",
         className
       )}
       ref={ref}
@@ -54,7 +54,7 @@ const TooltipContent = React.forwardRef<
     ref={ref}
     sideOffset={sideOffset}
     className={cn(
-      "z-50 overflow-hidden rounded-md border border-[#333333] bg-[#1F2023] px-3 py-1.5 text-sm text-white shadow-md animate-in fade-in-0 zoom-in-95",
+      "z-50 overflow-hidden rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-md animate-in fade-in-0 zoom-in-95",
       className
     )}
     {...props}
@@ -91,14 +91,14 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-[90vw] md:max-w-[800px] translate-x-[-50%] translate-y-[-50%] gap-4 border border-[#333333] bg-[#1F2023] p-0 shadow-xl duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 rounded-2xl",
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-[90vw] md:max-w-[800px] translate-x-[-50%] translate-y-[-50%] gap-4 border border-gray-200 bg-white p-0 shadow-xl duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 rounded-2xl",
         className
       )}
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 z-10 rounded-full bg-[#2E3033]/80 p-2 hover:bg-[#2E3033] transition-all">
-        <X className="h-5 w-5 text-gray-200 hover:text-white" />
+      <DialogPrimitive.Close className="absolute right-4 top-4 z-10 rounded-full bg-gray-100 p-2 hover:bg-gray-200 transition-all">
+        <X className="h-5 w-5 text-gray-500 hover:text-gray-900" />
         <span className="sr-only">Cerrar</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
@@ -112,7 +112,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight text-gray-100", className)}
+    className={cn("text-lg font-semibold leading-none tracking-tight text-gray-900", className)}
     {...props}
   />
 ));
@@ -128,9 +128,9 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
     const variantClasses = {
-      default: "bg-white hover:bg-white/80 text-black",
-      outline: "border border-[#444444] bg-transparent hover:bg-[#3A3A40]",
-      ghost: "bg-transparent hover:bg-[#3A3A40]",
+      default: "bg-brand-dark hover:bg-black text-white",
+      outline: "border border-gray-200 bg-transparent hover:bg-gray-50",
+      ghost: "bg-transparent hover:bg-gray-50",
     };
     const sizeClasses = {
       default: "h-10 px-4 py-2",
@@ -204,13 +204,13 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     >
       <div className="flex items-center gap-2 mb-3">
         <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-        <span className="font-mono text-sm text-white/80">{formatTime(time)}</span>
+        <span className="font-mono text-sm text-gray-700">{formatTime(time)}</span>
       </div>
       <div className="w-full h-10 flex items-center justify-center gap-0.5 px-4">
         {[...Array(visualizerBars)].map((_, i) => (
           <div
             key={i}
-            className="w-0.5 rounded-full bg-white/50 animate-pulse"
+            className="w-0.5 rounded-full bg-gray-300 animate-pulse"
             style={{
               height: `${Math.max(15, Math.random() * 100)}%`,
               animationDelay: `${i * 0.05}s`,
@@ -241,7 +241,7 @@ const ImageViewDialog: React.FC<ImageViewDialogProps> = ({ imageUrl, onClose }) 
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="relative bg-[#1F2023] rounded-2xl overflow-hidden shadow-2xl"
+          className="relative bg-white rounded-2xl overflow-hidden shadow-2xl"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -334,7 +334,7 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           <div
             ref={ref}
             className={cn(
-              "rounded-3xl border border-[#444444] bg-[#1F2023] p-2 shadow-[0_8px_30px_rgba(0,0,0,0.24)] transition-all duration-300",
+              "rounded-3xl border border-gray-200 bg-white p-2 shadow-sm transition-all duration-300 focus-within:shadow-md focus-within:border-gray-300",
               isLoading && "border-red-500/70",
               className
             )}
@@ -545,7 +545,7 @@ export const PromptInputBox = React.forwardRef(
           isLoading={isLoading}
           onSubmit={handleSubmit}
           className={cn(
-            "w-full bg-[#1F2023] border-[#444444] shadow-[0_8px_30px_rgba(0,0,0,0.24)] transition-all duration-300 ease-in-out",
+            "w-full bg-white border border-gray-200 shadow-sm transition-all duration-300 ease-in-out focus-within:ring-2 focus-within:ring-brand-light/30 focus-within:border-brand-dark/20 focus-within:shadow-md",
             isRecording && "border-red-500/70",
             className
           )}
@@ -619,7 +619,7 @@ export const PromptInputBox = React.forwardRef(
               <PromptInputAction tooltip="Adjuntar imagen">
                 <button
                   onClick={() => uploadInputRef.current?.click()}
-                  className="flex h-8 w-8 text-[#9CA3AF] cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-gray-600/30 hover:text-[#D1D5DB]"
+                  className="flex h-8 w-8 text-gray-400 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-gray-100 hover:text-gray-600"
                   disabled={isRecording}
                 >
                   <Paperclip className="h-5 w-5 transition-colors" />
@@ -655,10 +655,10 @@ export const PromptInputBox = React.forwardRef(
                 className={cn(
                   "h-8 w-8 rounded-full transition-all duration-200",
                   isRecording
-                    ? "bg-transparent hover:bg-gray-600/30 text-red-500 hover:text-red-400"
+                    ? "bg-transparent hover:bg-gray-100 text-red-500 hover:text-red-400"
                     : hasContent
-                    ? "bg-white hover:bg-white/80 text-[#1F2023]"
-                    : "bg-transparent hover:bg-gray-600/30 text-[#9CA3AF] hover:text-[#D1D5DB]"
+                    ? "bg-brand-dark hover:bg-black text-white"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-500"
                 )}
                 onClick={() => {
                   if (isRecording) setIsRecording(false);
@@ -668,13 +668,13 @@ export const PromptInputBox = React.forwardRef(
                 disabled={isLoading && !hasContent}
               >
                 {isLoading ? (
-                  <Square className="h-4 w-4 fill-[#1F2023] animate-pulse" />
+                  <Square className="h-4 w-4 fill-white animate-pulse" />
                 ) : isRecording ? (
                   <StopCircle className="h-5 w-5 text-red-500" />
                 ) : hasContent ? (
-                  <ArrowUp className="h-4 w-4 text-[#1F2023]" />
+                  <ArrowUp className="h-4 w-4 text-white" />
                 ) : (
-                  <Mic className="h-5 w-5 text-[#1F2023] transition-colors" />
+                  <Mic className="h-4 w-4 text-gray-500 transition-colors" />
                 )}
               </Button>
             </PromptInputAction>
