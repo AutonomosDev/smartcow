@@ -47,8 +47,8 @@ function NavItem({ href, icon: Icon, label, badge, active, disabled }: NavItemPr
       href={href}
       className={`${base} ${
         active
-          ? "bg-white shadow-sm border border-gray-100 text-gray-900 font-medium"
-          : "text-gray-600 hover:bg-white hover:text-gray-900"
+          ? "bg-white shadow-sm border border-brand-light/30 text-brand-dark font-semibold"
+          : "text-gray-600 hover:bg-white/80 hover:text-gray-900"
       }`}
       title={label}
     >
@@ -75,7 +75,7 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
 
   return (
     <aside 
-      className={`min-h-screen bg-[#F9F9F8] border-r border-[#EAE8E4] flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-[260px]'}`}
+      className={`min-h-screen bg-[#F4F6F5]/60 backdrop-blur-xl border-r border-gray-200/50 flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-[260px]'}`}
     >
       {/* Logo + Organization dropdown */}
       <div className="px-3 py-3 border-b border-[#EAE8E4]">
