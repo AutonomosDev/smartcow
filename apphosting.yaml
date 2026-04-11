@@ -1,7 +1,7 @@
 # Firebase App Hosting — smartcow
 # Docs: https://firebase.google.com/docs/app-hosting/configure
-# Firebase project: smartcow-prod
-# GCP secrets project: smartcow-493015 (cross-project)
+# Firebase project: smartcow-493015
+# GCP secrets project: smartcow-493015
 
 # Cloud Run runtime settings (managed by Firebase App Hosting)
 runConfig:
@@ -12,8 +12,6 @@ runConfig:
   memoryMiB: 512
 
 # Environment variables and secrets
-# Secrets usan path completo porque viven en smartcow-493015,
-# distinto al Firebase project smartcow-prod.
 env:
   # ── Database ──
   - variable: DATABASE_URL
@@ -50,12 +48,12 @@ env:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: smartcow-prod.firebaseapp.com
+    value: smartcow-493015.firebaseapp.com
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: smartcow-prod
+    value: smartcow-493015
     availability:
       - BUILD
       - RUNTIME
