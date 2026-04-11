@@ -17,6 +17,8 @@ import {
   partos,
   ecografias,
   predios,
+  tipoGanado,
+  razas,
 } from "@/src/db/schema/index";
 import { eq, and, desc, isNull, inArray } from "drizzle-orm";
 
@@ -37,6 +39,7 @@ export interface LoteResumen {
   nombre: string;
   totalAnimales: number;
   fechaEntrada: string;
+  fechaSalidaEstimada: string | null;
   objetivoPesoKg: number | null;
   estado: string;
 }
@@ -132,6 +135,7 @@ export async function getLotesActivos(predioId: number): Promise<LoteResumen[]> 
       id: lotes.id,
       nombre: lotes.nombre,
       fechaEntrada: lotes.fechaEntrada,
+      fechaSalidaEstimada: lotes.fechaSalidaEstimada,
       objetivoPesoKg: lotes.objetivoPesoKg,
       estado: lotes.estado,
     })
@@ -160,6 +164,7 @@ export async function getLotesActivos(predioId: number): Promise<LoteResumen[]> 
     nombre: l.nombre,
     totalAnimales: countByLote.get(l.id) ?? 0,
     fechaEntrada: l.fechaEntrada,
+    fechaSalidaEstimada: l.fechaSalidaEstimada ?? null,
     objetivoPesoKg: l.objetivoPesoKg ? Number(l.objetivoPesoKg) : null,
     estado: l.estado,
   }));
@@ -273,6 +278,61 @@ export async function getLoteDetalle(
     diasEnLote,
     gdpKgDia: gdpKgDia !== null ? Math.round(gdpKgDia * 100) / 100 : null,
   };
+}
+
+// ─────────────────────────────────────────────
+// ANIMALES
+// ─────────────────────────────────────────────
+
+export interface AnimalResumen {
+  id: number;
+  diio: string;
+  eid: string | null;
+  tipoGanado: string;
+  raza: string | null;
+  sexo: "M" | "H";
+  fechaNacimiento: string | null;
+  estado: "activo" | "baja" | "desecho";
+  moduloActual: "feedlot" | "crianza" | "ambos" | null;
+}
+
+/**
+ * Lista de animales activos del predio con tipo y raza resueltos.
+ */
+export async function getAnimales(
+  predioId: number,
+  limit = 500
+): Promise<AnimalResumen[]> {
+  const rows = await db
+    .select({
+      id: animales.id,
+      diio: animales.diio,
+      eid: animales.eid,
+      tipoGanado: tipoGanado.nombre,
+      raza: razas.nombre,
+      sexo: animales.sexo,
+      fechaNacimiento: animales.fechaNacimiento,
+      estado: animales.estado,
+      moduloActual: animales.moduloActual,
+    })
+    .from(animales)
+    .leftJoin(tipoGanado, eq(animales.tipoGanadoId, tipoGanado.id))
+    .leftJoin(razas, eq(animales.razaId, razas.id))
+    .where(and(eq(animales.predioId, predioId), eq(animales.estado, "activo")))
+    .orderBy(animales.diio)
+    .limit(limit);
+
+  return rows.map((r) => ({
+    id: r.id,
+    diio: r.diio,
+    eid: r.eid,
+    tipoGanado: r.tipoGanado ?? "—",
+    raza: r.raza ?? null,
+    sexo: r.sexo,
+    fechaNacimiento: r.fechaNacimiento,
+    estado: r.estado,
+    moduloActual: r.moduloActual,
+  }));
 }
 
 // ─────────────────────────────────────────────

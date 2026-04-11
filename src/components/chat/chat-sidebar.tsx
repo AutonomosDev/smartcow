@@ -126,12 +126,12 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
           active={pathname === "/chat"}
         />
         <NavItem href="#" icon={BarChart2} label="Reportes" disabled />
-        <NavItem href="#" icon={Layers} label="Lotes" disabled />
-        <NavItem href="#" icon={Users} label="Animales" disabled />
+        <NavItem href="/lotes" icon={Layers} label="Lotes" active={pathname === "/lotes"} />
+        <NavItem href="/animales" icon={Users} label="Animales" active={pathname === "/animales"} />
         <NavItem href="#" icon={GitCompare} label="Potreros" disabled />
-        <NavItem href="#" icon={BookOpen} label="Base de Conocimiento" disabled />
+        <NavItem href="/conocimiento" icon={BookOpen} label="Base de Conocimiento" active={pathname === "/conocimiento"} />
         <NavItem href="#" icon={MessageCircle} label="Feedback" disabled />
-        <NavItem href="#" icon={FileSearch} label="Reportes PDF" disabled />
+        <NavItem href="/reportes" icon={FileSearch} label="Reportes PDF" active={pathname === "/reportes"} />
       </nav>
 
       {/* Footer: Settings + Account */}
