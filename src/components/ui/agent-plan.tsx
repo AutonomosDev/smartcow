@@ -3,11 +3,8 @@
  * Adaptado de 21st.dev/r/isaiahbjork/agent-plan para SmartCow.
  * Ticket: AUT-113
  *
- * Muestra el estado del agente Claude durante tool use.
- * Solo visible cuando Claude ejecuta una acción que toca datos
- * (registrar, modificar, sync) — NO en consultas de lectura.
- *
- * Deps: lucide-react, framer-motion
+ * Muestra el estado del agente Claude durante la ejecución de acciones.
+ * Incluye animaciones suaves de expansión y estados visuales premium.
  */
 
 "use client";
@@ -36,6 +33,7 @@ export interface AgentSubtask {
   title: string;
   description: string;
   status: AgentTaskStatus;
+  priority?: string;
   tools?: string[];
 }
 
@@ -44,6 +42,9 @@ export interface AgentTask {
   title: string;
   description: string;
   status: AgentTaskStatus;
+  priority?: string;
+  level?: number;
+  dependencies?: string[];
   subtasks: AgentSubtask[];
 }
 
@@ -64,7 +65,7 @@ function StatusIcon({
     case "completed":
       return <CheckCircle2 className={cn(cls, "text-green-500")} />;
     case "in-progress":
-      return <CircleDotDashed className={cn(cls, "text-blue-500")} />;
+      return <CircleDotDashed className={cn(cls, "text-blue-500 animate-spin-slow")} />;
     case "need-help":
       return <CircleAlert className={cn(cls, "text-yellow-500")} />;
     case "failed":
@@ -104,13 +105,14 @@ const subtaskListVariants = {
       duration: 0.25,
       staggerChildren: 0.05,
       when: "beforeChildren" as const,
+      ease: [0.2, 0.65, 0.3, 0.9] as [number, number, number, number],
     },
   },
   exit: {
     height: 0,
     opacity: 0,
     overflow: "hidden",
-    transition: { duration: 0.2 },
+    transition: { duration: 0.2, ease: [0.2, 0.65, 0.3, 0.9] as [number, number, number, number] },
   },
 };
 
@@ -130,7 +132,7 @@ const subtaskDetailsVariants = {
     opacity: 1,
     height: "auto",
     overflow: "visible",
-    transition: { duration: 0.25 },
+    transition: { duration: 0.25, ease: [0.2, 0.65, 0.3, 0.9] as [number, number, number, number] },
   },
 };
 
@@ -138,9 +140,10 @@ const subtaskDetailsVariants = {
 
 interface AgentPlanProps {
   tasks: AgentTask[];
+  className?: string;
 }
 
-export function AgentPlan({ tasks }: AgentPlanProps) {
+export function AgentPlan({ tasks, className }: AgentPlanProps) {
   const [expandedTasks, setExpandedTasks] = useState<string[]>(() =>
     tasks.filter((t) => t.status === "in-progress").map((t) => t.id)
   );
@@ -164,14 +167,17 @@ export function AgentPlan({ tasks }: AgentPlanProps) {
   if (tasks.length === 0) return null;
 
   return (
-    <div className="bg-background text-foreground w-full overflow-auto p-2">
+    <div className={cn("bg-transparent text-foreground w-full max-w-2xl px-2 mb-4", className)}>
       <motion.div
-        className="bg-card border-border rounded-lg border shadow overflow-hidden"
+        className="bg-white/80 backdrop-blur-md border border-gray-100 rounded-2xl shadow-sm overflow-hidden"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0, transition: { duration: 0.3 } }}
       >
         <LayoutGroup>
-          <div className="p-4 overflow-hidden">
+          <div className="p-4 pt-3 overflow-hidden">
+            <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">
+              Plan de ejecución del Agente
+            </h4>
             <ul className="space-y-1 overflow-hidden">
               {tasks.map((task, index) => {
                 const isExpanded = expandedTasks.includes(task.id);
@@ -179,24 +185,20 @@ export function AgentPlan({ tasks }: AgentPlanProps) {
                 return (
                   <motion.li
                     key={task.id}
-                    className={index !== 0 ? "mt-1 pt-2" : ""}
+                    className={cn(index !== 0 ? "mt-1 pt-2" : "", "list-none")}
                     initial="hidden"
                     animate="visible"
                     variants={taskVariants}
                   >
                     {/* Task row */}
                     <motion.div
-                      className="group flex items-center px-3 py-1.5 rounded-md"
+                      className="group flex items-center px-3 py-1.5 rounded-xl cursor-not-allowed"
                       whileHover={{
-                        backgroundColor: "rgba(0,0,0,0.03)",
+                        backgroundColor: "rgba(0,0,0,0.02)",
                         transition: { duration: 0.2 },
                       }}
                     >
-                      <motion.div
-                        className="mr-2 flex-shrink-0"
-                        whileTap={{ scale: 0.9 }}
-                        whileHover={{ scale: 1.1 }}
-                      >
+                      <div className="mr-3 flex-shrink-0">
                         <AnimatePresence mode="wait">
                           <motion.div
                             key={task.status}
@@ -208,28 +210,38 @@ export function AgentPlan({ tasks }: AgentPlanProps) {
                             <StatusIcon status={task.status} size="md" />
                           </motion.div>
                         </AnimatePresence>
-                      </motion.div>
+                      </div>
 
-                      <motion.div
-                        className="flex min-w-0 flex-grow cursor-pointer items-center justify-between"
+                      <div
+                        className="flex min-w-0 flex-grow items-center justify-between cursor-pointer"
                         onClick={() => toggleTaskExpansion(task.id)}
                       >
                         <div className="mr-2 flex-1 truncate">
                           <span
                             className={cn(
+                              "text-sm font-medium",
                               task.status === "completed"
-                                ? "text-muted-foreground line-through"
-                                : ""
+                                ? "text-gray-400 line-through"
+                                : "text-gray-700"
                             )}
                           >
                             {task.title}
                           </span>
                         </div>
 
-                        <div className="flex flex-shrink-0 items-center space-x-2 text-xs">
+                        <div className="flex flex-shrink-0 items-center space-x-2 text-[10px]">
+                          {task.dependencies && task.dependencies.length > 0 && (
+                            <div className="flex gap-1 mr-2">
+                              {task.dependencies.map((dep, idx) => (
+                                <span key={idx} className="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-bold uppercase">
+                                  {dep}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                           <motion.span
                             className={cn(
-                              "rounded px-1.5 py-0.5",
+                              "rounded-full px-2 py-0.5 font-bold uppercase tracking-tight",
                               STATUS_BADGE_CLASS[task.status]
                             )}
                             key={task.status}
@@ -237,7 +249,7 @@ export function AgentPlan({ tasks }: AgentPlanProps) {
                             {task.status}
                           </motion.span>
                         </div>
-                      </motion.div>
+                      </div>
                     </motion.div>
 
                     {/* Subtasks */}
@@ -251,8 +263,8 @@ export function AgentPlan({ tasks }: AgentPlanProps) {
                           exit="hidden"
                           layout
                         >
-                          <div className="absolute top-0 bottom-0 left-[20px] border-l-2 border-dashed border-muted-foreground/30" />
-                          <ul className="border-muted mt-1 mr-2 mb-1.5 ml-3 space-y-0.5">
+                          <div className="absolute top-0 bottom-0 left-[22px] border-l border-dashed border-gray-200" />
+                          <ul className="mt-1 mr-2 mb-1.5 ml-3 space-y-0.5 list-none">
                             {task.subtasks.map((subtask) => {
                               const subtaskKey = `${task.id}-${subtask.id}`;
                               const isSubtaskExpanded = expandedSubtasks[subtaskKey];
@@ -260,7 +272,7 @@ export function AgentPlan({ tasks }: AgentPlanProps) {
                               return (
                                 <motion.li
                                   key={subtask.id}
-                                  className="group flex flex-col py-0.5 pl-6 cursor-pointer"
+                                  className="group flex flex-col py-0.5 pl-6"
                                   onClick={() =>
                                     toggleSubtaskExpansion(task.id, subtask.id)
                                   }
@@ -271,38 +283,29 @@ export function AgentPlan({ tasks }: AgentPlanProps) {
                                   layout
                                 >
                                   <motion.div
-                                    className="flex flex-1 items-center rounded-md p-1"
-                                    whileHover={{
-                                      backgroundColor: "rgba(0,0,0,0.03)",
-                                      transition: { duration: 0.2 },
-                                    }}
+                                    className="flex flex-1 items-center rounded-lg p-1 hover:bg-black/5 transition-colors"
                                     layout
                                   >
-                                    <motion.div
-                                      className="mr-2 flex-shrink-0"
-                                      whileTap={{ scale: 0.9 }}
-                                      whileHover={{ scale: 1.1 }}
-                                      layout
-                                    >
+                                    <div className="mr-2.5 flex-shrink-0">
                                       <AnimatePresence mode="wait">
                                         <motion.div
                                           key={subtask.status}
-                                          initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
-                                          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                          exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
+                                          initial={{ opacity: 0, scale: 0.8 }}
+                                          animate={{ opacity: 1, scale: 1 }}
+                                          exit={{ opacity: 0, scale: 0.8 }}
                                           transition={{ duration: 0.2 }}
                                         >
                                           <StatusIcon status={subtask.status} size="sm" />
                                         </motion.div>
                                       </AnimatePresence>
-                                    </motion.div>
+                                    </div>
 
                                     <span
                                       className={cn(
-                                        "text-sm",
+                                        "text-[13px]",
                                         subtask.status === "completed"
-                                          ? "text-muted-foreground line-through"
-                                          : ""
+                                          ? "text-gray-400 line-through"
+                                          : "text-gray-600"
                                       )}
                                     >
                                       {subtask.title}
@@ -312,7 +315,7 @@ export function AgentPlan({ tasks }: AgentPlanProps) {
                                   <AnimatePresence mode="wait">
                                     {isSubtaskExpanded && (
                                       <motion.div
-                                        className="text-muted-foreground border-foreground/20 mt-1 ml-1.5 border-l border-dashed pl-5 text-xs overflow-hidden"
+                                        className="text-gray-500 border-gray-100 mt-1 ml-1.5 border-l border-dashed pl-5 text-[11px] overflow-hidden"
                                         variants={subtaskDetailsVariants}
                                         initial="hidden"
                                         animate="visible"
@@ -321,18 +324,17 @@ export function AgentPlan({ tasks }: AgentPlanProps) {
                                       >
                                         <p className="py-1">{subtask.description}</p>
                                         {subtask.tools && subtask.tools.length > 0 && (
-                                          <div className="mt-0.5 mb-1 flex flex-wrap items-center gap-1.5">
-                                            <span className="text-muted-foreground font-medium">
-                                              Tools:
+                                          <div className="mt-1 mb-2 flex flex-wrap items-center gap-1.5">
+                                            <span className="font-semibold text-gray-300">
+                                              HERRAMIENTAS:
                                             </span>
                                             <div className="flex flex-wrap gap-1">
                                               {subtask.tools.map((tool, idx) => (
                                                 <motion.span
                                                   key={idx}
-                                                  className="bg-secondary/40 text-secondary-foreground rounded px-1.5 py-0.5 text-[10px] font-medium shadow-sm"
+                                                  className="bg-brand-light/10 text-brand-dark px-1.5 py-0.5 rounded text-[9px] font-bold shadow-sm border border-brand-light/20"
                                                   initial={{ opacity: 0, y: -5 }}
                                                   animate={{ opacity: 1, y: 0 }}
-                                                  whileHover={{ y: -1 }}
                                                 >
                                                   {tool}
                                                 </motion.span>
