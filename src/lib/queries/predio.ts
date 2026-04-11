@@ -274,3 +274,56 @@ export async function getLoteDetalle(
     gdpKgDia: gdpKgDia !== null ? Math.round(gdpKgDia * 100) / 100 : null,
   };
 }
+
+// ─────────────────────────────────────────────
+// ACTIVIDAD RECIENTE
+// ─────────────────────────────────────────────
+
+export interface RecentEvent {
+  type: "pesaje" | "parto";
+  fecha: string;
+  descripcion: string;
+  creadoEn: string;
+}
+
+/**
+ * Últimos N eventos del predio (pesajes + partos) ordenados por fecha de creación.
+ */
+export async function getRecentActivity(
+  predioId: number,
+  limit = 8
+): Promise<RecentEvent[]> {
+  const [pesajesRows, partosRows] = await Promise.all([
+    db
+      .select({ fecha: pesajes.fecha, pesoKg: pesajes.pesoKg, creadoEn: pesajes.creadoEn })
+      .from(pesajes)
+      .where(eq(pesajes.predioId, predioId))
+      .orderBy(desc(pesajes.creadoEn))
+      .limit(limit),
+    db
+      .select({ fecha: partos.fecha, resultado: partos.resultado, creadoEn: partos.creadoEn })
+      .from(partos)
+      .where(eq(partos.predioId, predioId))
+      .orderBy(desc(partos.creadoEn))
+      .limit(limit),
+  ]);
+
+  const events: RecentEvent[] = [
+    ...pesajesRows.map((p) => ({
+      type: "pesaje" as const,
+      fecha: p.fecha,
+      descripcion: `Pesaje · ${Number(p.pesoKg).toFixed(1)} kg`,
+      creadoEn: p.creadoEn.toISOString(),
+    })),
+    ...partosRows.map((p) => ({
+      type: "parto" as const,
+      fecha: p.fecha,
+      descripcion: `Parto · ${p.resultado}`,
+      creadoEn: p.creadoEn.toISOString(),
+    })),
+  ];
+
+  return events
+    .sort((a, b) => new Date(b.creadoEn).getTime() - new Date(a.creadoEn).getTime())
+    .slice(0, limit);
+}
