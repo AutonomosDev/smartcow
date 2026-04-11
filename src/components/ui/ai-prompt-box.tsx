@@ -304,7 +304,7 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           <div
             ref={ref}
             className={cn(
-              "rounded-xl border border-gray-200/60 bg-white/50 p-3 shadow-sm transition-all duration-300 focus-within:shadow-md focus-within:border-gray-300 font-inter",
+              "rounded-xl border border-gray-100 bg-white p-3 shadow-sm transition-all duration-300 focus-within:shadow-md focus-within:border-gray-200 font-inherit",
               isLoading && "border-gray-500/30",
               className
             )}
@@ -357,7 +357,7 @@ const PromptInputTextarea: React.FC<
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
-      className={cn("text-[15px] font-inter placeholder:text-gray-400 px-2", className)}
+      className={cn("text-[15px] font-inherit placeholder:text-gray-400 px-2", className)}
       disabled={disabled}
       placeholder={placeholder}
       {...props}
@@ -549,16 +549,16 @@ export const PromptInputBox = React.forwardRef(
           )}
 
           {/* Toolbar Estilo Open WebUI V2 - Sin Model Pill y sin Azules */}
-          <div className="flex items-center justify-between mt-1 pt-1">
+          <div className="flex items-center justify-between mt-1 pt-1 bg-white">
             <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
               {/* Botón Plus / Clip */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                     <button 
-                       className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
-                       onClick={() => uploadInputRef.current?.click()}
-                     >
+                      <button 
+                        className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-50/50 text-gray-400 transition-colors"
+                        onClick={() => uploadInputRef.current?.click()}
+                      >
                        <Paperclip className="h-4 w-4" />
                        <input
                            ref={uploadInputRef}
@@ -583,10 +583,10 @@ export const PromptInputBox = React.forwardRef(
                    <TooltipTrigger asChild>
                      <button 
                        onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                       className={cn(
-                         "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
-                         webSearchEnabled ? "text-[#06200F] bg-gray-100" : "text-gray-400 hover:bg-gray-100"
-                       )}
+                        className={cn(
+                          "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+                          webSearchEnabled ? "text-[#06200F] bg-gray-50" : "text-gray-400 hover:bg-gray-50/50"
+                        )}
                      >
                        <Globe className="h-[17px] w-[17px]" />
                      </button>
@@ -601,10 +601,10 @@ export const PromptInputBox = React.forwardRef(
                    <TooltipTrigger asChild>
                      <button 
                        onClick={() => setReasoningMode(!reasoningMode)}
-                       className={cn(
-                         "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
-                         reasoningMode ? "text-emerald-700 bg-emerald-50" : "text-gray-400 hover:bg-gray-100"
-                       )}
+                        className={cn(
+                          "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+                          reasoningMode ? "text-emerald-700 bg-emerald-50/50" : "text-gray-400 hover:bg-gray-50/50"
+                        )}
                      >
                        <Brain className="h-[17px] w-[17px]" />
                      </button>
@@ -618,10 +618,10 @@ export const PromptInputBox = React.forwardRef(
               {/* Voice icon */}
               <button 
                 onClick={() => setIsRecording(!isRecording)}
-                className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300",
-                  isRecording ? "bg-red-50 text-red-500" : "text-gray-400 hover:bg-gray-100"
-                )}
+                  className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300",
+                    isRecording ? "bg-red-50 text-red-500" : "text-gray-400 hover:bg-gray-50/50"
+                  )}
               >
                 <Mic className="h-[18px] w-[18px]" />
               </button>
