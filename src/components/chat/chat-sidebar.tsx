@@ -17,6 +17,8 @@ import {
   PanelLeftOpen
 } from "lucide-react";
 import { useState } from "react";
+import { useFont } from "@/src/providers/font-provider";
+import { Type } from "lucide-react";
 
 interface NavItemProps {
   href: string;
@@ -25,9 +27,10 @@ interface NavItemProps {
   badge?: string;
   active?: boolean;
   disabled?: boolean;
+  onClick?: () => void;
 }
 
-function NavItem({ href, icon: Icon, label, badge, active, disabled }: NavItemProps) {
+function NavItem({ href, icon: Icon, label, badge, active, disabled, onClick }: NavItemProps) {
   const base =
     "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors w-full text-left";
 
@@ -40,6 +43,23 @@ function NavItem({ href, icon: Icon, label, badge, active, disabled }: NavItemPr
     );
   }
 
+  if (onClick) {
+    return (
+      <button
+        onClick={onClick}
+        className={`${base} ${
+          active
+            ? "bg-white shadow-sm border border-gray-200/60 text-[#06200F] font-semibold"
+            : "text-gray-500 hover:bg-white/80 hover:text-gray-900"
+        }`}
+        title={label}
+      >
+        <Icon size={16} className="flex-shrink-0" />
+        <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis transition-opacity duration-200 text-left">{label}</span>
+      </button>
+    );
+  }
+
   return (
     <Link
       href={href}
@@ -47,7 +67,7 @@ function NavItem({ href, icon: Icon, label, badge, active, disabled }: NavItemPr
         active
           ? "bg-white shadow-sm border border-gray-200/60 text-[#06200F] font-semibold"
           : "text-gray-500 hover:bg-white/80 hover:text-gray-900"
-      }`}
+        }`}
       title={label}
     >
       <Icon size={16} className="flex-shrink-0" />
@@ -65,15 +85,17 @@ interface ChatSidebarProps {
   orgName?: string | null;
   userName?: string | null;
   userEmail?: string | null;
+  onKBClick?: () => void;
 }
 
-export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) {
+export function ChatSidebar({ orgName, userName, userEmail, onKBClick }: ChatSidebarProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { font, setFont } = useFont();
 
   return (
     <aside 
-      className={`min-h-screen bg-[#F4F6F5]/60 backdrop-blur-xl border-r border-gray-200/50 flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out font-inter ${isCollapsed ? 'w-16' : 'w-[260px]'}`}
+      className={`min-h-screen bg-white border-r border-gray-100 flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out font-inherit ${isCollapsed ? 'w-16' : 'w-[260px]'}`}
       suppressHydrationWarning
     >
       {/* Logo + Organization dropdown */}
@@ -88,7 +110,7 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
           )}
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="text-gray-400 hover:text-gray-800 p-1 rounded-md hover:bg-[#efedec] transition-colors"
+            className="text-gray-400 hover:text-gray-800 p-1 rounded-md hover:bg-gray-50/50 transition-colors"
             title="Toggle Sidebar"
           >
             {isCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
@@ -96,9 +118,9 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
         </div>
         {/* Organization */}
         {!isCollapsed && (
-          <button className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-white transition-colors text-left border border-transparent hover:border-gray-100 hover:shadow-sm">
+          <button className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-white transition-colors text-left border border-transparent hover:border-gray-50 hover:shadow-sm">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center">
+              <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center">
                 <span className="text-[10px] text-gray-500 font-bold">O</span>
               </div>
               <span className="text-sm text-gray-700 whitespace-nowrap overflow-hidden">{orgName ?? "Organización"}</span>
@@ -126,17 +148,43 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
         <NavItem href="/lotes" icon={Layers} label="Lotes" active={pathname === "/lotes"} />
         <NavItem href="/animales" icon={Users} label="Animales" active={pathname === "/animales"} />
         <NavItem href="#" icon={GitCompare} label="Potreros" disabled />
-        <NavItem href="/conocimiento" icon={BookOpen} label="Base de Conocimiento" active={pathname === "/conocimiento"} />
+        <NavItem href="#" icon={BookOpen} label="Base de Conocimiento" onClick={onKBClick} />
         <NavItem href="/reportes" icon={FileSearch} label="Reportes PDF" active={pathname === "/reportes"} />
       </nav>
 
+      {/* selector de fuentes */}
+      {!isCollapsed && (
+        <div className="px-4 py-3 border-t border-gray-50 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Type size={14} className="text-gray-400" />
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Fuentes</span>
+          </div>
+          <div className="flex gap-1">
+            {(["inter", "jakarta", "manrope"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFont(f)}
+                className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold transition-all ${
+                  font === f 
+                    ? "bg-[#06200F] text-white shadow-sm" 
+                    : "bg-white text-gray-400 border border-gray-100 hover:bg-gray-50/50"
+                }`}
+                title={`Usar fuente ${f}`}
+              >
+                {f[0].toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Footer: Settings + Account */}
-      <div className="px-2 py-2 border-t border-[#EAE8E4] space-y-0.5">
+      <div className="px-2 py-2 border-t border-gray-50 space-y-0.5">
         <NavItem href="#" icon={Settings} label="Ajustes" disabled />
         {/* Account */}
         <button className="flex items-center justify-between w-full px-2.5 py-2 rounded-md hover:bg-white transition-colors text-left border border-transparent hover:border-gray-100 hover:shadow-sm">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
               <span className="text-[10px] text-gray-600 font-semibold uppercase">
                 {userName?.[0] ?? "U"}
               </span>
