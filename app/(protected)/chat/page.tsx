@@ -14,6 +14,7 @@ import { ChatPanel } from "@/src/components/chat/chat-panel";
 import { ChatSidebar } from "@/src/components/chat/chat-sidebar";
 import { FontProvider } from "@/src/providers/font-provider";
 import { ChatShareButton } from "@/src/components/chat/chat-share-button";
+import { ChatHistoryHeader } from "@/src/components/chat/chat-history-header";
 import { ChevronLeft, ChevronDown, SquarePen, X } from "lucide-react";
 import Link from "next/link";
 
@@ -52,10 +53,7 @@ export default async function ChatPage({
           <header className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100/50 flex-shrink-0 bg-white sticky top-0 z-10">
             {/* Izquierda: dropdown conversaciones */}
             <div className="flex items-center gap-2">
-              <button className="flex items-center gap-1.5 hover:bg-gray-50 px-2 py-1 rounded-md transition-colors">
-                <span className="text-gray-900 text-sm font-medium text-opacity-50 italic">Nueva conversación...</span>
-                <ChevronDown size={14} className="text-gray-400" />
-              </button>
+              <ChatHistoryHeader />
             </div>
 
             {/* Centro: título */}
