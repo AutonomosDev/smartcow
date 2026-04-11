@@ -10,7 +10,6 @@ import {
   Settings, 
   User, 
   Bell, 
-  ShieldSecret, 
   Languages, 
   Moon, 
   Sun,
