@@ -17,9 +17,9 @@ env:
   - variable: DATABASE_URL
     secret: database-url
 
-  # ── Claude / Anthropic ──
-  - variable: ANTHROPIC_API_KEY
-    secret: anthropic-api-key
+  # ── OpenRouter (Gemma 4 / AI chat) ──
+  - variable: OPENROUTER_API_KEY
+    secret: openrouter-api-key
 
   # ── AgroApp ──
   - variable: AGROAPP_USER
@@ -27,14 +27,11 @@ env:
   - variable: AGROAPP_PASSWORD
     secret: agroapp-password
 
-  # ── Firebase Admin SDK (server-side, pendiente crear en Secret Manager) ──
-  # Descomentar cuando estén creados:
-  #   gcloud secrets create firebase-client-email --project=smartcow-492119
-  #   gcloud secrets create firebase-private-key --project=smartcow-492119
-  # - variable: FIREBASE_CLIENT_EMAIL
-  #   secret: firebase-client-email
-  # - variable: FIREBASE_PRIVATE_KEY
-  #   secret: firebase-private-key
+  # ── Firebase Admin SDK (server-side) ──
+  - variable: FIREBASE_CLIENT_EMAIL
+    secret: firebase-client-email
+  - variable: FIREBASE_PRIVATE_KEY
+    secret: firebase-private-key
 
   # ── Observabilidad ──
   - variable: SENTRY_DSN
@@ -45,11 +42,11 @@ env:
     value: smartcow-492119
 
   # ── Firebase Client SDK (públicas, browser-safe) ──
-  # PENDIENTE: completar API_KEY desde Firebase Console
-  #   → Project Settings → Your apps → smartcow-web → Config (no npm)
-  # - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-  #   value: AIzaSy...
-  #   availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyAFzRl-sa9drslWp5btfq0A-Ujbgpvd0uU
+    availability:
+      - BUILD
+      - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: smartcow-prod.firebaseapp.com
     availability:

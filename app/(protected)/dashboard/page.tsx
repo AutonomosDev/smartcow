@@ -42,22 +42,10 @@ function DesktopView({ nombre, kpis, nombrePredio }: { nombre: string | null | u
             </div>
             <span className="text-white font-bold text-xl tracking-tight hidden md:block">SmartCow</span>
         </div>
-        <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-6 text-white/90 text-sm font-medium">
-                <Link href="#" className="hover:text-white transition-colors">Potreros Activos</Link>
-                <Link href="#" className="hover:text-white transition-colors">Sanidad</Link>
-                <Link href="#" className="hover:text-white transition-colors">Reportes</Link>
-            </div>
-            <div className="flex gap-4 items-center">
-              <div className="w-10 h-10 rounded-full border border-white/20 overflow-hidden flex items-center justify-center bg-white/10 backdrop-blur-md cursor-pointer hover:bg-white/20 transition">
-                  <span className="text-white text-sm font-bold uppercase">{nombre?.[0] ?? "U"}</span>
-              </div>
-            </div>
-        </div>
       </nav>
 
       {/* 2. EDGE-TO-EDGE HERO IMAGE */}
-      <div className="relative w-full h-[55vh] min-h-[400px]">
+      <div className="relative w-full h-[35vh] min-h-[320px]">
           <div 
              className="absolute inset-0 w-full h-full bg-cover bg-center"
              style={{ backgroundImage: "url('https://images.unsplash.com/photo-1500595046743-cd271d694d30?q=80&w=2074&auto=format&fit=crop')" }}
@@ -66,13 +54,12 @@ function DesktopView({ nombre, kpis, nombrePredio }: { nombre: string | null | u
           </div>
           
           {/* Hero Content */}
-          <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
-              <span className="text-brand-light font-bold text-sm tracking-widest uppercase mb-4 drop-shadow-md">Panel de Control</span>
-              <h1 className="text-white text-5xl md:text-[64px] font-bold max-w-4xl leading-[1.1] tracking-tight drop-shadow-lg">
-                  Visualiza y Controla <br/><span className="text-white/90">Todo Tu Predio</span>
+          <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 pt-8">
+              <h1 className="text-white text-3xl md:text-5xl font-bold max-w-3xl leading-[1.1] tracking-tight drop-shadow-lg">
+                  Hola, {nombre ?? "Juan"}.
               </h1>
-              <p className="text-white/80 text-lg mt-6 max-w-xl font-medium drop-shadow-md">
-                  Animales, pesajes, partos y ecografías de tu predio en tiempo real.
+              <p className="text-brand-light text-lg mt-3 font-medium drop-shadow-md">
+                  ¿En qué te puedo ayudar hoy?
               </p>
           </div>
       </div>
@@ -89,9 +76,8 @@ function DesktopView({ nombre, kpis, nombrePredio }: { nombre: string | null | u
                   <h4 className="text-sm font-medium text-ink-title">{nombrePredio ?? "Predio"}</h4>
               </div>
               {/* Sección derecha: placeholder consulta */}
-              <div className="flex-1 px-6 py-4">
-                  <p className="text-[10px] text-ink-meta font-semibold uppercase tracking-wider mb-0.5">Consultar IA</p>
-                  <h4 className="text-sm text-ink-meta">¿Qué quieres saber hoy?</h4>
+              <div className="flex-[2] px-6 py-4 flex items-center">
+                  <h4 className="text-sm text-ink-meta">¿Qué características o lote analizamos?...</h4>
               </div>
               {/* Botón circular verde */}
               <div className="mr-2 w-12 h-12 rounded-full bg-brand-dark flex items-center justify-center flex-shrink-0 group-hover:bg-black transition-colors">
@@ -107,9 +93,6 @@ function DesktopView({ nombre, kpis, nombrePredio }: { nombre: string | null | u
                   <h2 className="text-ink-title text-2xl md:text-3xl font-bold tracking-tight">Resumen Operacional</h2>
                   <p className="text-ink-body mt-2 text-sm">{nombrePredio ?? "Predio"} · datos actualizados</p>
               </div>
-              <Link href="/chat" className="text-brand-dark font-semibold text-sm flex items-center gap-1 hover:opacity-70 transition">
-                  Consultar IA <ChevronRight size={16} />
-              </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -174,6 +157,12 @@ function DesktopView({ nombre, kpis, nombrePredio }: { nombre: string | null | u
           </div>
       </main>
 
+      {/* Floating Avatar User - Bottom Left */}
+      <div className="fixed bottom-6 left-6 z-50 flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full border border-white/10 overflow-hidden flex items-center justify-center bg-black/90 backdrop-blur-md cursor-pointer hover:scale-105 transition shadow-lg">
+              <span className="text-white text-lg font-bold uppercase">{nombre?.[0] ?? "J"}</span>
+          </div>
+      </div>
     </div>
   );
 }

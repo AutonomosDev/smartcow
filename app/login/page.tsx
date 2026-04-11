@@ -6,7 +6,7 @@
 "use client";
 
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { clientAuth } from "@/src/lib/firebase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -25,6 +25,12 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // By-pass temporal para navegación del mockup en modo dev
+      if (process.env.NODE_ENV === "development") {
+        router.push(callbackUrl);
+        return;
+      }
+
       const credential = await signInWithEmailAndPassword(clientAuth, email, password);
       const idToken = await credential.user.getIdToken();
 
@@ -49,51 +55,59 @@ export default function LoginPage() {
   }
 
   async function handleGoogleSignIn() {
-    // Google sign-in: implementar con signInWithPopup si se necesita
+    setError(null);
+    setLoading(true);
+    try {
+      if (process.env.NODE_ENV === "development") {
+        router.push(callbackUrl);
+        return;
+      }
+      const provider = new GoogleAuthProvider();
+      const credential = await signInWithPopup(clientAuth, provider);
+      const idToken = await credential.user.getIdToken();
+
+      const res = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError((data as { error?: string }).error ?? "Error al iniciar con Google");
+        return;
+      }
+
+      router.push(callbackUrl);
+      router.refresh();
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code;
+      if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") return;
+      setError("Error al iniciar sesión con Google");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white">
       {/* Panel izquierdo — Branding & "Vaca Agentic" */}
-      <div className="hidden lg:flex lg:w-1/2 bg-brand-dark flex-col justify-between p-12 relative overflow-hidden">
-        {/* Fondo con degradado radial para resaltar la vaca */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--color-brand-light)_0%,_transparent_70%)] opacity-5" />
-
-        <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-inner bg-brand-light" />
-            <span className="text-white text-xl font-bold tracking-tight">SmartCow</span>
-          </div>
+      <div className="hidden lg:flex lg:w-1/2 bg-white relative overflow-hidden items-center justify-center">
+        <div className="absolute inset-0 w-full h-full pointer-events-none flex items-center justify-center">
+          <Image
+            src="/cow_robot.png"
+            alt="SmartCow Intelligence"
+            fill
+            className="object-contain scale-110"
+            priority
+          />
         </div>
-
-        {/* Hero: Vaca Agentic */}
-        <div className="relative z-10 flex flex-col items-center justify-center flex-1 py-10">
-          <div className="relative w-full max-w-[440px] aspect-square">
-            <Image
-              src="/cow_robot.png"
-              alt="SmartCow Intelligence"
-              fill
-              className="object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
-              priority
-            />
-          </div>
-          <div className="text-center mt-6">
-            <p className="text-brand-light text-sm font-bold uppercase tracking-widest mb-3">
-              Plataforma Ganadera
-            </p>
-            <h1 className="text-white text-4xl font-bold leading-tight max-w-md mx-auto">
-              Gestiona tu predio con inteligencia.
-            </h1>
-          </div>
-        </div>
-
-        <div className="relative z-10">
-          <p className="text-white/30 text-xs">© 2026 SmartCow · Autónomos Lab</p>
-        </div>
+        {/* Soft fading to the right side starting from the middle */}
+        <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-r from-transparent to-white pointer-events-none" />
       </div>
 
       {/* Panel derecho — Formulario */}
-      <div className="flex-1 flex items-center justify-center bg-farm-base">
+      <div className="flex-1 flex items-center justify-center bg-white relative z-10">
         <SignIn2
           onSignIn={handleCredentialsSignIn}
           onGoogleSignIn={handleGoogleSignIn}
