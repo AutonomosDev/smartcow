@@ -47,7 +47,7 @@ const DEV_SESSION: SmartCowSession = {
     email: "admin@smartcow.cl",
     nombre: "Admin Dev",
     orgId: 1,
-    predios: [9, 3, 4, 5, 6, 7, 8],
+    predios: [11, 7, 9, 8, 10, 6, 5],
     rol: "admin_org",
     modulos: { feedlot: true, crianza: true },
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { Target } from "lucide-react";
 
 const SUGGESTIONS = [
   "¿Cuántos animales hay en el predio?",
@@ -17,23 +17,24 @@ interface ChatEmptyStateProps {
 export function ChatEmptyState({ nombrePredio, onSuggestionClick }: ChatEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full py-12 px-4 text-center">
-      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-        <Sparkles size={22} className="text-gray-400" />
+      <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 shadow-sm border border-blue-100/50 rotate-3">
+        <Target size={28} className="text-blue-600" />
       </div>
-      <h3 className="text-gray-800 font-semibold text-lg mb-1">
+      <h3 className="text-gray-900 font-bold text-xl mb-2 tracking-tight">
         {nombrePredio ? `Asistente de ${nombrePredio}` : "Asistente SmartCow"}
       </h3>
-      <p className="text-gray-400 text-sm mb-8 max-w-xs">
-        Pregúntame sobre animales, pesajes, partos o cualquier dato del predio.
+      <p className="text-gray-500 text-sm mb-10 max-w-sm leading-relaxed">
+        Pregúntame sobre animales, pesajes, partos o cualquier dato operativo del predio en tiempo real.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-md">
         {SUGGESTIONS.map((s) => (
           <button
             key={s}
             onClick={() => onSuggestionClick(s)}
-            className="text-left text-sm text-gray-600 bg-white border border-gray-200 rounded-xl px-4 py-3 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+            className="text-left text-[13px] text-gray-700 bg-white border border-gray-100 rounded-[20px] px-5 py-4 hover:bg-gray-50 hover:border-blue-200/50 hover:shadow-sm transition-all duration-300 group flex items-start gap-3 font-inter"
           >
-            {s}
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+            <span className="flex-1 font-medium">{s}</span>
           </button>
         ))}
       </div>

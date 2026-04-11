@@ -1,29 +1,21 @@
 /**
  * src/components/chat/chat-panel.tsx
- * Panel de chat principal — desktop.
- * Conecta con el endpoint SSE POST /api/chat (AUT-112).
- * Ticket: AUT-113
- *
- * Comportamiento:
- * - Streaming SSE: tokens en tiempo real
- * - Scroll automático al último mensaje
- * - Enter envía, Shift+Enter salto de línea
- * - Input deshabilitado mientras responde
- * - Agent Plan visible solo cuando Claude usa tools de escritura
- * - Responsive: funciona en móvil
+ * Panel de chat Principal — V2 Sandbox aplicado a producción
  */
 
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { PromptInputBox } from "@/src/components/ui/ai-prompt-box";
-import { MessageRenderer, type ChatMessage, type ChartData } from "@/src/components/chat/message-renderer";
+import { MessageRenderer, type ChatMessage } from "@/src/components/chat/message-renderer";
 import { AgentPlan, type AgentTask, type AgentTaskStatus } from "@/src/components/ui/agent-plan";
+import { ChatEmptyState } from "@/src/components/chat/chat-empty-state";
+import { ArtifactsSidebar, type ArtifactData } from "@/src/components/chat/artifacts-sidebar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SSEEvent {
-  type: "text_delta" | "tool_use" | "tool_result" | "done" | "error";
+  type: "text_delta" | "thinking_delta" | "tool_use" | "tool_result" | "done" | "error";
   delta?: string;
   tool?: string;
   input?: unknown;
@@ -31,25 +23,31 @@ interface SSEEvent {
   message?: string;
 }
 
-// Tools que modifican datos — mostrar Agent Plan para estas
 const WRITE_TOOLS = new Set(["registrar_pesaje", "registrar_parto"]);
 
-// ─── ChatPanel ────────────────────────────────────────────────────────────────
+// ─── ChatPanel ──────────────────────────────────────────────────────────────
 
 interface ChatPanelProps {
   predioId: number;
+  initialMessage?: string;
+  nombrePredio?: string | null;
+  userName?: string | null;
+  className?: string;
 }
 
-export function ChatPanel({ predioId }: ChatPanelProps) {
+export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, className }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [thinkingText, setThinkingText] = useState("");
   const [agentTasks, setAgentTasks] = useState<AgentTask[]>([]);
   const [showAgentPlan, setShowAgentPlan] = useState(false);
+  const [activeArtifact, setActiveArtifact] = useState<ArtifactData | null>(null);
+  const [isArtifactOpen, setIsArtifactOpen] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const hasSentInitial = useRef(false);
 
-  // Scroll al último mensaje
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
@@ -58,7 +56,14 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // Manejar tool_use para Agent Plan
+  useEffect(() => {
+    if (initialMessage && !hasSentInitial.current) {
+      hasSentInitial.current = true;
+      handleSend(initialMessage);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleToolUse = useCallback(
     (tool: string, input: unknown) => {
       const isWriteTool = WRITE_TOOLS.has(tool);
@@ -98,20 +103,18 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
     );
   }, []);
 
-  // Enviar mensaje
   const handleSend = useCallback(
-    async (content: string) => {
+    async (content: string, _files?: File[], webSearch?: boolean, reasoningMode?: boolean) => {
       if (!content.trim() || isLoading) return;
 
-      // Reset agent plan
       setAgentTasks([]);
       setShowAgentPlan(false);
+      setThinkingText("");
 
       const userMessage: ChatMessage = { role: "user", content };
       const updatedMessages = [...messages, userMessage];
       setMessages(updatedMessages);
 
-      // Placeholder de asistente para streaming
       const assistantMessage: ChatMessage = { role: "assistant", content: "" };
       setMessages([...updatedMessages, assistantMessage]);
 
@@ -128,6 +131,8 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
               content: m.content,
             })),
             predio_id: predioId,
+            web_search: webSearch ?? false,
+            reasoning_mode: reasoningMode ?? false,
           }),
           signal: abortControllerRef.current.signal,
         });
@@ -166,8 +171,12 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
             }
 
             switch (event.type) {
+              case "thinking_delta":
+                if (event.delta) setThinkingText((prev) => prev + event.delta);
+                break;
               case "text_delta":
                 if (event.delta) {
+                  setThinkingText("");
                   setMessages((prev) => {
                     const last = prev[prev.length - 1];
                     if (last?.role === "assistant") {
@@ -180,22 +189,14 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
                   });
                 }
                 break;
-
               case "tool_use":
-                if (event.tool) {
-                  handleToolUse(event.tool, event.input);
-                }
+                if (event.tool) handleToolUse(event.tool, event.input);
                 break;
-
               case "tool_result":
-                if (event.tool) {
-                  handleToolResult(event.tool, event.result);
-                }
+                if (event.tool) handleToolResult(event.tool, event.result);
                 break;
-
               case "done":
                 break;
-
               case "error":
                 throw new Error(event.message ?? "Error en streaming");
             }
@@ -203,7 +204,7 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
         }
       } catch (err) {
         if ((err as Error).name === "AbortError") {
-          // Usuario canceló — mantener lo que se escribió
+          // Cancelado
         } else {
           const errorMsg = err instanceof Error ? err.message : "Error desconocido";
           setMessages((prev) => {
@@ -222,63 +223,122 @@ export function ChatPanel({ predioId }: ChatPanelProps) {
         }
       } finally {
         setIsLoading(false);
+        setThinkingText("");
         abortControllerRef.current = null;
       }
     },
     [messages, isLoading, predioId, handleToolUse, handleToolResult]
   );
 
+  useEffect(() => {
+     if (messages.length > 0) {
+       const last = messages[messages.length - 1];
+       if (last.content.toLowerCase().includes("mostrar vaca") || last.content.toLowerCase().includes("vaca #34")) {
+         setActiveArtifact({
+            id: "vaca-34",
+            type: "animal_card",
+            title: "Ficha Animal #34",
+            content: { rp: "2034", nombre: "Vaca Angus #34", categoria: "Vaca de Cría", peso: 450, nacimiento: "12/05/2022" }
+         });
+         setIsArtifactOpen(true);
+       } else if (last.content.toLowerCase().includes("reporte") || last.content.toLowerCase().includes("eficiencia")) {
+         setActiveArtifact({
+            id: "repo-1",
+            type: "report",
+            title: "Reporte Mensual",
+            content: { period: "Marzo 2026" }
+         });
+         setIsArtifactOpen(true);
+       }
+     }
+  }, [messages]);
+
   const handleStop = useCallback(() => {
     abortControllerRef.current?.abort();
   }, []);
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-[#111111]">
-      {/* Mensajes */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
-        {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-            <div className="text-center space-y-2">
-              <p className="text-lg font-medium text-gray-400">SmartCow IA</p>
-              <p className="text-gray-500">
-                Consulta sobre tus animales, pesajes, partos o índices reproductivos.
-              </p>
+    <div 
+      className={`relative flex h-full min-h-0 bg-[#FAFAFA] overflow-hidden font-inter ${className ?? ""}`}
+      suppressHydrationWarning
+    >
+      <div className="flex-1 flex flex-col h-full min-w-0 transition-all duration-500 items-center">
+        
+
+
+        {/* Mensajes - Centered */}
+        <div className="flex-1 w-full overflow-y-auto overflow-x-hidden pt-4 pb-8 flex flex-col items-center">
+            
+            {messages.length === 0 ? (
+              <div className="w-full max-w-3xl px-4 flex-1 flex flex-col justify-center">
+                <ChatEmptyState 
+                  nombrePredio={nombrePredio}
+                  onSuggestionClick={(text) => handleSend(text)} 
+                />
+              </div>
+            ) : (
+              <div className="w-full max-w-3xl px-4 space-y-6">
+                {messages.map((msg, idx) => (
+                  <MessageRenderer key={idx} message={msg} />
+                ))}
+        
+                {showAgentPlan && agentTasks.length > 0 && (
+                  <div className="px-2 pb-6">
+                    <AgentPlan tasks={agentTasks} />
+                  </div>
+                )}
+        
+                {isLoading && (
+                  <div className="flex flex-col gap-3 py-4 animate-in fade-in duration-500">
+                    <div className="flex items-center gap-3">
+                       <div className="w-5 h-5 flex items-center justify-center">
+                          <div className="w-3.5 h-3.5 rounded-full border-2 border-gray-500/20 border-t-gray-500 animate-spin" />
+                       </div>
+                       <span className="text-[14px] text-gray-400 font-medium italic">
+                          {thinkingText ? "Analizando datos..." : "Generando respuesta..."}
+                       </span>
+                    </div>
+                  </div>
+                )}
+                
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+            
+        </div>
+  
+        {/* Input - Centered container */}
+        <div className="w-full max-w-3xl px-4 pb-6 flex flex-col">
+            <div className="w-full relative">
+              <PromptInputBox
+                onSend={handleSend}
+                isLoading={isLoading}
+                placeholder="Message SmartCow"
+              />
             </div>
-          </div>
-        )}
-
-        {messages.map((msg, idx) => (
-          <MessageRenderer key={idx} message={msg} />
-        ))}
-
-        {/* Agent Plan — solo durante tool use de escritura */}
-        {showAgentPlan && agentTasks.length > 0 && (
-          <div className="px-2 pb-2">
-            <AgentPlan tasks={agentTasks} />
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
+            
+            <div className="w-full flex items-center justify-center mt-2 group relative">
+              <p className="text-center text-xs text-gray-400/80 font-medium">
+                AI can make mistakes. Check important info.
+              </p>
+              {isLoading && (
+                <button
+                  onClick={handleStop}
+                  className="sm:absolute sm:right-0 ml-4 sm:ml-0 text-xs text-gray-500 hover:text-gray-800 transition-colors"
+                >
+                  Stop generating
+                </button>
+              )}
+            </div>
+        </div>
       </div>
 
-      {/* Input */}
-      <div className="px-4 pb-4 pt-2 border-t border-[#222]">
-        <PromptInputBox
-          onSend={handleSend}
-          isLoading={isLoading}
-          placeholder="Pregunta sobre tus animales..."
-        />
-        {isLoading && (
-          <div className="flex justify-center mt-2">
-            <button
-              onClick={handleStop}
-              className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              Detener respuesta
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Panel de Artifacts */}
+      <ArtifactsSidebar 
+        artifact={activeArtifact}
+        isOpen={isArtifactOpen}
+        onClose={() => setIsArtifactOpen(false)}
+      />
     </div>
   );
 }
@@ -289,10 +349,6 @@ function formatToolName(tool: string): string {
   const names: Record<string, string> = {
     registrar_pesaje: "Registrando pesaje",
     registrar_parto: "Registrando parto",
-    query_animales: "Consultando animales",
-    query_pesajes: "Consultando pesajes",
-    query_partos: "Consultando partos",
-    query_indices_reproductivos: "Consultando índices reproductivos",
   };
   return names[tool] ?? tool;
 }
@@ -300,17 +356,10 @@ function formatToolName(tool: string): string {
 function formatToolInput(input: unknown): string {
   if (!input || typeof input !== "object") return "";
   const obj = input as Record<string, unknown>;
-  return Object.entries(obj)
-    .slice(0, 3)
-    .map(([k, v]) => `${k}: ${String(v)}`)
-    .join(", ");
+  return Object.entries(obj).slice(0, 3).map(([k, v]) => `${k}: ${String(v)}`).join(", ");
 }
 
 function isSuccessResult(result: unknown): boolean {
   if (!result || typeof result !== "object") return false;
-  const obj = result as Record<string, unknown>;
-  return obj.success === true || (obj.error === undefined && obj.id !== undefined);
+  return (result as any).ok === true || (result as any).success === true;
 }
-
-// ─── Tipo re-exportado para el chart ─────────────────────────────────────────
-export type { ChartData };
