@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { adminAuth } from "@/src/lib/firebase/admin";
+import { loadUserByFirebaseUid } from "@/src/lib/auth";
 
 const SESSION_DURATION_MS = 8 * 60 * 60 * 1000; // 8 horas
 
@@ -25,8 +26,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Verificar el ID token antes de crear la session cookie
-    await adminAuth.verifyIdToken(idToken);
+    // Verificar token y comprobar que el usuario existe en DB
+    const decoded = await adminAuth.verifyIdToken(idToken);
+    const user = await loadUserByFirebaseUid(decoded.uid);
+    if (!user) {
+      return NextResponse.json(
+        { error: "Tu cuenta no está registrada en SmartCow. Contacta al administrador." },
+        { status: 401 }
+      );
+    }
 
     const sessionCookie = await adminAuth.createSessionCookie(idToken, {
       expiresIn: SESSION_DURATION_MS,

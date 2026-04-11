@@ -7,7 +7,7 @@
  */
 
 import { Suspense, useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { clientAuth } from "@/src/lib/firebase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -49,10 +49,41 @@ function LoginContent() {
     }
   }
 
+  async function handleGoogleSignIn() {
+    setError(null);
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const credential = await signInWithPopup(clientAuth, provider);
+      const idToken = await credential.user.getIdToken();
+
+      const res = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError((data as { error?: string }).error ?? "Error al iniciar con Google");
+        return;
+      }
+
+      router.push(callbackUrl);
+      router.refresh();
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code;
+      if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") return;
+      setError("Error al iniciar sesión con Google");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <SignIn2
       onSignIn={handleCredentialsSignIn}
-      onGoogleSignIn={() => {}}
+      onGoogleSignIn={handleGoogleSignIn}
       loading={loading}
       externalError={error}
     />
