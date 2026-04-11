@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 2. Parsear body
-  let body: { messages: Anthropic.MessageParam[]; predio_id: number };
+  let body: { messages: Anthropic.MessageParam[]; predio_id: number; web_search?: boolean };
   try {
     body = await req.json();
   } catch {
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { messages, predio_id: predioId } = body;
+  const { messages, predio_id: predioId, web_search: webSearch } = body;
 
   if (!predioId || typeof predioId !== "number") {
     return new Response(JSON.stringify({ error: "predio_id requerido" }), {
@@ -132,6 +132,11 @@ export async function POST(req: NextRequest) {
         const systemPrompt = buildSystemPrompt(session, predioId);
         const conversationMessages: Anthropic.MessageParam[] = [...messages];
 
+        // Web search tool is a server-side built-in — added when the user toggles Globe
+        const webSearchTool = { type: "web_search_20250305", name: "web_search" };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const tools: Anthropic.Tool[] = webSearch ? [...CATTLE_TOOLS, webSearchTool as any] : CATTLE_TOOLS;
+
         let iteraciones = 0;
 
         while (iteraciones < MAX_TOOL_ITERATIONS) {
@@ -141,7 +146,7 @@ export async function POST(req: NextRequest) {
             model: "claude-sonnet-4-6",
             max_tokens: 4096,
             system: systemPrompt,
-            tools: CATTLE_TOOLS,
+            tools,
             messages: conversationMessages,
           });
 

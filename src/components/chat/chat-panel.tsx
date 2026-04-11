@@ -115,7 +115,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, className }:
 
   // Enviar mensaje
   const handleSend = useCallback(
-    async (content: string) => {
+    async (content: string, _files?: File[], webSearch?: boolean) => {
       if (!content.trim() || isLoading) return;
 
       // Reset agent plan y thinking
@@ -144,6 +144,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, className }:
               content: m.content,
             })),
             predio_id: predioId,
+            web_search: webSearch ?? false,
           }),
           signal: abortControllerRef.current.signal,
         });
