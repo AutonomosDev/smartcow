@@ -20,6 +20,7 @@ import { PromptInputBox } from "@/src/components/ui/ai-prompt-box";
 import { MessageRenderer, type ChatMessage, type ChartData } from "@/src/components/chat/message-renderer";
 import { AgentPlan, type AgentTask, type AgentTaskStatus } from "@/src/components/ui/agent-plan";
 import { ChatEmptyState } from "@/src/components/chat/chat-empty-state";
+import { ArtifactsSidebar, type ArtifactData } from "@/src/components/chat/artifacts-sidebar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -50,6 +51,8 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, className }:
   const [thinkingText, setThinkingText] = useState("");
   const [agentTasks, setAgentTasks] = useState<AgentTask[]>([]);
   const [showAgentPlan, setShowAgentPlan] = useState(false);
+  const [activeArtifact, setActiveArtifact] = useState<ArtifactData | null>(null);
+  const [isArtifactOpen, setIsArtifactOpen] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -253,98 +256,132 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, className }:
     [messages, isLoading, predioId, handleToolUse, handleToolResult]
   );
 
+  // Abrir artifact de prueba (Para el lead/user 1 2 3)
+  useEffect(() => {
+     if (messages.length > 0) {
+       const last = messages[messages.length - 1];
+       if (last.content.toLowerCase().includes("mostrar vaca") || last.content.toLowerCase().includes("vaca #34")) {
+         setActiveArtifact({
+            id: "vaca-34",
+            type: "animal_card",
+            title: "Ficha Animal #34",
+            content: { rp: "2034", nombre: "Vaca Angus #34", categoria: "Vaca de Cría", peso: 450, nacimiento: "12/05/2022" }
+         });
+         setIsArtifactOpen(true);
+       } else if (last.content.toLowerCase().includes("reporte") || last.content.toLowerCase().includes("eficiencia")) {
+         setActiveArtifact({
+            id: "repo-1",
+            type: "report",
+            title: "Reporte Mensual",
+            content: { period: "Marzo 2026" }
+         });
+         setIsArtifactOpen(true);
+       }
+     }
+  }, [messages]);
+
   const handleStop = useCallback(() => {
     abortControllerRef.current?.abort();
   }, []);
 
   return (
-    <div className={`flex flex-col h-full min-h-0 bg-transparent ${className ?? ""}`}>
-      {/* Mensajes */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-8 py-6 space-y-4">
-          {messages.length === 0 && (
-            <ChatEmptyState 
-              nombrePredio={nombrePredio}
-              onSuggestionClick={(text) => handleSend(text)} 
-            />
-          )}
-  
-          {messages.map((msg, idx) => (
-            <MessageRenderer key={idx} message={msg} />
-          ))}
-  
-          {/* Agent Plan — solo durante tool use de escritura */}
-          {showAgentPlan && agentTasks.length > 0 && (
-            <div className="px-2 pb-2">
-              <AgentPlan tasks={agentTasks} />
-            </div>
-          )}
-  
-          {/* Thought — agente pensando en tiempo real */}
-          {thinkingText && (
-            <div className="flex gap-3 items-start mb-4 px-2">
-              <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0 bg-white shadow-sm mt-0.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-brand-dark animate-pulse" />
+    <div className={`flex h-full min-h-0 bg-transparent overflow-hidden ${className ?? ""}`}>
+      {/* Columna Chat Principal */}
+      <div className="flex-1 flex flex-col h-full min-w-0 transition-all duration-500">
+        {/* Mensajes */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-8 py-6 space-y-4">
+            {messages.length === 0 && (
+              <ChatEmptyState 
+                nombrePredio={nombrePredio}
+                onSuggestionClick={(text) => handleSend(text)} 
+              />
+            )}
+    
+            {messages.map((msg, idx) => (
+              <MessageRenderer key={idx} message={msg} />
+            ))}
+    
+            {/* Agent Plan — solo durante tool use de escritura */}
+            {showAgentPlan && agentTasks.length > 0 && (
+              <div className="px-2 pb-2">
+                <AgentPlan tasks={agentTasks} />
               </div>
-              <details className="flex-1" open>
-                <summary className="text-sm font-semibold text-brand-dark hover:text-brand-dark/80 cursor-pointer select-none list-none flex items-center gap-2">
-                  <div className="flex gap-1">
-                     <span className="w-1.5 h-1.5 rounded-full bg-brand-dark animate-bounce" style={{ animationDelay: '0ms' }} />
-                     <span className="w-1.5 h-1.5 rounded-full bg-brand-dark animate-bounce" style={{ animationDelay: '150ms' }} />
-                     <span className="w-1.5 h-1.5 rounded-full bg-brand-dark animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
-                  <span>SmartCow está analizando...</span>
-                </summary>
-                <p className="text-xs text-gray-500 mt-2 leading-relaxed bg-white/60 p-3 rounded-lg border border-gray-100 max-h-32 overflow-y-auto max-w-2xl shadow-sm">
-                  {thinkingText}
-                </p>
-              </details>
-            </div>
-          )}
-  
-          {/* Indicador de carga cuando no hay thinking text */}
-          {isLoading && !thinkingText && messages[messages.length - 1]?.role === "assistant" && messages[messages.length - 1]?.content === "" && (
-            <div className="flex gap-3 items-center mb-4 px-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0 bg-white shadow-sm">
-                <div className="w-2.5 h-2.5 rounded-full bg-brand-dark animate-pulse" />
+            )}
+    
+            {/* Thought — agente pensando en tiempo real */}
+            {thinkingText && (
+              <div className="flex gap-3 items-start mb-4 px-2">
+                <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0 bg-white shadow-sm mt-0.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-brand-dark animate-pulse" />
+                </div>
+                <details className="flex-1" open>
+                  <summary className="text-sm font-semibold text-brand-dark hover:text-brand-dark/80 cursor-pointer select-none list-none flex items-center gap-2">
+                    <div className="flex gap-1">
+                       <span className="w-1.5 h-1.5 rounded-full bg-brand-dark animate-bounce" style={{ animationDelay: '0ms' }} />
+                       <span className="w-1.5 h-1.5 rounded-full bg-brand-dark animate-bounce" style={{ animationDelay: '150ms' }} />
+                       <span className="w-1.5 h-1.5 rounded-full bg-brand-dark animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                    <span>SmartCow está analizando...</span>
+                  </summary>
+                  <p className="text-xs text-gray-500 mt-2 leading-relaxed bg-white/60 p-3 rounded-lg border border-gray-100 max-h-32 overflow-y-auto max-w-2xl shadow-sm">
+                    {thinkingText}
+                  </p>
+                </details>
               </div>
-              <div className="flex bg-white px-4 py-3 rounded-2xl shadow-sm border border-gray-100 gap-1.5 items-center">
-                <span className="w-2 h-2 rounded-full bg-brand-light animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2 h-2 rounded-full bg-brand-light animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 rounded-full bg-brand-light animate-bounce" style={{ animationDelay: '300ms' }} />
-                <span className="text-xs text-gray-500 font-medium ml-2">Procesando consulta...</span>
+            )}
+    
+            {/* Indicador de carga cuando no hay thinking text */}
+            {isLoading && !thinkingText && messages[messages.length - 1]?.role === "assistant" && messages[messages.length - 1]?.content === "" && (
+              <div className="flex gap-3 items-center mb-4 px-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0 bg-white shadow-sm">
+                  <div className="w-2.5 h-2.5 rounded-full bg-brand-dark animate-pulse" />
+                </div>
+                <div className="flex bg-white px-4 py-3 rounded-2xl shadow-sm border border-gray-100 gap-1.5 items-center">
+                  <span className="w-2 h-2 rounded-full bg-brand-light animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 rounded-full bg-brand-light animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 rounded-full bg-brand-light animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <span className="text-xs text-gray-500 font-medium ml-2">Procesando consulta...</span>
+                </div>
               </div>
-            </div>
-          )}
-  
-          <div ref={messagesEndRef} />
-        </div>
-  
-        {/* Input */}
-        <div className="px-4 pb-8 pt-4 flex flex-col items-center">
-          <div className="w-full max-w-3xl bg-white rounded-[28px] shadow-float border border-gray-100/50 overflow-hidden transition-all duration-300 focus-within:ring-2 focus-within:ring-brand-light/20">
-            <PromptInputBox
-              onSend={handleSend}
-              isLoading={isLoading}
-              placeholder="Pregunta sobre tus animales..."
-              className="!shadow-none !border-0 bg-transparent"
-            />
+            )}
+    
+            <div ref={messagesEndRef} />
           </div>
-          
-          <p className="text-center text-[10px] text-gray-400 mt-3 font-medium">
-            AI can make mistakes. Please double-check responses.
-          </p>
-  
-          {isLoading && (
-            <div className="flex justify-center mt-2">
-              <button
-                onClick={handleStop}
-                className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
-              >
-                Detener respuesta
-              </button>
+    
+          {/* Input */}
+          <div className="px-4 pb-8 pt-4 flex flex-col items-center">
+            <div className="w-full max-w-3xl bg-white rounded-[28px] shadow-float border border-gray-100/50 overflow-hidden transition-all duration-300 focus-within:ring-2 focus-within:ring-brand-light/20">
+              <PromptInputBox
+                onSend={handleSend}
+                isLoading={isLoading}
+                placeholder="Pregunta sobre tus animales..."
+                className="!shadow-none !border-0 bg-transparent"
+              />
             </div>
-          )}
-        </div>
+            
+            <p className="text-center text-[10px] text-gray-400 mt-3 font-medium">
+              AI can make mistakes. Please double-check responses.
+            </p>
+    
+            {isLoading && (
+              <div className="flex justify-center mt-2">
+                <button
+                  onClick={handleStop}
+                  className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                >
+                  Detener respuesta
+                </button>
+              </div>
+            )}
+          </div>
+      </div>
+
+      {/* Panel de Artifacts (Generative UI) */}
+      <ArtifactsSidebar 
+        artifact={activeArtifact}
+        isOpen={isArtifactOpen}
+        onClose={() => setIsArtifactOpen(false)}
+      />
     </div>
   );
 }
