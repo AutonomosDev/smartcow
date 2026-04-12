@@ -1,7 +1,7 @@
 # Firebase App Hosting — smartcow
 # Docs: https://firebase.google.com/docs/app-hosting/configure
-# Firebase project: smartcow-493015
-# GCP secrets project: smartcow-493015
+# Firebase project: smartcow-c22fb
+# GCP secrets project: smartcow-c22fb / DB: smartcow-492119
 
 # Cloud Run runtime settings (managed by Firebase App Hosting)
 runConfig:
@@ -10,6 +10,8 @@ runConfig:
   concurrency: 80
   cpu: 1
   memoryMiB: 512
+  cloudSqlInstances:
+    - smartcow-492119:southamerica-west1:smartcow-db
 
 # Environment variables and secrets
 env:
