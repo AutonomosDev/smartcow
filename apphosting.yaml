@@ -1,7 +1,8 @@
 # Firebase App Hosting — smartcow
 # Docs: https://firebase.google.com/docs/app-hosting/configure
-# Firebase project: smartcow-493015
-# GCP secrets project: smartcow-493015
+# Firebase project: smartcow-c22fb (App Hosting + Auth)
+# Cloud SQL project: smartcow-492119 — DB conecta por IP pública (0.0.0.0/0 autorizado)
+# NOTA: cloudSqlInstances NO soportado por App Hosting — usar IP directa en DATABASE_URL
 
 # Cloud Run runtime settings (managed by Firebase App Hosting)
 runConfig:
