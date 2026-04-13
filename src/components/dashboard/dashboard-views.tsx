@@ -56,21 +56,20 @@ export function DesktopView({ nombre, kpis, nombrePredio, recentActivity, predio
               </p>
           </motion.div>
 
-          {/* Avatar — bottom left */}
-          {(() => {
-            const parts = (nombre ?? "").trim().split(/\s+/);
-            const initials = parts.length >= 2
-              ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
-              : (parts[0]?.[0] ?? "U").toUpperCase();
-            return (
-              <div className="absolute bottom-6 left-8 z-20">
-                <div className="w-10 h-10 rounded-2xl border-2 border-brand-light/20 flex items-center justify-center bg-brand-light/10 backdrop-blur-md shadow-lg">
-                  <span className="text-white text-sm font-bold tracking-tight">{initials}</span>
-                </div>
-              </div>
-            );
-          })()}
       </div>
+
+      {/* AVATAR — fixed bottom-left */}
+      {(() => {
+        const parts = (nombre ?? "").trim().split(/\s+/);
+        const initials = parts.length >= 2
+          ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+          : (parts[0]?.[0] ?? "U").toUpperCase();
+        return (
+          <div className="fixed bottom-6 left-8 z-50 w-10 h-10 rounded-2xl border-2 border-brand-light/20 overflow-hidden flex items-center justify-center bg-brand-light/10 shadow-lg">
+            <span className="text-brand-dark text-sm font-bold">{initials}</span>
+          </div>
+        );
+      })()}
 
       {/* SEARCH PILL */}
       <SearchPill
