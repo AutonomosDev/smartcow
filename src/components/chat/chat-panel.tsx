@@ -33,9 +33,11 @@ interface ChatPanelProps {
   nombrePredio?: string | null;
   userName?: string | null;
   className?: string;
+  onReset?: () => void;
+  resetKey?: number;
 }
 
-export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, className }: ChatPanelProps) {
+export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, className, onReset, resetKey }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [thinkingText, setThinkingText] = useState("");
@@ -47,6 +49,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, cl
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasSentInitial = useRef(false);
+  const prevResetKey = useRef(resetKey);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -319,7 +322,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, cl
             
             <div className="w-full flex items-center justify-center mt-2 group relative">
               <p className="text-center text-xs text-gray-400/80 font-medium">
-                AI can make mistakes. Check important info.
+                La IA puede cometer errores. Verifica la información importante.
               </p>
               {isLoading && (
                 <button
