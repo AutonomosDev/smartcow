@@ -2,8 +2,8 @@
 
 /**
  * /login — Página de autenticación.
- * Diseño minimalista unificado con la vaca robótica y efecto de brillo.
- * Refinado: Vaca más grande, menos espacio, transición de transparencia desde el centro.
+ * Firebase Client SDK — email/password.
+ * LoginContent envuelto en Suspense para cumplir requisito de useSearchParams().
  */
 
 import { Suspense, useState } from "react";
@@ -92,60 +92,48 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-[#FAFBFA]">
-      {/* Efecto de Brillo de Luz — Unificado para evitar el tono "cremoso" conflictivo */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* Luz principal: Blanco puro centrado en la vaca para igualar su fondo */}
-        <div className="absolute top-1/2 left-1/2 lg:left-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] lg:w-[1100px] h-[600px] lg:h-[1100px] bg-white rounded-full blur-[80px] lg:blur-[120px] opacity-80" />
-        
-        {/* Reflejo sutil de marca: Muy tenue para no "ensuciar" el blanco */}
-        <div className="absolute top-1/2 left-1/2 lg:left-1/3 -translate-x-1/2 -translate-y-1/2 w-[400px] lg:w-[800px] h-[400px] lg:h-[800px] bg-brand-light/10 rounded-full blur-[120px] lg:blur-[180px] mix-blend-soft-light" />
-      </div>
+    <div className="min-h-screen flex flex-col lg:flex-row bg-white">
+      {/* Panel izquierdo — Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-brand-dark flex-col justify-between p-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--color-brand-light)_0%,_transparent_70%)] opacity-5" />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-0 flex flex-col lg:flex-row items-center justify-center gap-4 lg:gap-8">
-        
-        {/* Lado Izquierdo: Ilustración — Vaca Robótica (Mas grande y con transición de transparencia) */}
-        <div className="absolute lg:relative inset-0 lg:inset-auto flex items-center justify-center lg:block z-0 lg:z-10 opacity-[0.05] lg:opacity-100 transition-all duration-1000 group pointer-events-none lg:pointer-events-auto">
-          {/* Aura sutil detrás de la vaca */}
-          <div className="absolute inset-0 bg-radial-gradient from-brand-light/20 to-transparent opacity-40 blur-3xl rounded-full scale-90" />
-          
-          <div className="relative w-[340px] md:w-[500px] lg:w-[780px] aspect-square transition-all duration-700">
+        <div className="relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-inner bg-brand-light" />
+            <span className="text-white text-xl font-bold tracking-tight">SmartCow</span>
+          </div>
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center justify-center flex-1 py-10">
+          <div className="relative w-full max-w-[440px] aspect-square">
             <Image
               src="/cow_robot.png"
               alt="SmartCow Intelligence"
               fill
-              className="object-contain transition-all duration-700"
-              style={{
-                maskImage: 'linear-gradient(to right, black 50%, transparent 92%)',
-                WebkitMaskImage: 'linear-gradient(to right, black 50%, transparent 92%)'
-              }}
+              className="object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
               priority
             />
           </div>
+          <div className="text-center mt-6">
+            <p className="text-brand-light text-sm font-bold uppercase tracking-widest mb-3">
+              Plataforma Ganadera
+            </p>
+            <h1 className="text-white text-4xl font-bold leading-tight max-w-md mx-auto">
+              Gestiona tu predio con inteligencia.
+            </h1>
+          </div>
         </div>
 
-        {/* Lado Derecho: Formulario de Ingreso */}
-        <div className="w-full max-w-[420px] relative z-20 animate-in fade-in slide-in-from-bottom-4 lg:slide-in-from-right-8 duration-700 delay-200">
-          <Suspense fallback={
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-8 h-8 rounded-full border-2 border-brand-light/20 border-t-brand-light animate-spin" />
-              <p className="text-ink-meta text-[10px] uppercase tracking-tighter text-center">Iniciando sesión segura...</p>
-            </div>
-          }>
-            <LoginContent />
-          </Suspense>
+        <div className="relative z-10">
+          <p className="text-white/30 text-xs">© 2026 SmartCow · Autónomos Lab</p>
         </div>
       </div>
 
-      {/* Branding Footer Minimal */}
-      <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center justify-center gap-2 text-center z-20 pointer-events-none opacity-30 lg:opacity-40">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-3 h-3 rounded-[3px] bg-brand-light" />
-          <span className="text-ink-title text-[9px] font-bold tracking-widest uppercase">SmartCow Precision</span>
-        </div>
-        <p className="text-ink-meta text-[8px] uppercase tracking-widest">
-          © 2026 SmartCow · Autonomos Lab
-        </p>
+      {/* Panel derecho — Formulario */}
+      <div className="flex-1 flex items-center justify-center bg-farm-base">
+        <Suspense fallback={<div className="animate-pulse text-white/40 text-sm">Cargando...</div>}>
+          <LoginContent />
+        </Suspense>
       </div>
     </div>
   );
