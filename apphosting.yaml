@@ -1,8 +1,7 @@
 # Firebase App Hosting — smartcow
 # Docs: https://firebase.google.com/docs/app-hosting/configure
-# Firebase project: smartcow-c22fb (App Hosting + Auth)
-# Cloud SQL project: smartcow-492119 — DB conecta por IP pública (0.0.0.0/0 autorizado)
-# NOTA: cloudSqlInstances NO soportado por App Hosting — usar IP directa en DATABASE_URL
+# Firebase project: smartcow-c22fb
+# GCP secrets project: smartcow-492119 (cross-project)
 
 # Cloud Run runtime settings (managed by Firebase App Hosting)
 runConfig:
@@ -13,34 +12,36 @@ runConfig:
   memoryMiB: 512
 
 # Environment variables and secrets
+# Secrets usan path completo porque viven en smartcow-492119,
+# distinto al Firebase project smartcow-c22fb.
 env:
   # ── Database ──
   - variable: DATABASE_URL
-    secret: projects/smartcow-c22fb/secrets/database-url
+    secret: projects/smartcow-492119/secrets/database-url
 
   # ── OpenRouter (Gemma 4 / AI chat) ──
   - variable: OPENROUTER_API_KEY
-    secret: projects/smartcow-c22fb/secrets/openrouter-api-key
+    secret: projects/smartcow-492119/secrets/openrouter-api-key
 
   # ── AgroApp ──
   - variable: AGROAPP_USER
-    secret: projects/smartcow-c22fb/secrets/agroapp-user
+    secret: projects/smartcow-492119/secrets/agroapp-user
   - variable: AGROAPP_PASSWORD
-    secret: projects/smartcow-c22fb/secrets/agroapp-password
+    secret: projects/smartcow-492119/secrets/agroapp-password
 
   # ── Firebase Admin SDK ──
   - variable: FIREBASE_CLIENT_EMAIL
-    secret: projects/smartcow-c22fb/secrets/firebase-client-email
+    secret: projects/smartcow-492119/secrets/firebase-client-email
   - variable: FIREBASE_PRIVATE_KEY
-    secret: projects/smartcow-c22fb/secrets/firebase-private-key
+    secret: projects/smartcow-492119/secrets/firebase-private-key
 
   # ── Observabilidad ──
   - variable: SENTRY_DSN
-    secret: projects/smartcow-c22fb/secrets/sentry-dsn-web
+    secret: projects/smartcow-492119/secrets/sentry-dsn-web
 
   # ── GCP ──
   - variable: GCP_PROJECT_ID
-    value: smartcow-c22fb
+    value: smartcow-492119
 
   # ── Firebase Client SDK (públicas, browser-safe) ──
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
