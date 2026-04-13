@@ -35,9 +35,10 @@ interface ChatPanelProps {
   className?: string;
   onReset?: () => void;
   resetKey?: number;
+  onMessagesChange?: (messages: ChatMessage[]) => void;
 }
 
-export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, className, onReset, resetKey }: ChatPanelProps) {
+export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, className, onReset, resetKey, onMessagesChange }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [thinkingText, setThinkingText] = useState("");
@@ -51,6 +52,23 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, cl
   const hasSentInitial = useRef(false);
   const prevResetKey = useRef(resetKey);
 
+  // Reset state cuando resetKey cambia (nueva conversación)
+  useEffect(() => {
+    if (resetKey !== undefined && resetKey !== prevResetKey.current) {
+      prevResetKey.current = resetKey;
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = null;
+      hasSentInitial.current = false;
+      setMessages([]);
+      setAgentTasks([]);
+      setThinkingText("");
+      setShowAgentPlan(false);
+      setIsLoading(false);
+      setActiveArtifact(null);
+      setIsArtifactOpen(false);
+    }
+  }, [resetKey]);
+
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
@@ -58,6 +76,10 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, cl
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    onMessagesChange?.(messages);
+  }, [messages, onMessagesChange]);
 
   useEffect(() => {
     if (initialMessage && !hasSentInitial.current) {
