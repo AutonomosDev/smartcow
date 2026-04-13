@@ -28,7 +28,6 @@ export function ChatShareButton({ messages = [], nombrePredio }: ChatShareButton
         const bgColor = isUser ? "#f3f4f6" : "#ffffff";
         const borderColor = isUser ? "#e5e7eb" : "#d1fae5";
         const labelColor = isUser ? "#374151" : "#065f46";
-        // Escape HTML and convert newlines to <br>
         const escaped = m.content
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
@@ -110,7 +109,6 @@ export function ChatShareButton({ messages = [], nombrePredio }: ChatShareButton
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const win = window.open(url, "_blank");
-    // Revocar la URL después de que la ventana la haya cargado
     if (win) {
       win.onload = () => URL.revokeObjectURL(url);
     } else {
