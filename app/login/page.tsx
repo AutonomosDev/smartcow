@@ -100,7 +100,7 @@ export default function LoginPage() {
         <div className="relative z-10">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-inner bg-brand-light" />
-            <span className="text-white text-xl font-bold tracking-tight">SmartCow</span>
+            <span className="text-white text-xl font-bold tracking-tight">smartCow - AgroLab</span>
           </div>
         </div>
 
