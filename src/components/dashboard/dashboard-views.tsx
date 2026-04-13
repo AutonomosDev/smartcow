@@ -3,38 +3,38 @@
 import { motion } from "framer-motion";
 import { Target, Sparkles, ChevronRight, Layers, Bell, Weight, Baby, Stethoscope } from "lucide-react";
 import Link from "next/link";
-import type { PredioKpis, RecentEvent } from "@/src/lib/queries/predio";
-import { TopNav } from "@/src/components/dashboard/top-nav";
+import type { PredioKpis, RecentEvent, PredioConAnimales, CategoriaConAnimales } from "@/src/lib/queries/predio";
 import { MetricCard } from "@/src/components/dashboard/metric-card";
 import { InsightBanner } from "@/src/components/dashboard/insight-banner";
 import { InteractiveMap } from "@/src/components/dashboard/interactive-map";
+import { SearchPill } from "@/src/components/dashboard/search-pill";
 
 interface ViewProps {
   nombre: string | null | undefined;
   kpis: PredioKpis;
   nombrePredio: string | null;
   recentActivity: RecentEvent[];
+  predios: PredioConAnimales[];
+  categorias: CategoriaConAnimales[];
+  currentPredioId: number;
+  currentCategoriaId: string;
+  currentEstado: string;
 }
 
-export function DesktopView({ nombre, kpis, nombrePredio, recentActivity }: ViewProps) {
+export function DesktopView({ nombre, kpis, nombrePredio, recentActivity, predios, categorias, currentPredioId, currentCategoriaId, currentEstado }: ViewProps) {
   return (
     <div className="min-h-screen bg-[#FAFBFA] relative overflow-x-hidden font-sans pb-20 md:pb-0">
 
-      {/* 1. TOP NAVIGATION (Atomic) */}
-      <TopNav userName={nombre} predioName={nombrePredio} />
-
-      {/* 2. PREMIUM HERO SECTION */}
-      <div className="relative w-full h-[45vh] min-h-[400px] flex items-center justify-center overflow-hidden">
-          {/* Background Image with Overlay */}
+      {/* HERO — edge to edge, sin nav */}
+      <div className="relative w-full h-[58vh] min-h-[460px] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src="/1.jpg" 
-              alt="Campo SmartCow" 
+            <img
+              src="/1.jpg"
+              alt="Vacas Angus — Los Lagos"
               className="w-full h-full object-cover object-center"
             />
-            {/* Dark gradient overlay for readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[#FAFBFA]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-[#FAFBFA]" />
           </div>
 
           {/* Hero Content */}
@@ -55,10 +55,23 @@ export function DesktopView({ nombre, kpis, nombrePredio, recentActivity }: View
                   Monitorea animales, pesajes y salud preventiva desde una interfaz unificada y potente.
               </p>
           </motion.div>
+
+          {/* Avatar — bottom left */}
+          <div className="absolute bottom-6 left-8 z-20 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl border-2 border-white/30 flex items-center justify-center bg-white/10 backdrop-blur-md shadow-lg">
+              <span className="text-white text-sm font-bold uppercase">{nombre?.[0] ?? "U"}</span>
+            </div>
+          </div>
       </div>
 
-      {/* 3. FLOATING SEARCH PILL */}
-      <div className="w-full max-w-5xl mx-auto -mt-10 relative z-30 px-6" />
+      {/* SEARCH PILL */}
+      <SearchPill
+        predios={predios}
+        categorias={categorias}
+        currentPredioId={currentPredioId}
+        currentCategoriaId={currentCategoriaId}
+        currentEstado={currentEstado}
+      />
 
       {/* 4. MAIN DASHBOARD CONTENT */}
       <main className="max-w-7xl mx-auto px-8 py-20">
