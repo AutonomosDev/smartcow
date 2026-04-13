@@ -3,9 +3,12 @@
  * Usadas por endpoints REST (mobile) y Server Components (web).
  *
  * Funciones exportadas:
- *   getPredioKpis       — KPIs del predio para home/dashboard
- *   getLotesActivos     — Lista de lotes activos con count de animales
- *   getLoteDetalle      — Detalle de un lote con GDP y peso promedio
+ *   getPredioKpis           — KPIs del predio para home/dashboard
+ *   getPredioKpisFiltered   — KPIs filtrados por tipo_ganado + estado_reproductivo
+ *   getPrediosConAnimales   — Lista de predios con conteo de animales (para dropdown)
+ *   getCategoriasPorPredio  — Tipos de ganado presentes en un predio
+ *   getLotesActivos         — Lista de lotes activos con count de animales
+ *   getLoteDetalle          — Detalle de un lote con GDP y peso promedio
  */
 
 import { db } from "@/src/db/client";
@@ -19,8 +22,9 @@ import {
   predios,
   tipoGanado,
   razas,
+  estadoReproductivo,
 } from "@/src/db/schema/index";
-import { eq, and, desc, isNull, inArray } from "drizzle-orm";
+import { eq, and, desc, isNull, inArray, sql, count } from "drizzle-orm";
 
 // ─────────────────────────────────────────────
 // TIPOS PÚBLICOS
@@ -133,6 +137,146 @@ export async function getPredioKpis(predioId: number): Promise<PredioKpis> {
           fecha: pesajeRows[0].fecha,
           pesoKg: Number(pesajeRows[0].pesoKg),
         }
+      : null,
+  };
+}
+
+// ─────────────────────────────────────────────
+// NUEVAS QUERIES PARA DASHBOARD FILTRADO
+// ─────────────────────────────────────────────
+
+export interface PredioConAnimales {
+  id: number;
+  nombre: string;
+  totalAnimales: number;
+}
+
+export interface CategoriaConAnimales {
+  id: number;
+  nombre: string;
+  totalAnimales: number;
+  esMacho: boolean;
+}
+
+const TIPOS_MACHO = ["Novillo", "Ternero", "Toro"];
+
+/**
+ * Predios del usuario ordenados por cantidad de animales activos DESC.
+ * Usado para popular el dropdown de predio en el dashboard.
+ */
+export async function getPrediosConAnimales(
+  predioIds: number[]
+): Promise<PredioConAnimales[]> {
+  if (predioIds.length === 0) return [];
+  const rows = await db
+    .select({
+      id: predios.id,
+      nombre: predios.nombre,
+      totalAnimales: sql<number>`cast(count(${animales.id}) as int)`,
+    })
+    .from(predios)
+    .leftJoin(
+      animales,
+      and(eq(animales.predioId, predios.id), eq(animales.estado, "activo"))
+    )
+    .where(inArray(predios.id, predioIds))
+    .groupBy(predios.id)
+    .orderBy(sql`count(${animales.id}) desc`);
+
+  return rows.map((r) => ({
+    id: r.id,
+    nombre: r.nombre,
+    totalAnimales: r.totalAnimales,
+  }));
+}
+
+/**
+ * Tipos de ganado presentes en un predio con su conteo.
+ * Incluye flag esMacho para controlar el selector de estado en UI.
+ */
+export async function getCategoriasPorPredio(
+  predioId: number
+): Promise<CategoriaConAnimales[]> {
+  const rows = await db
+    .select({
+      id: tipoGanado.id,
+      nombre: tipoGanado.nombre,
+      totalAnimales: sql<number>`cast(count(${animales.id}) as int)`,
+    })
+    .from(animales)
+    .innerJoin(tipoGanado, eq(animales.tipoGanadoId, tipoGanado.id))
+    .where(and(eq(animales.predioId, predioId), eq(animales.estado, "activo")))
+    .groupBy(tipoGanado.id)
+    .orderBy(sql`count(${animales.id}) desc`);
+
+  return rows.map((r) => ({
+    id: r.id,
+    nombre: r.nombre,
+    totalAnimales: r.totalAnimales,
+    esMacho: TIPOS_MACHO.includes(r.nombre),
+  }));
+}
+
+/**
+ * KPIs filtrados por tipo_ganado y/o estado_reproductivo.
+ * Si los filtros son undefined → comportamiento igual a getPredioKpis.
+ */
+export async function getPredioKpisFiltered(
+  predioId: number,
+  tipoGanadoId?: number,
+  estadoReproductivoId?: number
+): Promise<PredioKpis> {
+  const baseWhere = and(
+    eq(animales.predioId, predioId),
+    eq(animales.estado, "activo"),
+    tipoGanadoId !== undefined ? eq(animales.tipoGanadoId, tipoGanadoId) : undefined,
+    estadoReproductivoId !== undefined
+      ? eq(animales.estadoReproductivoId, estadoReproductivoId)
+      : undefined
+  );
+
+  const pesajesWhere = and(
+    eq(pesajes.predioId, predioId),
+    tipoGanadoId !== undefined
+      ? sql`${pesajes.animalId} IN (SELECT id FROM animales WHERE predio_id = ${predioId} AND tipo_ganado_id = ${tipoGanadoId} AND estado = 'activo')`
+      : undefined
+  );
+
+  const partosWhere = and(
+    eq(partos.predioId, predioId),
+    tipoGanadoId !== undefined
+      ? sql`${partos.madreId} IN (SELECT id FROM animales WHERE predio_id = ${predioId} AND tipo_ganado_id = ${tipoGanadoId} AND estado = 'activo')`
+      : undefined
+  );
+
+  const [animalesRows, pesajesRows, partosRows, ecografiasRows, pesajeRows] =
+    await Promise.all([
+      db.select({ id: animales.id }).from(animales).where(baseWhere),
+
+      db.select({ id: pesajes.id }).from(pesajes).where(pesajesWhere),
+
+      db.select({ id: partos.id }).from(partos).where(partosWhere),
+
+      db
+        .select({ id: ecografias.id })
+        .from(ecografias)
+        .where(eq(ecografias.predioId, predioId)),
+
+      db
+        .select({ fecha: pesajes.fecha, pesoKg: pesajes.pesoKg })
+        .from(pesajes)
+        .where(eq(pesajes.predioId, predioId))
+        .orderBy(desc(pesajes.fecha))
+        .limit(1),
+    ]);
+
+  return {
+    totalAnimales: animalesRows.length,
+    totalPesajes: pesajesRows.length,
+    totalPartos: partosRows.length,
+    totalEcografias: ecografiasRows.length,
+    ultimoPesaje: pesajeRows[0]
+      ? { fecha: pesajeRows[0].fecha, pesoKg: Number(pesajeRows[0].pesoKg) }
       : null,
   };
 }

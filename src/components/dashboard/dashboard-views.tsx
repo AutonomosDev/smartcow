@@ -6,7 +6,6 @@ import Link from "next/link";
 import type { PredioKpis, RecentEvent } from "@/src/lib/queries/predio";
 import { TopNav } from "@/src/components/dashboard/top-nav";
 import { MetricCard } from "@/src/components/dashboard/metric-card";
-import { SearchPill } from "@/src/components/dashboard/search-pill";
 import { InsightBanner } from "@/src/components/dashboard/insight-banner";
 import { InteractiveMap } from "@/src/components/dashboard/interactive-map";
 
@@ -58,8 +57,8 @@ export function DesktopView({ nombre, kpis, nombrePredio, recentActivity }: View
           </motion.div>
       </div>
 
-      {/* 3. FLOATING SEARCH PILL (Atomic) */}
-      <SearchPill predioName={nombrePredio} />
+      {/* 3. FLOATING SEARCH PILL */}
+      <div className="w-full max-w-5xl mx-auto -mt-10 relative z-30 px-6" />
 
       {/* 4. MAIN DASHBOARD CONTENT */}
       <main className="max-w-7xl mx-auto px-8 py-20">
