@@ -6,30 +6,31 @@ const workspaceRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-// Monorepo: watch the full repo and resolve packages from both node_modules
+// Monorepo: watch the full repo so shared packages are visible
 config.watchFolders = [workspaceRoot];
+
+// Resolve node_modules from app first, then monorepo root
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),
 ];
 
-config.resolver.disableHierarchicalLookup = true;
+// Block Metro from ever picking up react / react-native from the monorepo root.
+// The root has react-native@0.81.5 (Next.js transitive dep) which conflicts
+// with the mobile app's react-native@0.76.9.
+const rnRoot = path.resolve(workspaceRoot, 'node_modules', 'react-native');
+const reactRoot = path.resolve(workspaceRoot, 'node_modules', 'react');
+config.resolver.blockList = [
+  new RegExp(`^${rnRoot.replace(/[/\\]/g, '[/\\\\]')}.*$`),
+  new RegExp(`^${reactRoot.replace(/[/\\]/g, '[/\\\\]')}.*$`),
+];
 
-// Force react and react-native to always resolve from apps/mobile/node_modules
-// to prevent the monorepo root (which has different versions) from winning.
-const PINNED = ['react', 'react-native', 'react-native/'];
-config.resolver.resolveRequest = (context, moduleName, platform) => {
-  const shouldPin = PINNED.some(
-    (pkg) => moduleName === pkg || moduleName.startsWith(pkg + '/')
-  );
-  if (shouldPin) {
-    const overrideContext = {
-      ...context,
-      originModulePath: path.join(projectRoot, 'index.js'),
-    };
-    return overrideContext.resolveRequest(overrideContext, moduleName, platform);
-  }
-  return context.resolveRequest(context, moduleName, platform);
+// Explicitly pin react and react-native to the app's own node_modules
+config.resolver.extraNodeModules = {
+  'react': path.resolve(projectRoot, 'node_modules', 'react'),
+  'react-native': path.resolve(projectRoot, 'node_modules', 'react-native'),
 };
+
+config.resolver.disableHierarchicalLookup = true;
 
 module.exports = config;
