@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,28 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { tokens } from '../../../../packages/tokens/theme';
-import { POTREROS } from './MapaPredioScreen';
 import type { RootStackParamList } from '../../App';
+import { api, LoteDetalle } from '../lib/api';
+
+// Coords hardcodeadas para el mini mapa visual — AG: conectar a tabla `potreros` con campos GIS
+const COORDS_MAP: Record<string, { ha: number; coords: [number, number][] }> = {
+  default: {
+    ha: 0,
+    coords: [
+      [-72.35, -40.58],
+      [-72.34, -40.58],
+      [-72.34, -40.59],
+      [-72.35, -40.59],
+      [-72.35, -40.58],
+    ],
+  },
+};
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'PotreroDetalle'>;
@@ -21,38 +36,41 @@ type Props = {
 
 type Tab = 'resumen' | 'historial';
 
-// Datos extra para el detalle (hardcodeados según mockup)
-const DETALLE: Record<string, {
-  raza: string;
-  tipo: string;
-  objetivo: string;
-  diasEngorda: number;
-}> = {
-  norte: { raza: 'Angus',  tipo: 'Engorda',  objetivo: '1.8 kg', diasEngorda: 47 },
-  sur:   { raza: 'Wagyu',  tipo: 'Recría',   objetivo: '1.8 kg', diasEngorda: 34 },
-  central: { raza: 'Angus', tipo: 'Engorda', objetivo: '2.0 kg', diasEngorda: 68 },
-  este:  { raza: 'Hereford', tipo: 'Cría',   objetivo: '1.5 kg', diasEngorda: 21 },
-};
-
 export default function PotreroDetalleScreen({ navigation, route }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('resumen');
-  const potreroId = route.params?.potreroId ?? 'sur';
-  const potrero = POTREROS.find((p) => p.id === potreroId) ?? POTREROS[1];
-  const detalle = DETALLE[potrero.id];
+  const [lote, setLote] = useState<LoteDetalle | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  const potreroId = route.params?.potreroId ?? '';
+
+  useEffect(() => {
+    if (!potreroId) return;
+    setLoading(true);
+    api.get<LoteDetalle>(`/api/lotes/${potreroId}`)
+      .then(setLote)
+      .catch(() => setLote(null))
+      .finally(() => setLoading(false));
+  }, [potreroId]);
+
+  // Fallback visual coords para el mini mapa
+  const mapData = COORDS_MAP.default;
   const miniGeoJSON: GeoJSON.Feature = {
     type: 'Feature',
     properties: {},
     geometry: {
       type: 'Polygon',
-      coordinates: [potrero.coords],
+      coordinates: [mapData.coords],
     },
   };
-
   const miniCenter: [number, number] = [
-    (potrero.coords[0][0] + potrero.coords[2][0]) / 2,
-    (potrero.coords[0][1] + potrero.coords[2][1]) / 2,
+    (mapData.coords[0][0] + mapData.coords[2][0]) / 2,
+    (mapData.coords[0][1] + mapData.coords[2][1]) / 2,
   ];
+
+  const titulo = lote?.nombre ?? 'Potrero';
+  const subHeader = lote
+    ? `${lote.totalAnimales} animales · ${lote.diasEnLote} días en lote`
+    : '—';
 
   return (
     <View style={styles.container}>
@@ -63,7 +81,7 @@ export default function PotreroDetalleScreen({ navigation, route }: Props) {
             <Text style={styles.backIcon}>‹</Text>
           </TouchableOpacity>
           <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>{`Potrero ${potrero.nombre}`}</Text>
+            <Text style={styles.headerTitle}>{titulo}</Text>
           </View>
           <TouchableOpacity style={styles.menuBtn}>
             <Text style={styles.menuIcon}>≡</Text>
@@ -71,9 +89,7 @@ export default function PotreroDetalleScreen({ navigation, route }: Props) {
         </View>
 
         {/* Sub-header */}
-        <Text style={styles.subHeader}>
-          {`${potrero.ha} ha · Lote ${detalle.raza} · ${detalle.tipo}`}
-        </Text>
+        <Text style={styles.subHeader}>{subHeader}</Text>
 
         {/* Tabs */}
         <View style={styles.tabs}>
@@ -96,102 +112,96 @@ export default function PotreroDetalleScreen({ navigation, route }: Props) {
         </View>
       </SafeAreaView>
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Mini mapa */}
-        <View style={styles.miniMapContainer}>
-          <MapboxGL.MapView
-            style={styles.miniMap}
-            styleURL={MapboxGL.StyleURL.Outdoors}
-            compassEnabled={false}
-            logoEnabled={false}
-            attributionEnabled={false}
-            scrollEnabled={false}
-            zoomEnabled={false}
-            rotateEnabled={false}
-          >
-            <MapboxGL.Camera
-              centerCoordinate={miniCenter}
-              zoomLevel={14}
-            />
-            <MapboxGL.ShapeSource id="mini-potrero" shape={miniGeoJSON}>
-              <MapboxGL.FillLayer
-                id="mini-fill"
-                style={{
-                  fillColor: potrero.alerta ? '#e74c3c' : '#c8b898',
-                  fillOpacity: 0.5,
-                }}
-              />
-              <MapboxGL.LineLayer
-                id="mini-border"
-                style={{
-                  lineColor: potrero.alerta ? '#e74c3c' : '#a08060',
-                  lineWidth: 1.5,
-                }}
-              />
-            </MapboxGL.ShapeSource>
-          </MapboxGL.MapView>
-          <View style={styles.haLabel}>
-            <Text style={styles.haText}>{potrero.ha} ha</Text>
-          </View>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color={tokens.color.primary} />
         </View>
-
-        {/* Alert card */}
-        {potrero.alerta && (
-          <View style={styles.alertCard}>
-            <View style={styles.alertBar} />
-            <View style={styles.alertContent}>
-              <Text style={styles.alertTitle}>
-                {`${potrero.alerta} vacío detectado`}
-              </Text>
-              <Text style={styles.alertSub}>
-                Drone 08:14 AM · Asignado a Jaime
-              </Text>
-            </View>
+      ) : (
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Mini mapa — coords hardcodeadas hasta conectar GIS */}
+          <View style={styles.miniMapContainer}>
+            <MapboxGL.MapView
+              style={styles.miniMap}
+              styleURL={MapboxGL.StyleURL.Outdoors}
+              compassEnabled={false}
+              logoEnabled={false}
+              attributionEnabled={false}
+              scrollEnabled={false}
+              zoomEnabled={false}
+              rotateEnabled={false}
+            >
+              <MapboxGL.Camera centerCoordinate={miniCenter} zoomLevel={14} />
+              <MapboxGL.ShapeSource id="mini-potrero" shape={miniGeoJSON}>
+                <MapboxGL.FillLayer
+                  id="mini-fill"
+                  style={{ fillColor: '#c8b898', fillOpacity: 0.5 }}
+                />
+                <MapboxGL.LineLayer
+                  id="mini-border"
+                  style={{ lineColor: '#a08060', lineWidth: 1.5 }}
+                />
+              </MapboxGL.ShapeSource>
+            </MapboxGL.MapView>
+            {mapData.ha > 0 && (
+              <View style={styles.haLabel}>
+                <Text style={styles.haText}>{mapData.ha} ha</Text>
+              </View>
+            )}
           </View>
-        )}
 
-        {/* Estado del potrero */}
-        <View style={styles.estadoCard}>
-          <Text style={styles.estadoTitle}>Estado del potrero</Text>
-          <View style={styles.grid}>
-            <View style={styles.gridItem}>
-              <Text style={styles.gridLabel}>Animales</Text>
-              <Text style={styles.gridValue}>{potrero.animales}</Text>
+          {/* Estado del lote */}
+          {lote && (
+            <View style={styles.estadoCard}>
+              <Text style={styles.estadoTitle}>Estado del lote</Text>
+              <View style={styles.grid}>
+                <View style={styles.gridItem}>
+                  <Text style={styles.gridLabel}>Animales</Text>
+                  <Text style={styles.gridValue}>{lote.totalAnimales}</Text>
+                </View>
+                <View style={styles.gridItem}>
+                  <Text style={styles.gridLabel}>Días en lote</Text>
+                  <Text style={styles.gridValue}>{lote.diasEnLote}</Text>
+                </View>
+                <View style={styles.gridItem}>
+                  <Text style={styles.gridLabel}>GDP (kg/día)</Text>
+                  <Text style={[
+                    styles.gridValue,
+                    lote.gdpKgDia !== null && lote.objetivoPesoKg !== null && lote.gdpKgDia < 1.0
+                      ? styles.gridValueAlert
+                      : null,
+                  ]}>
+                    {lote.gdpKgDia !== null ? `${lote.gdpKgDia} kg` : '—'}
+                  </Text>
+                </View>
+                <View style={styles.gridItem}>
+                  <Text style={styles.gridLabel}>Objetivo</Text>
+                  <Text style={styles.gridValue}>
+                    {lote.objetivoPesoKg !== null ? `${lote.objetivoPesoKg} kg` : '—'}
+                  </Text>
+                </View>
+                <View style={styles.gridItem}>
+                  <Text style={styles.gridLabel}>Peso prom. entrada</Text>
+                  <Text style={styles.gridValue}>
+                    {lote.avgPesoEntradaKg !== null ? `${lote.avgPesoEntradaKg} kg` : '—'}
+                  </Text>
+                </View>
+                <View style={styles.gridItem}>
+                  <Text style={styles.gridLabel}>Peso prom. actual</Text>
+                  <Text style={styles.gridValue}>
+                    {lote.avgPesoActualKg !== null ? `${lote.avgPesoActualKg} kg` : '—'}
+                  </Text>
+                </View>
+              </View>
             </View>
-            <View style={styles.gridItem}>
-              <Text style={styles.gridLabel}>Raza</Text>
-              <Text style={styles.gridValue}>{detalle.raza}</Text>
-            </View>
-            <View style={styles.gridItem}>
-              <Text style={styles.gridLabel}>GD semana</Text>
-              <Text style={[styles.gridValue, styles.gridValueAlert]}>
-                {potrero.gd}
-              </Text>
-            </View>
-            <View style={styles.gridItem}>
-              <Text style={styles.gridLabel}>Objetivo</Text>
-              <Text style={styles.gridValue}>{detalle.objetivo}</Text>
-            </View>
-            <View style={styles.gridItem}>
-              <Text style={styles.gridLabel}>Días engorda</Text>
-              <Text style={styles.gridValue}>{detalle.diasEngorda}</Text>
-            </View>
-            <View style={styles.gridItem}>
-              <Text style={styles.gridLabel}>Agua</Text>
-              <Text style={[styles.gridValue, potrero.agua === 0 ? styles.gridValueAlert : null]}>
-                {potrero.agua}%
-              </Text>
-            </View>
-          </View>
-        </View>
+          )}
 
-        {/* Spacer para el botón fijo */}
-        <View style={{ height: 80 }} />
-      </ScrollView>
+          <View style={{ height: 80 }} />
+        </ScrollView>
+      )}
 
       {/* CTA fijo */}
       <View style={styles.ctaWrapper}>
@@ -212,6 +222,11 @@ const styles = StyleSheet.create({
   },
   safe: {
     backgroundColor: tokens.color.white,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -312,33 +327,6 @@ const styles = StyleSheet.create({
     color: tokens.color.white,
     fontSize: tokens.font.size.xs,
     fontFamily: tokens.font.family.semibold,
-  },
-  alertCard: {
-    backgroundColor: '#fde8e8',
-    borderRadius: tokens.radius.card,
-    flexDirection: 'row',
-    overflow: 'hidden',
-  },
-  alertBar: {
-    width: 4,
-    backgroundColor: tokens.color.danger,
-  },
-  alertContent: {
-    flex: 1,
-    paddingVertical: tokens.spacing.sm,
-    paddingHorizontal: tokens.spacing.md,
-  },
-  alertTitle: {
-    fontSize: tokens.font.size.sm,
-    fontFamily: tokens.font.family.semibold,
-    color: '#c0392b',
-  },
-  alertSub: {
-    fontSize: tokens.font.size.xs,
-    fontFamily: tokens.font.family.regular,
-    color: '#c0392b',
-    marginTop: 2,
-    opacity: 0.8,
   },
   estadoCard: {
     backgroundColor: tokens.color.white,

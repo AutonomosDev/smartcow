@@ -1,3 +1,9 @@
+## ZONAS CONGELADAS — NO TOCAR SIN AUTORIZACIÓN EXPLÍCITA DE CESAR
+
+- `app/login/page.tsx` — UI diseñada por AG (commit 7913929). NUNCA modificar layout, estilos ni estructura visual. Solo se puede tocar la lógica de auth interna (handleCredentialsSignIn, handleGoogleSignIn). Cualquier cambio visual requiere autorización explícita.
+
+---
+
 ## WHAT — Stack y estructura
 
 - Next.js 16 (App Router), React 19, TypeScript strict
