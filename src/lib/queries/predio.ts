@@ -20,6 +20,8 @@ import {
   partos,
   ecografias,
   predios,
+  potreros,
+  movimientosPotrero,
   tipoGanado,
   razas,
   estadoReproductivo,
@@ -490,6 +492,157 @@ export async function getAnimales(
     estado: r.estado,
     moduloActual: r.moduloActual,
   }));
+}
+
+// ─────────────────────────────────────────────
+// POTREROS
+// ─────────────────────────────────────────────
+
+export interface PotreroCon {
+  id: number;
+  nombre: string;
+  hectareas: number | null;
+  capacidad: number | null;
+  animalesActuales: number;
+}
+
+/**
+ * Potreros del predio con conteo de animales actualmente en cada potrero
+ * (movimientos_potrero con fecha_salida IS NULL).
+ */
+export async function getPotrerosConAnimales(predioId: number): Promise<PotreroCon[]> {
+  const potrerosRows = await db
+    .select({
+      id: potreros.id,
+      nombre: potreros.nombre,
+      hectareas: potreros.hectareas,
+      capacidad: potreros.capacidadAnimales,
+    })
+    .from(potreros)
+    .where(eq(potreros.predioId, predioId))
+    .orderBy(potreros.nombre);
+
+  if (potrerosRows.length === 0) return [];
+
+  const potreroIds = potrerosRows.map((p) => p.id);
+  const movRows = await db
+    .select({ potreroId: movimientosPotrero.potreroId })
+    .from(movimientosPotrero)
+    .where(
+      and(
+        inArray(movimientosPotrero.potreroId, potreroIds),
+        isNull(movimientosPotrero.fechaSalida)
+      )
+    );
+
+  const countByPotrero = new Map<number, number>();
+  for (const m of movRows) {
+    countByPotrero.set(m.potreroId, (countByPotrero.get(m.potreroId) ?? 0) + 1);
+  }
+
+  return potrerosRows.map((p) => ({
+    id: p.id,
+    nombre: p.nombre,
+    hectareas: p.hectareas ? Number(p.hectareas) : null,
+    capacidad: p.capacidad ?? null,
+    animalesActuales: countByPotrero.get(p.id) ?? 0,
+  }));
+}
+
+// ─────────────────────────────────────────────
+// LOTE PESAJES SERIES
+// ─────────────────────────────────────────────
+
+export interface PesajeSerie {
+  fecha: string;
+  avgPesoKg: number;
+  gdpKgDia: number | null;
+}
+
+export interface LotePesajesResult {
+  series: PesajeSerie[];
+  periodosDias: number;
+}
+
+/**
+ * Serie temporal de pesajes promedio para un lote.
+ * Agrupa todos los pesajes de animales del lote por fecha,
+ * calcula promedio de peso y GDP entre fechas consecutivas.
+ */
+export async function getLotePesajesSeries(
+  loteId: number,
+  predioId: number
+): Promise<LotePesajesResult> {
+  // 1. Validar que el lote pertenece al predio
+  const loteRows = await db
+    .select({ id: lotes.id, fechaEntrada: lotes.fechaEntrada })
+    .from(lotes)
+    .where(and(eq(lotes.id, loteId), eq(lotes.predioId, predioId)))
+    .limit(1);
+
+  if (!loteRows[0]) return { series: [], periodosDias: 0 };
+
+  // 2. Animales del lote
+  const memberRows = await db
+    .select({ animalId: loteAnimales.animalId })
+    .from(loteAnimales)
+    .where(eq(loteAnimales.loteId, loteId));
+
+  if (memberRows.length === 0) return { series: [], periodosDias: 0 };
+
+  const animalIds = memberRows.map((m) => m.animalId);
+
+  // 3. Todos los pesajes de esos animales ordenados por fecha
+  const pesajeRows = await db
+    .select({
+      fecha: pesajes.fecha,
+      pesoKg: pesajes.pesoKg,
+    })
+    .from(pesajes)
+    .where(inArray(pesajes.animalId, animalIds))
+    .orderBy(pesajes.fecha);
+
+  if (pesajeRows.length === 0) return { series: [], periodosDias: 0 };
+
+  // 4. Agrupar por fecha y calcular promedio
+  const byFecha = new Map<string, number[]>();
+  for (const p of pesajeRows) {
+    const list = byFecha.get(p.fecha) ?? [];
+    list.push(Number(p.pesoKg));
+    byFecha.set(p.fecha, list);
+  }
+
+  const fechasOrdenadas = Array.from(byFecha.keys()).sort();
+  const seriesRaw = fechasOrdenadas.map((fecha) => {
+    const pesos = byFecha.get(fecha)!;
+    const avg = pesos.reduce((a, b) => a + b, 0) / pesos.length;
+    return { fecha, avgPesoKg: Math.round(avg * 10) / 10 };
+  });
+
+  // 5. Calcular GDP entre fechas consecutivas
+  const series: PesajeSerie[] = seriesRaw.map((s, i) => {
+    if (i === 0) return { ...s, gdpKgDia: null };
+    const prev = seriesRaw[i - 1];
+    const dias =
+      (new Date(s.fecha).getTime() - new Date(prev.fecha).getTime()) /
+      (1000 * 60 * 60 * 24);
+    const gdp = dias > 0 ? (s.avgPesoKg - prev.avgPesoKg) / dias : null;
+    return {
+      ...s,
+      gdpKgDia: gdp !== null ? Math.round(gdp * 100) / 100 : null,
+    };
+  });
+
+  const periodosDias =
+    fechasOrdenadas.length >= 2
+      ? Math.round(
+          (new Date(fechasOrdenadas[fechasOrdenadas.length - 1]).getTime() -
+            new Date(fechasOrdenadas[0]).getTime()) /
+            (1000 * 60 * 60 * 24)
+        )
+      : 0;
+
+  return { series, periodosDias };
 }
 
 // ─────────────────────────────────────────────

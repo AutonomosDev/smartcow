@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { tokens } from '../../../../packages/tokens/theme';
 import { PotreroPill, Potrero } from '../components/PotreroPill';
 import type { RootStackParamList } from '../../App';
+import { api, LoteResumen } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoiYXV0b25vbW9zLWRldiIsImEiOiJjbW54aG9tZXkwMmUxMnBxMWY1ZXoyNTRoIn0.52wtPi_tT4B4H1PPu4SfDw'
@@ -93,8 +95,35 @@ type Props = {
 export default function MapaPredioScreen({ navigation }: Props) {
   const [selectedId, setSelectedId] = useState('norte');
   const cameraRef = useRef<MapboxGL.Camera>(null);
+  const { predioId } = useAuth();
 
-  const selectedPotrero = POTREROS.find((p) => p.id === selectedId)!;
+  // Enriquecer POTREROS con datos reales (animales, gd) desde la API.
+  // Coords y layout del mapa permanecen hardcodeados — AG: conectar GIS cuando exista.
+  const [potreros, setPotreros] = useState<Potrero[]>(POTREROS);
+  // Mapa de loteId numérico por índice para navegar con ID real
+  const [loteIds, setLoteIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    api.get<LoteResumen[]>(`/api/predio/${predioId}/lotes`)
+      .then((lotes) => {
+        if (!lotes.length) return;
+        // Merge posicional: lote[0] → norte, lote[1] → sur, etc.
+        const enriched = POTREROS.map((p, i) => {
+          const lote = lotes[i];
+          if (!lote) return p;
+          return {
+            ...p,
+            animales: lote.totalAnimales,
+            gd: '—', // GDP requiere endpoint /api/lotes/:id — se conecta en PotreroDetalle
+          };
+        });
+        setPotreros(enriched);
+        setLoteIds(lotes.map((l) => l.id));
+      })
+      .catch(() => {/* mantener POTREROS hardcodeados como fallback */});
+  }, [predioId]);
+
+  const selectedPotrero = potreros.find((p) => p.id === selectedId)!;
 
   const handleSelectPotrero = (id: string) => {
     setSelectedId(id);
@@ -195,7 +224,7 @@ export default function MapaPredioScreen({ navigation }: Props) {
         </MapboxGL.ShapeSource>
 
         {/* Label de nombre en cada potrero */}
-        {POTREROS.map((p) => {
+        {potreros.map((p) => {
           const lng = (p.coords[0][0] + p.coords[2][0]) / 2;
           const lat = (p.coords[0][1] + p.coords[2][1]) / 2;
           return (
@@ -239,7 +268,11 @@ export default function MapaPredioScreen({ navigation }: Props) {
         {/* Card resumen */}
         <TouchableOpacity
           style={styles.summaryCard}
-          onPress={() => navigation.navigate('PotreroDetalle', { potreroId: selectedId })}
+          onPress={() => {
+            const idx = potreros.findIndex((p) => p.id === selectedId);
+            const realId = loteIds[idx] != null ? String(loteIds[idx]) : selectedId;
+            navigation.navigate('PaddockCharts', { potreroId: realId });
+          }}
           activeOpacity={0.85}
         >
           <View style={styles.summaryRow}>
