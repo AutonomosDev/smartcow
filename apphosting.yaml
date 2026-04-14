@@ -19,9 +19,9 @@ env:
   - variable: DATABASE_URL
     secret: projects/smartcow-492119/secrets/database-url
 
-  # ── OpenRouter (Gemma 4 / AI chat) ──
-  - variable: OPENROUTER_API_KEY
-    secret: projects/smartcow-492119/secrets/openrouter-api-key
+  # ── Google AI (Gemini / chat) ──
+  - variable: GOOGLE_API_KEY
+    secret: projects/smartcow-c22fb/secrets/google-api-key
 
   # ── AgroApp ──
   - variable: AGROAPP_USER
