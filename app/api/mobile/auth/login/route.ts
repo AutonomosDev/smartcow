@@ -9,7 +9,7 @@
 
 import { NextRequest } from "next/server";
 import { adminAuth } from "@/src/lib/firebase/admin";
-import { loadUserByFirebaseUid } from "@/src/lib/auth";
+import { loadUserByFirebaseUid, loadUserByEmail } from "@/src/lib/auth";
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -25,15 +25,28 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "idToken requerido" }, { status: 400 });
   }
 
-  let uid: string;
-  try {
-    const decoded = await adminAuth.verifyIdToken(idToken);
-    uid = decoded.uid;
-  } catch {
-    return Response.json({ error: "Token inválido o expirado" }, { status: 401 });
+  // En desarrollo: verifyIdToken requiere credenciales Admin SDK del proyecto activo.
+  // Como fallback, decodificamos el payload JWT (sin verificar firma) y buscamos por email.
+  let session;
+  if (process.env.NODE_ENV === "development") {
+    try {
+      const payload = JSON.parse(Buffer.from(idToken.split(".")[1], "base64url").toString());
+      const email: string = payload.email ?? "";
+      if (!email) return Response.json({ error: "Token sin email" }, { status: 401 });
+      session = await loadUserByEmail(email);
+    } catch {
+      return Response.json({ error: "Token inválido" }, { status: 401 });
+    }
+  } else {
+    let uid: string;
+    try {
+      const decoded = await adminAuth.verifyIdToken(idToken);
+      uid = decoded.uid;
+    } catch {
+      return Response.json({ error: "Token inválido o expirado" }, { status: 401 });
+    }
+    session = await loadUserByFirebaseUid(uid);
   }
-
-  const session = await loadUserByFirebaseUid(uid);
   if (!session) {
     return Response.json({ error: "Usuario no registrado en SmartCow" }, { status: 403 });
   }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,86 +6,24 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import MapboxGL from '@rnmapbox/maps';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { tokens } from '../../../../packages/tokens/theme';
 import { PotreroPill, Potrero } from '../components/PotreroPill';
 import type { RootStackParamList } from '../../App';
 import { api, LoteResumen } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 
-MapboxGL.setAccessToken(
-  'pk.eyJ1IjoiYXV0b25vbW9zLWRldiIsImEiOiJjbW54aG9tZXkwMmUxMnBxMWY1ZXoyNTRoIn0.52wtPi_tT4B4H1PPu4SfDw'
-);
-
-// Coordenadas centradas en Los Lagos, Chile (aprox Fundo San Pedro)
-const CENTER_COORDS: [number, number] = [-72.35, -40.58];
+const T = {
+  color: { primary: '#1E3A2F', bg: '#f8f6f1', white: '#ffffff', danger: '#e74c3c', text: { primary: '#1E3A2F', muted: '#7a7a6e' } },
+  font: { family: { regular: 'DMSans_400Regular', medium: 'DMSans_500Medium', semibold: 'DMSans_600SemiBold' } },
+  spacing: { sm: 8, md: 16, lg: 20, xl: 24 },
+  radius: { small: 8, card: 20, btn: 14, chip: 20 },
+};
 
 export const POTREROS: Potrero[] = [
-  {
-    id: 'norte',
-    nombre: 'Norte',
-    ha: 110,
-    animales: 110,
-    gd: '1.4 kg',
-    agua: 92,
-    alerta: null,
-    coords: [
-      [-72.367, -40.568],
-      [-72.342, -40.568],
-      [-72.342, -40.582],
-      [-72.367, -40.582],
-      [-72.367, -40.568],
-    ],
-  },
-  {
-    id: 'sur',
-    nombre: 'Sur',
-    ha: 85,
-    animales: 78,
-    gd: '1.1 kg',
-    agua: 0,
-    alerta: 'Bebedero',
-    coords: [
-      [-72.367, -40.583],
-      [-72.342, -40.583],
-      [-72.342, -40.597],
-      [-72.367, -40.597],
-      [-72.367, -40.583],
-    ],
-  },
-  {
-    id: 'central',
-    nombre: 'Central',
-    ha: 65,
-    animales: 155,
-    gd: '1.9 kg',
-    agua: 78,
-    alerta: null,
-    coords: [
-      [-72.341, -40.568],
-      [-72.322, -40.568],
-      [-72.322, -40.584],
-      [-72.341, -40.584],
-      [-72.341, -40.568],
-    ],
-  },
-  {
-    id: 'este',
-    nombre: 'Este',
-    ha: 40,
-    animales: 45,
-    gd: '1.6 kg',
-    agua: 85,
-    alerta: null,
-    coords: [
-      [-72.341, -40.585],
-      [-72.322, -40.585],
-      [-72.322, -40.597],
-      [-72.341, -40.597],
-      [-72.341, -40.585],
-    ],
-  },
+  { id: 'norte',   nombre: 'Norte',   ha: 110, animales: 110, gd: '1.4 kg', agua: 92, alerta: null,        coords: [[-72.367,-40.568],[-72.342,-40.568],[-72.342,-40.582],[-72.367,-40.582],[-72.367,-40.568]] },
+  { id: 'sur',     nombre: 'Sur',     ha: 85,  animales: 78,  gd: '1.1 kg', agua: 0,  alerta: 'Bebedero',  coords: [[-72.367,-40.583],[-72.342,-40.583],[-72.342,-40.597],[-72.367,-40.597],[-72.367,-40.583]] },
+  { id: 'central', nombre: 'Central', ha: 65,  animales: 155, gd: '1.9 kg', agua: 78, alerta: null,        coords: [[-72.341,-40.568],[-72.322,-40.568],[-72.322,-40.584],[-72.341,-40.584],[-72.341,-40.568]] },
+  { id: 'este',    nombre: 'Este',    ha: 40,  animales: 45,  gd: '1.6 kg', agua: 85, alerta: null,        coords: [[-72.341,-40.585],[-72.322,-40.585],[-72.322,-40.597],[-72.341,-40.597],[-72.341,-40.585]] },
 ];
 
 type Props = {
@@ -94,73 +32,40 @@ type Props = {
 
 export default function MapaPredioScreen({ navigation }: Props) {
   const [selectedId, setSelectedId] = useState('norte');
-  const cameraRef = useRef<MapboxGL.Camera>(null);
   const { predioId } = useAuth();
-
-  // Enriquecer POTREROS con datos reales (animales, gd) desde la API.
-  // Coords y layout del mapa permanecen hardcodeados — AG: conectar GIS cuando exista.
   const [potreros, setPotreros] = useState<Potrero[]>(POTREROS);
-  // Mapa de loteId numérico por índice para navegar con ID real
   const [loteIds, setLoteIds] = useState<number[]>([]);
 
   useEffect(() => {
     api.get<LoteResumen[]>(`/api/predio/${predioId}/lotes`)
       .then((lotes) => {
         if (!lotes.length) return;
-        // Merge posicional: lote[0] → norte, lote[1] → sur, etc.
         const enriched = POTREROS.map((p, i) => {
           const lote = lotes[i];
           if (!lote) return p;
-          return {
-            ...p,
-            animales: lote.totalAnimales,
-            gd: '—', // GDP requiere endpoint /api/lotes/:id — se conecta en PotreroDetalle
-          };
+          return { ...p, animales: lote.totalAnimales, gd: '—' };
         });
         setPotreros(enriched);
         setLoteIds(lotes.map((l) => l.id));
       })
-      .catch(() => {/* mantener POTREROS hardcodeados como fallback */});
+      .catch(() => {});
   }, [predioId]);
 
   const selectedPotrero = potreros.find((p) => p.id === selectedId)!;
 
-  const handleSelectPotrero = (id: string) => {
-    setSelectedId(id);
-    const p = POTREROS.find((pt) => pt.id === id)!;
-    const centerLng = (p.coords[0][0] + p.coords[2][0]) / 2;
-    const centerLat = (p.coords[0][1] + p.coords[2][1]) / 2;
-    cameraRef.current?.flyTo([centerLng, centerLat], 600);
-  };
+  const handleSelectPotrero = (id: string) => setSelectedId(id);
 
-  const geoJSON: GeoJSON.FeatureCollection = {
-    type: 'FeatureCollection',
-    features: POTREROS.map((p) => ({
-      type: 'Feature',
-      id: p.id,
-      properties: {
-        id: p.id,
-        alerta: p.alerta,
-        selected: p.id === selectedId,
-      },
-      geometry: {
-        type: 'Polygon',
-        coordinates: [p.coords],
-      },
-    })),
+  // Colores por potrero para el placeholder
+  const POTRERO_COLORS: Record<string, string> = {
+    norte: '#2d6a4f',
+    central: '#40916c',
+    este: '#52b788',
+    sur: '#e74c3c',
   };
-
-  const alertaPotrero = POTREROS.find((p) => p.alerta !== null);
-  const alertaCenter: [number, number] | null = alertaPotrero
-    ? [
-        (alertaPotrero.coords[0][0] + alertaPotrero.coords[2][0]) / 2,
-        (alertaPotrero.coords[0][1] + alertaPotrero.coords[2][1]) / 2 - 0.004,
-      ]
-    : null;
 
   return (
     <View style={styles.container}>
-      {/* Header card */}
+      {/* Header */}
       <SafeAreaView style={styles.headerSafe}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -173,90 +78,34 @@ export default function MapaPredioScreen({ navigation }: Props) {
         </View>
       </SafeAreaView>
 
-      {/* Mapa */}
-      <MapboxGL.MapView
-        style={styles.map}
-        styleURL={MapboxGL.StyleURL.Outdoors}
-        compassEnabled={false}
-        logoEnabled={false}
-        attributionEnabled={false}
-      >
-        <MapboxGL.Camera
-          ref={cameraRef}
-          centerCoordinate={CENTER_COORDS}
-          zoomLevel={13}
-        />
-
-        {/* Relleno de potreros */}
-        <MapboxGL.ShapeSource id="potreros" shape={geoJSON}>
-          <MapboxGL.FillLayer
-            id="potreros-fill"
-            style={{
-              fillColor: [
-                'case',
-                ['==', ['get', 'id'], 'sur'],
-                '#e74c3c',
-                ['==', ['get', 'selected'], true],
-                tokens.color.primary,
-                tokens.color.primary,
-              ],
-              fillOpacity: [
-                'case',
-                ['==', ['get', 'selected'], true],
-                0.55,
-                0.25,
-              ],
-            }}
-          />
-          <MapboxGL.LineLayer
-            id="potreros-border"
-            style={{
-              lineColor: [
-                'case',
-                ['==', ['get', 'id'], 'sur'],
-                '#e74c3c',
-                tokens.color.primary,
-              ],
-              lineWidth: 1.5,
-              lineOpacity: 0.7,
-            }}
-          />
-        </MapboxGL.ShapeSource>
-
-        {/* Label de nombre en cada potrero */}
-        {potreros.map((p) => {
-          const lng = (p.coords[0][0] + p.coords[2][0]) / 2;
-          const lat = (p.coords[0][1] + p.coords[2][1]) / 2;
-          return (
-            <MapboxGL.MarkerView
-              key={`label-${p.id}`}
-              coordinate={[lng, lat]}
-              anchor={{ x: 0.5, y: 0.5 }}
-            >
-              <View pointerEvents="none">
-                <Text style={styles.potreroLabel}>{p.nombre}</Text>
-                <Text style={styles.potreroAnimales}>{p.animales} an.</Text>
-              </View>
-            </MapboxGL.MarkerView>
-          );
-        })}
-
-        {/* Pin de alerta */}
-        {alertaCenter && alertaPotrero && (
-          <MapboxGL.MarkerView
-            coordinate={alertaCenter}
-            anchor={{ x: 0.5, y: 1 }}
-          >
-            <View style={styles.alertPin}>
-              <Text style={styles.alertPinIcon}>!</Text>
-            </View>
-          </MapboxGL.MarkerView>
-        )}
-      </MapboxGL.MapView>
+      {/* Placeholder mapa */}
+      <View style={styles.map}>
+        <View style={styles.mapPlaceholder}>
+          <Text style={styles.mapPlaceholderTitle}>Mapa del Predio</Text>
+          <Text style={styles.mapPlaceholderSub}>Fundo San Pedro · Los Lagos, Chile</Text>
+          <View style={styles.mapGrid}>
+            {POTREROS.map((p) => (
+              <TouchableOpacity
+                key={p.id}
+                style={[
+                  styles.mapCell,
+                  { backgroundColor: POTRERO_COLORS[p.id] ?? T.color.primary },
+                  selectedId === p.id && styles.mapCellSelected,
+                ]}
+                onPress={() => handleSelectPotrero(p.id)}
+              >
+                <Text style={styles.mapCellName}>{p.nombre}</Text>
+                <Text style={styles.mapCellHa}>{p.ha} ha</Text>
+                {p.alerta && <Text style={styles.mapCellAlert}>⚠</Text>}
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.mapNote}>Mapa GIS disponible próximamente</Text>
+        </View>
+      </View>
 
       {/* Bottom panel */}
       <View style={styles.bottomPanel}>
-        {/* Pill selector */}
         <View style={styles.pillRow}>
           <PotreroPill
             potreros={POTREROS}
@@ -265,7 +114,6 @@ export default function MapaPredioScreen({ navigation }: Props) {
           />
         </View>
 
-        {/* Card resumen */}
         <TouchableOpacity
           style={styles.summaryCard}
           onPress={() => {
@@ -308,23 +156,14 @@ export default function MapaPredioScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: tokens.color.bg,
-  },
-  headerSafe: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-  },
+  container: { flex: 1, backgroundColor: T.color.bg },
+  headerSafe: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 },
   header: {
-    marginHorizontal: tokens.spacing.lg,
-    marginTop: tokens.spacing.sm,
-    backgroundColor: tokens.color.white,
-    borderRadius: tokens.radius.card,
-    paddingHorizontal: tokens.spacing.md,
+    marginHorizontal: T.spacing.lg,
+    marginTop: T.spacing.sm,
+    backgroundColor: T.color.white,
+    borderRadius: T.radius.card,
+    paddingHorizontal: T.spacing.md,
     paddingVertical: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -336,137 +175,59 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   headerLeft: {},
-  headerTitle: {
-    fontSize: tokens.font.size.base,
-    fontFamily: tokens.font.family.semibold,
-    color: tokens.color.text.primary,
-  },
-  headerSub: {
-    fontSize: tokens.font.size.xs,
-    fontFamily: tokens.font.family.regular,
-    color: tokens.color.text.muted,
-    marginTop: 1,
-  },
-  filterBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: tokens.radius.small,
-    backgroundColor: tokens.color.bg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  filterIcon: {
-    fontSize: 18,
-    color: tokens.color.text.primary,
-  },
-  map: {
+  headerTitle: { fontSize: 16, fontFamily: T.font.family.semibold, color: T.color.text.primary },
+  headerSub: { fontSize: 12, fontFamily: T.font.family.regular, color: T.color.text.muted, marginTop: 1 },
+  filterBtn: { width: 36, height: 36, borderRadius: T.radius.small, backgroundColor: T.color.bg, alignItems: 'center', justifyContent: 'center' },
+  filterIcon: { fontSize: 18, color: T.color.text.primary },
+  map: { flex: 1 },
+  mapPlaceholder: {
     flex: 1,
+    backgroundColor: '#e8f4ec',
+    paddingTop: 90,
+    paddingHorizontal: 20,
+    alignItems: 'center',
   },
-  bottomPanel: {
-    backgroundColor: tokens.color.bg,
-    paddingTop: tokens.spacing.md,
-    paddingBottom: tokens.spacing.lg,
+  mapPlaceholderTitle: { fontSize: 18, fontFamily: 'DMSans_600SemiBold', color: T.color.primary, marginBottom: 4 },
+  mapPlaceholderSub: { fontSize: 12, fontFamily: 'DMSans_400Regular', color: T.color.text.muted, marginBottom: 24 },
+  mapGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, width: '100%' },
+  mapCell: {
+    width: '48%',
+    height: 90,
+    borderRadius: 16,
+    padding: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.85,
   },
-  pillRow: {
-    marginBottom: tokens.spacing.md,
-  },
+  mapCellSelected: { opacity: 1, borderWidth: 2, borderColor: T.color.white },
+  mapCellName: { fontSize: 16, fontFamily: 'DMSans_600SemiBold', color: T.color.white },
+  mapCellHa: { fontSize: 11, fontFamily: 'DMSans_400Regular', color: 'rgba(255,255,255,0.8)', marginTop: 2 },
+  mapCellAlert: { fontSize: 16, marginTop: 4 },
+  mapNote: { fontSize: 10, fontFamily: 'DMSans_400Regular', color: T.color.text.muted, marginTop: 16 },
+  bottomPanel: { backgroundColor: T.color.bg, paddingTop: T.spacing.md, paddingBottom: T.spacing.lg },
+  pillRow: { marginBottom: T.spacing.md },
   summaryCard: {
-    marginHorizontal: tokens.spacing.lg,
-    backgroundColor: tokens.color.white,
-    borderRadius: tokens.radius.card,
-    padding: tokens.spacing.md,
+    marginHorizontal: T.spacing.lg,
+    backgroundColor: T.color.white,
+    borderRadius: T.radius.card,
+    padding: T.spacing.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: tokens.spacing.sm,
-  },
-  summaryName: {
-    fontSize: tokens.font.size.lg,
-    fontFamily: tokens.font.family.semibold,
-    color: tokens.color.text.primary,
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: tokens.radius.chip,
-  },
-  statusBadgeOk: {
-    backgroundColor: '#e6f3ec',
-  },
-  statusBadgeAlert: {
-    backgroundColor: '#fde8e8',
-  },
-  statusBadgeText: {
-    fontSize: tokens.font.size.xs,
-    fontFamily: tokens.font.family.semibold,
-  },
-  statusBadgeTextOk: {
-    color: tokens.color.primary,
-  },
-  statusBadgeTextAlert: {
-    color: '#c0392b',
-  },
-  metricsRow: {
-    flexDirection: 'row',
-    gap: tokens.spacing.xl,
-  },
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: T.spacing.sm },
+  summaryName: { fontSize: 18, fontFamily: T.font.family.semibold, color: T.color.text.primary },
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: T.radius.chip },
+  statusBadgeOk: { backgroundColor: '#e6f3ec' },
+  statusBadgeAlert: { backgroundColor: '#fde8e8' },
+  statusBadgeText: { fontSize: 12, fontFamily: T.font.family.semibold },
+  statusBadgeTextOk: { color: T.color.primary },
+  statusBadgeTextAlert: { color: '#c0392b' },
+  metricsRow: { flexDirection: 'row', gap: T.spacing.xl },
   metric: {},
-  metricLabel: {
-    fontSize: tokens.font.size.xs,
-    fontFamily: tokens.font.family.regular,
-    color: tokens.color.text.muted,
-  },
-  metricValue: {
-    fontSize: tokens.font.size.md,
-    fontFamily: tokens.font.family.semibold,
-    color: tokens.color.text.primary,
-    marginTop: 1,
-  },
-  metricAlert: {
-    color: tokens.color.danger,
-  },
-  potreroLabel: {
-    fontSize: 11,
-    fontFamily: 'DMSans_600SemiBold',
-    color: tokens.color.white,
-    textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.4)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  potreroAnimales: {
-    fontSize: 9,
-    fontFamily: 'DMSans_400Regular',
-    color: 'rgba(255,255,255,0.85)',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.4)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  alertPin: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: tokens.color.danger,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: tokens.color.danger,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  alertPinIcon: {
-    color: tokens.color.white,
-    fontSize: 13,
-    fontFamily: 'DMSans_600SemiBold',
-    lineHeight: 16,
-  },
+  metricLabel: { fontSize: 12, fontFamily: T.font.family.regular, color: T.color.text.muted },
+  metricValue: { fontSize: 15, fontFamily: T.font.family.semibold, color: T.color.text.primary, marginTop: 1 },
+  metricAlert: { color: T.color.danger },
 });
