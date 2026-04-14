@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   useFonts,
@@ -9,8 +9,10 @@ import {
 import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import LoginScreen from './src/screens/LoginScreen';
+import SplashScreen from './src/screens/SplashScreen';
 
 // Core Screens
 import HomeScreen from './src/screens/HomeScreen';
@@ -60,6 +62,7 @@ import PodcastPlayerScreen from './src/screens/management/PodcastPlayerScreen';
 // ─────────────────────────────────────────────
 
 export type AuthStackParamList = {
+  Splash: undefined;
   Login: undefined;
 };
 
@@ -111,8 +114,27 @@ const AppStack = createNativeStackNavigator<RootStackParamList>();
 // ─────────────────────────────────────────────
 
 function AuthNavigator() {
+  const [initialRoute, setInitialRoute] = useState<keyof AuthStackParamList>('Login');
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    AsyncStorage.getItem('@smartcow:launched').then((val) => {
+      setInitialRoute(val ? 'Login' : 'Splash');
+      setChecking(false);
+    });
+  }, []);
+
+  if (checking) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f6f1' }}>
+        <ActivityIndicator color="#1e3a2f" />
+      </View>
+    );
+  }
+
   return (
-    <AuthStack.Navigator id={undefined} screenOptions={{ headerShown: false }}>
+    <AuthStack.Navigator id={undefined} initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="Splash" component={SplashScreen} />
       <AuthStack.Screen name="Login" component={LoginScreen} />
     </AuthStack.Navigator>
   );
