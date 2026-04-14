@@ -1,7 +1,7 @@
 # Firebase App Hosting — smartcow
 # Docs: https://firebase.google.com/docs/app-hosting/configure
 # Firebase project: smartcow-c22fb
-# GCP secrets project: smartcow-492119 (cross-project)
+# Secrets: todos en smartcow-c22fb (mismo proyecto)
 
 # Cloud Run runtime settings (managed by Firebase App Hosting)
 runConfig:
@@ -12,12 +12,10 @@ runConfig:
   memoryMiB: 512
 
 # Environment variables and secrets
-# Secrets usan path completo porque viven en smartcow-492119,
-# distinto al Firebase project smartcow-c22fb.
 env:
   # ── Database ──
   - variable: DATABASE_URL
-    secret: projects/smartcow-492119/secrets/database-url
+    secret: projects/smartcow-c22fb/secrets/database-url
 
   # ── Google AI (Gemini / chat) ──
   - variable: GOOGLE_API_KEY
@@ -25,23 +23,23 @@ env:
 
   # ── AgroApp ──
   - variable: AGROAPP_USER
-    secret: projects/smartcow-492119/secrets/agroapp-user
+    secret: projects/smartcow-c22fb/secrets/agroapp-user
   - variable: AGROAPP_PASSWORD
-    secret: projects/smartcow-492119/secrets/agroapp-password
+    secret: projects/smartcow-c22fb/secrets/agroapp-password
 
   # ── Firebase Admin SDK ──
   - variable: FIREBASE_CLIENT_EMAIL
-    secret: projects/smartcow-492119/secrets/firebase-client-email
+    secret: projects/smartcow-c22fb/secrets/firebase-client-email
   - variable: FIREBASE_PRIVATE_KEY
-    secret: projects/smartcow-492119/secrets/firebase-private-key
+    secret: projects/smartcow-c22fb/secrets/firebase-private-key
 
   # ── Observabilidad ──
   - variable: SENTRY_DSN
-    secret: projects/smartcow-492119/secrets/sentry-dsn-web
+    secret: projects/smartcow-c22fb/secrets/sentry-dsn-web
 
   # ── GCP ──
   - variable: GCP_PROJECT_ID
-    value: smartcow-492119
+    value: smartcow-c22fb
 
   # ── Firebase Client SDK (públicas, browser-safe) ──
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
