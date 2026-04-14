@@ -34,7 +34,8 @@
           "RNMapboxMapsVersion": "11.18.2",
           "RNMapboxMapsDownloadToken": "pk.eyJ1IjoiYXV0b25vbW9zLWRldiIsImEiOiJjbW54aG9tZXkwMmUxMnBxMWY1ZXoyNTRoIn0.52wtPi_tT4B4H1PPu4SfDw"
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }

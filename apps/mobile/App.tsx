@@ -118,11 +118,11 @@ function AuthNavigator() {
   );
 }
 
-function AppNavigator() {
+function AppNavigator({ initialRoute }: { initialRoute: keyof RootStackParamList }) {
   return (
     <AppStack.Navigator
       id={undefined}
-      initialRouteName="MapaPredio"
+      initialRouteName={initialRoute}
       screenOptions={{ headerShown: false }}
     >
       <AppStack.Screen name="Home" component={HomeScreen} />
@@ -177,9 +177,12 @@ function RootNavigator() {
     );
   }
 
+  const isOperario = user?.rol === 'operador' || user?.rol === 'veterinario';
+  const initialRoute: keyof RootStackParamList = isOperario ? 'JaimeHome' : 'OwnerDashboard';
+
   return (
     <NavigationContainer>
-      {user ? <AppNavigator /> : <AuthNavigator />}
+      {user ? <AppNavigator initialRoute={initialRoute} /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }
