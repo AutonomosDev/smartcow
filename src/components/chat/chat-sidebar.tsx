@@ -90,9 +90,10 @@ interface ChatSidebarProps {
   orgName?: string | null;
   userName?: string | null;
   userEmail?: string | null;
+  predioId?: number;
 }
 
-export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) {
+export function ChatSidebar({ orgName, userName, userEmail, predioId = 0 }: ChatSidebarProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -112,8 +113,13 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
     setIsConfirmOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    // TODO: llamar a server action de delete
+  const handleDeleteConfirm = async () => {
+    if (!docToDelete) return;
+    try {
+      await fetch(`/api/kb/delete/${docToDelete.id}`, { method: "DELETE" });
+    } catch {
+      // ignorar — el modal ya se cierra
+    }
     setIsConfirmOpen(false);
     setDocToDelete(null);
   };
@@ -230,13 +236,22 @@ export function ChatSidebar({ orgName, userName, userEmail }: ChatSidebarProps) 
       <KBManagementModal
         isOpen={isKBOpen}
         onOpenChange={setIsKBOpen}
+        predioId={predioId}
         onUploadClick={() => {
           setIsKBOpen(false);
           setIsKBUploadOpen(true);
         }}
         onDeleteRequest={handleDeleteRequest}
       />
-      <KBUploadModal isOpen={isKBUploadOpen} onOpenChange={setIsKBUploadOpen} />
+      <KBUploadModal
+        isOpen={isKBUploadOpen}
+        onOpenChange={setIsKBUploadOpen}
+        predioId={predioId}
+        onUploaded={() => {
+          setIsKBUploadOpen(false);
+          setIsKBOpen(true);
+        }}
+      />
       <ConfirmationModal
         isOpen={isConfirmOpen}
         onOpenChange={setIsConfirmOpen}

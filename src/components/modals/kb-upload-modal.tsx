@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { 
-  Upload, 
-  FileText, 
-  X, 
-  CheckCircle2, 
+import {
+  Upload,
+  FileText,
+  X,
+  CheckCircle2,
   AlertCircle,
-  FileSpreadsheet
+  FileSpreadsheet,
 } from "lucide-react";
 import {
   Dialog,
@@ -21,13 +21,16 @@ import { cn } from "@/src/lib/utils";
 interface KBUploadModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  predioId?: number;
+  onUploaded?: () => void;
 }
 
-export function KBUploadModal({ isOpen, onOpenChange }: KBUploadModalProps) {
+export function KBUploadModal({ isOpen, onOpenChange, predioId = 0, onUploaded }: KBUploadModalProps) {
   const [dragActive, setDragActive] = React.useState(false);
   const [files, setFiles] = React.useState<File[]>([]);
   const [uploading, setUploading] = React.useState(false);
   const [uploadComplete, setUploadComplete] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -44,16 +47,14 @@ export function KBUploadModal({ isOpen, onOpenChange }: KBUploadModalProps) {
     e.stopPropagation();
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const newFiles = Array.from(e.dataTransfer.files);
-      setFiles((prev) => [...prev, ...newFiles]);
+      setFiles((prev) => [...prev, ...Array.from(e.dataTransfer.files)]);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
-      const newFiles = Array.from(e.target.files);
-      setFiles((prev) => [...prev, ...newFiles]);
+      setFiles((prev) => [...prev, ...Array.from(e.target.files!)]);
     }
   };
 
@@ -61,18 +62,37 @@ export function KBUploadModal({ isOpen, onOpenChange }: KBUploadModalProps) {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const startUpload = () => {
+  const startUpload = async () => {
+    if (files.length === 0) return;
     setUploading(true);
-    // Simulación de carga (solo UI)
-    setTimeout(() => {
+    setError(null);
+
+    try {
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("predio_id", String(predioId));
+
+        const res = await fetch("/api/kb/upload", { method: "POST", body: fd });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error((body as { error?: string }).error ?? "Error al subir archivo");
+        }
+      }
+
       setUploading(false);
       setUploadComplete(true);
+      onUploaded?.();
+
       setTimeout(() => {
         setUploadComplete(false);
         setFiles([]);
         onOpenChange(false);
       }, 2000);
-    }, 1500);
+    } catch (err) {
+      setUploading(false);
+      setError(err instanceof Error ? err.message : "Error desconocido");
+    }
   };
 
   return (
@@ -96,8 +116,8 @@ export function KBUploadModal({ isOpen, onOpenChange }: KBUploadModalProps) {
                 onDrop={handleDrop}
                 className={cn(
                   "relative border-2 border-dashed rounded-2xl p-8 transition-all duration-300 flex flex-col items-center justify-center gap-3 group",
-                  dragActive 
-                    ? "border-emerald-100 bg-emerald-50/20" 
+                  dragActive
+                    ? "border-emerald-100 bg-emerald-50/20"
                     : "border-white/20 bg-white/40 hover:border-white/40 hover:bg-white/60"
                 )}
               >
@@ -108,9 +128,7 @@ export function KBUploadModal({ isOpen, onOpenChange }: KBUploadModalProps) {
                   <p className="text-sm font-semibold text-gray-900">
                     Arrastra archivos aquí o haz click para explorar
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    PDF, XLSX, CSV · Hasta 20MB
-                  </p>
+                  <p className="text-xs text-gray-400 mt-1">PDF, XLSX, CSV · Hasta 20MB</p>
                 </div>
                 <input
                   type="file"
@@ -121,17 +139,25 @@ export function KBUploadModal({ isOpen, onOpenChange }: KBUploadModalProps) {
                 />
               </div>
 
+              {/* Error */}
+              {error && (
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 text-red-600 text-sm">
+                  <AlertCircle size={16} />
+                  {error}
+                </div>
+              )}
+
               {/* Lista de archivos */}
               {files.length > 0 && (
                 <div className="space-y-2 max-h-[200px] overflow-y-auto no-scrollbar pr-1">
                   {files.map((file, i) => (
-                    <div 
+                    <div
                       key={`${file.name}-${i}`}
                       className="flex items-center justify-between p-3 rounded-xl border border-gray-100 bg-white hover:border-gray-200 transition-colors"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
-                          {file.name.endsWith('.pdf') ? (
+                          {file.name.endsWith(".pdf") ? (
                             <FileText size={16} className="text-gray-400" />
                           ) : (
                             <FileSpreadsheet size={16} className="text-gray-400" />
@@ -142,7 +168,7 @@ export function KBUploadModal({ isOpen, onOpenChange }: KBUploadModalProps) {
                           <p className="text-[10px] text-gray-400">{(file.size / 1024).toFixed(1)} KB</p>
                         </div>
                       </div>
-                      <button 
+                      <button
                         onClick={() => removeFile(i)}
                         className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-900 transition-colors"
                       >
@@ -159,18 +185,20 @@ export function KBUploadModal({ isOpen, onOpenChange }: KBUploadModalProps) {
                 onClick={startUpload}
                 className={cn(
                   "w-full py-3.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2",
-                  files.length > 0 
-                  ? "bg-[#06200F] text-white shadow-sm hover:shadow-md" 
-                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  files.length > 0
+                    ? "bg-[#06200F] text-white shadow-sm hover:shadow-md"
+                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
                 )}
               >
                 {uploading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Procesando...
+                    Subiendo...
                   </>
                 ) : (
-                  <>Procesar {files.length} {files.length === 1 ? 'documento' : 'documentos'}</>
+                  <>
+                    Procesar {files.length} {files.length === 1 ? "documento" : "documentos"}
+                  </>
                 )}
               </button>
             </>
@@ -182,7 +210,7 @@ export function KBUploadModal({ isOpen, onOpenChange }: KBUploadModalProps) {
               <div className="text-center">
                 <p className="text-lg font-bold text-gray-900">¡Carga exitosa!</p>
                 <p className="text-sm text-gray-400">
-                  SmartCow está indexando tus documentos para darte mejores respuestas.
+                  SmartCow utilizará estos documentos como referencia en el chat.
                 </p>
               </div>
             </div>

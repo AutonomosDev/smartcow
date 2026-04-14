@@ -20,6 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
+    "@google/genai": "^1.50.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-tooltip": "^1.2.8",
     "drizzle-orm": "^0.45.2",

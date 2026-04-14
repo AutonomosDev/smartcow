@@ -1,7 +1,7 @@
 /**
- * claude.ts — Cliente OpenRouter (OpenAI-compatible) con tool use para consultas ganaderas.
- * Ticket: AUT-112
- * Migrado: Anthropic SDK → OpenRouter + Gemma 4
+ * claude.ts — Cliente Google AI (Gemini) con tool use para consultas ganaderas.
+ * Ticket: AUT-176
+ * Migrado: OpenRouter/OpenAI SDK → Google AI SDK (@google/genai)
  *
  * Tools disponibles:
  *   query_animales           — Lista animales de un predio con filtros
@@ -17,7 +17,8 @@
  *   - Tool calls de escritura requieren rol >= operador (validado en route)
  */
 
-import OpenAI from "openai";
+import { GoogleGenAI, Type } from "@google/genai";
+import type { FunctionDeclaration } from "@google/genai";
 import { db } from "@/src/db/client";
 import {
   animales,
@@ -69,125 +70,113 @@ export interface DatosRegistrarParto {
 }
 
 // ─────────────────────────────────────────────
-// TOOL DEFINITIONS (OpenAI function calling format)
+// TOOL DEFINITIONS (Google AI FunctionDeclaration format)
 // ─────────────────────────────────────────────
 
-export const CATTLE_TOOLS: OpenAI.Chat.ChatCompletionTool[] = [
+export const CATTLE_TOOLS: FunctionDeclaration[] = [
   {
-    type: "function",
-    function: {
-      name: "query_animales",
-      description: "Consulta la lista de animales activos en el predio. Permite filtrar por tipo de ganado, estado reproductivo y estado del animal. Retorna hasta 50 animales por defecto.",
-      parameters: {
-        type: "object",
-        properties: {
-          predio_id: { type: "number", description: "ID del predio (obligatorio)" },
-          filtros: {
-            type: "object",
-            properties: {
-              tipo_ganado: { type: "string", description: "Tipo de ganado (ej: vaca, novilla, ternero)" },
-              estado_reproductivo: { type: "string", description: "Estado reproductivo (ej: preñada, vacía, inseminada)" },
-              estado: { type: "string", enum: ["activo", "baja", "desecho"], description: "Estado del animal en el hato" },
-              limite: { type: "number", description: "Máximo de resultados (default 50, max 200)" },
-            },
+    name: "query_animales",
+    description:
+      "Consulta la lista de animales activos en el predio. Permite filtrar por tipo de ganado, estado reproductivo y estado del animal. Retorna hasta 50 animales por defecto.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        predio_id: { type: Type.NUMBER, description: "ID del predio (obligatorio)" },
+        filtros: {
+          type: Type.OBJECT,
+          description: "Filtros opcionales para acotar resultados",
+          properties: {
+            tipo_ganado: { type: Type.STRING, description: "Tipo de ganado (ej: vaca, novilla, ternero)" },
+            estado_reproductivo: { type: Type.STRING, description: "Estado reproductivo (ej: preñada, vacía, inseminada)" },
+            estado: { type: Type.STRING, description: "Estado del animal: activo, baja o desecho" },
+            limite: { type: Type.NUMBER, description: "Máximo de resultados (default 50, max 200)" },
           },
         },
-        required: ["predio_id"],
       },
+      required: ["predio_id"],
     },
   },
   {
-    type: "function",
-    function: {
-      name: "query_pesajes",
-      description: "Consulta el historial de pesajes de un predio o de un animal específico. Permite filtrar por rango de fechas.",
-      parameters: {
-        type: "object",
-        properties: {
-          predio_id: { type: "number", description: "ID del predio (obligatorio)" },
-          animal_id: { type: "number", description: "ID del animal (opcional — si se omite, retorna todos los pesajes del predio)" },
-          rango_fechas: {
-            type: "object",
-            properties: {
-              inicio: { type: "string", description: "Fecha inicio YYYY-MM-DD" },
-              fin: { type: "string", description: "Fecha fin YYYY-MM-DD" },
-            },
+    name: "query_pesajes",
+    description:
+      "Consulta el historial de pesajes de un predio o de un animal específico. Permite filtrar por rango de fechas.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        predio_id: { type: Type.NUMBER, description: "ID del predio (obligatorio)" },
+        animal_id: { type: Type.NUMBER, description: "ID del animal (opcional — si se omite, retorna todos los pesajes del predio)" },
+        rango_fechas: {
+          type: Type.OBJECT,
+          properties: {
+            inicio: { type: Type.STRING, description: "Fecha inicio YYYY-MM-DD" },
+            fin: { type: Type.STRING, description: "Fecha fin YYYY-MM-DD" },
           },
-          limite: { type: "number", description: "Máximo de resultados (default 100)" },
         },
-        required: ["predio_id"],
+        limite: { type: Type.NUMBER, description: "Máximo de resultados (default 100)" },
       },
+      required: ["predio_id"],
     },
   },
   {
-    type: "function",
-    function: {
-      name: "query_partos",
-      description: "Consulta el historial de partos en el predio dentro de un rango de fechas.",
-      parameters: {
-        type: "object",
-        properties: {
-          predio_id: { type: "number", description: "ID del predio (obligatorio)" },
-          rango_fechas: {
-            type: "object",
-            properties: {
-              inicio: { type: "string", description: "Fecha inicio YYYY-MM-DD" },
-              fin: { type: "string", description: "Fecha fin YYYY-MM-DD" },
-            },
+    name: "query_partos",
+    description: "Consulta el historial de partos en el predio dentro de un rango de fechas.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        predio_id: { type: Type.NUMBER, description: "ID del predio (obligatorio)" },
+        rango_fechas: {
+          type: Type.OBJECT,
+          properties: {
+            inicio: { type: Type.STRING, description: "Fecha inicio YYYY-MM-DD" },
+            fin: { type: Type.STRING, description: "Fecha fin YYYY-MM-DD" },
           },
-          limite: { type: "number", description: "Máximo de resultados (default 50)" },
         },
-        required: ["predio_id"],
+        limite: { type: Type.NUMBER, description: "Máximo de resultados (default 50)" },
       },
+      required: ["predio_id"],
     },
   },
   {
-    type: "function",
-    function: {
-      name: "query_indices_reproductivos",
-      description: "Calcula y retorna los índices reproductivos del predio: total animales, total partos últimos 12 meses, tasa de concepción estimada, animales preñadas, vacías e inseminadas.",
-      parameters: {
-        type: "object",
-        properties: {
-          predio_id: { type: "number", description: "ID del predio (obligatorio)" },
-        },
-        required: ["predio_id"],
+    name: "query_indices_reproductivos",
+    description:
+      "Calcula y retorna los índices reproductivos del predio: total animales, total partos últimos 12 meses, tasa de concepción estimada, animales preñadas, vacías e inseminadas.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        predio_id: { type: Type.NUMBER, description: "ID del predio (obligatorio)" },
       },
+      required: ["predio_id"],
     },
   },
   {
-    type: "function",
-    function: {
-      name: "registrar_pesaje",
-      description: "Registra un nuevo pesaje para un animal identificado por su EID (tag electrónico). Requiere rol operador o superior.",
-      parameters: {
-        type: "object",
-        properties: {
-          predio_id: { type: "number", description: "ID del predio (obligatorio)" },
-          eid: { type: "string", description: "EID / tag electrónico del animal" },
-          peso_kg: { type: "number", description: "Peso en kilogramos" },
-          fecha: { type: "string", description: "Fecha del pesaje YYYY-MM-DD (default: hoy)" },
-        },
-        required: ["predio_id", "eid", "peso_kg"],
+    name: "registrar_pesaje",
+    description:
+      "Registra un nuevo pesaje para un animal identificado por su EID (tag electrónico). Requiere rol operador o superior.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        predio_id: { type: Type.NUMBER, description: "ID del predio (obligatorio)" },
+        eid: { type: Type.STRING, description: "EID / tag electrónico del animal" },
+        peso_kg: { type: Type.NUMBER, description: "Peso en kilogramos" },
+        fecha: { type: Type.STRING, description: "Fecha del pesaje YYYY-MM-DD (default: hoy)" },
       },
+      required: ["predio_id", "eid", "peso_kg"],
     },
   },
   {
-    type: "function",
-    function: {
-      name: "registrar_parto",
-      description: "Registra un nuevo parto para una madre identificada por su EID. Requiere rol operador o superior.",
-      parameters: {
-        type: "object",
-        properties: {
-          predio_id: { type: "number", description: "ID del predio (obligatorio)" },
-          madre_eid: { type: "string", description: "EID / tag electrónico de la madre" },
-          resultado: { type: "string", enum: ["vivo", "muerto", "aborto", "gemelar"], description: "Resultado del parto" },
-          fecha: { type: "string", description: "Fecha del parto YYYY-MM-DD (default: hoy)" },
-          observaciones: { type: "string", description: "Observaciones adicionales (opcional)" },
-        },
-        required: ["predio_id", "madre_eid", "resultado"],
+    name: "registrar_parto",
+    description:
+      "Registra un nuevo parto para una madre identificada por su EID. Requiere rol operador o superior.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        predio_id: { type: Type.NUMBER, description: "ID del predio (obligatorio)" },
+        madre_eid: { type: Type.STRING, description: "EID / tag electrónico de la madre" },
+        resultado: { type: Type.STRING, description: "Resultado del parto: vivo, muerto, aborto o gemelar" },
+        fecha: { type: Type.STRING, description: "Fecha del parto YYYY-MM-DD (default: hoy)" },
+        observaciones: { type: Type.STRING, description: "Observaciones adicionales (opcional)" },
       },
+      required: ["predio_id", "madre_eid", "resultado"],
     },
   },
 ];
@@ -197,7 +186,7 @@ export const CATTLE_TOOLS: OpenAI.Chat.ChatCompletionTool[] = [
 // ─────────────────────────────────────────────
 
 /**
- * Ejecuta el tool_use solicitado por Claude.
+ * Ejecuta el tool_use solicitado por el modelo.
  * prediosPermitidos: lista de predio_ids a los que el usuario tiene acceso.
  * userId: para registrar autoría en escrituras.
  */
@@ -210,8 +199,6 @@ export async function ejecutarTool(
 ): Promise<unknown> {
   const predioId = Number(toolInput["predio_id"]);
 
-  // Verificar que el predio_id solicitado está entre los permitidos del usuario
-  // (superadmin y admin_org pasan con prediosPermitidos = [] como señal de acceso total)
   if (prediosPermitidos.length > 0 && !prediosPermitidos.includes(predioId)) {
     return { error: "Sin acceso a este predio", code: "FORBIDDEN" };
   }
@@ -242,23 +229,31 @@ export async function ejecutarTool(
       if (rolRank < 1) {
         return { error: "Se requiere rol operador o superior para registrar pesajes", code: "FORBIDDEN" };
       }
-      return registrarPesaje(predioId, {
-        eid: String(toolInput["eid"]),
-        peso_kg: Number(toolInput["peso_kg"]),
-        fecha: toolInput["fecha"] as string | undefined,
-      }, userId);
+      return registrarPesaje(
+        predioId,
+        {
+          eid: String(toolInput["eid"]),
+          peso_kg: Number(toolInput["peso_kg"]),
+          fecha: toolInput["fecha"] as string | undefined,
+        },
+        userId
+      );
     }
 
     case "registrar_parto": {
       if (rolRank < 1) {
         return { error: "Se requiere rol operador o superior para registrar partos", code: "FORBIDDEN" };
       }
-      return registrarParto(predioId, {
-        madre_eid: String(toolInput["madre_eid"]),
-        resultado: toolInput["resultado"] as DatosRegistrarParto["resultado"],
-        fecha: toolInput["fecha"] as string | undefined,
-        observaciones: toolInput["observaciones"] as string | undefined,
-      }, userId);
+      return registrarParto(
+        predioId,
+        {
+          madre_eid: String(toolInput["madre_eid"]),
+          resultado: toolInput["resultado"] as DatosRegistrarParto["resultado"],
+          fecha: toolInput["fecha"] as string | undefined,
+          observaciones: toolInput["observaciones"] as string | undefined,
+        },
+        userId
+      );
     }
 
     default:
@@ -295,9 +290,7 @@ async function queryAnimales(predioId: number, filtros?: FiltrosAnimales) {
       and(
         eq(animales.predioId, predioId),
         filtros?.estado ? eq(animales.estado, filtros.estado) : undefined,
-        filtros?.tipo_ganado
-          ? eq(tipoGanado.nombre, filtros.tipo_ganado)
-          : undefined,
+        filtros?.tipo_ganado ? eq(tipoGanado.nombre, filtros.tipo_ganado) : undefined,
         filtros?.estado_reproductivo
           ? eq(estadoReproductivo.nombre, filtros.estado_reproductivo)
           : undefined
@@ -410,11 +403,7 @@ async function queryIndicesReproductivos(predioId: number) {
   };
 }
 
-async function registrarPesaje(
-  predioId: number,
-  datos: DatosRegistrarPesaje,
-  usuarioId: number
-) {
+async function registrarPesaje(predioId: number, datos: DatosRegistrarPesaje, usuarioId: number) {
   const animalRow = await db
     .select({ id: animales.id, diio: animales.diio })
     .from(animales)
@@ -455,11 +444,7 @@ async function registrarPesaje(
   };
 }
 
-async function registrarParto(
-  predioId: number,
-  datos: DatosRegistrarParto,
-  usuarioId: number
-) {
+async function registrarParto(predioId: number, datos: DatosRegistrarParto, usuarioId: number) {
   const madreRow = await db
     .select({ id: animales.id, diio: animales.diio })
     .from(animales)
@@ -510,7 +495,6 @@ async function registrarParto(
 
 /**
  * Construye el system prompt con contexto del predio y usuario autenticado.
- * ctx incluye nombres reales de predios y KPIs pre-cargados para eliminar alucinaciones.
  */
 export function buildSystemPrompt(
   session: SmartCowSession,
@@ -561,23 +545,16 @@ Reglas de comportamiento:
 }
 
 /**
- * Crea y retorna el cliente OpenRouter (OpenAI-compatible).
- * Lanza error si OPENROUTER_API_KEY no está definida.
+ * Crea y retorna el cliente Google AI.
+ * Lanza error si GOOGLE_API_KEY no está definida.
  */
-export function getOpenRouterClient(): OpenAI {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+export function getGoogleAIClient(): GoogleGenAI {
+  const apiKey = process.env.GOOGLE_API_KEY;
   if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY no configurada");
+    throw new Error("GOOGLE_API_KEY no configurada");
   }
-  return new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
-    apiKey,
-    defaultHeaders: {
-      "HTTP-Referer": "https://smartcow.app",
-      "X-Title": "SmartCow",
-    },
-  });
+  return new GoogleGenAI({ apiKey });
 }
 
-export const OPENROUTER_FLASH_MODEL = "google/gemini-3-flash-preview";
-export const OPENROUTER_REASONING_MODEL = "google/gemma-4-31b-it";
+export const GOOGLE_FLASH_MODEL = "gemini-2.5-flash";
+export const GOOGLE_REASONING_MODEL = "gemini-2.5-pro";

@@ -1,5 +1,6 @@
 // Tablas base
 export * from "./organizaciones";
+export * from "./kb_documents";
 export * from "./predios";
 export * from "./users";
 

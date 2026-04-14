@@ -430,9 +430,14 @@ export const PromptInputBoxV2 = React.forwardRef(
           </div>
         </PromptInput>
 
-        <DialogV2 isOpen={!!selectedImage} onOpenChange={(o) => !o && setSelectedImage(null)} title="Previsualización">
-           {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto rounded-xl shadow-sm" />}
-        </DialogV2>
+        <DialogV2.Root open={!!selectedImage} onOpenChange={(o) => !o && setSelectedImage(null)}>
+          <DialogV2.Content>
+            <DialogV2.Header>
+              <DialogV2.Title>Previsualización</DialogV2.Title>
+            </DialogV2.Header>
+            {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto rounded-xl shadow-sm" />}
+          </DialogV2.Content>
+        </DialogV2.Root>
       </>
     );
   }
