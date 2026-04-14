@@ -48,6 +48,7 @@ export function ChatPageClient({
           orgName={nombrePredio}
           userName={userName}
           userEmail={userEmail}
+          predioId={predioId}
         />
         {/* Área principal de chat */}
         <div className="flex-1 flex flex-col min-h-0 bg-transparent">

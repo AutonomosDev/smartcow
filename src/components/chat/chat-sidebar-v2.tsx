@@ -14,7 +14,9 @@ import {
   ChevronsUpDown,
   PanelLeftClose,
   PanelLeftOpen,
-  Type
+  Type,
+  Clock,
+  Bell,
 } from "lucide-react";
 import { useState } from "react";
 import { useFont } from "@/src/providers/font-provider";

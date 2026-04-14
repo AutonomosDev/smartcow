@@ -1,10 +1,10 @@
 /**
- * app/api/chat/route.ts — Endpoint SSE para chat ganadero con OpenRouter/Gemma.
- * Ticket: AUT-112
- * Migrado: Anthropic SDK → OpenRouter (OpenAI-compatible) + Gemma
+ * app/api/chat/route.ts — Endpoint SSE para chat ganadero con Google AI (Gemini).
+ * Ticket: AUT-176
+ * Migrado: OpenRouter/OpenAI SDK → Google AI SDK (@google/genai)
  *
  * POST /api/chat
- * Body: { messages: {role, content}[], predio_id: number, web_search?: boolean }
+ * Body: { messages: {role, content}[], predio_id: number, reasoning_mode?: boolean }
  * Response: text/event-stream (SSE)
  *
  * Eventos SSE:
@@ -21,20 +21,23 @@
  */
 
 import { NextRequest } from "next/server";
-import type OpenAI from "openai";
+import type { Content, Part, FunctionCallingConfigMode } from "@google/genai";
 import { withAuth } from "@/src/lib/with-auth";
 import {
-  getOpenRouterClient,
+  getGoogleAIClient,
   buildSystemPrompt,
   CATTLE_TOOLS,
   ejecutarTool,
-  OPENROUTER_FLASH_MODEL,
-  OPENROUTER_REASONING_MODEL,
+  GOOGLE_FLASH_MODEL,
+  GOOGLE_REASONING_MODEL,
 } from "@/src/lib/claude";
 import { getNombrePredio, getPredioKpis, getPrediosNombres } from "@/src/lib/queries/predio";
 import { AuthError } from "@/src/lib/with-auth";
+import { db } from "@/src/db/client";
+import { kbDocuments } from "@/src/db/schema/index";
+import { eq, gt } from "drizzle-orm";
 
-// Jerarquía de roles — sincronizada con with-auth.ts
+// Jerarquía de roles
 const ROL_RANK: Record<string, number> = {
   viewer: 0,
   operador: 1,
@@ -44,8 +47,10 @@ const ROL_RANK: Record<string, number> = {
   superadmin: 5,
 };
 
-// Máximo de iteraciones de tool use por request (evitar loops infinitos)
 const MAX_TOOL_ITERATIONS = 5;
+
+// FunctionCallingConfigMode.AUTO value
+const FUNCTION_CALLING_AUTO = "AUTO" as FunctionCallingConfigMode;
 
 export async function POST(req: NextRequest) {
   // 1. Autenticación
@@ -69,7 +74,6 @@ export async function POST(req: NextRequest) {
   let body: {
     messages: Array<{ role: "user" | "assistant"; content: string }>;
     predio_id: number;
-    web_search?: boolean;
     reasoning_mode?: boolean;
   };
   try {
@@ -111,10 +115,10 @@ export async function POST(req: NextRequest) {
   const prediosPermitidos = tieneAccesoTotal ? [] : predios;
   const rolRank = ROL_RANK[rol] ?? 0;
 
-  // 4. Inicializar cliente OpenRouter
-  let client: OpenAI;
+  // 4. Inicializar cliente Google AI
+  let ai;
   try {
-    client = getOpenRouterClient();
+    ai = getGoogleAIClient();
   } catch {
     return new Response(JSON.stringify({ error: "Servicio no disponible" }), {
       status: 503,
@@ -137,7 +141,7 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        // Pre-fetch contexto real del predio para eliminar alucinaciones
+        // Pre-fetch contexto real del predio
         const [nombrePredio, prediosNombres, kpis] = await Promise.all([
           getNombrePredio(predioId),
           getPrediosNombres(session.user.predios),
@@ -150,113 +154,132 @@ export async function POST(req: NextRequest) {
           kpis,
         });
 
-        const model = reasoningMode ? OPENROUTER_REASONING_MODEL : OPENROUTER_FLASH_MODEL;
+        // Cargar documentos KB válidos (no expirados) para este predio
+        const now = new Date();
+        const kbFiles = await db
+          .select()
+          .from(kbDocuments)
+          .where(eq(kbDocuments.predioId, predioId));
 
-        // Historial de conversación en formato OpenAI
-        const conversationMessages: OpenAI.Chat.ChatCompletionMessageParam[] = messages.map((m) => ({
-          role: m.role,
-          content: m.content,
+        const validKbFiles = kbFiles.filter((f) => f.expiresAt > now);
+
+        const model = reasoningMode ? GOOGLE_REASONING_MODEL : GOOGLE_FLASH_MODEL;
+
+        // Convertir historial al formato Google AI
+        // Gemini usa "model" en vez de "assistant"
+        const conversationContents: Content[] = messages.map((m) => ({
+          role: m.role === "assistant" ? "model" : "user",
+          parts: [{ text: m.content }],
         }));
 
+        // Si hay archivos KB válidos, agregarlos como contexto al primer mensaje del usuario
+        if (validKbFiles.length > 0) {
+          const kbParts: Part[] = validKbFiles.map((f) => ({
+            fileData: { fileUri: f.fileUri, mimeType: f.mimeType },
+          }));
+
+          // Insertar contexto KB antes de los mensajes como turno de usuario separado
+          conversationContents.unshift({
+            role: "user",
+            parts: [
+              ...kbParts,
+              {
+                text: `[Documentos de la base de conocimiento del predio ${predioId} — usar como referencia]`,
+              },
+            ],
+          });
+          // Agregar turno model vacío para mantener alternancia user/model
+          conversationContents.splice(1, 0, {
+            role: "model",
+            parts: [{ text: "Entendido. Usaré estos documentos como referencia." }],
+          });
+        }
+
         let iteraciones = 0;
+        let currentContents = [...conversationContents];
 
         while (iteraciones < MAX_TOOL_ITERATIONS) {
           iteraciones++;
 
-          const aiStream = await client.chat.completions.create({
+          const response = await ai.models.generateContentStream({
             model,
-            max_tokens: 4096,
-            messages: [
-              { role: "system", content: systemPrompt },
-              ...conversationMessages,
-            ],
-            tools: CATTLE_TOOLS,
-            tool_choice: "auto",
-            stream: true,
+            contents: currentContents,
+            config: {
+              systemInstruction: systemPrompt,
+              tools: [{ functionDeclarations: CATTLE_TOOLS }],
+              toolConfig: {
+                functionCallingConfig: { mode: FUNCTION_CALLING_AUTO },
+              },
+              maxOutputTokens: 8192,
+            },
           });
 
           let accumulatedText = "";
-          // índice → { id, name, arguments }
-          const pendingToolCalls: Record<number, { id: string; name: string; arguments: string }> = {};
-          let finishReason = "";
+          const functionCalls: Array<{ id?: string; name: string; args: Record<string, unknown> }> = [];
 
-          for await (const chunk of aiStream) {
-            const choice = chunk.choices[0];
-            if (!choice) continue;
-
-            const delta = choice.delta;
-
-            // Texto streameado
-            if (delta.content) {
-              accumulatedText += delta.content;
-              sendEvent({ type: "text_delta", delta: delta.content });
+          for await (const chunk of response) {
+            // Stream texto
+            const textDelta = chunk.text;
+            if (textDelta) {
+              accumulatedText += textDelta;
+              sendEvent({ type: "text_delta", delta: textDelta });
             }
 
-            // Acumular tool call deltas
-            if (delta.tool_calls) {
-              for (const tc of delta.tool_calls) {
-                const idx = tc.index;
-                if (!pendingToolCalls[idx]) {
-                  pendingToolCalls[idx] = { id: "", name: "", arguments: "" };
+            // Recolectar function calls (completos, no incrementales)
+            const fcs = chunk.functionCalls;
+            if (fcs && fcs.length > 0) {
+              for (const fc of fcs) {
+                if (fc.name) {
+                  functionCalls.push({
+                    id: fc.id,
+                    name: fc.name,
+                    args: (fc.args ?? {}) as Record<string, unknown>,
+                  });
                 }
-                if (tc.id) pendingToolCalls[idx].id = tc.id;
-                if (tc.function?.name) pendingToolCalls[idx].name = tc.function.name;
-                if (tc.function?.arguments) pendingToolCalls[idx].arguments += tc.function.arguments;
               }
-            }
-
-            if (choice.finish_reason) {
-              finishReason = choice.finish_reason;
             }
           }
 
-          const toolCalls = Object.values(pendingToolCalls);
-
-          // Sin tool calls → respuesta final
-          if (finishReason !== "tool_calls" || toolCalls.length === 0) {
+          // Sin function calls → respuesta final
+          if (functionCalls.length === 0) {
             sendEvent({ type: "done" });
             controller.close();
             return;
           }
 
-          // Agregar turno del asistente con tool calls al historial
-          conversationMessages.push({
-            role: "assistant",
-            content: accumulatedText || null,
-            tool_calls: toolCalls.map((tc) => ({
-              id: tc.id,
-              type: "function" as const,
-              function: { name: tc.name, arguments: tc.arguments },
-            })),
-          });
+          // Agregar turno del modelo con los function calls al historial
+          const modelParts: Part[] = [];
+          if (accumulatedText) modelParts.push({ text: accumulatedText });
+          for (const fc of functionCalls) {
+            modelParts.push({ functionCall: { id: fc.id, name: fc.name, args: fc.args } });
+          }
+          currentContents.push({ role: "model", parts: modelParts });
 
-          // Ejecutar tools y agregar resultados
-          for (const tc of toolCalls) {
-            let parsedInput: Record<string, unknown> = {};
-            try {
-              parsedInput = JSON.parse(tc.arguments);
-            } catch {
-              parsedInput = {};
-            }
-
-            sendEvent({ type: "tool_use", tool: tc.name, input: parsedInput });
+          // Ejecutar tools y agregar resultados como turno de usuario
+          const toolResultParts: Part[] = [];
+          for (const fc of functionCalls) {
+            sendEvent({ type: "tool_use", tool: fc.name, input: fc.args });
 
             const result = await ejecutarTool(
-              tc.name,
-              parsedInput,
+              fc.name,
+              fc.args,
               prediosPermitidos,
               Number(userId),
               rolRank
             );
 
-            sendEvent({ type: "tool_result", tool: tc.name, result });
+            sendEvent({ type: "tool_result", tool: fc.name, result });
 
-            conversationMessages.push({
-              role: "tool",
-              tool_call_id: tc.id,
-              content: JSON.stringify(result),
+            toolResultParts.push({
+              functionResponse: {
+                id: fc.id,
+                name: fc.name,
+                response: result as Record<string, unknown>,
+              },
             });
           }
+
+          currentContents.push({ role: "user", parts: toolResultParts });
         }
 
         sendEvent({ type: "done" });
