@@ -165,14 +165,14 @@ function runNpmScript(script) {
 }
 
 function startMobile() {
-  const mobileRoot = path.join(projectRoot, 'SmartCowExpo');
+  const mobileRoot = path.join(projectRoot, 'apps/mobile');
   if (!fs.existsSync(mobileRoot)) {
-    console.error('\nSmartCowExpo/ no encontrado en el proyecto\n');
+    console.error('\napps/mobile/ no encontrado en el proyecto\n');
     process.exit(1);
   }
 
-  console.log('\nStarting Expo dev server...\n');
-  const expo = spawn('npx', ['expo', 'start'], {
+  console.log('\nStarting Metro bundler (conecta al simulador ya instalado)...\n');
+  const expo = spawn('npx', ['expo', 'start', '--dev-client'], {
     stdio: 'inherit',
     shell: true,
     cwd: mobileRoot,
@@ -236,7 +236,11 @@ Press Ctrl+C to stop.
 }
 
 // Main
-if (!command) {
+const isMobAlias = path.basename(process.argv[1]) === 'smartcow_mob';
+if (isMobAlias) {
+  killPorts();
+  startMobile();
+} else if (!command) {
   startAll();
 } else if (command === 'help' || command === '-h' || command === '--help') {
   printHelp();

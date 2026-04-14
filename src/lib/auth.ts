@@ -100,6 +100,48 @@ export async function loadUserByFirebaseUid(
   };
 }
 
+/**
+ * Carga datos del usuario SmartCow a partir de su email.
+ * Usado como fallback en dev cuando verifyIdToken no está disponible.
+ */
+export async function loadUserByEmail(
+  email: string
+): Promise<SmartCowSession | null> {
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  const user = result[0];
+  if (!user) return null;
+
+  const [predioRows, orgRows] = await Promise.all([
+    db
+      .select({ predioId: userPredios.predioId })
+      .from(userPredios)
+      .where(eq(userPredios.userId, user.id)),
+    db
+      .select({ modulos: organizaciones.modulos })
+      .from(organizaciones)
+      .where(eq(organizaciones.id, user.orgId))
+      .limit(1),
+  ]);
+
+  return {
+    expires: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+    user: {
+      id: String(user.id),
+      email: user.email,
+      nombre: user.nombre,
+      orgId: user.orgId,
+      predios: predioRows.map((r) => r.predioId),
+      rol: user.rol as UserRol,
+      modulos: (orgRows[0]?.modulos as Record<string, boolean>) ?? {},
+    },
+  };
+}
+
 // ─────────────────────────────────────────────
 // auth() — Para Server Components y server actions
 // ─────────────────────────────────────────────

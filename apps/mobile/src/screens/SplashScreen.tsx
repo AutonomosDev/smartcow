@@ -141,9 +141,6 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'transparent',
-    // Gradiente manual: parte baja más oscura
-    background: undefined,
-    // Usamos dos capas: una superior transparente y una inferior oscura
   },
   top: {
     flex: 1,

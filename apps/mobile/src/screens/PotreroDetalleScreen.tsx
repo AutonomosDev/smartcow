@@ -8,25 +8,16 @@ import {
   SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
-import MapboxGL from '@rnmapbox/maps';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
-import { tokens } from '../../../../packages/tokens/theme';
 import type { RootStackParamList } from '../../App';
 import { api, LoteDetalle } from '../lib/api';
 
-// Coords hardcodeadas para el mini mapa visual — AG: conectar a tabla `potreros` con campos GIS
-const COORDS_MAP: Record<string, { ha: number; coords: [number, number][] }> = {
-  default: {
-    ha: 0,
-    coords: [
-      [-72.35, -40.58],
-      [-72.34, -40.58],
-      [-72.34, -40.59],
-      [-72.35, -40.59],
-      [-72.35, -40.58],
-    ],
-  },
+const T = {
+  color: { primary: '#1E3A2F', bg: '#f8f6f1', white: '#ffffff', danger: '#e74c3c', text: { primary: '#1E3A2F', muted: '#7a7a6e', secondary: '#555' } },
+  font: { family: { regular: 'DMSans_400Regular', medium: 'DMSans_500Medium', semibold: 'DMSans_600SemiBold' } },
+  spacing: { sm: 8, md: 16, lg: 20 },
+  radius: { card: 20, btn: 14, chip: 20 },
 };
 
 type Props = {
@@ -52,21 +43,6 @@ export default function PotreroDetalleScreen({ navigation, route }: Props) {
       .finally(() => setLoading(false));
   }, [potreroId]);
 
-  // Fallback visual coords para el mini mapa
-  const mapData = COORDS_MAP.default;
-  const miniGeoJSON: GeoJSON.Feature = {
-    type: 'Feature',
-    properties: {},
-    geometry: {
-      type: 'Polygon',
-      coordinates: [mapData.coords],
-    },
-  };
-  const miniCenter: [number, number] = [
-    (mapData.coords[0][0] + mapData.coords[2][0]) / 2,
-    (mapData.coords[0][1] + mapData.coords[2][1]) / 2,
-  ];
-
   const titulo = lote?.nombre ?? 'Potrero';
   const subHeader = lote
     ? `${lote.totalAnimales} animales · ${lote.diasEnLote} días en lote`
@@ -87,8 +63,6 @@ export default function PotreroDetalleScreen({ navigation, route }: Props) {
             <Text style={styles.menuIcon}>≡</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Sub-header */}
         <Text style={styles.subHeader}>{subHeader}</Text>
 
         {/* Tabs */}
@@ -97,60 +71,29 @@ export default function PotreroDetalleScreen({ navigation, route }: Props) {
             style={[styles.tab, activeTab === 'resumen' && styles.tabActive]}
             onPress={() => setActiveTab('resumen')}
           >
-            <Text style={[styles.tabText, activeTab === 'resumen' && styles.tabTextActive]}>
-              Resumen
-            </Text>
+            <Text style={[styles.tabText, activeTab === 'resumen' && styles.tabTextActive]}>Resumen</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tab, activeTab === 'historial' && styles.tabActive]}
             onPress={() => setActiveTab('historial')}
           >
-            <Text style={[styles.tabText, activeTab === 'historial' && styles.tabTextActive]}>
-              Historial
-            </Text>
+            <Text style={[styles.tabText, activeTab === 'historial' && styles.tabTextActive]}>Historial</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator color={tokens.color.primary} />
+          <ActivityIndicator color={T.color.primary} />
         </View>
       ) : (
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Mini mapa — coords hardcodeadas hasta conectar GIS */}
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {/* Mini mapa placeholder */}
           <View style={styles.miniMapContainer}>
-            <MapboxGL.MapView
-              style={styles.miniMap}
-              styleURL={MapboxGL.StyleURL.Outdoors}
-              compassEnabled={false}
-              logoEnabled={false}
-              attributionEnabled={false}
-              scrollEnabled={false}
-              zoomEnabled={false}
-              rotateEnabled={false}
-            >
-              <MapboxGL.Camera centerCoordinate={miniCenter} zoomLevel={14} />
-              <MapboxGL.ShapeSource id="mini-potrero" shape={miniGeoJSON}>
-                <MapboxGL.FillLayer
-                  id="mini-fill"
-                  style={{ fillColor: '#c8b898', fillOpacity: 0.5 }}
-                />
-                <MapboxGL.LineLayer
-                  id="mini-border"
-                  style={{ lineColor: '#a08060', lineWidth: 1.5 }}
-                />
-              </MapboxGL.ShapeSource>
-            </MapboxGL.MapView>
-            {mapData.ha > 0 && (
-              <View style={styles.haLabel}>
-                <Text style={styles.haText}>{mapData.ha} ha</Text>
-              </View>
-            )}
+            <View style={styles.miniMapPlaceholder}>
+              <Text style={styles.miniMapLabel}>Potrero · Los Lagos, Chile</Text>
+              <Text style={styles.miniMapNote}>Mapa GIS próximamente</Text>
+            </View>
           </View>
 
           {/* Estado del lote */}
@@ -198,7 +141,6 @@ export default function PotreroDetalleScreen({ navigation, route }: Props) {
               </View>
             </View>
           )}
-
           <View style={{ height: 80 }} />
         </ScrollView>
       )}
@@ -216,172 +158,60 @@ export default function PotreroDetalleScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: tokens.color.bg,
-  },
-  safe: {
-    backgroundColor: tokens.color.white,
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  container: { flex: 1, backgroundColor: T.color.bg },
+  safe: { backgroundColor: T.color.white },
+  loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: tokens.spacing.md,
-    paddingTop: tokens.spacing.sm,
-    paddingBottom: tokens.spacing.sm,
+    paddingHorizontal: T.spacing.md,
+    paddingTop: T.spacing.sm,
+    paddingBottom: T.spacing.sm,
   },
-  backBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backIcon: {
-    fontSize: 28,
-    color: tokens.color.text.primary,
-    lineHeight: 32,
-    marginTop: -2,
-  },
-  headerCenter: {
-    flex: 1,
-    paddingHorizontal: tokens.spacing.sm,
-  },
-  headerTitle: {
-    fontSize: tokens.font.size.lg,
-    fontFamily: tokens.font.family.semibold,
-    color: tokens.color.text.primary,
-  },
-  menuBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  menuIcon: {
-    fontSize: 20,
-    color: tokens.color.text.primary,
-  },
+  backBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  backIcon: { fontSize: 28, color: T.color.text.primary, lineHeight: 32, marginTop: -2 },
+  headerCenter: { flex: 1, paddingHorizontal: T.spacing.sm },
+  headerTitle: { fontSize: 18, fontFamily: T.font.family.semibold, color: T.color.text.primary },
+  menuBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  menuIcon: { fontSize: 20, color: T.color.text.primary },
   subHeader: {
-    fontSize: tokens.font.size.xs,
-    fontFamily: tokens.font.family.regular,
-    color: tokens.color.text.muted,
-    paddingHorizontal: tokens.spacing.lg,
-    paddingBottom: tokens.spacing.sm,
+    fontSize: 12,
+    fontFamily: T.font.family.regular,
+    color: T.color.text.muted,
+    paddingHorizontal: T.spacing.lg,
+    paddingBottom: T.spacing.sm,
   },
-  tabs: {
-    flexDirection: 'row',
-    paddingHorizontal: tokens.spacing.lg,
-    gap: tokens.spacing.sm,
-    paddingBottom: 1,
-  },
-  tab: {
+  tabs: { flexDirection: 'row', paddingHorizontal: T.spacing.lg, gap: T.spacing.sm, paddingBottom: 1 },
+  tab: { flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: T.radius.btn, backgroundColor: T.color.bg },
+  tabActive: { backgroundColor: T.color.text.primary },
+  tabText: { fontSize: 13, fontFamily: T.font.family.medium, color: T.color.text.secondary },
+  tabTextActive: { color: T.color.white },
+  scroll: { flex: 1 },
+  scrollContent: { paddingTop: T.spacing.md, paddingHorizontal: T.spacing.lg, gap: T.spacing.md },
+  miniMapContainer: { height: 160, borderRadius: T.radius.card, overflow: 'hidden' },
+  miniMapPlaceholder: {
     flex: 1,
-    paddingVertical: 9,
+    backgroundColor: '#c8dfc8',
+    justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: tokens.radius.btn,
-    backgroundColor: tokens.color.bg,
   },
-  tabActive: {
-    backgroundColor: tokens.color.text.primary,
-  },
-  tabText: {
-    fontSize: tokens.font.size.sm,
-    fontFamily: tokens.font.family.medium,
-    color: tokens.color.text.secondary,
-  },
-  tabTextActive: {
-    color: tokens.color.white,
-  },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingTop: tokens.spacing.md,
-    paddingHorizontal: tokens.spacing.lg,
-    gap: tokens.spacing.md,
-  },
-  miniMapContainer: {
-    height: 160,
-    borderRadius: tokens.radius.card,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  miniMap: {
-    flex: 1,
-  },
-  haLabel: {
-    position: 'absolute',
-    bottom: tokens.spacing.sm,
-    right: tokens.spacing.sm,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  haText: {
-    color: tokens.color.white,
-    fontSize: tokens.font.size.xs,
-    fontFamily: tokens.font.family.semibold,
-  },
-  estadoCard: {
-    backgroundColor: tokens.color.white,
-    borderRadius: tokens.radius.card,
-    padding: tokens.spacing.md,
-  },
-  estadoTitle: {
-    fontSize: tokens.font.size.md,
-    fontFamily: tokens.font.family.semibold,
-    color: tokens.color.text.primary,
-    marginBottom: tokens.spacing.md,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    rowGap: tokens.spacing.md,
-  },
-  gridItem: {
-    width: '50%',
-  },
-  gridLabel: {
-    fontSize: tokens.font.size.xs,
-    fontFamily: tokens.font.family.regular,
-    color: tokens.color.text.muted,
-  },
-  gridValue: {
-    fontSize: tokens.font.size.md,
-    fontFamily: tokens.font.family.semibold,
-    color: tokens.color.text.primary,
-    marginTop: 1,
-  },
-  gridValueAlert: {
-    color: tokens.color.danger,
-  },
+  miniMapLabel: { fontSize: 14, fontFamily: 'DMSans_600SemiBold', color: T.color.primary },
+  miniMapNote: { fontSize: 11, fontFamily: 'DMSans_400Regular', color: T.color.text.muted, marginTop: 4 },
+  estadoCard: { backgroundColor: T.color.white, borderRadius: T.radius.card, padding: T.spacing.md },
+  estadoTitle: { fontSize: 15, fontFamily: T.font.family.semibold, color: T.color.text.primary, marginBottom: T.spacing.md },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: T.spacing.md },
+  gridItem: { width: '50%' },
+  gridLabel: { fontSize: 12, fontFamily: T.font.family.regular, color: T.color.text.muted },
+  gridValue: { fontSize: 15, fontFamily: T.font.family.semibold, color: T.color.text.primary, marginTop: 1 },
+  gridValueAlert: { color: T.color.danger },
   ctaWrapper: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: tokens.color.white,
-    paddingHorizontal: tokens.spacing.lg,
-    paddingTop: tokens.spacing.sm,
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    backgroundColor: T.color.white,
+    paddingHorizontal: T.spacing.lg,
+    paddingTop: T.spacing.sm,
     borderTopWidth: 1,
     borderTopColor: '#f0ede8',
   },
-  ctaBtn: {
-    backgroundColor: tokens.color.primary,
-    borderRadius: tokens.radius.btn,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginBottom: tokens.spacing.sm,
-  },
-  ctaText: {
-    fontSize: tokens.font.size.base,
-    fontFamily: tokens.font.family.semibold,
-    color: tokens.color.white,
-  },
+  ctaBtn: { backgroundColor: T.color.primary, borderRadius: T.radius.btn, paddingVertical: 14, alignItems: 'center', marginBottom: T.spacing.sm },
+  ctaText: { fontSize: 16, fontFamily: T.font.family.semibold, color: T.color.white },
 });

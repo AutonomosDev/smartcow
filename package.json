@@ -6,14 +6,16 @@
     "smartcow": "bin/smartcow"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3003",
     "build": "next build",
     "start": "next start",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "mobile": "kill $(lsof -ti:8081) 2>/dev/null; cd apps/mobile && npx expo start --ios",
+    "mobile:dev": "kill $(lsof -ti:3003) 2>/dev/null; kill $(lsof -ti:8081) 2>/dev/null; npx concurrently --names \"next,metro\" --prefix-colors \"green,blue\" \"npm run dev\" \"cd apps/mobile && npx expo start --ios\""
   },
   "keywords": [],
   "author": "Autonomos Lab",
@@ -43,6 +45,7 @@
     "@types/pg": "^8.20.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "concurrently": "^9.2.1",
     "drizzle-kit": "^0.31.10",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.2",

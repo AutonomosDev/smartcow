@@ -10,7 +10,12 @@ import {
   Platform,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
-import { tokens } from '../../../../packages/tokens/theme';
+const tokens = {
+  color: { primary: '#1E3A2F', bg: '#f8f6f1', white: '#ffffff', danger: '#e74c3c', cream: '#e8e4dc', text: { primary: '#1E3A2F', muted: '#7a7a6e', secondary: '#555' } },
+  font: { family: { regular: 'DMSans_400Regular', medium: 'DMSans_500Medium', semibold: 'DMSans_600SemiBold' }, size: { sm: 12, base: 15, xxl: 26 } },
+  spacing: { xs: 8, sm: 8, md: 16, lg: 20, xl: 24 },
+  radius: { card: 20, btn: 14 },
+};
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
