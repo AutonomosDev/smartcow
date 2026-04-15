@@ -1,0 +1,192 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{font-family:'DM Sans',sans-serif;display:flex;gap:24px;justify-content:center;padding:32px 16px;background:#fff;flex-wrap:wrap}
+.iphone{width:260px;background:#1c1c1e;border-radius:48px;padding:8px;box-shadow:0 0 0 1.5px #3a3a3c,0 0 0 3px #2c2c2e,0 20px 50px rgba(0,0,0,0.3);position:relative;flex-shrink:0}
+.bl1{position:absolute;left:-2px;top:96px;width:3px;height:26px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl2{position:absolute;left:-2px;top:134px;width:3px;height:34px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl3{position:absolute;left:-2px;top:180px;width:3px;height:34px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.br{position:absolute;right:-2px;top:116px;width:3px;height:56px;background:#3a3a3c;border-radius:0 2px 2px 0}
+.screen{background:#f8f6f1;border-radius:40px;overflow:hidden;padding-bottom:14px}
+.di{width:86px;height:22px;background:#1c1c1e;border-radius:0 0 14px 14px;margin:0 auto}
+.sb{display:flex;justify-content:space-between;padding:3px 18px 0;font-size:10px;font-weight:600;color:#1a1a1a}
+.hdr{padding:6px 13px 4px}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.back{width:22px;height:22px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center;font-size:12px;color:#444}
+.title{font-size:15px;font-weight:600;color:#1a1a1a}
+.sub{font-size:10px;color:#999}
+.hero{margin:0 11px 7px;background:#1e3a2f;border-radius:12px;padding:10px 12px}
+.hl{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:3px}
+.hv{font-size:16px;font-weight:600;color:#fff;margin-bottom:2px;letter-spacing:0.5px}
+.hs{font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:8px}
+.hg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.hi{background:rgba(255,255,255,0.1);border-radius:6px;padding:5px 6px}
+.hil{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:1px}
+.hiv{font-size:12px;font-weight:600;color:#fff}
+.hiv.ok{color:#7ecfa0}
+.hiv.warn{color:#f39c12}
+.card{margin:0 11px 6px;background:#fff;border-radius:12px;padding:10px 12px}
+.ct{font-size:11px;font-weight:600;color:#1a1a1a;margin-bottom:7px}
+.fl{font-size:9px;color:#bbb;margin-bottom:2px}
+.fv{font-size:12px;font-weight:600;color:#1a1a1a}
+.divider{height:0.5px;background:#f0ede8;margin:6px 0}
+.field{margin-bottom:6px}
+.field:last-child{margin-bottom:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sec-hdr{display:flex;justify-content:space-between;padding:0 11px;margin-bottom:5px}
+.sh{font-size:11px;font-weight:600;color:#1a1a1a}
+.sl2{font-size:10px;color:#1e3a2f}
+.event-row{margin:0 11px 5px;background:#fff;border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:8px}
+.ev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ev-content{flex:1}
+.ev-title{font-size:11px;font-weight:600;color:#1a1a1a}
+.ev-meta{font-size:10px;color:#888}
+.ev-date{font-size:10px;color:#bbb;white-space:nowrap}
+.tabs{display:flex;gap:6px;margin:0 11px 7px}
+.tab{flex:1;border-radius:8px;padding:7px;text-align:center;font-size:10px;font-weight:500}
+.tab.active{background:#1e3a2f;color:#fff}
+.tab.inactive{background:#fff;color:#888}
+</style>
+
+<div class="wrap">
+
+  <!-- PANTALLA 1 — FICHA ANIMAL: DATOS GENERALES -->
+  <div class="iphone">
+    <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+    <div class="screen">
+      <div class="di"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+      <div class="hdr">
+        <div class="hdr-top">
+          <div class="back">‹</div>
+          <span style="font-size:9px;color:#888;font-weight:500">DIIO</span>
+        </div>
+        <div class="title">Ficha animal</div>
+        <div class="sub">Lote Norte · Fundo San Pedro</div>
+      </div>
+
+      <div class="hero">
+        <div class="hl">IDENTIFICACIÓN</div>
+        <div class="hv">276000204581234</div>
+        <div class="hs">Novillo · Angus · Macho · 4 años</div>
+        <div class="hg">
+          <div class="hi"><div class="hil">Peso actual</div><div class="hiv ok">387 kg</div></div>
+          <div class="hi"><div class="hil">GDP</div><div class="hiv ok">1.8 kg/d</div></div>
+          <div class="hi"><div class="hil">Estado</div><div class="hiv">Activo</div></div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active">Datos</div>
+        <div class="tab inactive">Pesajes</div>
+        <div class="tab inactive">Sanidad</div>
+        <div class="tab inactive">Eventos</div>
+      </div>
+
+      <div class="card">
+        <div class="ct">Información general</div>
+        <div class="grid2">
+          <div class="field"><div class="fl">RAZA</div><div class="fv">Angus negro</div></div>
+          <div class="field"><div class="fl">SEXO</div><div class="fv">Macho</div></div>
+          <div class="field"><div class="fl">FECHA NACIMIENTO</div><div class="fv">12 mar 2022</div></div>
+          <div class="field"><div class="fl">EDAD</div><div class="fv">4 años 1 mes</div></div>
+          <div class="field"><div class="fl">MADRE</div><div class="fv">...581198</div></div>
+          <div class="field"><div class="fl">POTRERO ACTUAL</div><div class="fv">Norte</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="field"><div class="fl">PREDIO ORIGEN</div><div class="fv">Agropecuaria González · Ingreso 15 feb 2026</div></div>
+        <div class="divider"></div>
+        <div class="field"><div class="fl">DÍAS EN ENGORDA</div><div class="fv">58 días · Obj. faena: 420 kg</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PANTALLA 2 — FICHA ANIMAL: HISTORIAL EVENTOS -->
+  <div class="iphone">
+    <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+    <div class="screen">
+      <div class="di"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+      <div class="hdr">
+        <div class="hdr-top">
+          <div class="back">‹</div>
+          <span style="font-size:9px;color:#888;font-weight:500">DIIO</span>
+        </div>
+        <div class="title">Ficha animal</div>
+        <div class="sub">276000204581234 · Angus · 387 kg</div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab inactive">Datos</div>
+        <div class="tab inactive">Pesajes</div>
+        <div class="tab inactive">Sanidad</div>
+        <div class="tab active">Eventos</div>
+      </div>
+
+      <div class="sec-hdr">
+        <div class="sh">Historial completo</div>
+        <div class="sl2">14 eventos</div>
+      </div>
+
+      <div class="event-row">
+        <div class="ev-dot" style="background:#1e3a2f"></div>
+        <div class="ev-content">
+          <div class="ev-title">Pesaje — 387 kg</div>
+          <div class="ev-meta">GDP 1.8 kg/d · CC 3 · Jaime</div>
+        </div>
+        <div class="ev-date">14 abr</div>
+      </div>
+      <div class="event-row">
+        <div class="ev-dot" style="background:#1a5276"></div>
+        <div class="ev-content">
+          <div class="ev-title">Vacuna — Bovilis RSP</div>
+          <div class="ev-meta">5ml subcutánea · Dr. Muñoz</div>
+        </div>
+        <div class="ev-date">10 abr</div>
+      </div>
+      <div class="event-row">
+        <div class="ev-dot" style="background:#1e3a2f"></div>
+        <div class="ev-content">
+          <div class="ev-title">Pesaje — 362 kg</div>
+          <div class="ev-meta">GDP 1.6 kg/d · CC 3 · Jaime</div>
+        </div>
+        <div class="ev-date">27 mar</div>
+      </div>
+      <div class="event-row">
+        <div class="ev-dot" style="background:#f39c12"></div>
+        <div class="ev-content">
+          <div class="ev-title">Movimiento potrero</div>
+          <div class="ev-meta">Sur → Norte · Jaime</div>
+        </div>
+        <div class="ev-date">20 mar</div>
+      </div>
+      <div class="event-row">
+        <div class="ev-dot" style="background:#e74c3c"></div>
+        <div class="ev-content">
+          <div class="ev-title">Tratamiento — Oxitetraciclina</div>
+          <div class="ev-meta">Neumonía leve · Dr. Muñoz · 7 días</div>
+        </div>
+        <div class="ev-date">12 mar</div>
+      </div>
+      <div class="event-row">
+        <div class="ev-dot" style="background:#1e3a2f"></div>
+        <div class="ev-content">
+          <div class="ev-title">Pesaje — 318 kg</div>
+          <div class="ev-meta">GDP 1.4 kg/d · CC 2 · Jaime</div>
+        </div>
+        <div class="ev-date">28 feb</div>
+      </div>
+      <div class="event-row">
+        <div class="ev-dot" style="background:#9b5e1a"></div>
+        <div class="ev-content">
+          <div class="ev-title">Ingreso al predio</div>
+          <div class="ev-meta">Agropecuaria González · 298 kg</div>
+        </div>
+        <div class="ev-date">15 feb</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

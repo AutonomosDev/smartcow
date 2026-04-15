@@ -1,20 +1,14 @@
 /**
- * src/lib/auth.ts — Autenticación via Firebase Admin SDK.
- * Verifica session cookie __session y carga datos del usuario desde DB.
- * Server-only (Node.js runtime).
+ * src/lib/auth.ts — Autenticación via Next-Auth v5
+ * Reemplaza Firebase Admin SDK (AUT-215)
  *
- * Reemplaza NextAuth v5 + auth.config.ts.
+ * La función auth() es compatible con el código existente —
+ * mismo shape SmartCowSession, mismo uso en Server Components.
  */
 import "server-only";
-import { cookies } from "next/headers";
-import { adminAuth } from "./firebase/admin";
-import { db } from "@/src/db/client";
-import { users, userPredios, organizaciones } from "@/src/db/schema/index";
-import { eq } from "drizzle-orm";
+import { auth as nextAuthSession } from "@/auth.config";
 
-// ─────────────────────────────────────────────
-// TIPOS
-// ─────────────────────────────────────────────
+// ─── Tipos (mismos que antes — sin cambios en el resto de la app) ─────────────
 
 export type UserRol =
   | "superadmin"
@@ -37,9 +31,7 @@ export interface SmartCowSession {
   };
 }
 
-// ─────────────────────────────────────────────
-// DEV SESSION (bypass en desarrollo)
-// ─────────────────────────────────────────────
+// ─── DEV SESSION (bypass en desarrollo) ──────────────────────────────────────
 
 const DEV_SESSION: SmartCowSession = {
   user: {
@@ -54,59 +46,37 @@ const DEV_SESSION: SmartCowSession = {
   expires: "2099-12-31",
 };
 
-// ─────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────
+// ─── auth() — Para Server Components y server actions ────────────────────────
 
 /**
- * Carga datos del usuario SmartCow a partir de su Firebase UID.
- * Retorna null si el UID no existe en nuestra DB.
+ * Retorna SmartCowSession | null.
+ * En development retorna DEV_SESSION sin verificar cookie.
+ * En producción usa Next-Auth JWT cookie __session.
  */
-export async function loadUserByFirebaseUid(
-  uid: string
-): Promise<SmartCowSession | null> {
-  const result = await db
-    .select()
-    .from(users)
-    .where(eq(users.firebaseUid, uid))
-    .limit(1);
+export async function auth(): Promise<SmartCowSession | null> {
+  if (process.env.NODE_ENV === "development") return DEV_SESSION;
 
-  const user = result[0];
-  if (!user) return null;
+  const session = await nextAuthSession();
+  if (!session?.user) return null;
 
-  const [predioRows, orgRows] = await Promise.all([
-    db
-      .select({ predioId: userPredios.predioId })
-      .from(userPredios)
-      .where(eq(userPredios.userId, user.id)),
-    db
-      .select({ modulos: organizaciones.modulos })
-      .from(organizaciones)
-      .where(eq(organizaciones.id, user.orgId))
-      .limit(1),
-  ]);
+  // Next-Auth session.user tiene el shape SmartCowSession.user
+  // gracias al callback jwt en auth.config.ts
+  const u = session.user as unknown as SmartCowSession["user"];
+  if (!u.orgId || !u.rol) return null;
 
   return {
-    expires: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
-    user: {
-      id: String(user.id),
-      email: user.email,
-      nombre: user.nombre,
-      orgId: user.orgId,
-      predios: predioRows.map((r) => r.predioId),
-      rol: user.rol as UserRol,
-      modulos: (orgRows[0]?.modulos as Record<string, boolean>) ?? {},
-    },
+    expires: session.expires ?? new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+    user: u,
   };
 }
 
-/**
- * Carga datos del usuario SmartCow a partir de su email.
- * Usado como fallback en dev cuando verifyIdToken no está disponible.
- */
-export async function loadUserByEmail(
-  email: string
-): Promise<SmartCowSession | null> {
+// ─── Helpers legacy (por compatibilidad con código existente) ─────────────────
+
+import { db } from "@/src/db/client";
+import { users, userPredios, organizaciones } from "@/src/db/schema/index";
+import { eq } from "drizzle-orm";
+
+export async function loadUserByEmail(email: string): Promise<SmartCowSession | null> {
   const result = await db
     .select()
     .from(users)
@@ -140,27 +110,4 @@ export async function loadUserByEmail(
       modulos: (orgRows[0]?.modulos as Record<string, boolean>) ?? {},
     },
   };
-}
-
-// ─────────────────────────────────────────────
-// auth() — Para Server Components y server actions
-// ─────────────────────────────────────────────
-
-/**
- * Verifica la session cookie __session y retorna SmartCowSession | null.
- * En development retorna DEV_SESSION sin verificar cookie.
- */
-export async function auth(): Promise<SmartCowSession | null> {
-  if (process.env.NODE_ENV === "development") return DEV_SESSION;
-
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("__session")?.value;
-  if (!sessionCookie) return null;
-
-  try {
-    const decoded = await adminAuth.verifySessionCookie(sessionCookie, true);
-    return loadUserByFirebaseUid(decoded.uid);
-  } catch {
-    return null;
-  }
 }

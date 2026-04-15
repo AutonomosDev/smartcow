@@ -1,12 +1,13 @@
 /**
- * middleware.ts — Protege rutas verificando presencia de session cookie.
- * La verificación criptográfica real ocurre en auth() (Node.js runtime).
- * Edge Runtime: solo chequeo de cookie, sin firebase-admin ni pg.
+ * middleware.ts — Protege rutas con Next-Auth v5
+ * Reemplaza verificación manual de cookie Firebase (AUT-215)
+ * Edge Runtime: next-auth/middleware corre en edge sin firebase-admin ni pg.
  */
+import { auth } from "@/auth.config";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export default function middleware(req: NextRequest) {
+export default auth(function middleware(req) {
   const { pathname } = req.nextUrl;
 
   const isPublic =
@@ -18,7 +19,6 @@ export default function middleware(req: NextRequest) {
 
   if (isPublic) return NextResponse.next();
 
-  // En desarrollo no hay verificación — auth() retorna DEV_SESSION
   if (process.env.NODE_ENV === "development") return NextResponse.next();
 
   const isProtected =
@@ -26,20 +26,17 @@ export default function middleware(req: NextRequest) {
     pathname.startsWith("/chat") ||
     (pathname.startsWith("/api") && !pathname.startsWith("/api/auth"));
 
-  if (isProtected) {
-    const sessionCookie = req.cookies.get("__session")?.value;
-    if (!sessionCookie) {
-      if (pathname.startsWith("/api")) {
-        return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-      }
-      const loginUrl = new URL("/login", req.url);
-      loginUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(loginUrl);
+  if (isProtected && !req.auth) {
+    if (pathname.startsWith("/api")) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
     }
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
