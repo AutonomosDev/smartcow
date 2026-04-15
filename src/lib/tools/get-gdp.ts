@@ -1,5 +1,5 @@
-import { db } from "@/db/client";
-import { lotes, loteAnimales, pesajes } from "@/db/schema";
+import { db } from "@/src/db/client";
+import { lotes, loteAnimales, pesajes } from "@/src/db/schema/index";
 import { eq, sql, and, gte, lte } from "drizzle-orm";
 
 export async function get_gdp(loteId: number, periodo?: { desde: string; hasta: string }) {

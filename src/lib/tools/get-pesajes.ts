@@ -1,5 +1,5 @@
-import { db } from "@/db/client";
-import { pesajes, animales } from "@/db/schema";
+import { db } from "@/src/db/client";
+import { pesajes, animales } from "@/src/db/schema/index";
 import { eq, and, gte, lte } from "drizzle-orm";
 
 export async function get_pesajes(args: { animalId?: number; predioId?: number; periodo?: { desde: string; hasta: string } }) {
