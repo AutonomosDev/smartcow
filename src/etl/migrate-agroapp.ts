@@ -96,10 +96,9 @@ interface AgroSemen {
   toro: string;
 }
 
-// AgroApp catalogs — usan snake_case
 interface AgroBajaMotivo {
   baja_motivo_org_id: number;
-  motivo: string;
+  baja_motivo: string;
 }
 
 interface AgroBajaCausa {
@@ -107,15 +106,96 @@ interface AgroBajaCausa {
   baja_causa: string;
 }
 
-// AgroApp data endpoints — usan display names con espacios (ej: "Fecha creado", "Tipo ganado")
-type AgroAnimal = Record<string, unknown>;
-type AgroPesaje = Record<string, unknown>;
-type AgroParto = Record<string, unknown>;
-type AgroInseminacion = Record<string, unknown>;
-type AgroEcografia = Record<string, unknown>;
-type AgroAreteoAlta = Record<string, unknown>;
-type AgroCambioDiio = Record<string, unknown>;
-type AgroBaja = Record<string, unknown>;
+interface AgroAnimal {
+  diio: string;
+  fecha_nacimiento?: string;
+  tipo_ganado?: string;
+  raza?: string;
+  fundo?: string;
+  fundo_id?: number;
+  estado_reproductivo?: string;
+  estado_leche?: string;
+  desecho?: boolean | string;
+  diio_madre?: string;
+  padre?: string;
+  abuelo?: string;
+  origen?: string;
+  observaciones?: string;
+  fecha_creado?: string;
+  // Sexo no viene de AgroApp — inferir de tipo_ganado si posible
+}
+
+interface AgroPesaje {
+  diio: string;
+  fundo_id?: number;
+  peso?: number;
+  peso_kg?: number;
+  fecha?: string;
+  fecha_creado?: string;
+}
+
+interface AgroParto {
+  diio_madre: string;
+  fundo_id?: number;
+  fecha_parto?: string;
+  fecha?: string;
+  tipo_parto?: string;
+  subtipo_parto?: string;
+  toro?: string;
+  inseminador?: string;
+  diio_cria?: string;
+  tipo_ganado_cria?: string;
+  numero_partos?: number;
+  observaciones?: string;
+}
+
+interface AgroInseminacion {
+  diio: string;
+  fundo_id?: number;
+  fecha_inseminacion?: string;
+  fecha?: string;
+  toro?: string;
+  inseminador?: string;
+  observaciones?: string;
+}
+
+interface AgroEcografia {
+  diio: string;
+  fundo_id?: number;
+  fecha_ecografia?: string;
+  fecha?: string;
+  resultado?: string;
+  dias_gestacion?: number;
+  observaciones?: string;
+}
+
+interface AgroAreteoAlta {
+  diio: string;
+  fundo_id?: number;
+  fecha_creado?: string;
+  fecha?: string;
+  observaciones?: string;
+}
+
+interface AgroCambioDiio {
+  diio_nuevo: string;
+  diio_anterior: string;
+  fundo_id?: number;
+  fecha_cambio_diio?: string;
+  fecha?: string;
+  observaciones?: string;
+}
+
+interface AgroBaja {
+  diio: string;
+  fundo_id?: number;
+  fecha_baja?: string;
+  fecha?: string;
+  baja_motivo?: string;
+  baja_causa?: string;
+  peso_kg?: number;
+  observaciones?: string;
+}
 
 // ─────────────────────────────────────────────
 // HELPER — extraer array de la respuesta servlet
@@ -136,10 +216,7 @@ function extractArray<T>(raw: unknown): T[] {
 
 function toBoolean(val: unknown): boolean {
   if (typeof val === "boolean") return val;
-  if (typeof val === "string") {
-    const s = val.toLowerCase();
-    return s === "true" || s === "1" || s === "s" || s === "sí" || s === "si" || s === "yes";
-  }
+  if (typeof val === "string") return val === "true" || val === "1" || val === "S";
   if (typeof val === "number") return val === 1;
   return false;
 }
@@ -150,17 +227,9 @@ function toBoolean(val: unknown): boolean {
 
 function toDate(val: unknown): string | null {
   if (!val || val === "") return null;
-  const s = String(val).trim();
-  // DD/MM/YYYY o DD-MM-YYYY → YYYY-MM-DD (formato AgroApp)
-  const dmy = s.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
-  if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
-  // YYYY-MM-DD (con o sin hora) → truncar
+  const s = String(val);
+  // Formato esperado: YYYY-MM-DD — si viene con hora, truncar
   return s.slice(0, 10);
-}
-
-function str(val: unknown): string {
-  if (val == null) return "";
-  return String(val).trim();
 }
 
 // ─────────────────────────────────────────────
@@ -178,9 +247,6 @@ function inferSexo(tipoGanado: string | undefined): "M" | "H" {
 // MAPEOS EN MEMORIA (AgroApp ID → SmartCow ID)
 // ─────────────────────────────────────────────
 
-// ID de la organización dueña de todos los fundos migrados (se resuelve en main)
-let defaultOrgId: number = 0;
-
 const mapFundo = new Map<number, number>(); // agroFundoId → smartcowFundoId
 const mapTipoGanado = new Map<string, number>(); // nombre → id
 const mapRaza = new Map<string, number>(); // nombre → id
@@ -189,7 +255,6 @@ const mapSemen = new Map<string, number>(); // `${fundoId}:${toro}` → id
 const mapBajaMotivo = new Map<string, number>(); // nombre → id
 const mapBajaCausa = new Map<string, number>(); // nombre → id
 const mapAnimal = new Map<string, number>(); // `${fundoId}:${diio}` → animalId
-const mapAnimalSexo = new Map<string, "M" | "H">(); // `${fundoId}:${diio}` → sexo
 
 // ─────────────────────────────────────────────
 // CONTADORES
@@ -208,32 +273,8 @@ interface Counts {
   ecografias: number;
   areteos: number;
   bajas: number;
-  // Skips por regla
-  skip_animal_diio_vacio: number;
-  skip_animal_tipo_ganado_desconocido: number;
-  skip_pesaje_diio_vacio: number;
-  skip_pesaje_animal_no_encontrado: number;
-  skip_pesaje_peso_invalido: number;
-  skip_pesaje_sin_fecha: number;
-  skip_pesaje_dedup: number;
-  skip_parto_sin_diio_madre: number;
-  skip_parto_madre_no_encontrada: number;
-  skip_parto_sin_fecha: number;
-  skip_inseminacion_sin_diio: number;
-  skip_inseminacion_animal_no_encontrado: number;
-  skip_inseminacion_sin_fecha: number;
-  skip_ecografia_sin_diio: number;
-  skip_ecografia_animal_no_encontrado: number;
-  skip_ecografia_sin_fecha: number;
-  skip_ecografia_dias_invalidos: number;
-  skip_baja_sin_diio: number;
-  skip_baja_animal_no_encontrado: number;
-  skip_baja_motivo_no_encontrado: number;
-  skip_baja_sin_fecha: number;
-  // Warns por regla
-  warn_animal_sin_fecha_nacimiento: number;
-  warn_parto_madre_macho: number;
-  warn_inseminacion_animal_en_baja: number;
+  skipped_animales: number;
+  skipped_eventos: number;
 }
 
 const counts: Counts = {
@@ -249,61 +290,9 @@ const counts: Counts = {
   ecografias: 0,
   areteos: 0,
   bajas: 0,
-  skip_animal_diio_vacio: 0,
-  skip_animal_tipo_ganado_desconocido: 0,
-  skip_pesaje_diio_vacio: 0,
-  skip_pesaje_animal_no_encontrado: 0,
-  skip_pesaje_peso_invalido: 0,
-  skip_pesaje_sin_fecha: 0,
-  skip_pesaje_dedup: 0,
-  skip_parto_sin_diio_madre: 0,
-  skip_parto_madre_no_encontrada: 0,
-  skip_parto_sin_fecha: 0,
-  skip_inseminacion_sin_diio: 0,
-  skip_inseminacion_animal_no_encontrado: 0,
-  skip_inseminacion_sin_fecha: 0,
-  skip_ecografia_sin_diio: 0,
-  skip_ecografia_animal_no_encontrado: 0,
-  skip_ecografia_sin_fecha: 0,
-  skip_ecografia_dias_invalidos: 0,
-  skip_baja_sin_diio: 0,
-  skip_baja_animal_no_encontrado: 0,
-  skip_baja_motivo_no_encontrado: 0,
-  skip_baja_sin_fecha: 0,
-  warn_animal_sin_fecha_nacimiento: 0,
-  warn_parto_madre_macho: 0,
-  warn_inseminacion_animal_en_baja: 0,
+  skipped_animales: 0,
+  skipped_eventos: 0,
 };
-
-// ─────────────────────────────────────────────
-// P0 — ORGANIZACIÓN (prerequisito de fundos)
-// ─────────────────────────────────────────────
-
-async function asegurarOrg(nombre: string): Promise<number> {
-  if (DRY_RUN) {
-    log("P0:org", `DRY_RUN — skipping org lookup for "${nombre}"`);
-    return -1;
-  }
-
-  const existing = await db
-    .select()
-    .from(schema.organizaciones)
-    .where(eq(schema.organizaciones.nombre, nombre))
-    .limit(1);
-
-  if (existing.length > 0) {
-    log("P0:org", `Org "${nombre}" already exists (id=${existing[0].id})`);
-    return existing[0].id;
-  }
-
-  const inserted = await db
-    .insert(schema.organizaciones)
-    .values({ nombre, plan: "pro" })
-    .returning({ id: schema.organizaciones.id });
-
-  log("P0:org", `Org "${nombre}" created (id=${inserted[0].id})`);
-  return inserted[0].id;
-}
 
 // ─────────────────────────────────────────────
 // P1 — CATÁLOGOS GLOBALES
@@ -424,12 +413,11 @@ async function migrarBajaMotivos(session: Awaited<ReturnType<typeof getSession>>
   log("P1:baja_motivo", `Fetched ${items.length} items`);
 
   for (const item of items) {
-    const nombre = item.motivo?.trim();
+    const nombre = item.baja_motivo?.trim();
     if (!nombre) continue;
-    const nombreKey = nombre.toLowerCase(); // normalizar para lookup case-insensitive
 
     if (DRY_RUN) {
-      mapBajaMotivo.set(nombreKey, -1);
+      mapBajaMotivo.set(nombre, -1);
       continue;
     }
 
@@ -440,13 +428,13 @@ async function migrarBajaMotivos(session: Awaited<ReturnType<typeof getSession>>
       .limit(1);
 
     if (existing.length > 0) {
-      mapBajaMotivo.set(nombreKey, existing[0].id);
+      mapBajaMotivo.set(nombre, existing[0].id);
     } else {
       const inserted = await db
         .insert(schema.bajaMotivo)
         .values({ nombre })
         .returning({ id: schema.bajaMotivo.id });
-      mapBajaMotivo.set(nombreKey, inserted[0].id);
+      mapBajaMotivo.set(nombre, inserted[0].id);
     }
 
     // Fetchear causas asociadas a este motivo
@@ -519,8 +507,8 @@ async function migrarFundos(session: Awaited<ReturnType<typeof getSession>>): Pr
 
     const existing = await db
       .select()
-      .from(schema.predios)
-      .where(eq(schema.predios.nombre, nombre))
+      .from(schema.fundos)
+      .where(eq(schema.fundos.nombre, nombre))
       .limit(1);
 
     if (existing.length > 0) {
@@ -528,9 +516,9 @@ async function migrarFundos(session: Awaited<ReturnType<typeof getSession>>): Pr
       log("P2:fundos", `Fundo "${nombre}" already exists (id=${existing[0].id})`);
     } else {
       const inserted = await db
-        .insert(schema.predios)
-        .values({ nombre, orgId: defaultOrgId })
-        .returning({ id: schema.predios.id });
+        .insert(schema.fundos)
+        .values({ nombre })
+        .returning({ id: schema.fundos.id });
       mapFundo.set(item.fundo_id, inserted[0].id);
       counts.fundos++;
       log("P2:fundos", `Inserted fundo "${nombre}" → id=${inserted[0].id}`);
@@ -570,7 +558,7 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
       const existing = await db
         .select()
         .from(schema.semen)
-        .where(and(eq(schema.semen.predioId, smartFundoId), eq(schema.semen.toro, toro)))
+        .where(and(eq(schema.semen.fundoId, smartFundoId), eq(schema.semen.toro, toro)))
         .limit(1);
 
       if (existing.length > 0) {
@@ -578,7 +566,7 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
       } else {
         const inserted = await db
           .insert(schema.semen)
-          .values({ predioId: smartFundoId, toro })
+          .values({ fundoId: smartFundoId, toro })
           .returning({ id: schema.semen.id });
         mapSemen.set(sKey, inserted[0].id);
         counts.semen++;
@@ -596,38 +584,70 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
   log("P4:animales", "Fetching ganado_actual...");
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+    // AgroApp espera jsonFiltros como JSON stringificado (ver bundle getJsonFiltros())
+    // fundos es array de IDs, fecha = hoy para obtener inventario completo
+    // Todos los campos cb* son obligatorios — el servlet lanza error si falta alguno
+    const filtros = {
+      fundos: [agroFundoId],
+      fecha: HASTA,
+      tipo_ganado: "Todos",
+      raza_id: 0,
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      desecho: "Todos",
+      observaciones: "",
+      order: "Ascendente",
+      tipo_order: "Diio",
+      cbInventario: true,
+      cbFechaNacimiento: true,
+      cbTipoGanado: true,
+      cbRaza: true,
+      cbFundo: true,
+      cbEstadoReproductivo: true,
+      cbEstadoLeche: true,
+      cbDesecho: true,
+      cbObservaciones: true,
+      cbDiioMadre: true,
+      cbPadre: true,
+      cbAbuelo: true,
+      cbOrigen: true,
+      cbFechaCreado: true,
+      cbDiasGestacion: false,
+      cbProximoParto: false,
+      cbUltimoParto: false,
+      cbPartos: false,
+      cbUltimaEcografia: false,
+      cbUltimaInseminacion: false,
+      cbUltimoInseminador: false,
+      cbToro: false,
+      cbTotalIA: false,
+      cbDiasEnLeche: false,
+      cbUltimoSecado: false,
+      cbDiasSeca: false,
+      cbUltimoControlLeche: false,
+      cbUltimoLitros: false,
+      cbUltimoRCS: false,
+      cbUltimoGrasa: false,
+      cbUltimoProteina: false,
+      cbUltimoUrea: false,
+      cbPromedioLitros: false,
+      cbPromedioRCS: false,
+      cbPromedioGrasa: false,
+      cbPromedioProteina: false,
+      cbPromedioUrea: false,
+      cbPesaje: false,
+    };
     const raw = await servletPost<unknown>(session, "GanadoActual", "getGanadoActual", {
-      jsonFiltros: JSON.stringify({
-        tipo_ganado: "Todos", raza_id: 0, estado_reproductivo: "Todos",
-        estado_leche: "Todos", desecho: "Todos", observaciones: "Todos",
-        fundos: [agroFundoId],
-        fecha: new Date().toISOString().slice(0, 10),
-        order: "Ascendente", tipo_order: "Diio",
-        // Campos a incluir en la respuesta (true = incluir)
-        cbInventario: true, cbFechaNacimiento: true, cbTipoGanado: true,
-        cbRaza: true, cbFundo: true, cbEstadoReproductivo: true,
-        cbEstadoLeche: true, cbDesecho: true, cbObservaciones: true,
-        cbDiioMadre: true, cbPadre: true, cbAbuelo: true,
-        cbOrigen: true, cbFechaCreado: true,
-        // Campos requeridos por el servidor pero no usados en ETL
-        cbDiasGestacion: false, cbProximoParto: false, cbUltimoParto: false,
-        cbPartos: false, cbUltimaEcografia: false, cbUltimaInseminacion: false,
-        cbUltimoInseminador: false, cbToro: false, cbTotalIA: false,
-        cbDiasEnLeche: false, cbUltimoSecado: false, cbDiasSeca: false,
-        cbUltimoControlLeche: false, cbUltimoLitros: false, cbUltimoRCS: false,
-        cbUltimoGrasa: false, cbUltimoProteina: false, cbUltimoUrea: false,
-        cbPromedioLitros: false, cbPromedioRCS: false, cbPromedioGrasa: false,
-        cbPromedioProteina: false, cbPromedioUrea: false, cbPesaje: false,
-      }),
+      jsonFiltros: JSON.stringify(filtros),
     });
 
     const items = extractArray<AgroAnimal>(raw);
     log("P4:animales", `Fundo ${agroFundoId}: ${items.length} animals`);
 
     for (const item of items) {
-      const diio = str(item["Diio"]);
+      const diio = item.diio?.trim();
       if (!diio) {
-        counts.skip_animal_diio_vacio++;
+        counts.skipped_animales++;
         continue;
       }
 
@@ -640,71 +660,62 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
       }
 
       // Resolver FKs
-      const tipoGanadoNombre = str(item["Tipo ganado"]);
+      const tipoGanadoNombre = item.tipo_ganado?.trim();
       const tipoGanadoId = tipoGanadoNombre ? mapTipoGanado.get(tipoGanadoNombre) : undefined;
 
       if (!tipoGanadoId) {
         warn("P4:animales", `Animal ${diio} — tipo_ganado "${tipoGanadoNombre}" not in map, skipping`);
-        counts.skip_animal_tipo_ganado_desconocido++;
+        counts.skipped_animales++;
         continue;
       }
 
-      // Warn si sin fecha_nacimiento
-      if (!item["Fecha nacimiento"]) {
-        warn("P4:animales", `Animal ${diio} — sin fecha_nacimiento`);
-        counts.warn_animal_sin_fecha_nacimiento++;
-      }
-
-      const razaNombre = str(item["Raza"]);
+      const razaNombre = item.raza?.trim();
       const razaId = razaNombre ? mapRaza.get(razaNombre) : undefined;
 
-      const estadoRepNombre = str(item["Estado reproductivo"]);
+      const estadoRepNombre = item.estado_reproductivo?.trim();
       const estadoReproductivoId = estadoRepNombre ? mapEstadoRep.get(estadoRepNombre) : undefined;
 
       const existing = await db
         .select()
         .from(schema.animales)
         .where(
-          and(eq(schema.animales.predioId, smartFundoId), eq(schema.animales.diio, diio))
+          and(eq(schema.animales.fundoId, smartFundoId), eq(schema.animales.diio, diio))
         )
         .limit(1);
 
       if (existing.length > 0) {
         mapAnimal.set(aKey, existing[0].id);
-        mapAnimalSexo.set(aKey, existing[0].sexo as "M" | "H");
         continue;
       }
 
       const sexo = inferSexo(tipoGanadoNombre);
-      const desecho = toBoolean(item["Desecho"]);
+      const desecho = toBoolean(item.desecho);
 
       const inserted = await db
         .insert(schema.animales)
         .values({
-          predioId: smartFundoId,
+          fundoId: smartFundoId,
           diio,
           tipoGanadoId,
           razaId: razaId ?? null,
           sexo,
-          fechaNacimiento: toDate(item["Fecha nacimiento"]),
+          fechaNacimiento: toDate(item.fecha_nacimiento),
           estadoReproductivoId: estadoReproductivoId ?? null,
           estado: desecho ? "desecho" : "activo",
-          diioMadre: str(item["Diio Madre"]) || null,
-          padre: str(item["Padre"]) || null,
-          abuelo: str(item["Abuelo"]) || null,
-          origen: str(item["Origen"]) || null,
-          observaciones: str(item["Observaciones"]) || null,
+          diioMadre: item.diio_madre?.trim() || null,
+          padre: item.padre?.trim() || null,
+          abuelo: item.abuelo?.trim() || null,
+          origen: item.origen?.trim() || null,
+          observaciones: item.observaciones?.trim() || null,
           desecho,
         })
         .returning({ id: schema.animales.id });
 
       mapAnimal.set(aKey, inserted[0].id);
-      mapAnimalSexo.set(aKey, sexo);
       counts.animales++;
     }
   }
-  const totalSkippedAnimales = counts.skip_animal_diio_vacio + counts.skip_animal_tipo_ganado_desconocido;
-  log("P4:animales", `Done — ${counts.animales} inserted, ${totalSkippedAnimales} skipped, ${counts.warn_animal_sin_fecha_nacimiento} warns`);
+  log("P4:animales", `Done — ${counts.animales} inserted, ${counts.skipped_animales} skipped`);
 }
 
 // ─────────────────────────────────────────────
@@ -715,13 +726,20 @@ async function migrarPesajes(session: Awaited<ReturnType<typeof getSession>>): P
   log("P5:pesajes", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+    // AgroApp getAllPesajes requiere jsonFiltros (ver bundle getJsonFiltros() para pesajes)
+    const filtrosPesajes = {
+      fundo_id: agroFundoId,
+      tipo_ganado: "Todos",
+      estado_reproductivo: "Todos",
+      descripcion: "",
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
+      desde: DESDE,
+      hasta: HASTA,
+    };
     const raw = await servletPost<unknown>(session, "Pesaje2", "getAllPesajes", {
-      jsonFiltros: JSON.stringify({
-        tipo_ganado: "Todos", estado_reproductivo: "Todos",
-        fundo_id: agroFundoId, descripcion: "Todos", usuario_id: 0,
-        order: "Descendente", tipo_order: "Fecha creado",
-        desde: DESDE, hasta: HASTA,
-      }),
+      jsonFiltros: JSON.stringify(filtrosPesajes),
     });
 
     const items = extractArray<AgroPesaje>(raw);
@@ -732,49 +750,26 @@ async function migrarPesajes(session: Awaited<ReturnType<typeof getSession>>): P
       continue;
     }
 
-    // Dedup: mismo animal + misma fecha → mantener mayor peso
-    const dedupMap = new Map<string, { pesoRaw: number; diio: string; fecha: string }>();
-
     for (const item of items) {
-      const diio = str(item["Diio"]);
-      if (!diio) { counts.skip_pesaje_diio_vacio++; continue; }
+      const diio = item.diio?.trim();
+      if (!diio) { counts.skipped_eventos++; continue; }
 
       const aKey = `${smartFundoId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P5:pesajes", `Animal ${diio} not found in map, skipping pesaje`);
-        counts.skip_pesaje_animal_no_encontrado++;
+        counts.skipped_eventos++;
         continue;
       }
 
-      const pesoRaw = Number(item["Peso"]);
-      if (!pesoRaw || pesoRaw <= 0 || pesoRaw > 1500) {
-        warn("P5:pesajes", `Animal ${diio} — peso inválido (${pesoRaw}), skipping`);
-        counts.skip_pesaje_peso_invalido++;
-        continue;
-      }
+      const pesoRaw = item.peso ?? item.peso_kg;
+      if (pesoRaw == null) { counts.skipped_eventos++; continue; }
 
-      const fecha = toDate(item["Fecha creado"]);
-      if (!fecha) { counts.skip_pesaje_sin_fecha++; continue; }
-
-      const dedupKey = `${animalId}:${fecha}`;
-      const existingDedup = dedupMap.get(dedupKey);
-      if (existingDedup) {
-        if (pesoRaw > existingDedup.pesoRaw) {
-          dedupMap.set(dedupKey, { pesoRaw, diio, fecha });
-        }
-        counts.skip_pesaje_dedup++;
-        continue;
-      }
-      dedupMap.set(dedupKey, { pesoRaw, diio, fecha });
-    }
-
-    for (const [, { pesoRaw, diio, fecha }] of dedupMap.entries()) {
-      const aKey = `${smartFundoId}:${diio}`;
-      const animalId = mapAnimal.get(aKey)!;
+      const fecha = toDate(item.fecha ?? item.fecha_creado);
+      if (!fecha) { counts.skipped_eventos++; continue; }
 
       await db.insert(schema.pesajes).values({
-        predioId: smartFundoId,
+        fundoId: smartFundoId,
         animalId,
         pesoKg: String(pesoRaw),
         fecha,
@@ -794,13 +789,27 @@ async function migrarPartos(session: Awaited<ReturnType<typeof getSession>>): Pr
   log("P6:partos", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+    // AgroApp getPartos requiere jsonFiltros con campos completos (ver bundle)
+    const filtrosPartos = {
+      fundo_id: agroFundoId,
+      tipo_ganado: "Todos",
+      estado_reproductivo: "Todos",
+      tipo_parto: "Todos",
+      subtipo_parto: "Todos",
+      tipo_parto_id: 0,
+      subtipo_parto_id: 0,
+      numero_partos: "Todos",
+      estado: "Todos",
+      sexo: "Todos",
+      partos: 0,
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
+      desde: DESDE,
+      hasta: HASTA,
+    };
     const raw = await servletPost<unknown>(session, "Parto", "getPartos", {
-      jsonFiltros: JSON.stringify({
-        fundo_id: agroFundoId, tipo_parto_id: 0, subtipo_parto_id: 0,
-        estado: "Todos", sexo: "Todos", partos: 0, usuario_id: 0,
-        order: "Descendente", tipo_order: "Fecha creado",
-        desde: DESDE, hasta: HASTA,
-      }),
+      jsonFiltros: JSON.stringify(filtrosPartos),
     });
 
     const items = extractArray<AgroParto>(raw);
@@ -812,29 +821,22 @@ async function migrarPartos(session: Awaited<ReturnType<typeof getSession>>): Pr
     }
 
     for (const item of items) {
-      const diio = str(item["Diio"]); // DIIO de la madre en AgroApp
-      if (!diio) { counts.skip_parto_sin_diio_madre++; continue; }
+      const diio = item.diio_madre?.trim();
+      if (!diio) { counts.skipped_eventos++; continue; }
 
       const aKey = `${smartFundoId}:${diio}`;
       const madreId = mapAnimal.get(aKey);
       if (!madreId) {
         warn("P6:partos", `Madre ${diio} not found in map, skipping parto`);
-        counts.skip_parto_madre_no_encontrada++;
+        counts.skipped_eventos++;
         continue;
       }
 
-      const fecha = toDate(item["Fecha parto"] ?? item["Fecha creado"]);
-      if (!fecha) { counts.skip_parto_sin_fecha++; continue; }
+      const fecha = toDate(item.fecha_parto ?? item.fecha);
+      if (!fecha) { counts.skipped_eventos++; continue; }
 
-      // Warn si madre es tipo macho
-      const madreSexo = mapAnimalSexo.get(aKey);
-      if (madreSexo === "M") {
-        warn("P6:partos", `Madre ${diio} es de sexo M — parto sospechoso`);
-        counts.warn_parto_madre_macho++;
-      }
-
-      // Resolver tipo parto
-      const tipoPartoNombre = str(item["Tipo parto"]);
+      // Resolver tipo/subtipo parto
+      const tipoPartoNombre = item.tipo_parto?.trim();
       let tipoPartoId: number | undefined;
       if (tipoPartoNombre) {
         const tp = await db
@@ -852,23 +854,28 @@ async function migrarPartos(session: Awaited<ReturnType<typeof getSession>>): Pr
         }
       }
 
-      // Resolver semen (AgroApp partos no siempre traen toro)
-      const toroNombre = str(item["Toro"]);
+      // Resolver semen
+      const toroNombre = item.toro?.trim();
       const sKey = toroNombre ? `${smartFundoId}:${toroNombre}` : undefined;
       const semenId = sKey ? mapSemen.get(sKey) : undefined;
 
-      const numeroPartos = item["Total partos"] ? Number(item["Total partos"]) : null;
+      // Resolver cría
+      let criaId: number | undefined;
+      if (item.diio_cria?.trim()) {
+        const cKey = `${smartFundoId}:${item.diio_cria.trim()}`;
+        criaId = mapAnimal.get(cKey);
+      }
 
       await db.insert(schema.partos).values({
-        predioId: smartFundoId,
+        fundoId: smartFundoId,
         madreId,
         fecha,
         resultado: "vivo", // AgroApp no registra resultado — default vivo
-        criaId: null, // AgroApp partos no incluyen DIIO de cría
+        criaId: criaId ?? null,
         tipoPartoId: tipoPartoId ?? null,
         semenId: semenId ?? null,
-        numeroPartos,
-        observaciones: null,
+        numeroPartos: item.numero_partos ?? null,
+        observaciones: item.observaciones?.trim() || null,
       }).onConflictDoNothing();
 
       counts.partos++;
@@ -885,14 +892,24 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
   log("P7:inseminaciones", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
-    const raw = await servletPost<unknown>(session, "Inseminacion", "getAllInseminacion", {
-      jsonFiltros: JSON.stringify({
-        tipo_ganado: "Todos", estado_reproductivo: "Todos", estado_leche: "Todos",
-        desecho: "Todos", fundo_id: agroFundoId,
-        inseminacion_semen_id: 0, inseminacion_inseminador_id: 0, usuario_id: 0,
-        order: "Descendente", tipo_order: "Fecha creado",
-        desde: DESDE, hasta: HASTA,
-      }),
+    // AgroApp: servicio real es getInseminaciones con jsonFiltros (ver bundle)
+    const filtrosInsem = {
+      fundo_id: agroFundoId,
+      tipo_ganado: "Todos",
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      desecho: "Todos",
+      inseminacion_semen_id: 0,
+      inseminacion_inseminador_id: 0,
+      fecha: HASTA,
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
+      desde: DESDE,
+      hasta: HASTA,
+    };
+    const raw = await servletPost<unknown>(session, "Inseminacion", "getInseminaciones", {
+      jsonFiltros: JSON.stringify(filtrosInsem),
     });
 
     const items = extractArray<AgroInseminacion>(raw);
@@ -904,46 +921,34 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
     }
 
     for (const item of items) {
-      const diio = str(item["Diio"]);
-      if (!diio) { counts.skip_inseminacion_sin_diio++; continue; }
+      const diio = item.diio?.trim();
+      if (!diio) { counts.skipped_eventos++; continue; }
 
       const aKey = `${smartFundoId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P7:inseminaciones", `Animal ${diio} not found, skipping`);
-        counts.skip_inseminacion_animal_no_encontrado++;
+        counts.skipped_eventos++;
         continue;
       }
 
-      const fecha = toDate(item["Fecha inseminacion"] ?? item["Fecha creado"]);
-      if (!fecha) { counts.skip_inseminacion_sin_fecha++; continue; }
+      const fecha = toDate(item.fecha_inseminacion ?? item.fecha);
+      if (!fecha) { counts.skipped_eventos++; continue; }
 
-      // Warn si animal está en estado baja
-      const animalRow = await db
-        .select({ estado: schema.animales.estado })
-        .from(schema.animales)
-        .where(eq(schema.animales.id, animalId))
-        .limit(1);
-      if (animalRow.length > 0 && animalRow[0].estado === "baja") {
-        warn("P7:inseminaciones", `Animal ${diio} está en estado baja — inseminación sospechosa`);
-        counts.warn_inseminacion_animal_en_baja++;
-      }
-
-      const toroNombre = str(item["Toro"]);
+      const toroNombre = item.toro?.trim();
       const sKey = toroNombre ? `${smartFundoId}:${toroNombre}` : undefined;
       const semenId = sKey ? mapSemen.get(sKey) : undefined;
 
       // Inseminador — buscar por nombre en la tabla inseminadores
       let inseminadorId: number | undefined;
-      const inseminadorNombre = str(item["Inseminador"]);
-      if (inseminadorNombre) {
-        const nombre = inseminadorNombre;
+      if (item.inseminador?.trim()) {
+        const nombre = item.inseminador.trim();
         const ins = await db
           .select()
           .from(schema.inseminadores)
           .where(
             and(
-              eq(schema.inseminadores.predioId, smartFundoId),
+              eq(schema.inseminadores.fundoId, smartFundoId),
               eq(schema.inseminadores.nombre, nombre)
             )
           )
@@ -953,20 +958,20 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
         } else {
           const created = await db
             .insert(schema.inseminadores)
-            .values({ predioId: smartFundoId, nombre })
+            .values({ fundoId: smartFundoId, nombre })
             .returning({ id: schema.inseminadores.id });
           inseminadorId = created[0].id;
         }
       }
 
       await db.insert(schema.inseminaciones).values({
-        predioId: smartFundoId,
+        fundoId: smartFundoId,
         animalId,
         fecha,
         semenId: semenId ?? null,
         inseminadorId: inseminadorId ?? null,
         resultado: "pendiente", // AgroApp registra resultado post-ecografía — default pendiente
-        observaciones: str(item["Observaciones"]) || null,
+        observaciones: item.observaciones?.trim() || null,
       }).onConflictDoNothing();
 
       counts.inseminaciones++;
@@ -983,13 +988,23 @@ async function migrarEcografias(session: Awaited<ReturnType<typeof getSession>>)
   log("P8:ecografias", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+    // AgroApp getAllEcografia requiere jsonFiltros con campos completos (ver bundle)
+    const filtrosEcog = {
+      fundo_id: agroFundoId,
+      tipo_ganado: "Todos",
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      desecho: "Todos",
+      estado: "Todos",
+      usuario_id: 0,
+      descripcion: "",
+      order: "Descendente",
+      tipo_order: "Diio",
+      desde: DESDE,
+      hasta: HASTA,
+    };
     const raw = await servletPost<unknown>(session, "Ecografia", "getAllEcografia", {
-      jsonFiltros: JSON.stringify({
-        tipo_ganado: "Todos", estado: "Todos",
-        fundo_id: agroFundoId, descripcion: "Todos", usuario_id: 0,
-        order: "Descendente", tipo_order: "Fecha creado",
-        desde: DESDE, hasta: HASTA,
-      }),
+      jsonFiltros: JSON.stringify(filtrosEcog),
     });
 
     const items = extractArray<AgroEcografia>(raw);
@@ -1001,41 +1016,33 @@ async function migrarEcografias(session: Awaited<ReturnType<typeof getSession>>)
     }
 
     for (const item of items) {
-      const diio = str(item["Diio"]);
-      if (!diio) { counts.skip_ecografia_sin_diio++; continue; }
+      const diio = item.diio?.trim();
+      if (!diio) { counts.skipped_eventos++; continue; }
 
       const aKey = `${smartFundoId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P8:ecografias", `Animal ${diio} not found, skipping`);
-        counts.skip_ecografia_animal_no_encontrado++;
+        counts.skipped_eventos++;
         continue;
       }
 
-      const fecha = toDate(item["Fecha creado"]);
-      if (!fecha) { counts.skip_ecografia_sin_fecha++; continue; }
-
-      // Validar días de gestación: skip si < 0 o > 285
-      const diasGestacion = item["Días gestación"] != null ? Number(item["Días gestación"]) : null;
-      if (diasGestacion != null && (diasGestacion < 0 || diasGestacion > 285)) {
-        warn("P8:ecografias", `Animal ${diio} — dias_gestacion inválido (${diasGestacion}), skipping`);
-        counts.skip_ecografia_dias_invalidos++;
-        continue;
-      }
+      const fecha = toDate(item.fecha_ecografia ?? item.fecha);
+      if (!fecha) { counts.skipped_eventos++; continue; }
 
       // Mapear resultado AgroApp → enum smartcow (preñada/vacia/dudosa)
-      const resultadoRaw = str(item["Estado"]).toLowerCase();
+      const resultadoRaw = (item.resultado ?? "").toLowerCase();
       let resultado: "preñada" | "vacia" | "dudosa" = "dudosa";
       if (resultadoRaw.includes("pre") || resultadoRaw.includes("gest")) resultado = "preñada";
       else if (resultadoRaw.includes("vac") || resultadoRaw.includes("neg")) resultado = "vacia";
 
       await db.insert(schema.ecografias).values({
-        predioId: smartFundoId,
+        fundoId: smartFundoId,
         animalId,
         fecha,
         resultado,
-        diasGestacion,
-        observaciones: str(item["Observaciones"]) || null,
+        diasGestacion: item.dias_gestacion ?? null,
+        observaciones: item.observaciones?.trim() || null,
       }).onConflictDoNothing();
 
       counts.ecografias++;
@@ -1052,33 +1059,42 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
   log("P9:areteos", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
-    // Alta
+    // Alta — AgroApp getAllAlta requiere jsonFiltros (ver bundle impl 5)
+    const filtrosAlta = {
+      fundo_id: agroFundoId,
+      fundo_origen_id: 0,
+      tipo_ganado: "Todos",
+      raza_id: 0,
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
+      desde: DESDE,
+      hasta: HASTA,
+    };
     const rawAlta = await servletPost<unknown>(session, "Areteo", "getAllAlta", {
-      jsonFiltros: JSON.stringify({
-        fundo_origen_id: agroFundoId, tipo_ganado: "Todos", raza_id: 0, usuario_id: 0,
-        order: "Descendente", tipo_order: "Fecha creado",
-        desde: DESDE, hasta: HASTA,
-      }),
+      jsonFiltros: JSON.stringify(filtrosAlta),
     });
     const altas = extractArray<AgroAreteoAlta>(rawAlta);
 
     if (!DRY_RUN) {
       for (const item of altas) {
-        const diio = str(item["Diio"]);
-        if (!diio) { continue; }
+        const diio = item.diio?.trim();
+        if (!diio) { counts.skipped_eventos++; continue; }
         const aKey = `${smartFundoId}:${diio}`;
         const animalId = mapAnimal.get(aKey);
-        if (!animalId) { continue; }
-        const fecha = toDate(item["Fecha creado"]);
-        if (!fecha) { continue; }
+        if (!animalId) { counts.skipped_eventos++; continue; }
+        const fecha = toDate(item.fecha ?? item.fecha_creado);
+        if (!fecha) { counts.skipped_eventos++; continue; }
 
         await db.insert(schema.areteos).values({
-          predioId: smartFundoId,
+          fundoId: smartFundoId,
           animalId,
           tipo: "alta",
           fecha,
           diioNuevo: diio,
-          observaciones: null,
+          observaciones: item.observaciones?.trim() || null,
         }).onConflictDoNothing();
 
         counts.areteos++;
@@ -1087,33 +1103,42 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
       counts.areteos += altas.length;
     }
 
-    // Aparición
+    // Aparición — mismo filtro que Alta
+    const filtrosAparicion = {
+      fundo_id: agroFundoId,
+      fundo_origen_id: 0,
+      tipo_ganado: "Todos",
+      raza_id: 0,
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
+      desde: DESDE,
+      hasta: HASTA,
+    };
     const rawAparicion = await servletPost<unknown>(session, "Areteo", "getAllAparicion", {
-      jsonFiltros: JSON.stringify({
-        fundo_origen_id: agroFundoId, tipo_ganado: "Todos", raza_id: 0, usuario_id: 0,
-        order: "Descendente", tipo_order: "Fecha creado",
-        desde: DESDE, hasta: HASTA,
-      }),
+      jsonFiltros: JSON.stringify(filtrosAparicion),
     });
     const apariciones = extractArray<AgroAreteoAlta>(rawAparicion);
 
     if (!DRY_RUN) {
       for (const item of apariciones) {
-        const diio = str(item["Diio"]);
-        if (!diio) { continue; }
+        const diio = item.diio?.trim();
+        if (!diio) { counts.skipped_eventos++; continue; }
         const aKey = `${smartFundoId}:${diio}`;
         const animalId = mapAnimal.get(aKey);
-        if (!animalId) { continue; }
-        const fecha = toDate(item["Fecha creado"]);
-        if (!fecha) { continue; }
+        if (!animalId) { counts.skipped_eventos++; continue; }
+        const fecha = toDate(item.fecha ?? item.fecha_creado);
+        if (!fecha) { counts.skipped_eventos++; continue; }
 
         await db.insert(schema.areteos).values({
-          predioId: smartFundoId,
+          fundoId: smartFundoId,
           animalId,
           tipo: "aparicion",
           fecha,
           diioNuevo: diio,
-          observaciones: null,
+          observaciones: item.observaciones?.trim() || null,
         }).onConflictDoNothing();
 
         counts.areteos++;
@@ -1122,38 +1147,49 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
       counts.areteos += apariciones.length;
     }
 
-    // Cambio DIIO
-    const rawCambio = await servletPost<unknown>(session, "Areteo", "getAllCambioDiio", {
-      jsonFiltros: JSON.stringify({
-        fundo_origen_id: agroFundoId, tipo_ganado: "Todos", raza_id: 0, usuario_id: 0,
-        order: "Descendente", tipo_order: "Fecha creado",
-        desde: DESDE, hasta: HASTA,
-      }),
-    });
-    const cambios = extractArray<AgroCambioDiio>(rawCambio);
+    // Cambio DIIO — bug conocido en AgroApp: getAllCambioDiio tiene SQL inválido en servidor
+    // el ORDER BY genera error de sintaxis independientemente del valor enviado
+    // Se intenta igualmente para no bloquear la migración; se captura el error
+    let cambios: AgroCambioDiio[] = [];
+    try {
+      const filtrosCambio = {
+        fundo_id: agroFundoId,
+        usuario_id: 0,
+        order: "Descendente",
+        tipo_order: "Diio",
+        desde: DESDE,
+        hasta: HASTA,
+      };
+      const rawCambio = await servletPost<unknown>(session, "Areteo", "getAllCambioDiio", {
+        jsonFiltros: JSON.stringify(filtrosCambio),
+      });
+      cambios = extractArray<AgroCambioDiio>(rawCambio);
+    } catch (e) {
+      warn("P9:areteos", `getAllCambioDiio fundo=${agroFundoId}: bug SQL en servidor AgroApp — skipping`);
+    }
 
     if (!DRY_RUN) {
       for (const item of cambios) {
-        const diioNuevo = str(item["Diio nuevo"] ?? item["Diio Nuevo"] ?? item["Diio"]);
-        const diioAnterior = str(item["Diio anterior"] ?? item["Diio Anterior"]);
-        if (!diioNuevo) { continue; }
+        const diioNuevo = item.diio_nuevo?.trim();
+        const diioAnterior = item.diio_anterior?.trim();
+        if (!diioNuevo) { counts.skipped_eventos++; continue; }
 
         // Buscar animal por DIIO nuevo (ya migrado con DIIO actual)
         const aKey = `${smartFundoId}:${diioNuevo}`;
         const animalId = mapAnimal.get(aKey);
-        if (!animalId) { continue; }
+        if (!animalId) { counts.skipped_eventos++; continue; }
 
-        const fecha = toDate(item["Fecha cambio diio"] ?? item["Fecha creado"]);
-        if (!fecha) { continue; }
+        const fecha = toDate(item.fecha_cambio_diio ?? item.fecha);
+        if (!fecha) { counts.skipped_eventos++; continue; }
 
         await db.insert(schema.areteos).values({
-          predioId: smartFundoId,
+          fundoId: smartFundoId,
           animalId,
           tipo: "cambio_diio",
           fecha,
           diioNuevo,
           diioAnterior: diioAnterior || null,
-          observaciones: null,
+          observaciones: item.observaciones?.trim() || null,
         }).onConflictDoNothing();
 
         counts.areteos++;
@@ -1173,13 +1209,22 @@ async function migrarBajas(session: Awaited<ReturnType<typeof getSession>>): Pro
   log("P10:bajas", `Fetching desde=${DESDE} hasta=${HASTA}...`);
 
   for (const [agroFundoId, smartFundoId] of mapFundo.entries()) {
+    // AgroApp getAllBaja requiere jsonFiltros (ver bundle impl 7)
+    const filtrosBaja = {
+      fundo_id: agroFundoId,
+      tipo_ganado: "Todos",
+      estado_reproductivo: "Todos",
+      estado_leche: "Todos",
+      baja_motivo_org_id: 0,
+      baja_causa_org_id: 0,
+      usuario_id: 0,
+      order: "Descendente",
+      tipo_order: "Diio",
+      desde: DESDE,
+      hasta: HASTA,
+    };
     const raw = await servletPost<unknown>(session, "Baja", "getAllBaja", {
-      jsonFiltros: JSON.stringify({
-        fundo_id: agroFundoId, tipo_ganado: "Todos", estado_reproductivo: "Todos",
-        estado_leche: "Todos", baja_motivo_org_id: 0, baja_causa_org_id: 0, usuario_id: 0,
-        order: "Descendente", tipo_order: "Fecha creado",
-        desde: DESDE, hasta: HASTA,
-      }),
+      jsonFiltros: JSON.stringify(filtrosBaja),
     });
 
     const items = extractArray<AgroBaja>(raw);
@@ -1191,40 +1236,41 @@ async function migrarBajas(session: Awaited<ReturnType<typeof getSession>>): Pro
     }
 
     for (const item of items) {
-      const diio = str(item["Diio"]);
-      if (!diio) { counts.skip_baja_sin_diio++; continue; }
+      const diio = item.diio?.trim();
+      if (!diio) { counts.skipped_eventos++; continue; }
 
       const aKey = `${smartFundoId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P10:bajas", `Animal ${diio} not found, skipping baja`);
-        counts.skip_baja_animal_no_encontrado++;
+        counts.skipped_eventos++;
         continue;
       }
 
-      const fecha = toDate(item["Fecha baja"] ?? item["Fecha creado"]);
-      if (!fecha) { counts.skip_baja_sin_fecha++; continue; }
+      const fecha = toDate(item.fecha_baja ?? item.fecha);
+      if (!fecha) { counts.skipped_eventos++; continue; }
 
-      const motivoNombre = str(item["Motivo"]).toLowerCase(); // normalizar case
+      const motivoNombre = item.baja_motivo?.trim();
       const motivoId = motivoNombre ? mapBajaMotivo.get(motivoNombre) : undefined;
 
       if (!motivoId) {
         warn("P10:bajas", `Motivo "${motivoNombre}" not in map for animal ${diio}, skipping`);
-        counts.skip_baja_motivo_no_encontrado++;
+        counts.skipped_eventos++;
         continue;
       }
 
-      // AgroApp no expone baja_causa como campo separado — "Detalle" es descripción libre
-      const causaId = undefined;
+      const causaNombre = item.baja_causa?.trim();
+      const cKey = motivoNombre && causaNombre ? `${motivoNombre}:${causaNombre}` : undefined;
+      const causaId = cKey ? mapBajaCausa.get(cKey) : undefined;
 
       await db.insert(schema.bajas).values({
-        predioId: smartFundoId,
+        fundoId: smartFundoId,
         animalId,
         fecha,
         motivoId,
         causaId: causaId ?? null,
-        pesoKg: null,
-        observaciones: str(item["Detalle"]) || null,
+        pesoKg: item.peso_kg != null ? String(item.peso_kg) : null,
+        observaciones: item.observaciones?.trim() || null,
       }).onConflictDoNothing();
 
       // Marcar animal como baja
@@ -1259,7 +1305,7 @@ async function validar(): Promise<void> {
 
   // Conteo final por tabla
   const tables = [
-    { name: "fundos", table: schema.predios },
+    { name: "fundos", table: schema.fundos },
     { name: "tipo_ganado", table: schema.tipoGanado },
     { name: "razas", table: schema.razas },
     { name: "animales", table: schema.animales },
@@ -1272,7 +1318,7 @@ async function validar(): Promise<void> {
   ] as const;
 
   for (const { name, table } of tables) {
-    const rows = await db.select().from(table as typeof schema.predios);
+    const rows = await db.select().from(table as typeof schema.fundos);
     log("VALIDACION", `${name}: ${rows.length} rows in DB`);
   }
 }
@@ -1301,33 +1347,8 @@ function printResumen(): void {
   console.log(`Areteos             : ${counts.areteos}`);
   console.log(`Bajas               : ${counts.bajas}`);
   console.log("-".repeat(60));
-  console.log("SKIPPED POR REGLA");
-  console.log(`  animal.diio_vacio              : ${counts.skip_animal_diio_vacio}`);
-  console.log(`  animal.tipo_ganado_desconocido : ${counts.skip_animal_tipo_ganado_desconocido}`);
-  console.log(`  pesaje.diio_vacio              : ${counts.skip_pesaje_diio_vacio}`);
-  console.log(`  pesaje.animal_no_encontrado    : ${counts.skip_pesaje_animal_no_encontrado}`);
-  console.log(`  pesaje.peso_invalido           : ${counts.skip_pesaje_peso_invalido}`);
-  console.log(`  pesaje.sin_fecha               : ${counts.skip_pesaje_sin_fecha}`);
-  console.log(`  pesaje.dedup                   : ${counts.skip_pesaje_dedup}`);
-  console.log(`  parto.sin_diio_madre           : ${counts.skip_parto_sin_diio_madre}`);
-  console.log(`  parto.madre_no_encontrada      : ${counts.skip_parto_madre_no_encontrada}`);
-  console.log(`  parto.sin_fecha                : ${counts.skip_parto_sin_fecha}`);
-  console.log(`  inseminacion.sin_diio          : ${counts.skip_inseminacion_sin_diio}`);
-  console.log(`  inseminacion.animal_no_enc     : ${counts.skip_inseminacion_animal_no_encontrado}`);
-  console.log(`  inseminacion.sin_fecha         : ${counts.skip_inseminacion_sin_fecha}`);
-  console.log(`  ecografia.sin_diio             : ${counts.skip_ecografia_sin_diio}`);
-  console.log(`  ecografia.animal_no_enc        : ${counts.skip_ecografia_animal_no_encontrado}`);
-  console.log(`  ecografia.sin_fecha            : ${counts.skip_ecografia_sin_fecha}`);
-  console.log(`  ecografia.dias_invalidos       : ${counts.skip_ecografia_dias_invalidos}`);
-  console.log(`  baja.sin_diio                  : ${counts.skip_baja_sin_diio}`);
-  console.log(`  baja.animal_no_encontrado      : ${counts.skip_baja_animal_no_encontrado}`);
-  console.log(`  baja.sin_fecha                 : ${counts.skip_baja_sin_fecha}`);
-  console.log(`  baja.motivo_no_encontrado      : ${counts.skip_baja_motivo_no_encontrado}`);
-  console.log("-".repeat(60));
-  console.log("WARNS POR REGLA");
-  console.log(`  animal.sin_fecha_nacimiento    : ${counts.warn_animal_sin_fecha_nacimiento}`);
-  console.log(`  parto.madre_macho              : ${counts.warn_parto_madre_macho}`);
-  console.log(`  inseminacion.animal_en_baja    : ${counts.warn_inseminacion_animal_en_baja}`);
+  console.log(`Skipped animales    : ${counts.skipped_animales}`);
+  console.log(`Skipped eventos     : ${counts.skipped_eventos}`);
   console.log("=".repeat(60));
   console.log("\nPara activar corte por módulo (deshabilitar AgroApp proxy):");
   console.log("  AGROAPP_MODULE_GANADO_ACTUAL=0");
@@ -1353,9 +1374,6 @@ async function main(): Promise<void> {
     await migrarRazas(session);
     await migrarEstadoReproductivo(session);
     await migrarBajaMotivos(session);
-
-    // P0 — Organización raíz
-    defaultOrgId = await asegurarOrg("JP Ferrada");
 
     // P2 — Fundos
     await migrarFundos(session);
