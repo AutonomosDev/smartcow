@@ -58,6 +58,16 @@ import CarModeDashboardScreen from './src/screens/management/CarModeDashboardScr
 import PodcastPlayerScreen from './src/screens/management/PodcastPlayerScreen';
 import FundoDetailScreen from './src/screens/management/FundoDetailScreen';
 import AnimalesScreen from './src/screens/management/AnimalesScreen';
+import FichaIndividualScreen from './src/screens/management/FichaIndividualScreen';
+
+// Zootecnia Events (AUT-183 a AUT-190)
+import PesajeMangaScreen from './src/screens/operations/PesajeMangaScreen';
+import NacimientoRegistroScreen from './src/screens/operations/NacimientoRegistroScreen';
+import DesteSessionScreen from './src/screens/operations/DesteSessionScreen';
+import PrenezGestionScreen from './src/screens/operations/PrenezGestionScreen';
+import VacunacionMangaScreen from './src/screens/operations/VacunacionMangaScreen';
+import MovimientoPotreroScreen from './src/screens/operations/MovimientoPotreroScreen';
+import EgresoRegistroScreen from './src/screens/operations/EgresoRegistroScreen';
 
 // ─────────────────────────────────────────────
 // Tipos de navegación
@@ -108,6 +118,16 @@ export type RootStackParamList = {
   PodcastPlayer: undefined;
   FundoDetail: undefined;
   AnimalesScreen: undefined;
+
+  // Zootecnia Events (AUT-183 a AUT-190)
+  PesajeManga: { loteId?: string; manga?: string };
+  NacimientoRegistro: { potreroId?: string };
+  DesteSession: { potreroId?: string };
+  PrenezGestion: { loteId?: string; modo?: 'servicio' | 'diagnostico' };
+  VacunacionManga: { loteId?: string; producto?: string };
+  MovimientoPotrero: { loteId?: string };
+  EgresoRegistro: { loteId?: string };
+  FichaIndividual: { diio: string };
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -190,6 +210,16 @@ function AppNavigator({ initialRoute }: { initialRoute: keyof RootStackParamList
       <AppStack.Screen name="PodcastPlayer" component={PodcastPlayerScreen} />
       <AppStack.Screen name="FundoDetail" component={FundoDetailScreen} />
       <AppStack.Screen name="AnimalesScreen" component={AnimalesScreen} />
+
+      {/* Zootecnia Events (AUT-183 a AUT-190) */}
+      <AppStack.Screen name="PesajeManga" component={PesajeMangaScreen} />
+      <AppStack.Screen name="NacimientoRegistro" component={NacimientoRegistroScreen} />
+      <AppStack.Screen name="DesteSession" component={DesteSessionScreen} />
+      <AppStack.Screen name="PrenezGestion" component={PrenezGestionScreen} />
+      <AppStack.Screen name="VacunacionManga" component={VacunacionMangaScreen} />
+      <AppStack.Screen name="MovimientoPotrero" component={MovimientoPotreroScreen} />
+      <AppStack.Screen name="EgresoRegistro" component={EgresoRegistroScreen} />
+      <AppStack.Screen name="FichaIndividual" component={FichaIndividualScreen} />
     </AppStack.Navigator>
   );
 }
