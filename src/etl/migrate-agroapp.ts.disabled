@@ -33,11 +33,13 @@ import { Pool } from "pg";
 import { sql, eq, and } from "drizzle-orm";
 import * as schema from "../db/schema/index.js";
 import { fundos } from "../db/schema/fundos.js";
-import {
-  getSession,
-  destroySession,
-  servletPost,
-} from "../agroapp/client.js";
+
+// TODO: Puppeteer dependency not installed — AgroApp migration disabled
+// import {
+//   getSession,
+//   destroySession,
+//   servletPost,
+// } from "../agroapp/client.js";
 
 // ─────────────────────────────────────────────
 // CONFIGURACIÓN
