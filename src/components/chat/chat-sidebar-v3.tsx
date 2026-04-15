@@ -22,6 +22,7 @@ interface ChatSidebarV3Props {
   userEmail?: string | null;
   predioId: number;
   activeConversationId?: number | null;
+  refreshTrigger?: number; // Cambiar este valor fuerza un re-fetch del historial
   onNewConversation: () => void;
   onSelectConversation: (id: number) => void;
 }
@@ -154,6 +155,7 @@ export function ChatSidebarV3({
   userEmail,
   predioId,
   activeConversationId,
+  refreshTrigger,
   onNewConversation,
   onSelectConversation,
 }: ChatSidebarV3Props) {
@@ -165,7 +167,7 @@ export function ChatSidebarV3({
       .then((r) => (r.ok ? r.json() : []))
       .then((data: ChatHistoryItem[]) => setHistorial(data))
       .catch(() => {});
-  }, [predioId]);
+  }, [predioId, refreshTrigger]);
 
   const hoy = historial.filter((c) => isToday(new Date(c.actualizadoEn)));
   const ayer = historial.filter((c) => isYesterday(new Date(c.actualizadoEn)));
