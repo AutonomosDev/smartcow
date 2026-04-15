@@ -1,11 +1,12 @@
 /**
- * src/lib/auth.ts — Autenticación via Firebase (session cookie __session)
+ * src/lib/auth.ts — Autenticación via Next-Auth v5
+ * Reemplaza Firebase Admin SDK (AUT-215)
+ *
  * La función auth() es compatible con el código existente —
  * mismo shape SmartCowSession, mismo uso en Server Components.
  */
 import "server-only";
-import { cookies } from "next/headers";
-import { adminAuth } from "@/src/lib/firebase/admin";
+import { auth as nextAuthSession } from "@/auth.config";
 
 // ─── Tipos (mismos que antes — sin cambios en el resto de la app) ─────────────
 
@@ -50,26 +51,23 @@ const DEV_SESSION: SmartCowSession = {
 /**
  * Retorna SmartCowSession | null.
  * En development retorna DEV_SESSION sin verificar cookie.
- * En producción verifica Firebase session cookie __session.
+ * En producción usa Next-Auth JWT cookie __session.
  */
 export async function auth(): Promise<SmartCowSession | null> {
   if (process.env.NODE_ENV === "development") return DEV_SESSION;
 
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("__session")?.value;
+  const session = await nextAuthSession();
+  if (!session?.user) return null;
 
-  if (!sessionCookie) return null;
+  // Next-Auth session.user tiene el shape SmartCowSession.user
+  // gracias al callback jwt en auth.config.ts
+  const u = session.user as unknown as SmartCowSession["user"];
+  if (!u.orgId || !u.rol) return null;
 
-  try {
-    const decoded = await adminAuth.verifySessionCookie(sessionCookie);
-    // Verify email exists and load full SmartCow user data
-    const smartCowSession = await loadUserByEmail(decoded.email || "");
-    if (!smartCowSession) return null;
-
-    return smartCowSession;
-  } catch {
-    return null;
-  }
+  return {
+    expires: session.expires ?? new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+    user: u,
+  };
 }
 
 // ─── Helpers legacy (por compatibilidad con código existente) ─────────────────
@@ -112,19 +110,4 @@ export async function loadUserByEmail(email: string): Promise<SmartCowSession | 
       modulos: (orgRows[0]?.modulos as Record<string, boolean>) ?? {},
     },
   };
-}
-
-// Legacy: Firebase UID lookup (DEPRECATED — use loadUserByEmail instead)
-export async function loadUserByFirebaseUid(uid: string): Promise<SmartCowSession | null> {
-  const result = await db
-    .select()
-    .from(users)
-    .where(eq(users.firebaseUid, uid))
-    .limit(1);
-
-  const user = result[0];
-  if (!user) return null;
-
-  // Delegate to loadUserByEmail to avoid duplication
-  return loadUserByEmail(user.email);
 }

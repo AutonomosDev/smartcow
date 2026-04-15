@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import { LogOut, Settings, User } from "lucide-react";
-import { getAuth, signOut } from "firebase/auth";
-import { getApp } from "firebase/app";
+import { signOut } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
@@ -37,9 +36,7 @@ export function UserMenuModal({
 
   const handleSignOut = async () => {
     onOpenChange(false);
-    const auth = getAuth(getApp());
-    await signOut(auth);
-    window.location.href = "/login";
+    await signOut({ callbackUrl: "/login" });
   };
 
   return (
