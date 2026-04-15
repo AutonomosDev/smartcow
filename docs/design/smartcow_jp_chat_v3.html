@@ -1,0 +1,296 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{font-family:'DM Sans',sans-serif;display:flex;gap:24px;justify-content:center;padding:32px 16px;background:#fff;flex-wrap:wrap}
+.iphone{width:280px;background:#1c1c1e;border-radius:52px;padding:9px;box-shadow:0 0 0 1.5px #3a3a3c,0 0 0 3px #2c2c2e,0 24px 60px rgba(0,0,0,0.35);position:relative;flex-shrink:0}
+.bl1{position:absolute;left:-2px;top:96px;width:3px;height:26px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl2{position:absolute;left:-2px;top:134px;width:3px;height:34px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl3{position:absolute;left:-2px;top:180px;width:3px;height:34px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.br{position:absolute;right:-2px;top:116px;width:3px;height:56px;background:#3a3a3c;border-radius:0 2px 2px 0}
+.screen{background:#f8f6f1;border-radius:44px;overflow:hidden;display:flex;flex-direction:column;height:600px}
+.di{width:90px;height:24px;background:#1c1c1e;border-radius:0 0 16px 16px;margin:0 auto;flex-shrink:0}
+.sb{display:flex;justify-content:space-between;padding:3px 20px 0;font-size:10px;font-weight:600;color:#1a1a1a;flex-shrink:0}
+.chat-hdr{padding:8px 16px;border-bottom:0.5px solid #ebe9e3;flex-shrink:0;background:#f8f6f1}
+.chat-hdr-top{display:flex;align-items:center;gap:8px}
+.avatar{width:30px;height:30px;border-radius:50%;background:#1e3a2f;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#7ecfa0;flex-shrink:0}
+.chat-name{font-size:13px;font-weight:600;color:#1a1a1a}
+.chat-sub{font-size:9px;color:#1e3a2f;font-weight:500}
+.online-dot{width:6px;height:6px;border-radius:50%;background:#1e3a2f;margin-left:auto;flex-shrink:0}
+.msgs{flex:1;overflow:hidden;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.date-sep{text-align:center;font-size:9px;color:#bbb;margin:2px 0}
+.jp-row{display:flex;justify-content:flex-end}
+.jp-bubble{background:#1e3a2f;border-radius:16px 16px 4px 16px;padding:8px 12px;max-width:75%}
+.jp-txt{font-size:11px;color:#fff;line-height:1.4}
+.jp-time{font-size:8px;color:rgba(255,255,255,0.4);margin-top:3px;text-align:right}
+.ai-row{display:flex;justify-content:flex-start;gap:6px;align-items:flex-end}
+.ai-av{width:22px;height:22px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:#1e3a2f;flex-shrink:0}
+.ai-bubble{background:#fff;border-radius:16px 16px 16px 4px;padding:8px 12px;max-width:82%;border:0.5px solid #e8e5df}
+.ai-txt{font-size:11px;color:#1a1a1a;line-height:1.4}
+.ai-time{font-size:8px;color:#bbb;margin-top:3px}
+.artifact{background:#fff;border-radius:12px;border:0.5px solid #e8e5df;overflow:hidden;margin-top:5px;max-width:90%}
+.artifact-hdr{background:#1e3a2f;padding:7px 10px}
+.artifact-title{font-size:9px;font-weight:600;color:#fff}
+.artifact-body{padding:9px 11px}
+.mini-divider{height:0.5px;background:#f0ede8;margin:5px 0}
+.mini-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.mini-row:last-child{margin-bottom:0}
+.mini-lbl{font-size:9px;color:#888}
+.mini-val{font-size:9px;font-weight:600;color:#1a1a1a}
+.mini-val.ok{color:#1e3a2f}
+.mini-val.warn{color:#e74c3c}
+.mini-val.orange{color:#f39c12}
+.kpi-row{display:flex;gap:6px;margin-bottom:6px}
+.kpi{flex:1;text-align:center}
+.kpi-val{font-size:14px;font-weight:600;color:#1a1a1a}
+.kpi-val.ok{color:#1e3a2f}
+.kpi-lbl{font-size:8px;color:#bbb;margin-top:1px}
+
+/* INPUT BAR — sin chips, cajón grande */
+.input-bar{
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  padding:12px 14px 20px;
+  background:#f8f6f1;
+  flex-shrink:0;
+  border-top:0.5px solid #ebe9e3;
+}
+.input-field{
+  flex:1;
+  background:#fff;
+  border-radius:18px;
+  padding:11px 14px;
+  font-size:12px;
+  color:#aaa;
+  font-family:'DM Sans',sans-serif;
+  border:0.5px solid #e0ddd8;
+  line-height:1.4;
+  min-height:42px;
+}
+.send-btn{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background:#1e3a2f;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  margin-bottom:1px;
+}
+.send-arrow{
+  width:0;height:0;
+  border-left:9px solid #fff;
+  border-top:5px solid transparent;
+  border-bottom:5px solid transparent;
+  margin-left:2px;
+}
+.label{text-align:center;font-size:10px;color:#888;margin-top:10px;font-family:'DM Sans',sans-serif;font-weight:500}
+</style>
+
+<div class="wrap">
+
+<!-- PANTALLA 1 -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div>
+    <div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="chat-hdr">
+      <div class="chat-hdr-top">
+        <div class="avatar">SC</div>
+        <div><div class="chat-name">SmartCow AI</div><div class="chat-sub">Fundo San Pedro · en línea</div></div>
+        <div class="online-dot"></div>
+      </div>
+    </div>
+    <div class="msgs">
+      <div class="date-sep">Hoy · 08:14</div>
+      <div class="jp-row">
+        <div class="jp-bubble">
+          <div class="jp-txt">¿Cómo van los lotes esta semana?</div>
+          <div class="jp-time">08:14</div>
+        </div>
+      </div>
+      <div class="ai-row">
+        <div class="ai-av">SC</div>
+        <div>
+          <div class="ai-bubble">
+            <div class="ai-txt">Resumen de tus 4 lotes. Lote Central preocupa — GDP cayó esta semana.</div>
+            <div class="ai-time">08:14</div>
+          </div>
+          <div class="artifact">
+            <div class="artifact-hdr"><span class="artifact-title">📊 GDP por lote — semana actual</span></div>
+            <div class="artifact-body">
+              <div class="mini-row"><span class="mini-lbl">Lote Norte</span><span class="mini-val ok">1.8 kg/d ↑</span></div>
+              <div class="mini-row"><span class="mini-lbl">Lote Sur</span><span class="mini-val ok">1.5 kg/d →</span></div>
+              <div class="mini-row"><span class="mini-lbl">Lote Central</span><span class="mini-val warn">0.8 kg/d ↓</span></div>
+              <div class="mini-row"><span class="mini-lbl">Wagyu</span><span class="mini-val orange">1.2 kg/d →</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="jp-row">
+        <div class="jp-bubble">
+          <div class="jp-txt">¿Qué pasó en Lote Central?</div>
+          <div class="jp-time">08:15</div>
+        </div>
+      </div>
+      <div class="ai-row">
+        <div class="ai-av">SC</div>
+        <div>
+          <div class="ai-bubble">
+            <div class="ai-txt">Bebedero vacío 2 días + cambio de receta el lunes. GDP cayó de 1.6 a 0.8. Sugiero volver a receta anterior.</div>
+            <div class="ai-time">08:15</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="input-bar">
+      <div class="input-field">Escribe a SmartCow...</div>
+      <div class="send-btn"><div class="send-arrow"></div></div>
+    </div>
+  </div>
+</div>
+<div class="label">JP pregunta · artifact GDP lotes</div>
+</div>
+
+<!-- PANTALLA 2 -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div>
+    <div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="chat-hdr">
+      <div class="chat-hdr-top">
+        <div class="avatar">SC</div>
+        <div><div class="chat-name">SmartCow AI</div><div class="chat-sub">Fundo San Pedro · en línea</div></div>
+        <div class="online-dot"></div>
+      </div>
+    </div>
+    <div class="msgs">
+      <div class="date-sep">Hoy · 09:30</div>
+      <div class="jp-row">
+        <div class="jp-bubble">
+          <div class="jp-txt">Si vendo Lote Norte hoy, ¿cuánto gano?</div>
+          <div class="jp-time">09:30</div>
+        </div>
+      </div>
+      <div class="ai-row">
+        <div class="ai-av">SC</div>
+        <div>
+          <div class="ai-bubble">
+            <div class="ai-txt">Con precio actual $2.100/kg en pie y 110 animales:</div>
+            <div class="ai-time">09:31</div>
+          </div>
+          <div class="artifact">
+            <div class="artifact-hdr"><span class="artifact-title">💰 Proyección venta — Lote Norte</span></div>
+            <div class="artifact-body">
+              <div class="kpi-row">
+                <div class="kpi"><div class="kpi-val ok">$46.2M</div><div class="kpi-lbl">Ingreso</div></div>
+                <div class="kpi"><div class="kpi-val">$31.8M</div><div class="kpi-lbl">Costo</div></div>
+                <div class="kpi"><div class="kpi-val ok">$14.4M</div><div class="kpi-lbl">Margen</div></div>
+              </div>
+              <div class="mini-divider"></div>
+              <div class="mini-row"><span class="mini-lbl">Margen por animal</span><span class="mini-val ok">$130.900</span></div>
+              <div class="mini-row"><span class="mini-lbl">Si esperas 30 días</span><span class="mini-val ok">+$3.2M más</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="jp-row">
+        <div class="jp-bubble">
+          <div class="jp-txt">Mejor espero 30 días entonces</div>
+          <div class="jp-time">09:32</div>
+        </div>
+      </div>
+      <div class="ai-row">
+        <div class="ai-av">SC</div>
+        <div>
+          <div class="ai-bubble">
+            <div class="ai-txt">Correcto. Con GDP 1.8 kg/d llegas a 420 kg en 18 días. Te notifico cuando llegue al objetivo.</div>
+            <div class="ai-time">09:32</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="input-bar">
+      <div class="input-field">Escribe a SmartCow...</div>
+      <div class="send-btn"><div class="send-arrow"></div></div>
+    </div>
+  </div>
+</div>
+<div class="label">JP decide · artifact financiero</div>
+</div>
+
+<!-- PANTALLA 3 -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div>
+    <div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="chat-hdr">
+      <div class="chat-hdr-top">
+        <div class="avatar">SC</div>
+        <div><div class="chat-name">SmartCow AI</div><div class="chat-sub">Fundo San Pedro · 3 alertas</div></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#e74c3c;margin-left:auto;flex-shrink:0"></div>
+      </div>
+    </div>
+    <div class="msgs">
+      <div class="date-sep">Hoy · 07:00 — Resumen matutino</div>
+      <div class="ai-row">
+        <div class="ai-av">SC</div>
+        <div>
+          <div class="ai-bubble">
+            <div class="ai-txt">Buenos días JP. 3 cosas que necesitan tu atención:</div>
+            <div class="ai-time">07:00</div>
+          </div>
+          <div class="artifact">
+            <div class="artifact-hdr"><span class="artifact-title">🚨 Alertas del día — 14 abr</span></div>
+            <div class="artifact-body">
+              <div class="mini-row" style="align-items:flex-start;gap:5px;margin-bottom:6px">
+                <span style="font-size:8px;font-weight:600;color:#c0392b;background:#fde8e8;padding:2px 6px;border-radius:20px;white-space:nowrap">Urgente</span>
+                <span class="mini-lbl" style="line-height:1.5">Bebedero Corral 3 vacío 13 hrs. 38 animales.</span>
+              </div>
+              <div class="mini-divider"></div>
+              <div class="mini-row" style="align-items:flex-start;gap:5px;margin-bottom:6px">
+                <span style="font-size:8px;font-weight:600;color:#9b5e1a;background:#fdf0e6;padding:2px 6px;border-radius:20px;white-space:nowrap">Atención</span>
+                <span class="mini-lbl" style="line-height:1.5">Stock concentrado: 3 días restantes.</span>
+              </div>
+              <div class="mini-divider"></div>
+              <div class="mini-row" style="align-items:flex-start;gap:5px">
+                <span style="font-size:8px;font-weight:600;color:#1a5276;background:#e6f0f8;padding:2px 6px;border-radius:20px;white-space:nowrap">Info</span>
+                <span class="mini-lbl" style="line-height:1.5">MUE-00847: negativo Brucelosis. OK.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="jp-row">
+        <div class="jp-bubble">
+          <div class="jp-txt">Manda a Jaime al bebedero ahora</div>
+          <div class="jp-time">07:03</div>
+        </div>
+      </div>
+      <div class="ai-row">
+        <div class="ai-av">SC</div>
+        <div>
+          <div class="ai-bubble">
+            <div class="ai-txt">Tarea creada para Jaime: "Revisar bebedero Corral 3 — urgente". Notificado ahora. ¿Ordeno el concentrado también?</div>
+            <div class="ai-time">07:03</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="input-bar">
+      <div class="input-field">Escribe a SmartCow...</div>
+      <div class="send-btn"><div class="send-arrow"></div></div>
+    </div>
+  </div>
+</div>
+<div class="label">Resumen matutino · alertas y decisiones</div>
+</div>
+
+</div>

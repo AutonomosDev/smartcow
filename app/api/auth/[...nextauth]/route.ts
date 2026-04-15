@@ -1,11 +1,8 @@
 /**
- * app/api/auth/[...nextauth]/route.ts — obsoleto post-migración Firebase.
- * La lógica de sesión está en /api/auth/session (POST/DELETE).
+ * app/api/auth/[...nextauth]/route.ts
+ * Handler Next-Auth v5 — reemplaza Firebase session endpoint
+ * Ticket: AUT-215
  */
-export async function GET() {
-  return Response.json({ error: "Usar /api/auth/session" }, { status: 410 });
-}
+import { handlers } from "@/auth.config";
 
-export async function POST() {
-  return Response.json({ error: "Usar /api/auth/session" }, { status: 410 });
-}
+export const { GET, POST } = handlers;

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUT-183 — Bastón + Manga</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f0ede8;display:flex;justify-content:center;padding:40px 16px;gap:24px;flex-wrap:wrap}
+.iphone{width:260px;background:#1c1c1e;border-radius:48px;padding:8px;box-shadow:0 0 0 1.5px #3a3a3c,0 0 0 3px #2c2c2e,0 20px 50px rgba(0,0,0,0.3);position:relative;flex-shrink:0}
+.bl1{position:absolute;left:-2px;top:96px;width:3px;height:26px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl2{position:absolute;left:-2px;top:134px;width:3px;height:34px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl3{position:absolute;left:-2px;top:180px;width:3px;height:34px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.br{position:absolute;right:-2px;top:116px;width:3px;height:56px;background:#3a3a3c;border-radius:0 2px 2px 0}
+.screen{background:#f8f6f1;border-radius:40px;overflow:hidden;padding-bottom:14px}
+.di{width:86px;height:22px;background:#1c1c1e;border-radius:0 0 14px 14px;margin:0 auto}
+.sb{display:flex;justify-content:space-between;padding:3px 18px 0;font-size:10px;font-weight:600;color:#1a1a1a}
+.hdr{padding:6px 13px 4px}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.back{width:22px;height:22px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center;font-size:12px;color:#444}
+.title{font-size:15px;font-weight:600;color:#1a1a1a}
+.sub{font-size:10px;color:#999}
+.hero{margin:0 11px 7px;background:#1e3a2f;border-radius:12px;padding:10px 12px}
+.hl{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:3px}
+.hv{font-size:18px;font-weight:600;color:#fff;margin-bottom:2px}
+.hs{font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:8px}
+.hg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.hi{background:rgba(255,255,255,0.1);border-radius:6px;padding:5px 6px}
+.hil{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:1px}
+.hiv{font-size:12px;font-weight:600;color:#fff}
+.hiv.ok{color:#7ecfa0}
+.hiv.warn{color:#f39c12}
+.bt{display:flex;align-items:center;gap:4px;padding:0 11px;margin-bottom:6px}
+.bt-dot{width:6px;height:6px;border-radius:50%;background:#1e3a2f}
+.bt-txt{font-size:10px;color:#1e3a2f;font-weight:500}
+.diio-box{margin:0 11px 6px;background:#fff;border-radius:12px;padding:12px}
+.diio-label{font-size:9px;color:#bbb;margin-bottom:3px}
+.diio-val{font-size:20px;font-weight:600;color:#1a1a1a;letter-spacing:1px;margin-bottom:2px}
+.diio-sub{font-size:10px;color:#888}
+.peso-box{margin:0 11px 6px;background:#1e3a2f;border-radius:12px;padding:12px}
+.peso-label{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:2px}
+.peso-val{font-size:32px;font-weight:600;color:#fff;line-height:1}
+.peso-sub{font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px}
+.btn3{display:flex;gap:6px;margin:0 11px 6px}
+.b3{flex:1;border-radius:10px;padding:10px 6px;text-align:center;font-size:10px;font-weight:500}
+.b3.outline{border:1.5px solid #e0ddd8;color:#1a1a1a;background:#fff}
+.cta{margin:0 11px;background:#1e3a2f;border-radius:11px;padding:11px;text-align:center;color:#fff;font-size:12px;font-weight:500}
+.cta2{margin:0 11px 6px;background:#fff;border-radius:11px;padding:10px;text-align:center;color:#1a1a1a;font-size:12px;font-weight:500;border:1px solid #e0ddd8}
+.card{margin:0 11px 6px;background:#fff;border-radius:12px;padding:10px 12px}
+.ct{font-size:11px;font-weight:600;color:#1a1a1a;margin-bottom:6px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid #f0ede8}
+.row:last-child{border-bottom:none}
+.rl{font-size:10px;color:#888}
+.rv{font-size:11px;font-weight:600;color:#1a1a1a}
+.rv.ok{color:#1e3a2f}
+.rv.warn{color:#f39c12}
+.stats{display:flex;gap:6px;margin:0 11px 6px}
+.sc{flex:1;background:#fff;border-radius:10px;padding:7px 8px;text-align:center}
+.sv{font-size:14px;font-weight:600;color:#1a1a1a}
+.sl{font-size:9px;color:#bbb;margin-top:1px}
+.sv.ok{color:#1e3a2f}
+.sv.warn{color:#e74c3c}
+.sec-hdr{display:flex;justify-content:space-between;padding:0 11px;margin-bottom:4px}
+.sh{font-size:11px;font-weight:600;color:#1a1a1a}
+.sl2{font-size:10px;color:#1e3a2f}
+.animal-row{margin:0 11px 5px;background:#fff;border-radius:10px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center}
+.ar-diio{font-size:11px;font-weight:600;color:#1a1a1a}
+.ar-peso{font-size:10px;color:#888}
+.ar-gdp{font-size:11px;font-weight:600;color:#1e3a2f}
+.label{text-align:center;font-size:11px;color:#888;margin-top:12px;font-family:'DM Sans',sans-serif}
+</style>
+</head>
+<body>
+
+<div>
+  <div class="iphone">
+    <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+    <div class="screen">
+      <div class="di"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+      <div class="hdr">
+        <div class="hdr-top">
+          <div class="back">‹</div>
+          <span style="font-size:9px;color:#888;font-weight:500">Tru-Test XRS2i</span>
+        </div>
+        <div class="title">Pesaje en manga</div>
+        <div class="sub">Lote Norte · 110 Angus</div>
+      </div>
+      <div class="bt"><div class="bt-dot"></div><div class="bt-txt">Bastón conectado · Balanza conectada</div></div>
+      <div class="hero">
+        <div class="hl">SESIÓN ACTIVA</div>
+        <div class="hv">Manga Norte</div>
+        <div class="hs">Lunes 14 abr · 08:14 AM · Jaime</div>
+        <div class="hg">
+          <div class="hi"><div class="hil">Pesados</div><div class="hiv ok">42</div></div>
+          <div class="hi"><div class="hil">Restantes</div><div class="hiv warn">68</div></div>
+          <div class="hi"><div class="hil">GDP prom.</div><div class="hiv">1.4 kg</div></div>
+        </div>
+      </div>
+      <div class="diio-box">
+        <div class="diio-label">DIIO ESCANEADO</div>
+        <div class="diio-val">276000204581234</div>
+        <div class="diio-sub">Angus · Macho · Lote Norte · Ingreso 15 feb</div>
+      </div>
+      <div class="peso-box">
+        <div class="peso-label">PESO ACTUAL (BALANZA)</div>
+        <div class="peso-val">342 kg</div>
+        <div class="peso-sub">Anterior: 318 kg · +24 kg en 18 días · GDP 1.3 kg/día</div>
+      </div>
+      <div class="btn3">
+        <div class="b3 outline">CC 1-2</div>
+        <div class="b3 outline">CC 3</div>
+        <div class="b3 outline">CC 4-5</div>
+      </div>
+      <div class="cta">Guardar y escanear siguiente</div>
+    </div>
+  </div>
+  <div class="label">Pantalla 1 — Animal activo</div>
+</div>
+
+<div>
+  <div class="iphone">
+    <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+    <div class="screen">
+      <div class="di"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+      <div class="hdr">
+        <div class="hdr-top">
+          <div class="back">‹</div>
+          <span style="font-size:9px;color:#1e3a2f;font-weight:500">EN PROGRESO</span>
+        </div>
+        <div class="title">Bastón · Toma de datos</div>
+        <div class="sub">Lote Norte · Manga principal</div>
+      </div>
+      <div class="stats">
+        <div class="sc"><div class="sv ok">42</div><div class="sl">Pesados</div></div>
+        <div class="sc"><div class="sv warn">68</div><div class="sl">Pendientes</div></div>
+        <div class="sc"><div class="sv">342</div><div class="sl">Último kg</div></div>
+      </div>
+      <div class="card">
+        <div class="ct">Estado sesión</div>
+        <div class="row"><span class="rl">Bastón XRS2i</span><span class="rv ok">Conectado ✓</span></div>
+        <div class="row"><span class="rl">Balanza Tru-Test</span><span class="rv ok">Conectada ✓</span></div>
+        <div class="row"><span class="rl">Señal campo</span><span class="rv warn">Sin señal</span></div>
+        <div class="row"><span class="rl">Datos guardados</span><span class="rv">Local · sync pendiente</span></div>
+      </div>
+      <div class="sec-hdr"><div class="sh">Últimos pesajes</div><div class="sl2">Ver todos →</div></div>
+      <div class="animal-row">
+        <div><div class="ar-diio">...4581234</div><div class="ar-peso">342 kg · CC 3 · 08:41</div></div>
+        <div class="ar-gdp">+1.3 kg/d</div>
+      </div>
+      <div class="animal-row">
+        <div><div class="ar-diio">...4581198</div><div class="ar-peso">387 kg · CC 3 · 08:39</div></div>
+        <div class="ar-gdp">+1.8 kg/d</div>
+      </div>
+      <div class="animal-row">
+        <div><div class="ar-diio">...4581102</div><div class="ar-peso">301 kg · CC 2 · 08:37</div></div>
+        <div class="ar-gdp" style="color:#e74c3c">+0.8 kg/d</div>
+      </div>
+      <div class="animal-row">
+        <div><div class="ar-diio">...4580991</div><div class="ar-peso">412 kg · CC 4 · 08:35</div></div>
+        <div class="ar-gdp">+2.1 kg/d</div>
+      </div>
+      <div style="height:6px"></div>
+      <div class="cta2">Pausar sesión</div>
+      <div class="cta">Cerrar y sincronizar</div>
+    </div>
+  </div>
+  <div class="label">Pantalla 2 — Resumen sesión</div>
+</div>
+
+</body>
+</html>

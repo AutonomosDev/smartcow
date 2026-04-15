@@ -301,12 +301,12 @@ function RootNavigator() {
     );
   }
 
-  const isOperario = user?.rol === 'operador' || user?.rol === 'veterinario';
-  const initialRoute: keyof RootStackParamList = isOperario ? 'JaimeHome' : 'OwnerDashboard';
+  let initialRoute: keyof RootStackParamList = 'Home';
+  if (!__DEV__ && user?.rol === 'operador') initialRoute = 'JaimeHome';
 
   return (
     <NavigationContainer>
-      {user ? <AppNavigator initialRoute={initialRoute} /> : <AuthNavigator />}
+      {__DEV__ || user ? <AppNavigator initialRoute={initialRoute} /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }

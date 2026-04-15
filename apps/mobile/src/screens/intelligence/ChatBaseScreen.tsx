@@ -21,21 +21,14 @@ const F = {
 
 // ── Tipos ───────────────────────────────────────────────────────────────────
 
-type ArtifactRow = { label: string; value: string; color?: 'ok' | 'warn' | 'orange' };
-type KpiItem     = { val: string; lbl: string; color?: 'ok' };
-type AlertItem   = { level: 'Urgente' | 'Atención' | 'Info'; text: string };
-
-type Artifact =
-  | { type: 'table';   title: string; rows: ArtifactRow[] }
-  | { type: 'kpi';     title: string; kpis: KpiItem[]; rows?: ArtifactRow[] }
-  | { type: 'alerts';  title: string; items: AlertItem[] };
+import { GenerativeArtifact, ArtifactRenderer } from '../../components/generative/ArtifactRenderer';
 
 type Message = {
   id: string;
   from: 'user' | 'ai';
   text: string;
   time: string;
-  artifact?: Artifact;
+  artifacts?: GenerativeArtifact[];
 };
 
 export type ChatConfig = {
@@ -46,91 +39,8 @@ export type ChatConfig = {
   placeholder: string;
   dateSep: string;
   messages: Message[];
+  onSend?: (text: string) => void;
 };
-
-// ── Colores alert level ──────────────────────────────────────────────────────
-const ALERT_STYLES: Record<string, { bg: string; color: string }> = {
-  Urgente:  { bg: '#fde8e8', color: '#c0392b' },
-  Atención: { bg: '#fdf0e6', color: '#9b5e1a' },
-  Info:     { bg: '#e6f0f8', color: '#1a5276' },
-};
-
-// ── Sub-componentes ──────────────────────────────────────────────────────────
-
-function ArtifactCard({ artifact }: { artifact: Artifact }) {
-  if (artifact.type === 'table') {
-    return (
-      <View style={a.wrap}>
-        <View style={a.hdr}><Text style={a.title}>{artifact.title}</Text></View>
-        <View style={a.body}>
-          {artifact.rows.map((r, i) => (
-            <View key={i} style={[a.row, i < artifact.rows.length - 1 && { marginBottom: 4 }]}>
-              <Text style={a.lbl}>{r.label}</Text>
-              <Text style={[a.val, r.color === 'ok' && { color: '#1e3a2f' }, r.color === 'warn' && { color: '#e74c3c' }, r.color === 'orange' && { color: '#f39c12' }]}>
-                {r.value}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </View>
-    );
-  }
-
-  if (artifact.type === 'kpi') {
-    return (
-      <View style={a.wrap}>
-        <View style={a.hdr}><Text style={a.title}>{artifact.title}</Text></View>
-        <View style={a.body}>
-          <View style={a.kpiRow}>
-            {artifact.kpis.map((k, i) => (
-              <View key={i} style={a.kpi}>
-                <Text style={[a.kpiVal, k.color === 'ok' && { color: '#1e3a2f' }]}>{k.val}</Text>
-                <Text style={a.kpiLbl}>{k.lbl}</Text>
-              </View>
-            ))}
-          </View>
-          {artifact.rows && artifact.rows.length > 0 && (
-            <>
-              <View style={a.divider} />
-              {artifact.rows.map((r, i) => (
-                <View key={i} style={[a.row, i < (artifact.rows?.length ?? 0) - 1 && { marginBottom: 4 }]}>
-                  <Text style={a.lbl}>{r.label}</Text>
-                  <Text style={[a.val, r.color === 'ok' && { color: '#1e3a2f' }]}>{r.value}</Text>
-                </View>
-              ))}
-            </>
-          )}
-        </View>
-      </View>
-    );
-  }
-
-  if (artifact.type === 'alerts') {
-    return (
-      <View style={a.wrap}>
-        <View style={a.hdr}><Text style={a.title}>{artifact.title}</Text></View>
-        <View style={a.body}>
-          {artifact.items.map((item, i) => {
-            const st = ALERT_STYLES[item.level];
-            return (
-              <View key={i}>
-                {i > 0 && <View style={a.divider} />}
-                <View style={[a.alertRow, i < artifact.items.length - 1 && { marginBottom: 6 }]}>
-                  <View style={[a.alertBadge, { backgroundColor: st.bg }]}>
-                    <Text style={[a.alertBadgeTxt, { color: st.color }]}>{item.level}</Text>
-                  </View>
-                  <Text style={a.alertTxt}>{item.text}</Text>
-                </View>
-              </View>
-            );
-          })}
-        </View>
-      </View>
-    );
-  }
-
-  return null;
-}
 
 // ── Componente principal ─────────────────────────────────────────────────────
 
@@ -194,7 +104,9 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
                       <Text style={s.aiTxt}>{msg.text}</Text>
                       <Text style={s.aiTime}>{msg.time}</Text>
                     </View>
-                    {msg.artifact && <ArtifactCard artifact={msg.artifact} />}
+                    {msg.artifacts && msg.artifacts.map((art, idx) => (
+                      <ArtifactRenderer key={idx} artifact={art} />
+                    ))}
                   </View>
                 </View>
               );
@@ -211,7 +123,15 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
               onChangeText={setInput}
               multiline
             />
-            <TouchableOpacity style={s.sendBtn}>
+            <TouchableOpacity 
+              style={s.sendBtn}
+              onPress={() => {
+                if (input.trim() && config.onSend) {
+                  config.onSend(input.trim());
+                  setInput('');
+                }
+              }}
+            >
               <View style={s.sendArrow} />
             </TouchableOpacity>
           </View>
@@ -291,23 +211,4 @@ const s = StyleSheet.create({
   sendArrow: { width: 0, height: 0, borderLeftWidth: 9, borderLeftColor: '#fff', borderTopWidth: 5, borderTopColor: 'transparent', borderBottomWidth: 5, borderBottomColor: 'transparent', marginLeft: 2 },
 });
 
-// ── Estilos artifacts ────────────────────────────────────────────────────────
 
-const a = StyleSheet.create({
-  wrap:       { backgroundColor: '#fff', borderRadius: 12, borderWidth: 0.5, borderColor: '#e8e5df', overflow: 'hidden', marginTop: 5, maxWidth: '92%' },
-  hdr:        { backgroundColor: '#1e3a2f', paddingVertical: 7, paddingHorizontal: 10 },
-  title:      { fontFamily: F.bold, fontSize: 9, color: '#fff' },
-  body:       { padding: 9 },
-  row:        { flexDirection: 'row', justifyContent: 'space-between' },
-  lbl:        { fontFamily: F.regular, fontSize: 9, color: '#888' },
-  val:        { fontFamily: F.bold, fontSize: 9, color: '#1a1a1a' },
-  divider:    { height: 0.5, backgroundColor: '#f0ede8', marginVertical: 5 },
-  kpiRow:     { flexDirection: 'row', gap: 6, marginBottom: 6 },
-  kpi:        { flex: 1, alignItems: 'center' },
-  kpiVal:     { fontFamily: F.bold, fontSize: 14, color: '#1a1a1a' },
-  kpiLbl:     { fontFamily: F.regular, fontSize: 8, color: '#bbb', marginTop: 1 },
-  alertRow:   { flexDirection: 'row', alignItems: 'flex-start', gap: 5 },
-  alertBadge: { paddingVertical: 2, paddingHorizontal: 6, borderRadius: 20 },
-  alertBadgeTxt: { fontFamily: F.bold, fontSize: 8 },
-  alertTxt:   { fontFamily: F.regular, fontSize: 9, color: '#888', flex: 1, lineHeight: 14 },
-});

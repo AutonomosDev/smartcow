@@ -22,6 +22,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChatSidebarV3 } from "@/src/components/chat/chat-sidebar-v3";
 import { MessageRenderer, type ChatMessage } from "@/src/components/chat/message-renderer";
+import { mapToolResultToArtifact } from "@/src/components/generative/artifact-mapper";
 import { FontProvider } from "@/src/providers/font-provider";
 import { ChevronDown, Share2, Search, X } from "lucide-react";
 
@@ -569,6 +570,24 @@ export function ChatPageClientV3({
                     }
                     return prev;
                   });
+                }
+                break;
+              case "tool_result":
+                if (event.tool && event.result) {
+                  const artifact = mapToolResultToArtifact({ tool: event.tool, result: event.result });
+                  if (artifact) {
+                    setMessages((prev) => {
+                      const last = prev[prev.length - 1];
+                      if (last?.role === "assistant") {
+                        const currentArtifacts = last.artifacts || [];
+                        return [
+                          ...prev.slice(0, -1),
+                          { ...last, artifacts: [...currentArtifacts, artifact] }
+                        ];
+                      }
+                      return prev;
+                    });
+                  }
                 }
                 break;
               case "done":

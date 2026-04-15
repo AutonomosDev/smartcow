@@ -37,10 +37,13 @@ export type ChartData =
   | { type: "line"; data: Record<string, unknown>[]; xKey: string; yKey: string; title?: string }
   | { type: "pie"; data: { name: string; value: number }[]; title?: string };
 
+import { GenerativeArtifact, ArtifactRenderer } from "../generative/artifact-renderer";
+
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   charts?: ChartData[];
+  artifacts?: GenerativeArtifact[];
 }
 
 // ─── Chart colors ─────────────────────────────────────────────────────────────
@@ -353,10 +356,19 @@ export function MessageRenderer({ message }: MessageRendererProps) {
                 {message.content}
               </ReactMarkdown>
 
-              {/* Gráficos (artifacts) */}
+              {/* Gráficos (artifacts obsoletos) */}
               {message.charts && message.charts.length > 0 && (
                 <div className="mt-6 border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm p-4">
                   <ChartRenderer chart={message.charts[0]} />
+                </div>
+              )}
+
+              {/* Generative UI Artifacts */}
+              {message.artifacts && message.artifacts.length > 0 && (
+                <div className="mt-4 flex flex-col gap-3">
+                  {message.artifacts.map((artifact, i) => (
+                    <ArtifactRenderer key={i} artifact={artifact} />
+                  ))}
                 </div>
               )}
             </div>

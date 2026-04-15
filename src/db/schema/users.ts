@@ -15,6 +15,16 @@ export const users = pgTable("users", {
     .notNull()
     .references(() => organizaciones.id, { onDelete: "restrict" }),
   email: varchar("email", { length: 255 }).notNull().unique(),
+  /**
+   * passwordHash — hash bcryptjs para autenticación email/password.
+   * Nullable: usuarios Google SSO no tienen password.
+   * Restaurado en migración 0008 (AUT-215 — eliminación Firebase).
+   */
+  passwordHash: varchar("password_hash", { length: 255 }),
+  /**
+   * firebaseUid — DEPRECADO (AUT-215).
+   * Mantenido temporalmente para rollback. Eliminar en migración 0009.
+   */
   firebaseUid: varchar("firebase_uid", { length: 128 }).unique(),
   nombre: varchar("nombre", { length: 200 }).notNull(),
   rol: rolEnum("rol").notNull().default("operador"),

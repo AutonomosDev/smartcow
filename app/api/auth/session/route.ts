@@ -1,74 +1,13 @@
 /**
- * app/api/auth/session/route.ts — Gestión de sesión Firebase.
- *
- * POST  /api/auth/session — recibe Firebase ID token, crea session cookie HttpOnly
- * DELETE /api/auth/session — elimina session cookie (logout)
+ * app/api/auth/session/route.ts
+ * DEPRECADO — Next-Auth maneja las sesiones via /api/auth/[...nextauth]
+ * Mantenido solo para logout limpio durante transición.
+ * Ticket: AUT-215
  */
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { adminAuth } from "@/src/lib/firebase/admin";
-import { loadUserByFirebaseUid } from "@/src/lib/auth";
-
-const SESSION_DURATION_MS = 8 * 60 * 60 * 1000; // 8 horas
-
-export async function POST(request: NextRequest) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Body JSON inválido" }, { status: 400 });
-  }
-
-  const { idToken } = body as { idToken?: string };
-
-  if (!idToken || typeof idToken !== "string") {
-    return NextResponse.json({ error: "idToken requerido" }, { status: 400 });
-  }
-
-  try {
-    // Verificar token y comprobar que el usuario existe en DB
-    const decoded = await adminAuth.verifyIdToken(idToken);
-    const user = await loadUserByFirebaseUid(decoded.uid);
-    if (!user) {
-      return NextResponse.json(
-        { error: "Tu cuenta no está registrada en SmartCow. Contacta al administrador." },
-        { status: 401 }
-      );
-    }
-
-    const sessionCookie = await adminAuth.createSessionCookie(idToken, {
-      expiresIn: SESSION_DURATION_MS,
-    });
-
-    const cookieStore = await cookies();
-    cookieStore.set("__session", sessionCookie, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: SESSION_DURATION_MS / 1000,
-      path: "/",
-    });
-
-    return NextResponse.json({ ok: true });
-  } catch (err) {
-    console.error("[auth/session POST]", err);
-    return NextResponse.json({ error: "Token inválido o expirado" }, { status: 401 });
-  }
-}
+import { NextResponse } from "next/server";
+import { signOut } from "@/auth.config";
 
 export async function DELETE() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("__session")?.value;
-
-  if (sessionCookie) {
-    try {
-      const decoded = await adminAuth.verifySessionCookie(sessionCookie, false);
-      await adminAuth.revokeRefreshTokens(decoded.uid);
-    } catch {
-      // Cookie inválida o expirada — igual la borramos
-    }
-    cookieStore.delete("__session");
-  }
-
+  await signOut({ redirect: false });
   return NextResponse.json({ ok: true });
 }

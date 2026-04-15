@@ -1,0 +1,269 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{font-family:'DM Sans',sans-serif;display:flex;gap:20px;justify-content:center;padding:32px 16px;background:#fff;flex-wrap:wrap}
+.iphone{width:220px;background:#1c1c1e;border-radius:42px;padding:7px;box-shadow:0 0 0 1.5px #3a3a3c,0 0 0 3px #2c2c2e,0 20px 50px rgba(0,0,0,0.3);position:relative;flex-shrink:0}
+.bl1{position:absolute;left:-2px;top:88px;width:3px;height:24px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl2{position:absolute;left:-2px;top:122px;width:3px;height:30px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl3{position:absolute;left:-2px;top:162px;width:3px;height:30px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.br{position:absolute;right:-2px;top:106px;width:3px;height:50px;background:#3a3a3c;border-radius:0 2px 2px 0}
+.screen{background:#f8f6f1;border-radius:36px;overflow:hidden;padding-bottom:12px}
+.di{width:74px;height:19px;background:#1c1c1e;border-radius:0 0 12px 12px;margin:0 auto}
+.sb{display:flex;justify-content:space-between;padding:3px 15px 0;font-size:9px;font-weight:600;color:#1a1a1a}
+.hdr{padding:5px 11px 3px}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.back{width:20px;height:20px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center;font-size:11px;color:#444}
+.title{font-size:13px;font-weight:600;color:#1a1a1a}
+.sub{font-size:9px;color:#999}
+.hero{margin:0 9px 5px;background:#1e3a2f;border-radius:10px;padding:8px 10px}
+.hl{font-size:8px;color:rgba(255,255,255,0.5);margin-bottom:2px}
+.hv{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px}
+.hs{font-size:9px;color:rgba(255,255,255,0.6);margin-bottom:6px}
+.hg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px}
+.hi{background:rgba(255,255,255,0.1);border-radius:5px;padding:4px 5px}
+.hil{font-size:8px;color:rgba(255,255,255,0.5);margin-bottom:1px}
+.hiv{font-size:11px;font-weight:600;color:#fff}
+.hiv.ok{color:#7ecfa0}
+.hiv.warn{color:#f39c12}
+.hiv.bad{color:#ff6b6b}
+.card{margin:0 9px 5px;background:#fff;border-radius:10px;padding:8px 10px}
+.ct{font-size:10px;font-weight:600;color:#1a1a1a;margin-bottom:5px}
+.fl{font-size:8px;color:#bbb;margin-bottom:2px}
+.fv{font-size:11px;font-weight:600;color:#1a1a1a}
+.fv.scan{color:#1e3a2f}
+.divider{height:0.5px;background:#f0ede8;margin:5px 0}
+.field{margin-bottom:5px}
+.field:last-child{margin-bottom:0}
+.row2{display:flex;gap:4px;margin-bottom:4px}
+.row2:last-child{margin-bottom:0}
+.btn-sel{flex:1;border-radius:8px;padding:6px 3px;text-align:center;font-size:9px;font-weight:500;border:1.5px solid #e0ddd8;color:#888;background:#fff}
+.btn-sel.active{background:#1e3a2f;color:#fff;border-color:#1e3a2f}
+.btn-sel.bad{background:#fde8e8;color:#c0392b;border-color:#fde8e8}
+.cta{margin:0 9px;background:#1e3a2f;border-radius:9px;padding:9px;text-align:center;color:#fff;font-size:11px;font-weight:500}
+.animal-row{margin:0 9px 4px;background:#fff;border-radius:8px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center}
+.ar-d{font-size:10px;font-weight:600;color:#1a1a1a}
+.ar-i{font-size:9px;color:#888}
+.ar-b{font-size:8px;font-weight:600;padding:2px 6px;border-radius:20px}
+.sec-hdr{display:flex;justify-content:space-between;padding:0 9px;margin-bottom:4px}
+.sh{font-size:10px;font-weight:600;color:#1a1a1a}
+.sl2{font-size:9px;color:#1e3a2f}
+.prog-card{margin:0 9px 5px;background:#fff;border-radius:10px;padding:8px 10px}
+.prog-track{background:#f0ede8;border-radius:4px;height:4px;margin:4px 0 3px}
+.prog-fill{height:4px;border-radius:4px;background:#1e3a2f}
+.prog-ls{display:flex;justify-content:space-between}
+.prog-l{font-size:8px;color:#bbb}
+.cc-big{font-size:48px;font-weight:600;color:#1e3a2f;text-align:center;line-height:1;margin:8px 0 4px}
+.cc-sub{font-size:9px;color:#888;text-align:center;margin-bottom:8px}
+.cc-row{display:flex;gap:4px;margin:0 9px 5px}
+.cc-btn{flex:1;border-radius:8px;padding:10px 4px;text-align:center;font-size:11px;font-weight:600;border:2px solid #e0ddd8;color:#888;background:#fff}
+.cc-btn.active{background:#1e3a2f;color:#fff;border-color:#1e3a2f}
+.label{text-align:center;font-size:10px;color:#888;margin-top:10px;font-family:'DM Sans',sans-serif;font-weight:500}
+</style>
+
+<div class="wrap">
+
+<!-- AUT-195 — REGISTRO DE CELO -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div>
+    <div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="hdr">
+      <div class="hdr-top"><div class="back">‹</div><span style="font-size:8px;color:#f39c12;font-weight:500">CELO</span></div>
+      <div class="title">Registro celo</div>
+      <div class="sub">Potrero Sur · 14 abr 2026</div>
+    </div>
+    <div class="card">
+      <div class="fl">DIIO ESCANEADO</div>
+      <div class="fv scan" style="margin-bottom:3px">276000204581198</div>
+      <div class="divider"></div>
+      <div class="field"><div class="fl">IDENTIFICADA COMO</div><div class="fv">Vaca · Angus · 4 años · Lote Sur</div></div>
+      <div class="field"><div class="fl">ÚLTIMO SERVICIO</div><div class="fv">Sin registro previo</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">Intensidad del celo</div>
+      <div class="row2">
+        <div class="btn-sel active">Celo claro</div>
+        <div class="btn-sel">Celo dudoso</div>
+      </div>
+      <div class="divider"></div>
+      <div class="field"><div class="fl">FECHA Y HORA DETECCIÓN</div><div class="fv">14 abr 2026 · 07:30 AM</div></div>
+      <div class="divider"></div>
+      <div class="field"><div class="fl">OBSERVACIÓN</div><div class="fv">Monta activa · inquieta</div></div>
+    </div>
+    <div class="card" style="background:#fdf0e6">
+      <div style="font-size:9px;color:#9b5e1a;font-weight:600">IA sugerida: 14 abr · 18:00 – 20:00 hrs</div>
+      <div style="font-size:8px;color:#9b5e1a;margin-top:2px">Inseminar 12–18 hrs después de detección</div>
+    </div>
+    <div class="cta">Guardar celo</div>
+  </div>
+</div>
+<div class="label">AUT-195 — Registro celo</div>
+</div>
+
+<!-- AUT-196 — REGISTRO DE ABORTO -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div>
+    <div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="hdr">
+      <div class="hdr-top"><div class="back">‹</div><span style="font-size:8px;color:#c0392b;font-weight:500">ABORTO</span></div>
+      <div class="title">Registro aborto</div>
+      <div class="sub">Potrero Norte · 14 abr 2026</div>
+    </div>
+    <div class="card">
+      <div class="fl">DIIO MADRE</div>
+      <div class="fv scan" style="margin-bottom:3px">276000204581172</div>
+      <div class="divider"></div>
+      <div class="field"><div class="fl">IDENTIFICADA COMO</div><div class="fv">Vaca · Angus · 5 años · Lote Norte</div></div>
+      <div class="field"><div class="fl">SERVICIO REGISTRADO</div><div class="fv">14 sep 2025 · IA · Dosis BRA-4521</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">Datos del aborto</div>
+      <div class="field"><div class="fl">FECHA DETECCIÓN</div><div class="fv">14 abr 2026</div></div>
+      <div class="divider"></div>
+      <div class="field"><div class="fl">MES DE GESTACIÓN APROX.</div>
+        <div class="row2" style="margin-top:3px">
+          <div class="btn-sel">1-2</div><div class="btn-sel">3-4</div>
+          <div class="btn-sel active">5-6</div><div class="btn-sel">7+</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="ct" style="margin-bottom:4px">Causa probable</div>
+      <div class="row2">
+        <div class="btn-sel active">Desconocida</div>
+        <div class="btn-sel">Traumática</div>
+      </div>
+      <div class="row2">
+        <div class="btn-sel">Infecciosa</div>
+        <div class="btn-sel">Nutricional</div>
+      </div>
+    </div>
+    <div class="card" style="background:#fde8e8">
+      <div style="font-size:9px;color:#c0392b;font-weight:600">Alerta enviada al vet</div>
+      <div style="font-size:8px;color:#c0392b;margin-top:2px">Dr. Muñoz notificado · revisión pendiente</div>
+    </div>
+    <div class="cta">Guardar aborto</div>
+  </div>
+</div>
+<div class="label">AUT-196 — Registro aborto</div>
+</div>
+
+<!-- AUT-197 — CONDICIÓN CORPORAL DEDICADA -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div>
+    <div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="hdr">
+      <div class="hdr-top"><div class="back">‹</div><span style="font-size:8px;color:#1e3a2f;font-weight:500">CC</span></div>
+      <div class="title">Condición corporal</div>
+      <div class="sub">Lote Sur · 14 abr 2026 · Jaime</div>
+    </div>
+    <div class="hero">
+      <div class="hl">SESIÓN CC</div>
+      <div class="hv">Lote Sur</div>
+      <div class="hs">Sin balanza · solo bastón + CC</div>
+      <div class="hg">
+        <div class="hi"><div class="hil">Evaluados</div><div class="hiv ok">34</div></div>
+        <div class="hi"><div class="hil">Restantes</div><div class="hiv">21</div></div>
+        <div class="hi"><div class="hil">CC prom.</div><div class="hiv">2.8</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="fl">DIIO ESCANEADO</div>
+      <div class="fv scan" style="margin-bottom:3px">276000204581234</div>
+      <div class="divider"></div>
+      <div class="field"><div class="fl">IDENTIFICADO COMO</div><div class="fv">Vaca · Angus · Lote Sur</div></div>
+    </div>
+    <div class="cc-big">3</div>
+    <div class="cc-sub">Condición corporal — escala 1 a 5</div>
+    <div class="cc-row">
+      <div class="cc-btn">1</div>
+      <div class="cc-btn">2</div>
+      <div class="cc-btn active">3</div>
+      <div class="cc-btn">4</div>
+      <div class="cc-btn">5</div>
+    </div>
+    <div class="sec-hdr" style="margin-top:4px">
+      <div class="sh">Últimos evaluados</div>
+      <div class="sl2">Ver todos →</div>
+    </div>
+    <div class="animal-row">
+      <div><div class="ar-d">...581234</div><div class="ar-i">Angus · CC 3 · 09:14</div></div>
+      <span class="ar-b" style="background:#e6f3ec;color:#1e3a2f">OK</span>
+    </div>
+    <div class="animal-row">
+      <div><div class="ar-d">...581228</div><div class="ar-i">Angus · CC 2 · 09:12</div></div>
+      <span class="ar-b" style="background:#fdf0e6;color:#9b5e1a">Bajo</span>
+    </div>
+    <div style="height:4px"></div>
+    <div class="cta">Guardar y siguiente</div>
+  </div>
+</div>
+<div class="label">AUT-197 — Condición corporal</div>
+</div>
+
+<!-- AUT-198 — MARCAJE Y CLASIFICACIÓN -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div>
+    <div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="hdr">
+      <div class="hdr-top"><div class="back">‹</div><span style="font-size:8px;color:#1e3a2f;font-weight:500">CLASIFICACIÓN</span></div>
+      <div class="title">Marcaje y clasificación</div>
+      <div class="sub">Manga · 14 abr 2026 · Jaime</div>
+    </div>
+    <div class="hero">
+      <div class="hl">SESIÓN CLASIFICACIÓN</div>
+      <div class="hv">Manga Norte</div>
+      <div class="hs">14 abr · Jaime · 110 animales</div>
+      <div class="hg">
+        <div class="hi"><div class="hil">Clasificados</div><div class="hiv ok">67</div></div>
+        <div class="hi"><div class="hil">Restantes</div><div class="hiv">43</div></div>
+        <div class="hi"><div class="hil">Engorda</div><div class="hiv">52</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="fl">DIIO ESCANEADO</div>
+      <div class="fv scan" style="margin-bottom:3px">276000204581234</div>
+      <div class="divider"></div>
+      <div class="field"><div class="fl">IDENTIFICADO COMO</div><div class="fv">Angus · Macho · 18 meses · 310 kg</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">Categoría</div>
+      <div class="row2">
+        <div class="btn-sel active">Novillo</div>
+        <div class="btn-sel">Vaquilla</div>
+        <div class="btn-sel">Vaca</div>
+      </div>
+      <div class="row2">
+        <div class="btn-sel">Toro</div>
+        <div class="btn-sel">Ternero</div>
+        <div class="btn-sel">Otro</div>
+      </div>
+      <div class="divider"></div>
+      <div class="ct" style="margin-bottom:4px">Destino</div>
+      <div class="row2">
+        <div class="btn-sel active">Engorda</div>
+        <div class="btn-sel">Cría</div>
+      </div>
+      <div class="row2">
+        <div class="btn-sel">Descarte</div>
+        <div class="btn-sel bad">Venta</div>
+      </div>
+    </div>
+    <div style="height:4px"></div>
+    <div class="cta">Guardar y siguiente</div>
+  </div>
+</div>
+<div class="label">AUT-198 — Marcaje y clasificación</div>
+</div>
+
+</div>
