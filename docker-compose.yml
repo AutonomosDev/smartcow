@@ -11,6 +11,7 @@ services:
       - NEXTAUTH_URL=${NEXTAUTH_URL:-https://smartcow.cl}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - AUTH_TRUST_HOST=${AUTH_TRUST_HOST:-true}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - NODE_ENV=production
     depends_on:
       - db
