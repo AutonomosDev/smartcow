@@ -75,6 +75,14 @@ import AbortoRegistroScreen from './src/screens/operations/AbortoRegistroScreen'
 import CondicionCorporalScreen from './src/screens/operations/CondicionCorporalScreen';
 import MarcajeClasificacionScreen from './src/screens/operations/MarcajeClasificacionScreen';
 
+// Alimentación (AUT-199 a AUT-204)
+import IngredientesScreen from './src/screens/feeding/IngredientesScreen';
+import RecetaTMRScreen from './src/screens/feeding/RecetaTMRScreen';
+import CorralesScreen from './src/screens/feeding/CorralesScreen';
+import ArmarCarroScreen from './src/screens/feeding/ArmarCarroScreen';
+import RecorridoSobrasScreen from './src/screens/feeding/RecorridoSobrasScreen';
+import ReportesAlimentacionScreen from './src/screens/feeding/ReportesAlimentacionScreen';
+
 // ─────────────────────────────────────────────
 // Tipos de navegación
 // ─────────────────────────────────────────────
@@ -140,6 +148,14 @@ export type RootStackParamList = {
   AbortoRegistro: { potreroId?: string };
   CondicionCorporal: { loteId?: string };
   MarcajeClasificacion: { manga?: string };
+
+  // Alimentación (AUT-199 a AUT-204)
+  Ingredientes: undefined;
+  RecetaTMR: { recetaId?: string };
+  Corrales: undefined;
+  ArmarCarro: { batchNum?: number };
+  RecorridoSobras: { batchNum?: number };
+  ReportesAlimentacion: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -238,6 +254,14 @@ function AppNavigator({ initialRoute }: { initialRoute: keyof RootStackParamList
       <AppStack.Screen name="AbortoRegistro" component={AbortoRegistroScreen} />
       <AppStack.Screen name="CondicionCorporal" component={CondicionCorporalScreen} />
       <AppStack.Screen name="MarcajeClasificacion" component={MarcajeClasificacionScreen} />
+
+      {/* Alimentación (AUT-199 a AUT-204) */}
+      <AppStack.Screen name="Ingredientes" component={IngredientesScreen} />
+      <AppStack.Screen name="RecetaTMR" component={RecetaTMRScreen} />
+      <AppStack.Screen name="Corrales" component={CorralesScreen} />
+      <AppStack.Screen name="ArmarCarro" component={ArmarCarroScreen} />
+      <AppStack.Screen name="RecorridoSobras" component={RecorridoSobrasScreen} />
+      <AppStack.Screen name="ReportesAlimentacion" component={ReportesAlimentacionScreen} />
     </AppStack.Navigator>
   );
 }
