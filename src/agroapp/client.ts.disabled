@@ -12,7 +12,7 @@
  * Ticket: AUT-124
  */
 
-import puppeteer, { type Browser, type Page } from "puppeteer";
+import puppeteer, { type Browser, type Page, type HTTPRequest } from "puppeteer";
 
 const BASE_URL = "http://www.agroapp.cl";
 const BACKEND_URL = "http://agroapp.cl:8080/AgroAppWebV18/";
@@ -92,7 +92,7 @@ async function createSession(): Promise<AgroAppSession> {
 
   // Bloquear recursos innecesarios para reducir consumo
   await page.setRequestInterception(true);
-  page.on("request", (req) => {
+  page.on("request", (req: HTTPRequest) => {
     const type = req.resourceType();
     if (type === "image" || type === "font" || type === "media") {
       req.abort();
