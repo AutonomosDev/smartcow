@@ -6,7 +6,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export default function middleware(req: NextRequest) {
+export default function middleware(req: NextRequest): NextResponse {
   const { pathname } = req.nextUrl;
 
   const isPublic =
