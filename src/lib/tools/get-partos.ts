@@ -1,5 +1,5 @@
-import { db } from "@/db/client";
-import { partos } from "@/db/schema";
+import { db } from "@/src/db/client";
+import { partos } from "@/src/db/schema/index";
 import { eq, and, sql, gte, lte } from "drizzle-orm";
 
 export async function get_partos(predioId: number, periodo?: { desde: string; hasta: string }) {
