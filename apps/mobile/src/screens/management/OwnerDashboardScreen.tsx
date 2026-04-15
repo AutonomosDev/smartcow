@@ -8,17 +8,15 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Bell, ChevronRight, Check } from 'lucide-react-native';
+import { Bell } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
-// DS font tokens (inline — no external package needed in mobile)
 const F = {
   regular: 'DMSans_400Regular',
   medium:  'DMSans_500Medium',
   bold:    'DMSans_600SemiBold',
 };
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
 const TAREAS_HOY = [
   {
     id: '1',
@@ -38,7 +36,6 @@ const TAREAS_HOY = [
   },
 ];
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
 export default function OwnerDashboardScreen() {
   const navigation = useNavigation<any>();
 
@@ -47,7 +44,7 @@ export default function OwnerDashboardScreen() {
       <StatusBar style="dark" />
       <SafeAreaView style={s.safeArea}>
 
-        {/* ── 3 HEADER ── */}
+        {/* ── HEADER ── */}
         <View style={s.header}>
           <View style={s.hdrTextBlock}>
             <Text style={s.hdrTitle}>Buenos días, JP</Text>
@@ -67,14 +64,15 @@ export default function OwnerDashboardScreen() {
           showsVerticalScrollIndicator={false}
         >
 
-          {/* ── 4 HERO CARD — tap → FundoDetail ── */}
+          {/* ── HERO CARD ── */}
           <TouchableOpacity
             style={s.hero}
             activeOpacity={0.85}
             onPress={() => navigation.navigate('FundoDetail')}
           >
             <Text style={s.heroLabel}>ESTADO DEL FUNDO</Text>
-            <Text style={s.heroTitle}>Fundo San Pedro</Text>
+            <Text style={s.heroMain}>Fundo San Pedro</Text>
+            <Text style={s.heroSub}>242 animales · Feedlot Wagyu F1 & Angus</Text>
             <View style={s.heroGrid}>
               <View style={s.heroItem}>
                 <Text style={s.heroItemLabel}>Animales</Text>
@@ -91,8 +89,7 @@ export default function OwnerDashboardScreen() {
             </View>
           </TouchableOpacity>
 
-          {/* ── TARJETA VERDE (condición operacional) — DS badge ok bg #e6f3ec ── */}
-          {/* Esta es la sección faltante — card blanca con bg ok verde */}
+          {/* ── CONDICIÓN OPERACIONAL ── */}
           <View style={s.condCard}>
             <View style={s.condHeader}>
               <View style={s.condDot} />
@@ -103,7 +100,7 @@ export default function OwnerDashboardScreen() {
             </Text>
           </View>
 
-          {/* ── 6 STATS ROW — 3 cajones KPI (cada uno tappable) ── */}
+          {/* ── STATS ROW ── */}
           <View style={s.stats}>
             <TouchableOpacity
               style={s.stat}
@@ -127,17 +124,18 @@ export default function OwnerDashboardScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* ── 5 TARJETAS DE ACTIVIDAD (card blanca x2) ── */}
-          {/* bg #fff · radius 14 · padding 12 14 · margin 0 16 */}
+          {/* ── TARJETAS DE ACTIVIDAD ── */}
           {TAREAS_HOY.map((tarea) => (
             <TouchableOpacity
               key={tarea.id}
               style={s.card}
               onPress={() => navigation.navigate('JaimeHome')}
             >
-              <View style={s.cardTopRow}>
-                <Text style={s.cardTitle}>{tarea.title}</Text>
-                {/* 7 - Badge */}
+              <View style={s.cardTop}>
+                <View style={s.cardTopLeft}>
+                  <Text style={s.cardTitle}>{tarea.title}</Text>
+                  <Text style={s.cardSubtitle}>{tarea.subtitle}</Text>
+                </View>
                 {tarea.estado === 'completado' ? (
                   <View style={[s.badge, s.badgeOk]}>
                     <Text style={[s.badgeText, { color: '#1e3a2f' }]}>Completada</Text>
@@ -148,17 +146,26 @@ export default function OwnerDashboardScreen() {
                   </View>
                 )}
               </View>
-              <Text style={s.cardBody}>{tarea.subtitle}</Text>
-              <View style={s.cardFooter}>
-                <Text style={s.cardMeta}>Hora  {tarea.hora}</Text>
-                <Text style={s.cardMeta}>Duración  {tarea.duracion}</Text>
-                <ChevronRight size={12} color="#bbb" />
+              <View style={s.cardGrid}>
+                <View style={s.cardGridItem}>
+                  <Text style={s.gridLabel}>Hora</Text>
+                  <Text style={s.gridVal}>{tarea.hora}</Text>
+                </View>
+                <View style={s.cardGridItem}>
+                  <Text style={s.gridLabel}>Duración</Text>
+                  <Text style={s.gridVal}>{tarea.duracion}</Text>
+                </View>
+                <View style={s.cardGridItem}>
+                  <Text style={s.gridLabel}>Estado</Text>
+                  <Text style={s.gridVal}>
+                    {tarea.estado === 'completado' ? 'Listo' : 'Pendiente'}
+                  </Text>
+                </View>
               </View>
             </TouchableOpacity>
           ))}
 
-          {/* ── 11 CTA PRINCIPAL ── */}
-          {/* bg #1e3a2f · radius 12 · padding 13 · margin 0 16 */}
+          {/* ── CTA PRINCIPAL ── */}
           <TouchableOpacity
             style={s.cta}
             onPress={() => navigation.navigate('MapaPredio')}
@@ -172,48 +179,44 @@ export default function OwnerDashboardScreen() {
   );
 }
 
-// ─── Styles — DS tokens exactos ───────────────────────────────────────────────
 const s = StyleSheet.create({
-  // Globals
   container: { flex: 1, backgroundColor: '#f8f6f1' },
-  safeArea: { flex: 1 },
-  scroll: { paddingBottom: 40 },
+  safeArea:  { flex: 1 },
+  scroll:    { paddingBottom: 40 },
 
-  // ── Header (comp 3) ──────────────────────────────────────────────────────
+  // ── Header ──────────────────────────────────────────────────────────────
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingHorizontal: 14,
+    paddingTop: 7,
+    paddingBottom: 4,
   },
   hdrTextBlock: {},
   hdrTitle: {
-    // DS: 16px/600 — uso 20 para saludo diferenciado
     fontFamily: F.bold,
     fontSize: 20,
     color: '#1a1a1a',
   },
   hdrSub: {
-    // DS: 11px/400 #888
     fontFamily: F.regular,
-    fontSize: 11,
-    color: '#888888',
+    fontSize: 10,
+    color: '#999999',
     marginTop: 2,
   },
   bellBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#ebe9e3', // DS: back btn bg
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#ebe9e3',
     justifyContent: 'center',
     alignItems: 'center',
   },
   notifDot: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 7,
+    right: 7,
     width: 7,
     height: 7,
     borderRadius: 3.5,
@@ -222,27 +225,35 @@ const s = StyleSheet.create({
     borderColor: '#ebe9e3',
   },
 
-  // ── Hero card (comp 4) — DS exacto ──────────────────────────────────────
+  // ── Hero card ────────────────────────────────────────────────────────────
   hero: {
     backgroundColor: '#1e3a2f',
-    borderRadius: 16,          // DS: 16px
-    paddingVertical: 12,       // DS: 12px top/bottom
-    paddingHorizontal: 14,     // DS: 14px left/right
-    marginHorizontal: 16,      // DS: margin 0 16px
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginHorizontal: 12,
     marginTop: 8,
     marginBottom: 8,
   },
   heroLabel: {
     fontFamily: F.bold,
-    fontSize: 9,                              // DS: 9px
-    color: 'rgba(255,255,255,0.5)',           // DS: rgba(255,255,255,0.5)
+    fontSize: 9,
+    color: 'rgba(255,255,255,0.5)',
+    letterSpacing: 0.3,
+    marginBottom: 4,
+  },
+  heroMain: {
+    fontFamily: F.bold,
+    fontSize: 22,
+    color: '#ffffff',
+    lineHeight: 22,
     marginBottom: 3,
   },
-  heroTitle: {
-    fontFamily: F.bold,
-    fontSize: 14,              // DS: 14px/600
-    color: '#ffffff',
-    marginBottom: 8,
+  heroSub: {
+    fontFamily: F.regular,
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.6)',
+    marginBottom: 10,
   },
   heroGrid: {
     flexDirection: 'row',
@@ -250,31 +261,32 @@ const s = StyleSheet.create({
   },
   heroItem: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)', // DS exacto
-    borderRadius: 7,                           // DS: 7px
-    padding: 6,                                // DS: 6px
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 7,
+    paddingVertical: 6,
+    paddingHorizontal: 7,
   },
   heroItemLabel: {
     fontFamily: F.regular,
-    fontSize: 9,                              // DS: 9px
-    color: 'rgba(255,255,255,0.5)',           // DS: rgba(255,255,255,0.5)
-    marginBottom: 1,
+    fontSize: 9,
+    color: 'rgba(255,255,255,0.5)',
+    marginBottom: 2,
   },
   heroItemVal: {
     fontFamily: F.bold,
-    fontSize: 12,              // DS: 12px/600
+    fontSize: 13,
     color: '#ffffff',
   },
-  ok: { color: '#7ecfa0' },
+  ok:   { color: '#7ecfa0' },
   warn: { color: '#f39c12' },
 
-  // ── Tarjeta verde condición (sección faltante — bg badge ok) ─────────────
+  // ── Condición operacional ────────────────────────────────────────────────
   condCard: {
-    backgroundColor: '#e6f3ec', // DS: badge ok bg
-    borderRadius: 14,            // DS: card 14px
+    backgroundColor: '#e6f3ec',
+    borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 14,
-    marginHorizontal: 16,
+    marginHorizontal: 12,
     marginBottom: 8,
   },
   condHeader: {
@@ -287,113 +299,122 @@ const s = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#1e3a2f',   // DS: offline dot color
+    backgroundColor: '#1e3a2f',
   },
   condTitle: {
     fontFamily: F.bold,
-    fontSize: 12,                  // DS: card-title 12px/600
+    fontSize: 12,
     color: '#1e3a2f',
   },
   condBody: {
     fontFamily: F.regular,
-    fontSize: 11,                  // DS: card-body 11px
+    fontSize: 11,
     color: '#888888',
     lineHeight: 16,
   },
 
-  // ── Stats row (comp 6) ───────────────────────────────────────────────────
+  // ── Stats row ────────────────────────────────────────────────────────────
   stats: {
     flexDirection: 'row',
-    gap: 8,                   // DS: gap 8px
-    marginHorizontal: 16,     // DS: margin 0 16px
+    gap: 6,
+    marginHorizontal: 12,
     marginBottom: 8,
   },
   stat: {
     flex: 1,
-    backgroundColor: '#ffffff', // DS: #fff
-    borderRadius: 11,           // DS: 11px
-    padding: 9,                 // DS: 9px
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    padding: 8,
     alignItems: 'center',
   },
   statVal: {
     fontFamily: F.bold,
-    fontSize: 16,              // DS: 16px/600
+    fontSize: 15,
     color: '#1a1a1a',
   },
   statLabel: {
     fontFamily: F.regular,
-    fontSize: 9,               // DS: 9px/400 #bbb
+    fontSize: 9,
     color: '#bbbbbb',
     marginTop: 1,
     textAlign: 'center',
   },
 
-  // ── Card blanca actividades (comp 5) ─────────────────────────────────────
+  // ── Cards actividad ──────────────────────────────────────────────────────
   card: {
-    backgroundColor: '#ffffff', // DS: #fff
-    borderRadius: 14,           // DS: 14px
-    paddingVertical: 12,        // DS: 12px
-    paddingHorizontal: 14,      // DS: 14px
-    marginHorizontal: 16,       // DS: margin 0 16px
-    marginBottom: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginHorizontal: 12,
+    marginBottom: 6,
   },
-  cardTopRow: {
+  cardTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 2,
+    alignItems: 'flex-start',
+    marginBottom: 8,
   },
-  cardTitle: {
-    fontFamily: F.bold,
-    fontSize: 12,              // DS: card-title 12px/600
-    color: '#1a1a1a',
+  cardTopLeft: {
     flex: 1,
     marginRight: 8,
   },
-  cardBody: {
-    fontFamily: F.regular,
-    fontSize: 11,              // DS: card-body 11px
-    color: '#888888',
-    marginBottom: 10,
+  cardTitle: {
+    fontFamily: F.bold,
+    fontSize: 12,
+    color: '#1a1a1a',
+    marginBottom: 2,
   },
-  cardFooter: {
+  cardSubtitle: {
+    fontFamily: F.regular,
+    fontSize: 10,
+    color: '#aaaaaa',
+  },
+  cardGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+    gap: 4,
   },
-  cardMeta: {
-    fontFamily: F.regular,
-    fontSize: 10,              // DS: label 10px/400 #bbb
-    color: '#bbbbbb',
+  cardGridItem: {
     flex: 1,
   },
+  gridLabel: {
+    fontFamily: F.regular,
+    fontSize: 9,
+    color: '#bbbbbb',
+    marginBottom: 1,
+  },
+  gridVal: {
+    fontFamily: F.bold,
+    fontSize: 11,
+    color: '#1a1a1a',
+  },
 
-  // ── Badges (comp 7) ─────────────────────────────────────────────────────
+  // ── Badges ───────────────────────────────────────────────────────────────
   badge: {
-    paddingVertical: 3,        // DS: 3px
-    paddingHorizontal: 10,     // DS: 10px
-    borderRadius: 20,          // DS: 20px
+    paddingVertical: 2,
+    paddingHorizontal: 7,
+    borderRadius: 20,
   },
   badgeText: {
     fontFamily: F.bold,
-    fontSize: 10,              // DS: 10px/600
+    fontSize: 9,
   },
-  badgeOk: { backgroundColor: '#e6f3ec' },
-  badgeNeutral: { backgroundColor: '#ebe9e3' },
+  badgeOk:      { backgroundColor: '#e6f3ec' },
+  badgeNeutral: { backgroundColor: '#e6f0f8' },
 
-  // ── CTA principal (comp 11) ──────────────────────────────────────────────
+  // ── CTA ──────────────────────────────────────────────────────────────────
   cta: {
-    backgroundColor: '#1e3a2f', // DS: #1e3a2f
-    borderRadius: 12,           // DS: 12px
-    padding: 13,                // DS: 13px
-    marginHorizontal: 16,       // DS: margin 0 16px
-    marginTop: 8,
+    backgroundColor: '#1e3a2f',
+    borderRadius: 11,
+    padding: 12,
+    marginHorizontal: 12,
+    marginTop: 6,
     marginBottom: 8,
     alignItems: 'center',
   },
   ctaText: {
     fontFamily: F.medium,
-    fontSize: 13,              // DS: 13px/500
+    fontSize: 12,
     color: '#ffffff',
   },
 });
