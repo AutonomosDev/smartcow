@@ -6,7 +6,7 @@ import {
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
-import { fundos } from "./fundos";
+import { predios } from "./predios";
 import { organizaciones } from "./organizaciones";
 import { animales } from "./animales";
 import { potreros } from "./potreros";
@@ -24,9 +24,9 @@ export const movimientosPotrero = pgTable(
     animalId: integer("animal_id")
       .notNull()
       .references(() => animales.id, { onDelete: "restrict" }),
-    fundoId: integer("fundo_id")
+    predioId: integer("predio_id")
       .notNull()
-      .references(() => fundos.id, { onDelete: "restrict" }),
+      .references(() => predios.id, { onDelete: "restrict" }),
     orgId: integer("org_id")
       .notNull()
       .references(() => organizaciones.id, { onDelete: "restrict" }),
@@ -39,7 +39,7 @@ export const movimientosPotrero = pgTable(
   },
   (t) => [
     index("movimientos_potrero_animal_idx").on(t.animalId),
-    index("movimientos_potrero_potrero_fundo_idx").on(t.potreroId, t.fundoId),
+    index("movimientos_potrero_potrero_predio_idx").on(t.potreroId, t.predioId),
   ]
 );
 
