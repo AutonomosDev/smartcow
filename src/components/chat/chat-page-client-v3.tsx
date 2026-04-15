@@ -423,6 +423,7 @@ export function ChatPageClientV3({
   const router = useRouter();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages ?? []);
   const [conversationId, setConversationId] = useState<number | null>(initialConversationId ?? null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // Para re-fetch del sidebar
   const [isLoading, setIsLoading] = useState(false);
   const [thinkingText, setThinkingText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -498,6 +499,8 @@ export function ChatPageClientV3({
             const data = await res.json();
             convId = data.id as number;
             setConversationId(convId);
+            // Forzar re-fetch del sidebar para mostrar la conversación nueva
+            setRefreshTrigger((prev) => prev + 1);
           }
         } catch {
           // Sin persistencia — el chat sigue funcionando
@@ -622,6 +625,7 @@ export function ChatPageClientV3({
           userEmail={userEmail}
           predioId={predioId}
           activeConversationId={conversationId}
+          refreshTrigger={refreshTrigger}
           onNewConversation={handleNewConversation}
           onSelectConversation={handleSelectConversation}
         />

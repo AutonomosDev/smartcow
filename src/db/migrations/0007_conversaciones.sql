@@ -13,3 +13,5 @@ CREATE TABLE "conversaciones" (
   "creado_en" timestamp with time zone DEFAULT now() NOT NULL,
   "actualizado_en" timestamp with time zone DEFAULT now() NOT NULL
 );
+
+CREATE INDEX "idx_conversaciones_user_predio" ON "conversaciones"("user_id", "predio_id");
