@@ -9,7 +9,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { organizaciones } from "./organizaciones";
-import { fundos } from "./fundos";
+import { predios } from "./predios";
 
 /**
  * tipoPropiedadEnum — distingue animales propios del fundo vs. de mediería.
@@ -28,9 +28,9 @@ export const medieros = pgTable("medieros", {
   orgId: integer("org_id")
     .notNull()
     .references(() => organizaciones.id, { onDelete: "restrict" }),
-  fundoId: integer("fundo_id")
+  predioId: integer("predio_id")
     .notNull()
-    .references(() => fundos.id, { onDelete: "restrict" }),
+    .references(() => predios.id, { onDelete: "restrict" }),
   nombre: varchar("nombre", { length: 120 }).notNull(),
   rut: varchar("rut", { length: 12 }),
   contacto: varchar("contacto", { length: 80 }),
