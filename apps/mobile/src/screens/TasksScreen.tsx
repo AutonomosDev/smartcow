@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ecebe6',
+    backgroundColor: '#ebe9e3',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#ecebe6',
+    backgroundColor: '#ebe9e3',
     borderRadius: 12,
     padding: 4,
     marginTop: 20,
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   filterBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ecebe6',
+    backgroundColor: '#ebe9e3',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,

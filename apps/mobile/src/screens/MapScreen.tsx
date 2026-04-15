@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   },
   mapBackground: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#cbd9bf', // Slightly different green for terrain
+    backgroundColor: '#e6f3ec', // Slightly different green for terrain
   },
   header: {
     position: 'absolute',

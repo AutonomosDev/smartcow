@@ -37,7 +37,7 @@ export default function ProductionScreen() {
           <View style={styles.efficiencyCard}>
             <View style={styles.effHeader}>
               <Text style={styles.effLabel}>EFICIENCIA DE CONVERSIÓN</Text>
-              <TrendingUp size={16} color="#2ecc71" />
+              <TrendingUp size={16} color="#7ecfa0" />
             </View>
             <Text style={styles.effValue}>6.4 : 1</Text>
             <Text style={styles.effSub}>kg ración / kg carne (Wagyu F1)</Text>
@@ -65,7 +65,7 @@ export default function ProductionScreen() {
                 <Text style={styles.detailText}>Real</Text>
               </View>
               <View style={styles.detailItem}>
-                <View style={[styles.dot, { backgroundColor: '#ecebe6' }]} />
+                <View style={[styles.dot, { backgroundColor: '#ebe9e3' }]} />
                 <Text style={styles.detailText}>Objetivo</Text>
               </View>
             </View>

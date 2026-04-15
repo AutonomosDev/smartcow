@@ -37,7 +37,7 @@ export default function MedicalDetailScreen() {
 
           {/* Withholding Period Warning */}
           <View style={styles.warningCard}>
-            <ShieldCheck size={24} color="#e67e22" />
+            <ShieldCheck size={24} color="#f39c12" />
             <View style={styles.warningContent}>
               <Text style={styles.warningTitle}>PERIODO DE CARENCIA</Text>
               <Text style={styles.warningValue}>44 días restantes</Text>
@@ -66,7 +66,7 @@ export default function MedicalDetailScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>REGISTRO DE APLICACIÓN</Text>
             <View style={styles.logItem}>
-              <View style={[styles.logDot, { backgroundColor: '#2ecc71' }]} />
+              <View style={[styles.logDot, { backgroundColor: '#7ecfa0' }]} />
               <View style={styles.logContent}>
                 <Text style={styles.logTitle}>Aplicación 1 completada</Text>
                 <Text style={styles.logMeta}>12 Abr · 08:30 · P. Soto</Text>
@@ -80,7 +80,7 @@ export default function MedicalDetailScreen() {
               </View>
             </View>
             <View style={[styles.logItem, { opacity: 0.5 }]}>
-              <View style={[styles.logDot, { backgroundColor: '#ecebe6' }]} />
+              <View style={[styles.logDot, { backgroundColor: '#ebe9e3' }]} />
               <View style={styles.logContent}>
                 <Text style={styles.logTitle}>Aplicación 3 futura</Text>
                 <Text style={styles.logMeta}>16 Abr · 08:00</Text>
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   },
   warningCard: {
     flexDirection: 'row',
-    backgroundColor: '#fef5e7',
+    backgroundColor: '#fdf0e6',
     borderRadius: 20,
     padding: 24,
     alignItems: 'center',
@@ -169,14 +169,14 @@ const styles = StyleSheet.create({
   warningTitle: {
     fontSize: 10,
     fontFamily: T.font.family.semibold,
-    color: '#e67e22',
+    color: '#f39c12',
     letterSpacing: 1,
     marginBottom: 4,
   },
   warningValue: {
     fontSize: 20,
     fontFamily: T.font.family.semibold,
-    color: '#e67e22',
+    color: '#f39c12',
   },
   warningText: {
     fontSize: 12,

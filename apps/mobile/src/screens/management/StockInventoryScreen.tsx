@@ -96,13 +96,13 @@ export default function StockInventoryScreen() {
             {RECENT_LOGS.map((log, i) => (
               <View key={i} style={styles.logCard}>
                 <View style={[styles.logIcon, { backgroundColor: log.type === 'in' ? '#e6f3ec' : '#fff5f5' }]}>
-                  {log.type === 'in' ? <ArrowDownLeft size={16} color="#2ecc71" /> : <ArrowUpRight size={16} color="#e74c3c" />}
+                  {log.type === 'in' ? <ArrowDownLeft size={16} color="#7ecfa0" /> : <ArrowUpRight size={16} color="#e74c3c" />}
                 </View>
                 <View style={styles.logContent}>
                   <Text style={styles.logItemName}>{log.item}</Text>
                   <Text style={styles.logDate}>{log.date}</Text>
                 </View>
-                <Text style={[styles.logQty, { color: log.type === 'in' ? '#2ecc71' : '#e74c3c' }]}>{log.qty}</Text>
+                <Text style={[styles.logQty, { color: log.type === 'in' ? '#7ecfa0' : '#e74c3c' }]}>{log.qty}</Text>
               </View>
             ))}
           </View>

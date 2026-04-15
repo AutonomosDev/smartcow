@@ -67,7 +67,7 @@ export default function ActiveMissionScreen() {
 
           <View style={styles.badgesRow}>
             <View style={styles.teleBadge}>
-              <Battery size={14} color="#2ecc71" />
+              <Battery size={14} color="#7ecfa0" />
               <Text style={styles.teleValue}>87%</Text>
             </View>
             <View style={styles.teleBadge}>

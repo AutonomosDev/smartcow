@@ -92,8 +92,8 @@ export default function FindingDetailScreen() {
                   <Text style={styles.secBtnText}>Es correcto</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.secBtn}>
-                  <AlertTriangle size={20} color="#e67e22" />
-                  <Text style={[styles.secBtnText, { color: '#e67e22' }]}>Falso positivo</Text>
+                  <AlertTriangle size={20} color="#f39c12" />
+                  <Text style={[styles.secBtnText, { color: '#f39c12' }]}>Falso positivo</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     borderWidth: 1,
-    borderColor: '#ecebe6',
+    borderColor: '#ebe9e3',
   },
   secBtnText: {
     fontSize: 13,

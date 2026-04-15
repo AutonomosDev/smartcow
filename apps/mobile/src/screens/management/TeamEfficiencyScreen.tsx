@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#7ecfa0',
     borderRadius: 3,
   },
   taskCount: {
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#ecebe6',
+    borderColor: '#ebe9e3',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',

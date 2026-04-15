@@ -7,8 +7,8 @@ const F = { r: 'DMSans_400Regular', m: 'DMSans_500Medium', b: 'DMSans_600SemiBol
 
 const AVATARS = [
   { initials: 'JP', label: 'JP',       color: '#1e3a2f' },
-  { initials: 'R',  label: 'Rodrigo',  color: '#7b3f00' },
-  { initials: 'V',  label: 'Dr. Muñoz', color: '#1a5c3a' },
+  { initials: 'R',  label: 'Rodrigo',  color: '#9b5e1a' },
+  { initials: 'V',  label: 'Dr. Muñoz', color: '#1e3a2f' },
 ];
 
 // Waveform mock bars

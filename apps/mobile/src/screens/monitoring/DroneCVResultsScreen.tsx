@@ -52,7 +52,7 @@ export default function DroneCVResultsScreen() {
               { label: 'Confianza IA', value: '98.4%' },
               { label: 'Tiempo Proc.', value: '1.2 min' },
               { label: 'Bebederos', value: 'OK (3/4)', color: '#f39c12' },
-              { label: 'Cercos', value: 'OK', color: '#2ecc71' }
+              { label: 'Cercos', value: 'OK', color: '#7ecfa0' }
             ]}
           />
 
@@ -96,7 +96,7 @@ export default function DroneCVResultsScreen() {
           </TouchableOpacity>
 
           <View style={styles.doneSection}>
-            <CheckCircle2 size={32} color="#2ecc71" />
+            <CheckCircle2 size={32} color="#7ecfa0" />
             <Text style={styles.doneText}>Todos los animales del lote principal han sido contabilizados.</Text>
           </View>
           
