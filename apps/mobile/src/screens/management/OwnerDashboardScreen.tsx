@@ -8,8 +8,9 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Bell } from 'lucide-react-native';
+import { Bell, LogOut } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../context/AuthContext';
 
 const F = {
   regular: 'DMSans_400Regular',
@@ -38,6 +39,7 @@ const TAREAS_HOY = [
 
 export default function OwnerDashboardScreen() {
   const navigation = useNavigation<any>();
+  const { signOut } = useAuth() as any;
 
   return (
     <View style={s.container}>
@@ -45,18 +47,21 @@ export default function OwnerDashboardScreen() {
       <SafeAreaView style={s.safeArea}>
 
         {/* ── HEADER ── */}
-        <View style={s.header}>
-          <View style={s.hdrTextBlock}>
-            <Text style={s.hdrTitle}>Buenos días, JP</Text>
-            <Text style={s.hdrSub}>Lunes 14 abril · Fundo San Pedro</Text>
+        <View style={s.hdr}>
+          <View style={s.hdrTop}>
+            <TouchableOpacity style={s.backBtn} onPress={signOut}>
+              <LogOut size={13} color="#444" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={s.bellBtn}
+              onPress={() => navigation.navigate('AlertsCenter')}
+            >
+              <Bell size={16} color="#1a1a1a" />
+              <View style={s.notifDot} />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={s.bellBtn}
-            onPress={() => navigation.navigate('AlertsCenter')}
-          >
-            <Bell size={18} color="#1a1a1a" />
-            <View style={s.notifDot} />
-          </TouchableOpacity>
+          <Text style={s.hdrTitle}>Buenos días, JP</Text>
+          <Text style={s.hdrSub}>Lunes 14 abril · Fundo San Pedro</Text>
         </View>
 
         <ScrollView
@@ -89,16 +94,7 @@ export default function OwnerDashboardScreen() {
             </View>
           </TouchableOpacity>
 
-          {/* ── CONDICIÓN OPERACIONAL ── */}
-          <View style={s.condCard}>
-            <View style={s.condHeader}>
-              <View style={s.condDot} />
-              <Text style={s.condTitle}>Condición operacional — OK</Text>
-            </View>
-            <Text style={s.condBody}>
-              Sin alertas críticas · GDP promedio +0.9 kg/día · Efic. ración 94%
-            </Text>
-          </View>
+
 
           {/* ── STATS ROW ── */}
           <View style={s.stats}>
@@ -184,42 +180,52 @@ const s = StyleSheet.create({
   safeArea:  { flex: 1 },
   scroll:    { paddingBottom: 40 },
 
-  // ── Header ──────────────────────────────────────────────────────────────
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+  // ── Header ───────────────────────────────────────────────────────────────────
+  hdr: {
     paddingHorizontal: 14,
     paddingTop: 7,
     paddingBottom: 4,
   },
-  hdrTextBlock: {},
+  hdrTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  backBtn: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#ebe9e3',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   hdrTitle: {
     fontFamily: F.bold,
-    fontSize: 20,
+    fontSize: 26,
     color: '#1a1a1a',
+    lineHeight: 28,
   },
   hdrSub: {
     fontFamily: F.regular,
     fontSize: 10,
     color: '#999999',
-    marginTop: 2,
   },
   bellBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: '#ebe9e3',
     justifyContent: 'center',
     alignItems: 'center',
   },
   notifDot: {
     position: 'absolute',
-    top: 7,
-    right: 7,
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
+    top: 5,
+    right: 5,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: '#e74c3c',
     borderWidth: 1.5,
     borderColor: '#ebe9e3',
@@ -232,7 +238,7 @@ const s = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
     marginHorizontal: 12,
-    marginTop: 8,
+    marginTop: 16,
     marginBottom: 8,
   },
   heroLabel: {
@@ -280,38 +286,7 @@ const s = StyleSheet.create({
   ok:   { color: '#7ecfa0' },
   warn: { color: '#f39c12' },
 
-  // ── Condición operacional ────────────────────────────────────────────────
-  condCard: {
-    backgroundColor: '#e6f3ec',
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    marginHorizontal: 12,
-    marginBottom: 8,
-  },
-  condHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 4,
-  },
-  condDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#1e3a2f',
-  },
-  condTitle: {
-    fontFamily: F.bold,
-    fontSize: 12,
-    color: '#1e3a2f',
-  },
-  condBody: {
-    fontFamily: F.regular,
-    fontSize: 11,
-    color: '#888888',
-    lineHeight: 16,
-  },
+
 
   // ── Stats row ────────────────────────────────────────────────────────────
   stats: {
@@ -353,7 +328,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   cardTopLeft: {
     flex: 1,
@@ -408,8 +383,8 @@ const s = StyleSheet.create({
     borderRadius: 11,
     padding: 12,
     marginHorizontal: 12,
-    marginTop: 6,
-    marginBottom: 8,
+    marginTop: 0,
+    marginBottom: 0,
     alignItems: 'center',
   },
   ctaText: {
