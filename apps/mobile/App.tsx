@@ -56,6 +56,8 @@ import MachineryDashboardScreen from './src/screens/management/MachineryDashboar
 import MachineryDetailScreen from './src/screens/management/MachineryDetailScreen';
 import CarModeDashboardScreen from './src/screens/management/CarModeDashboardScreen';
 import PodcastPlayerScreen from './src/screens/management/PodcastPlayerScreen';
+import FundoDetailScreen from './src/screens/management/FundoDetailScreen';
+import AnimalesScreen from './src/screens/management/AnimalesScreen';
 
 // ─────────────────────────────────────────────
 // Tipos de navegación
@@ -104,6 +106,8 @@ export type RootStackParamList = {
   MachineryDetail: { assetId: string };
   CarModeDashboard: undefined;
   PodcastPlayer: undefined;
+  FundoDetail: undefined;
+  AnimalesScreen: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -184,6 +188,8 @@ function AppNavigator({ initialRoute }: { initialRoute: keyof RootStackParamList
       <AppStack.Screen name="MachineryDetail" component={MachineryDetailScreen} />
       <AppStack.Screen name="CarModeDashboard" component={CarModeDashboardScreen} />
       <AppStack.Screen name="PodcastPlayer" component={PodcastPlayerScreen} />
+      <AppStack.Screen name="FundoDetail" component={FundoDetailScreen} />
+      <AppStack.Screen name="AnimalesScreen" component={AnimalesScreen} />
     </AppStack.Navigator>
   );
 }
