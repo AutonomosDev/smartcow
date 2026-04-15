@@ -7,6 +7,9 @@ export * from "./users";
 // Catálogos de referencia
 export * from "./catalogos";
 
+// Mediería (antes de animales — animales importa desde aquí)
+export * from "./medieros";
+
 // Dominio ganadero
 export * from "./animales";
 export * from "./lotes";
@@ -16,7 +19,6 @@ export * from "./inseminaciones";
 export * from "./ecografias";
 export * from "./areteos";
 export * from "./bajas";
-export * from "./medieros";
 export * from "./potreros";
 export * from "./movimientos_potrero";
 

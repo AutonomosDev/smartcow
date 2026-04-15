@@ -247,6 +247,9 @@ function inferSexo(tipoGanado: string | undefined): "M" | "H" {
 // MAPEOS EN MEMORIA (AgroApp ID → SmartCow ID)
 // ─────────────────────────────────────────────
 
+// ID de la organización dueña de todos los fundos migrados (se resuelve en main)
+let defaultOrgId: number = 0;
+
 const mapFundo = new Map<number, number>(); // agroFundoId → smartcowFundoId
 const mapTipoGanado = new Map<string, number>(); // nombre → id
 const mapRaza = new Map<string, number>(); // nombre → id
@@ -255,6 +258,8 @@ const mapSemen = new Map<string, number>(); // `${fundoId}:${toro}` → id
 const mapBajaMotivo = new Map<string, number>(); // nombre → id
 const mapBajaCausa = new Map<string, number>(); // nombre → id
 const mapAnimal = new Map<string, number>(); // `${fundoId}:${diio}` → animalId
+const mapAnimalSexo = new Map<string, "M" | "H">(); // `${fundoId}:${diio}` → sexo
+const mapMediero = new Map<string, number>(); // `${fundoId}:${nombre}` → medieroId
 
 // ─────────────────────────────────────────────
 // CONTADORES
@@ -266,6 +271,7 @@ interface Counts {
   razas: number;
   estado_reproductivo: number;
   semen: number;
+  medieros: number;
   animales: number;
   pesajes: number;
   partos: number;
@@ -273,8 +279,32 @@ interface Counts {
   ecografias: number;
   areteos: number;
   bajas: number;
-  skipped_animales: number;
-  skipped_eventos: number;
+  // Skips por regla
+  skip_animal_diio_vacio: number;
+  skip_animal_tipo_ganado_desconocido: number;
+  skip_pesaje_diio_vacio: number;
+  skip_pesaje_animal_no_encontrado: number;
+  skip_pesaje_peso_invalido: number;
+  skip_pesaje_sin_fecha: number;
+  skip_pesaje_dedup: number;
+  skip_parto_sin_diio_madre: number;
+  skip_parto_madre_no_encontrada: number;
+  skip_parto_sin_fecha: number;
+  skip_inseminacion_sin_diio: number;
+  skip_inseminacion_animal_no_encontrado: number;
+  skip_inseminacion_sin_fecha: number;
+  skip_ecografia_sin_diio: number;
+  skip_ecografia_animal_no_encontrado: number;
+  skip_ecografia_sin_fecha: number;
+  skip_ecografia_dias_invalidos: number;
+  skip_baja_sin_diio: number;
+  skip_baja_animal_no_encontrado: number;
+  skip_baja_motivo_no_encontrado: number;
+  skip_baja_sin_fecha: number;
+  // Warns por regla
+  warn_animal_sin_fecha_nacimiento: number;
+  warn_parto_madre_macho: number;
+  warn_inseminacion_animal_en_baja: number;
 }
 
 const counts: Counts = {
@@ -283,6 +313,7 @@ const counts: Counts = {
   razas: 0,
   estado_reproductivo: 0,
   semen: 0,
+  medieros: 0,
   animales: 0,
   pesajes: 0,
   partos: 0,
@@ -290,9 +321,61 @@ const counts: Counts = {
   ecografias: 0,
   areteos: 0,
   bajas: 0,
-  skipped_animales: 0,
-  skipped_eventos: 0,
+  skip_animal_diio_vacio: 0,
+  skip_animal_tipo_ganado_desconocido: 0,
+  skip_pesaje_diio_vacio: 0,
+  skip_pesaje_animal_no_encontrado: 0,
+  skip_pesaje_peso_invalido: 0,
+  skip_pesaje_sin_fecha: 0,
+  skip_pesaje_dedup: 0,
+  skip_parto_sin_diio_madre: 0,
+  skip_parto_madre_no_encontrada: 0,
+  skip_parto_sin_fecha: 0,
+  skip_inseminacion_sin_diio: 0,
+  skip_inseminacion_animal_no_encontrado: 0,
+  skip_inseminacion_sin_fecha: 0,
+  skip_ecografia_sin_diio: 0,
+  skip_ecografia_animal_no_encontrado: 0,
+  skip_ecografia_sin_fecha: 0,
+  skip_ecografia_dias_invalidos: 0,
+  skip_baja_sin_diio: 0,
+  skip_baja_animal_no_encontrado: 0,
+  skip_baja_motivo_no_encontrado: 0,
+  skip_baja_sin_fecha: 0,
+  warn_animal_sin_fecha_nacimiento: 0,
+  warn_parto_madre_macho: 0,
+  warn_inseminacion_animal_en_baja: 0,
 };
+
+// ─────────────────────────────────────────────
+// P0 — ORGANIZACIÓN (prerequisito de fundos)
+// ─────────────────────────────────────────────
+
+async function asegurarOrg(nombre: string): Promise<number> {
+  if (DRY_RUN) {
+    log("P0:org", `DRY_RUN — skipping org lookup for "${nombre}"`);
+    return -1;
+  }
+
+  const existing = await db
+    .select()
+    .from(schema.organizaciones)
+    .where(eq(schema.organizaciones.nombre, nombre))
+    .limit(1);
+
+  if (existing.length > 0) {
+    log("P0:org", `Org "${nombre}" already exists (id=${existing[0].id})`);
+    return existing[0].id;
+  }
+
+  const inserted = await db
+    .insert(schema.organizaciones)
+    .values({ nombre, plan: "pro" })
+    .returning({ id: schema.organizaciones.id });
+
+  log("P0:org", `Org "${nombre}" created (id=${inserted[0].id})`);
+  return inserted[0].id;
+}
 
 // ─────────────────────────────────────────────
 // P1 — CATÁLOGOS GLOBALES
@@ -517,7 +600,7 @@ async function migrarFundos(session: Awaited<ReturnType<typeof getSession>>): Pr
     } else {
       const inserted = await db
         .insert(schema.fundos)
-        .values({ nombre })
+        .values({ nombre, orgId: defaultOrgId })
         .returning({ id: schema.fundos.id });
       mapFundo.set(item.fundo_id, inserted[0].id);
       counts.fundos++;
@@ -574,6 +657,79 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
     }
   }
   log("P3:semen", `Done — ${counts.semen} inserted, ${mapSemen.size} mapped`);
+}
+
+// ─────────────────────────────────────────────
+// HELPER — Detectar mediería por campo origen de AgroApp
+// Animales de mediería en AgroApp llevan el nombre/código del mediero
+// en el campo 'origen'. Heurística: si origen contiene "medi" o "mediero"
+// (case-insensitive) se trata como mediería y se extrae el código.
+// Ticket: AUT-135
+// ─────────────────────────────────────────────
+
+function detectarMedieria(origen: string | undefined): { esMedieria: boolean; nombreMediero: string | null } {
+  if (!origen) return { esMedieria: false, nombreMediero: null };
+  const lower = origen.toLowerCase();
+  if (lower.includes("medi")) {
+    // Extraer nombre: remover prefijos comunes ("MEDIERO:", "MED:") y trim
+    const nombre = origen
+      .replace(/^medi(ero)?[:\s]*/i, "")
+      .trim() || origen.trim();
+    return { esMedieria: true, nombreMediero: nombre };
+  }
+  return { esMedieria: false, nombreMediero: null };
+}
+
+// ─────────────────────────────────────────────
+// HELPER — Crear o recuperar mediero por fundo + nombre
+// Ticket: AUT-135
+// ─────────────────────────────────────────────
+
+async function asegurarMediero(smartFundoId: number, nombre: string): Promise<number> {
+  const mKey = `${smartFundoId}:${nombre}`;
+  const cached = mapMediero.get(mKey);
+  if (cached !== undefined) return cached;
+
+  if (DRY_RUN) {
+    mapMediero.set(mKey, -1);
+    counts.medieros++;
+    return -1;
+  }
+
+  const existing = await db
+    .select()
+    .from(schema.medieros)
+    .where(
+      and(
+        eq(schema.medieros.fundoId, smartFundoId),
+        eq(schema.medieros.nombre, nombre)
+      )
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    mapMediero.set(mKey, existing[0].id);
+    return existing[0].id;
+  }
+
+  // Obtener org_id del fundo
+  const fundo = await db
+    .select({ orgId: schema.fundos.orgId })
+    .from(schema.fundos)
+    .where(eq(schema.fundos.id, smartFundoId))
+    .limit(1);
+
+  const orgId = fundo[0]?.orgId ?? defaultOrgId;
+
+  const inserted = await db
+    .insert(schema.medieros)
+    .values({ orgId, fundoId: smartFundoId, nombre })
+    .returning({ id: schema.medieros.id });
+
+  mapMediero.set(mKey, inserted[0].id);
+  counts.medieros++;
+  log("P4:medieros", `Mediero "${nombre}" creado en fundo ${smartFundoId} (id=${inserted[0].id})`);
+  return inserted[0].id;
 }
 
 // ─────────────────────────────────────────────
@@ -647,7 +803,7 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
     for (const item of items) {
       const diio = item.diio?.trim();
       if (!diio) {
-        counts.skipped_animales++;
+        counts.skip_animal_diio_vacio++;
         continue;
       }
 
@@ -665,8 +821,14 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
 
       if (!tipoGanadoId) {
         warn("P4:animales", `Animal ${diio} — tipo_ganado "${tipoGanadoNombre}" not in map, skipping`);
-        counts.skipped_animales++;
+        counts.skip_animal_tipo_ganado_desconocido++;
         continue;
+      }
+
+      // Warn si sin fecha_nacimiento
+      if (!item.fecha_nacimiento) {
+        warn("P4:animales", `Animal ${diio} — sin fecha_nacimiento`);
+        counts.warn_animal_sin_fecha_nacimiento++;
       }
 
       const razaNombre = item.raza?.trim();
@@ -685,11 +847,21 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
 
       if (existing.length > 0) {
         mapAnimal.set(aKey, existing[0].id);
+        mapAnimalSexo.set(aKey, existing[0].sexo as "M" | "H");
         continue;
       }
 
       const sexo = inferSexo(tipoGanadoNombre);
       const desecho = toBoolean(item.desecho);
+
+      // Detectar mediería por campo origen (AUT-135)
+      const origenRaw = item.origen?.trim() || null;
+      const { esMedieria, nombreMediero } = detectarMedieria(origenRaw ?? undefined);
+      let medieroId: number | null = null;
+      if (esMedieria && nombreMediero) {
+        medieroId = await asegurarMediero(smartFundoId, nombreMediero);
+        if (medieroId === -1) medieroId = null; // DRY_RUN
+      }
 
       const inserted = await db
         .insert(schema.animales)
@@ -705,17 +877,21 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
           diioMadre: item.diio_madre?.trim() || null,
           padre: item.padre?.trim() || null,
           abuelo: item.abuelo?.trim() || null,
-          origen: item.origen?.trim() || null,
+          origen: origenRaw,
           observaciones: item.observaciones?.trim() || null,
           desecho,
+          tipoPropiedad: esMedieria ? "medieria" : "propio",
+          medieroId: medieroId ?? null,
         })
         .returning({ id: schema.animales.id });
 
       mapAnimal.set(aKey, inserted[0].id);
+      mapAnimalSexo.set(aKey, sexo);
       counts.animales++;
     }
   }
-  log("P4:animales", `Done — ${counts.animales} inserted, ${counts.skipped_animales} skipped`);
+  const totalSkippedAnimales = counts.skip_animal_diio_vacio + counts.skip_animal_tipo_ganado_desconocido;
+  log("P4:animales", `Done — ${counts.animales} inserted, ${totalSkippedAnimales} skipped, ${counts.warn_animal_sin_fecha_nacimiento} warns`);
 }
 
 // ─────────────────────────────────────────────
@@ -750,23 +926,46 @@ async function migrarPesajes(session: Awaited<ReturnType<typeof getSession>>): P
       continue;
     }
 
+    // Dedup: mismo animal + misma fecha → mantener mayor peso
+    const dedupMap = new Map<string, { pesoRaw: number; diio: string; fecha: string }>();
+
     for (const item of items) {
       const diio = item.diio?.trim();
-      if (!diio) { counts.skipped_eventos++; continue; }
+      if (!diio) { counts.skip_pesaje_diio_vacio++; continue; }
 
       const aKey = `${smartFundoId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P5:pesajes", `Animal ${diio} not found in map, skipping pesaje`);
-        counts.skipped_eventos++;
+        counts.skip_pesaje_animal_no_encontrado++;
         continue;
       }
 
       const pesoRaw = item.peso ?? item.peso_kg;
-      if (pesoRaw == null) { counts.skipped_eventos++; continue; }
+      if (pesoRaw == null || pesoRaw <= 0 || pesoRaw > 1500) {
+        warn("P5:pesajes", `Animal ${diio} — peso inválido (${pesoRaw}), skipping`);
+        counts.skip_pesaje_peso_invalido++;
+        continue;
+      }
 
       const fecha = toDate(item.fecha ?? item.fecha_creado);
-      if (!fecha) { counts.skipped_eventos++; continue; }
+      if (!fecha) { counts.skip_pesaje_sin_fecha++; continue; }
+
+      const dedupKey = `${animalId}:${fecha}`;
+      const existingDedup = dedupMap.get(dedupKey);
+      if (existingDedup) {
+        if (pesoRaw > existingDedup.pesoRaw) {
+          dedupMap.set(dedupKey, { pesoRaw, diio, fecha });
+        }
+        counts.skip_pesaje_dedup++;
+        continue;
+      }
+      dedupMap.set(dedupKey, { pesoRaw, diio, fecha });
+    }
+
+    for (const [, { pesoRaw, diio, fecha }] of dedupMap.entries()) {
+      const aKey = `${smartFundoId}:${diio}`;
+      const animalId = mapAnimal.get(aKey)!;
 
       await db.insert(schema.pesajes).values({
         fundoId: smartFundoId,
@@ -822,18 +1021,25 @@ async function migrarPartos(session: Awaited<ReturnType<typeof getSession>>): Pr
 
     for (const item of items) {
       const diio = item.diio_madre?.trim();
-      if (!diio) { counts.skipped_eventos++; continue; }
+      if (!diio) { counts.skip_parto_sin_diio_madre++; continue; }
 
       const aKey = `${smartFundoId}:${diio}`;
       const madreId = mapAnimal.get(aKey);
       if (!madreId) {
         warn("P6:partos", `Madre ${diio} not found in map, skipping parto`);
-        counts.skipped_eventos++;
+        counts.skip_parto_madre_no_encontrada++;
         continue;
       }
 
       const fecha = toDate(item.fecha_parto ?? item.fecha);
-      if (!fecha) { counts.skipped_eventos++; continue; }
+      if (!fecha) { counts.skip_parto_sin_fecha++; continue; }
+
+      // Warn si madre es tipo macho
+      const madreSexo = mapAnimalSexo.get(aKey);
+      if (madreSexo === "M") {
+        warn("P6:partos", `Madre ${diio} es de sexo M — parto sospechoso`);
+        counts.warn_parto_madre_macho++;
+      }
 
       // Resolver tipo/subtipo parto
       const tipoPartoNombre = item.tipo_parto?.trim();
@@ -922,18 +1128,29 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
 
     for (const item of items) {
       const diio = item.diio?.trim();
-      if (!diio) { counts.skipped_eventos++; continue; }
+      if (!diio) { counts.skip_inseminacion_sin_diio++; continue; }
 
       const aKey = `${smartFundoId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P7:inseminaciones", `Animal ${diio} not found, skipping`);
-        counts.skipped_eventos++;
+        counts.skip_inseminacion_animal_no_encontrado++;
         continue;
       }
 
       const fecha = toDate(item.fecha_inseminacion ?? item.fecha);
-      if (!fecha) { counts.skipped_eventos++; continue; }
+      if (!fecha) { counts.skip_inseminacion_sin_fecha++; continue; }
+
+      // Warn si animal está en estado baja
+      const animalRow = await db
+        .select({ estado: schema.animales.estado })
+        .from(schema.animales)
+        .where(eq(schema.animales.id, animalId))
+        .limit(1);
+      if (animalRow.length > 0 && animalRow[0].estado === "baja") {
+        warn("P7:inseminaciones", `Animal ${diio} está en estado baja — inseminación sospechosa`);
+        counts.warn_inseminacion_animal_en_baja++;
+      }
 
       const toroNombre = item.toro?.trim();
       const sKey = toroNombre ? `${smartFundoId}:${toroNombre}` : undefined;
@@ -1017,18 +1234,25 @@ async function migrarEcografias(session: Awaited<ReturnType<typeof getSession>>)
 
     for (const item of items) {
       const diio = item.diio?.trim();
-      if (!diio) { counts.skipped_eventos++; continue; }
+      if (!diio) { counts.skip_ecografia_sin_diio++; continue; }
 
       const aKey = `${smartFundoId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P8:ecografias", `Animal ${diio} not found, skipping`);
-        counts.skipped_eventos++;
+        counts.skip_ecografia_animal_no_encontrado++;
         continue;
       }
 
       const fecha = toDate(item.fecha_ecografia ?? item.fecha);
-      if (!fecha) { counts.skipped_eventos++; continue; }
+      if (!fecha) { counts.skip_ecografia_sin_fecha++; continue; }
+
+      // Validar días de gestación: skip si < 0 o > 285
+      if (item.dias_gestacion != null && (item.dias_gestacion < 0 || item.dias_gestacion > 285)) {
+        warn("P8:ecografias", `Animal ${diio} — dias_gestacion inválido (${item.dias_gestacion}), skipping`);
+        counts.skip_ecografia_dias_invalidos++;
+        continue;
+      }
 
       // Mapear resultado AgroApp → enum smartcow (preñada/vacia/dudosa)
       const resultadoRaw = (item.resultado ?? "").toLowerCase();
@@ -1081,12 +1305,12 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
     if (!DRY_RUN) {
       for (const item of altas) {
         const diio = item.diio?.trim();
-        if (!diio) { counts.skipped_eventos++; continue; }
+        if (!diio) { continue; }
         const aKey = `${smartFundoId}:${diio}`;
         const animalId = mapAnimal.get(aKey);
-        if (!animalId) { counts.skipped_eventos++; continue; }
+        if (!animalId) { continue; }
         const fecha = toDate(item.fecha ?? item.fecha_creado);
-        if (!fecha) { counts.skipped_eventos++; continue; }
+        if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
           fundoId: smartFundoId,
@@ -1125,12 +1349,12 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
     if (!DRY_RUN) {
       for (const item of apariciones) {
         const diio = item.diio?.trim();
-        if (!diio) { counts.skipped_eventos++; continue; }
+        if (!diio) { continue; }
         const aKey = `${smartFundoId}:${diio}`;
         const animalId = mapAnimal.get(aKey);
-        if (!animalId) { counts.skipped_eventos++; continue; }
+        if (!animalId) { continue; }
         const fecha = toDate(item.fecha ?? item.fecha_creado);
-        if (!fecha) { counts.skipped_eventos++; continue; }
+        if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
           fundoId: smartFundoId,
@@ -1172,15 +1396,15 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
       for (const item of cambios) {
         const diioNuevo = item.diio_nuevo?.trim();
         const diioAnterior = item.diio_anterior?.trim();
-        if (!diioNuevo) { counts.skipped_eventos++; continue; }
+        if (!diioNuevo) { continue; }
 
         // Buscar animal por DIIO nuevo (ya migrado con DIIO actual)
         const aKey = `${smartFundoId}:${diioNuevo}`;
         const animalId = mapAnimal.get(aKey);
-        if (!animalId) { counts.skipped_eventos++; continue; }
+        if (!animalId) { continue; }
 
         const fecha = toDate(item.fecha_cambio_diio ?? item.fecha);
-        if (!fecha) { counts.skipped_eventos++; continue; }
+        if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
           fundoId: smartFundoId,
@@ -1237,25 +1461,25 @@ async function migrarBajas(session: Awaited<ReturnType<typeof getSession>>): Pro
 
     for (const item of items) {
       const diio = item.diio?.trim();
-      if (!diio) { counts.skipped_eventos++; continue; }
+      if (!diio) { counts.skip_baja_sin_diio++; continue; }
 
       const aKey = `${smartFundoId}:${diio}`;
       const animalId = mapAnimal.get(aKey);
       if (!animalId) {
         warn("P10:bajas", `Animal ${diio} not found, skipping baja`);
-        counts.skipped_eventos++;
+        counts.skip_baja_animal_no_encontrado++;
         continue;
       }
 
       const fecha = toDate(item.fecha_baja ?? item.fecha);
-      if (!fecha) { counts.skipped_eventos++; continue; }
+      if (!fecha) { counts.skip_baja_sin_fecha++; continue; }
 
       const motivoNombre = item.baja_motivo?.trim();
       const motivoId = motivoNombre ? mapBajaMotivo.get(motivoNombre) : undefined;
 
       if (!motivoId) {
         warn("P10:bajas", `Motivo "${motivoNombre}" not in map for animal ${diio}, skipping`);
-        counts.skipped_eventos++;
+        counts.skip_baja_motivo_no_encontrado++;
         continue;
       }
 
@@ -1308,6 +1532,7 @@ async function validar(): Promise<void> {
     { name: "fundos", table: schema.fundos },
     { name: "tipo_ganado", table: schema.tipoGanado },
     { name: "razas", table: schema.razas },
+    { name: "medieros", table: schema.medieros },
     { name: "animales", table: schema.animales },
     { name: "pesajes", table: schema.pesajes },
     { name: "partos", table: schema.partos },
@@ -1339,6 +1564,7 @@ function printResumen(): void {
   console.log(`Razas               : ${counts.razas}`);
   console.log(`Estado reproductivo : ${counts.estado_reproductivo}`);
   console.log(`Semen               : ${counts.semen}`);
+  console.log(`Medieros            : ${counts.medieros}`);
   console.log(`Animales            : ${counts.animales}`);
   console.log(`Pesajes             : ${counts.pesajes}`);
   console.log(`Partos              : ${counts.partos}`);
@@ -1347,8 +1573,33 @@ function printResumen(): void {
   console.log(`Areteos             : ${counts.areteos}`);
   console.log(`Bajas               : ${counts.bajas}`);
   console.log("-".repeat(60));
-  console.log(`Skipped animales    : ${counts.skipped_animales}`);
-  console.log(`Skipped eventos     : ${counts.skipped_eventos}`);
+  console.log("SKIPPED POR REGLA");
+  console.log(`  animal.diio_vacio              : ${counts.skip_animal_diio_vacio}`);
+  console.log(`  animal.tipo_ganado_desconocido : ${counts.skip_animal_tipo_ganado_desconocido}`);
+  console.log(`  pesaje.diio_vacio              : ${counts.skip_pesaje_diio_vacio}`);
+  console.log(`  pesaje.animal_no_encontrado    : ${counts.skip_pesaje_animal_no_encontrado}`);
+  console.log(`  pesaje.peso_invalido           : ${counts.skip_pesaje_peso_invalido}`);
+  console.log(`  pesaje.sin_fecha               : ${counts.skip_pesaje_sin_fecha}`);
+  console.log(`  pesaje.dedup                   : ${counts.skip_pesaje_dedup}`);
+  console.log(`  parto.sin_diio_madre           : ${counts.skip_parto_sin_diio_madre}`);
+  console.log(`  parto.madre_no_encontrada      : ${counts.skip_parto_madre_no_encontrada}`);
+  console.log(`  parto.sin_fecha                : ${counts.skip_parto_sin_fecha}`);
+  console.log(`  inseminacion.sin_diio          : ${counts.skip_inseminacion_sin_diio}`);
+  console.log(`  inseminacion.animal_no_enc     : ${counts.skip_inseminacion_animal_no_encontrado}`);
+  console.log(`  inseminacion.sin_fecha         : ${counts.skip_inseminacion_sin_fecha}`);
+  console.log(`  ecografia.sin_diio             : ${counts.skip_ecografia_sin_diio}`);
+  console.log(`  ecografia.animal_no_enc        : ${counts.skip_ecografia_animal_no_encontrado}`);
+  console.log(`  ecografia.sin_fecha            : ${counts.skip_ecografia_sin_fecha}`);
+  console.log(`  ecografia.dias_invalidos       : ${counts.skip_ecografia_dias_invalidos}`);
+  console.log(`  baja.sin_diio                  : ${counts.skip_baja_sin_diio}`);
+  console.log(`  baja.animal_no_encontrado      : ${counts.skip_baja_animal_no_encontrado}`);
+  console.log(`  baja.sin_fecha                 : ${counts.skip_baja_sin_fecha}`);
+  console.log(`  baja.motivo_no_encontrado      : ${counts.skip_baja_motivo_no_encontrado}`);
+  console.log("-".repeat(60));
+  console.log("WARNS POR REGLA");
+  console.log(`  animal.sin_fecha_nacimiento    : ${counts.warn_animal_sin_fecha_nacimiento}`);
+  console.log(`  parto.madre_macho              : ${counts.warn_parto_madre_macho}`);
+  console.log(`  inseminacion.animal_en_baja    : ${counts.warn_inseminacion_animal_en_baja}`);
   console.log("=".repeat(60));
   console.log("\nPara activar corte por módulo (deshabilitar AgroApp proxy):");
   console.log("  AGROAPP_MODULE_GANADO_ACTUAL=0");
@@ -1374,6 +1625,9 @@ async function main(): Promise<void> {
     await migrarRazas(session);
     await migrarEstadoReproductivo(session);
     await migrarBajaMotivos(session);
+
+    // P0 — Organización raíz
+    defaultOrgId = await asegurarOrg("JP Ferrada");
 
     // P2 — Fundos
     await migrarFundos(session);

@@ -9,16 +9,16 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { organizaciones } from "./organizaciones";
-import { predios } from "./predios";
+import { fundos } from "./fundos";
 
 /**
- * tipoPropiedadEnum — distingue animales propios del predio vs. de mediería.
+ * tipoPropiedadEnum — distingue animales propios del fundo vs. de mediería.
  * Ticket: AUT-135
  */
 export const tipoPropiedadEnum = pgEnum("tipo_propiedad", ["propio", "medieria"]);
 
 /**
- * medieros — Terceros propietarios de animales que operan dentro de un predio.
+ * medieros — Terceros propietarios de animales que operan dentro de un fundo.
  * Un mediero puede tener contrato de participación en cría (porcentaje_part).
  * Sus animales se identifican en la tabla animales con tipo_propiedad = 'medieria'.
  * Ticket: AUT-135
@@ -28,9 +28,9 @@ export const medieros = pgTable("medieros", {
   orgId: integer("org_id")
     .notNull()
     .references(() => organizaciones.id, { onDelete: "restrict" }),
-  predioId: integer("predio_id")
+  fundoId: integer("fundo_id")
     .notNull()
-    .references(() => predios.id, { onDelete: "restrict" }),
+    .references(() => fundos.id, { onDelete: "restrict" }),
   nombre: varchar("nombre", { length: 120 }).notNull(),
   rut: varchar("rut", { length: 12 }),
   contacto: varchar("contacto", { length: 80 }),
