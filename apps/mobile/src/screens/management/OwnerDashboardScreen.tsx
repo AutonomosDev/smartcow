@@ -67,15 +67,16 @@ export default function OwnerDashboardScreen() {
           showsVerticalScrollIndicator={false}
         >
 
-          {/* ── 4 HERO CARD (verde oscuro) — DS exacto ── */}
-          {/* bg #1e3a2f · radius 16 · padding 12 14 · margin 0 16 */}
-          <View style={s.hero}>
+          {/* ── 4 HERO CARD — tap → FundoDetail ── */}
+          <TouchableOpacity
+            style={s.hero}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('FundoDetail')}
+          >
             <Text style={s.heroLabel}>ESTADO DEL FUNDO</Text>
             <Text style={s.heroTitle}>Fundo San Pedro</Text>
-            {/* grid items: bg rgba(255,255,255,0.1) · radius 7 · padding 6 */}
             <View style={s.heroGrid}>
               <View style={s.heroItem}>
-                {/* label 9px/rgba(255,255,255,0.5) · val 12px/600 */}
                 <Text style={s.heroItemLabel}>Animales</Text>
                 <Text style={s.heroItemVal}>242</Text>
               </View>
@@ -88,7 +89,7 @@ export default function OwnerDashboardScreen() {
                 <Text style={[s.heroItemVal, s.warn]}>$1.82</Text>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
 
           {/* ── TARJETA VERDE (condición operacional) — DS badge ok bg #e6f3ec ── */}
           {/* Esta es la sección faltante — card blanca con bg ok verde */}
@@ -102,21 +103,28 @@ export default function OwnerDashboardScreen() {
             </Text>
           </View>
 
-          {/* ── 6 STATS ROW — 3 cajones KPI ── */}
-          {/* bg #fff · radius 11 · padding 9 · val 16px/600 · label 9px/400 #bbb */}
+          {/* ── 6 STATS ROW — 3 cajones KPI (cada uno tappable) ── */}
           <View style={s.stats}>
-            <View style={s.stat}>
+            <TouchableOpacity
+              style={s.stat}
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('AnimalesScreen')}
+            >
               <Text style={s.statVal}>3</Text>
               <Text style={s.statLabel}>GDP{'\n'}semana</Text>
-            </View>
+            </TouchableOpacity>
             <View style={s.stat}>
               <Text style={[s.statVal, { color: '#f39c12' }]}>2</Text>
               <Text style={s.statLabel}>En{'\n'}observ.</Text>
             </View>
-            <View style={s.stat}>
+            <TouchableOpacity
+              style={s.stat}
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('CostsSummary')}
+            >
               <Text style={s.statVal}>18.4%</Text>
               <Text style={s.statLabel}>Margen{'\n'}est.</Text>
-            </View>
+            </TouchableOpacity>
           </View>
 
           {/* ── 5 TARJETAS DE ACTIVIDAD (card blanca x2) ── */}
