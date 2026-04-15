@@ -1,5 +1,5 @@
-import { db } from "@/db/client";
-import { movimientosPotrero, potreros, animales } from "@/db/schema";
+import { db } from "@/src/db/client";
+import { movimientosPotrero, potreros, animales } from "@/src/db/schema/index";
 import { eq, isNull, and } from "drizzle-orm";
 
 export async function get_ubicacion_animales(predioId: number) {

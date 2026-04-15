@@ -1,5 +1,5 @@
-import { db } from "@/db/client";
-import { animales, razas } from "@/db/schema";
+import { db } from "@/src/db/client";
+import { animales, razas } from "@/src/db/schema/index";
 import { eq, and } from "drizzle-orm";
 
 export async function get_animales(predioId: number, filtros?: { estado?: any, sexo?: any, modulo?: any, razaId?: number }) {

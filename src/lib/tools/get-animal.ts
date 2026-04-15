@@ -1,5 +1,5 @@
-import { db } from "@/db/client";
-import { animales, razas, tipoGanado } from "@/db/schema";
+import { db } from "@/src/db/client";
+import { animales, razas, tipoGanado } from "@/src/db/schema/index";
 import { eq } from "drizzle-orm";
 
 export async function get_animal(diio: string) {

@@ -1,5 +1,5 @@
-import { db } from "@/db/client";
-import { ecografias } from "@/db/schema";
+import { db } from "@/src/db/client";
+import { ecografias } from "@/src/db/schema/index";
 import { eq } from "drizzle-orm";
 
 export async function get_ecografias(predioId: number) {
