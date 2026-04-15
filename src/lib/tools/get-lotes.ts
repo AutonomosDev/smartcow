@@ -1,5 +1,5 @@
-import { db } from "@/db/client";
-import { lotes, loteAnimales } from "@/db/schema";
+import { db } from "@/src/db/client";
+import { lotes, loteAnimales } from "@/src/db/schema/index";
 import { eq, sql } from "drizzle-orm";
 
 export async function get_lotes(predioId: number) {

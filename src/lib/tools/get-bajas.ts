@@ -1,5 +1,5 @@
-import { db } from "@/db/client";
-import { bajas, animales, bajaMotivo, bajaCausa } from "@/db/schema";
+import { db } from "@/src/db/client";
+import { bajas, animales, bajaMotivo, bajaCausa } from "@/src/db/schema/index";
 import { eq, and, sql, gte, lte } from "drizzle-orm";
 
 export async function get_bajas(predioId: number, periodo?: { desde: string; hasta: string }) {

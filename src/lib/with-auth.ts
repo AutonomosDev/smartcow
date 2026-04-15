@@ -3,13 +3,13 @@
  * Toda server action que toque datos de predio DEBE usar withAuth().
  *
  * withAuth()        — para Server Components y server actions (session cookie)
- * withAuthBearer()  — para endpoints REST mobile (Firebase ID token)
+ * withAuthBearer()  — para endpoints REST mobile (Next-Auth JWT token)
  */
 
 import { NextRequest } from "next/server";
-import { auth, loadUserByFirebaseUid } from "./auth";
+import { decode } from "@auth/core/jwt";
+import { auth, loadUserByEmail } from "./auth";
 import type { SmartCowSession, UserRol } from "./auth";
-import { adminAuth } from "./firebase/admin";
 
 // Jerarquía de roles (mayor índice = mayor privilegio)
 const ROL_RANK: Record<UserRol, number> = {
@@ -78,8 +78,8 @@ export async function withAuth(options?: WithAuthOptions): Promise<SmartCowSessi
 }
 
 /**
- * Verifica autenticación via Firebase ID token (Bearer, para mobile).
- * Header: Authorization: Bearer <firebase-id-token>
+ * Verifica autenticación via Next-Auth JWT token (Bearer, para mobile).
+ * Header: Authorization: Bearer <nextauth-jwt-token>
  *
  * Lanza AuthError si el token falta, es inválido o expiró.
  */
@@ -94,15 +94,22 @@ export async function withAuthBearer(
 
   const token = authHeader.slice(7).trim();
 
-  let uid: string;
+  let email: string;
   try {
-    const decoded = await adminAuth.verifyIdToken(token);
-    uid = decoded.uid;
+    const secret = process.env.NEXTAUTH_SECRET ?? "";
+    // Next-Auth v5 uses JWE encryption — use @auth/core/jwt decode
+    const payload = await decode({
+      token,
+      secret,
+      salt: "__session", // Same cookie name used in auth.config.ts
+    });
+    email = (payload?.email as string) ?? "";
+    if (!email) throw new Error("No email in token");
   } catch {
     throw new AuthError("Token inválido o expirado", "UNAUTHENTICATED");
   }
 
-  const session = await loadUserByFirebaseUid(uid);
+  const session = await loadUserByEmail(email);
   if (!session) {
     throw new AuthError("Usuario no encontrado", "UNAUTHENTICATED");
   }
