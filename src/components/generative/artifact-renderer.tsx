@@ -219,7 +219,7 @@ export function ArtifactRenderer({ artifact }: { artifact: GenerativeArtifact })
         <span className="text-white text-[11px] font-bold tracking-wide">Datos crudos</span>
       </div>
       <div className="p-3">
-        <span className="text-[10px] text-[#555] font-mono break-words">{JSON.stringify(artifact.data)}</span>
+        <span className="text-[10px] text-[#555] font-mono break-words">{JSON.stringify((artifact as any).data)}</span>
       </div>
     </div>
   );
