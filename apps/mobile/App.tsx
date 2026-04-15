@@ -69,6 +69,12 @@ import VacunacionMangaScreen from './src/screens/operations/VacunacionMangaScree
 import MovimientoPotreroScreen from './src/screens/operations/MovimientoPotreroScreen';
 import EgresoRegistroScreen from './src/screens/operations/EgresoRegistroScreen';
 
+// Zootecnia Events (AUT-195 a AUT-198)
+import CeloRegistroScreen from './src/screens/operations/CeloRegistroScreen';
+import AbortoRegistroScreen from './src/screens/operations/AbortoRegistroScreen';
+import CondicionCorporalScreen from './src/screens/operations/CondicionCorporalScreen';
+import MarcajeClasificacionScreen from './src/screens/operations/MarcajeClasificacionScreen';
+
 // ─────────────────────────────────────────────
 // Tipos de navegación
 // ─────────────────────────────────────────────
@@ -128,6 +134,12 @@ export type RootStackParamList = {
   MovimientoPotrero: { loteId?: string };
   EgresoRegistro: { loteId?: string };
   FichaIndividual: { diio: string };
+
+  // Zootecnia Events (AUT-195 a AUT-198)
+  CeloRegistro: { potreroId?: string };
+  AbortoRegistro: { potreroId?: string };
+  CondicionCorporal: { loteId?: string };
+  MarcajeClasificacion: { manga?: string };
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -220,6 +232,12 @@ function AppNavigator({ initialRoute }: { initialRoute: keyof RootStackParamList
       <AppStack.Screen name="MovimientoPotrero" component={MovimientoPotreroScreen} />
       <AppStack.Screen name="EgresoRegistro" component={EgresoRegistroScreen} />
       <AppStack.Screen name="FichaIndividual" component={FichaIndividualScreen} />
+
+      {/* Zootecnia Events (AUT-195 a AUT-198) */}
+      <AppStack.Screen name="CeloRegistro" component={CeloRegistroScreen} />
+      <AppStack.Screen name="AbortoRegistro" component={AbortoRegistroScreen} />
+      <AppStack.Screen name="CondicionCorporal" component={CondicionCorporalScreen} />
+      <AppStack.Screen name="MarcajeClasificacion" component={MarcajeClasificacionScreen} />
     </AppStack.Navigator>
   );
 }
