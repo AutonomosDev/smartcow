@@ -193,7 +193,17 @@
       "Bash(grep -n \"predio_id\\\\|org_id\\\\|organizacion_id\" src/db/schema/*.ts)",
       "Bash(grep -n \"ROW LEVEL\\\\|ENABLE ROW\\\\|CREATE POLICY\\\\|rls\\\\|policy\" src/db/migrations/*.sql)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3003/)",
-      "Bash(grep -E \"\\\\.\\(tsx|ts|jsx|js\\)$\")"
+      "Bash(grep -E \"\\\\.\\(tsx|ts|jsx|js\\)$\")",
+      "Bash(git clean *)",
+      "Bash(grep -r \"from \\\\\".*/.*\\\\.js\\\\\"\" /Users/autonomos_dev/Projects/smartcow/src/db/schema/*.ts)",
+      "Bash(curl -s -X POST http://localhost:3003/api/mobile/auth/login -H 'Content-Type: application/json' -d '{\"idToken\":\"eyJhbGciOiJSUzI1NiIsImtpZCI6IjcwZmM5YzU0YjhiMjQyMWZmMTgyOTgxNTQyZmQ0NjRlOWJlYzM1NDUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vc21hcnRjb3ctYzIyZmIiLCJhdWQiOiJzbWFydGNvdy1jMjJmYiIsImF1dGhfdGltZSI6MTc3NjI4NzIzNCwidXNlcl9pZCI6InVSR1FJUjRldlRZUnpFR2o1V1JxemE4NlNtWTIiLCJzdWIiOiJ1UkdRSVI0ZXZUWVJ6RUdqNVdScXphODZTbVkyIiwiaWF0IjoxNzc2Mjg3MjM0LCJleHAiOjE3NzYyOTA4MzQsImVtYWlsIjoiY2VzYXJAYXV0b25vbW9zLmRldiIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJjZXNhckBhdXRvbm9tb3MuZGV2Il19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.BHTHMMgdfJuxZJGoYYkGkU8iM6qupnFhYZ1bq8319uYE4yh1-3ml86NMPx8himGY-pcCDVRi89Doy3lA3Z_k8OOZDME3thDLhi7dQHBMUoQSrwQqc0UQKKW4F6GQRUCzJBaVqxY_HYCNt6Lxiihehj8SOwwM4aYu4eV_JrCCZvWx3colZUqEOMhQOWnrs484ZOK4d3M_b8sbmN9XGMOwEhOBeYZC0jfe2qrUl0RlRGpyORJRBAbri98jIfrCZwXJk6NcfeIyAkXFs33o1D7lYLs-vSElwqZugd2C4hh5Hk3gDLVrM6g0m0-qVPMdhvmVlweWn-87CjKjP05EfT26Nw\"}')",
+      "Bash(node -e ' *)",
+      "Bash(psql \"postgresql://autonomos_dev@localhost:5432/smartcow\" -c \"SELECT id, email, nombre, org_id, rol FROM users WHERE email = 'cesar@autonomos.dev';\")",
+      "Bash(psql postgresql://autonomos_dev@localhost:5432/smartcow -c ' *)",
+      "Bash(psql \"postgresql://autonomos_dev@localhost:5432/smartcow\" -c \"SELECT id, nombre FROM organizaciones LIMIT 5;\")",
+      "Bash(psql \"postgresql://autonomos_dev@localhost:5432/smartcow\" -c \"\\\\d user_predios\")",
+      "Bash(psql \"postgresql://autonomos_dev@localhost:5432/smartcow\" -c \"\\\\d users\")",
+      "Bash(pkill -f \"node.*next dev\")"
     ]
   }
 }
