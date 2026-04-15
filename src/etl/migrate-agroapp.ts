@@ -32,6 +32,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { sql, eq, and } from "drizzle-orm";
 import * as schema from "../db/schema/index.js";
+import { fundos } from "../db/schema/fundos.js";
 import {
   getSession,
   destroySession,
@@ -254,12 +255,12 @@ const mapFundo = new Map<number, number>(); // agroFundoId → smartcowFundoId
 const mapTipoGanado = new Map<string, number>(); // nombre → id
 const mapRaza = new Map<string, number>(); // nombre → id
 const mapEstadoRep = new Map<string, number>(); // nombre → id
-const mapSemen = new Map<string, number>(); // `${fundoId}:${toro}` → id
+const mapSemen = new Map<string, number>(); // `${predioId}:${toro}` → id
 const mapBajaMotivo = new Map<string, number>(); // nombre → id
 const mapBajaCausa = new Map<string, number>(); // nombre → id
-const mapAnimal = new Map<string, number>(); // `${fundoId}:${diio}` → animalId
-const mapAnimalSexo = new Map<string, "M" | "H">(); // `${fundoId}:${diio}` → sexo
-const mapMediero = new Map<string, number>(); // `${fundoId}:${nombre}` → medieroId
+const mapAnimal = new Map<string, number>(); // `${predioId}:${diio}` → animalId
+const mapAnimalSexo = new Map<string, "M" | "H">(); // `${predioId}:${diio}` → sexo
+const mapMediero = new Map<string, number>(); // `${predioId}:${nombre}` → medieroId
 
 // ─────────────────────────────────────────────
 // CONTADORES
@@ -590,8 +591,8 @@ async function migrarFundos(session: Awaited<ReturnType<typeof getSession>>): Pr
 
     const existing = await db
       .select()
-      .from(schema.fundos)
-      .where(eq(schema.fundos.nombre, nombre))
+      .from(schema.predios)
+      .where(eq(schema.predios.nombre, nombre))
       .limit(1);
 
     if (existing.length > 0) {
@@ -599,9 +600,9 @@ async function migrarFundos(session: Awaited<ReturnType<typeof getSession>>): Pr
       log("P2:fundos", `Fundo "${nombre}" already exists (id=${existing[0].id})`);
     } else {
       const inserted = await db
-        .insert(schema.fundos)
+        .insert(schema.predios)
         .values({ nombre, orgId: defaultOrgId })
-        .returning({ id: schema.fundos.id });
+        .returning({ id: schema.predios.id });
       mapFundo.set(item.fundo_id, inserted[0].id);
       counts.fundos++;
       log("P2:fundos", `Inserted fundo "${nombre}" → id=${inserted[0].id}`);
@@ -641,7 +642,7 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
       const existing = await db
         .select()
         .from(schema.semen)
-        .where(and(eq(schema.semen.fundoId, smartFundoId), eq(schema.semen.toro, toro)))
+        .where(and(eq(schema.semen.predioId, smartFundoId), eq(schema.semen.toro, toro)))
         .limit(1);
 
       if (existing.length > 0) {
@@ -649,7 +650,7 @@ async function migrarSemen(session: Awaited<ReturnType<typeof getSession>>): Pro
       } else {
         const inserted = await db
           .insert(schema.semen)
-          .values({ fundoId: smartFundoId, toro })
+          .values({ predioId: smartFundoId, toro })
           .returning({ id: schema.semen.id });
         mapSemen.set(sKey, inserted[0].id);
         counts.semen++;
@@ -714,9 +715,9 @@ async function asegurarMediero(smartFundoId: number, nombre: string): Promise<nu
 
   // Obtener org_id del fundo
   const fundo = await db
-    .select({ orgId: schema.fundos.orgId })
-    .from(schema.fundos)
-    .where(eq(schema.fundos.id, smartFundoId))
+    .select({ orgId: fundos.orgId })
+    .from(fundos)
+    .where(eq(fundos.id, smartFundoId))
     .limit(1);
 
   const orgId = fundo[0]?.orgId ?? defaultOrgId;
@@ -841,7 +842,7 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
         .select()
         .from(schema.animales)
         .where(
-          and(eq(schema.animales.fundoId, smartFundoId), eq(schema.animales.diio, diio))
+          and(eq(schema.animales.predioId, smartFundoId), eq(schema.animales.diio, diio))
         )
         .limit(1);
 
@@ -866,7 +867,7 @@ async function migrarAnimales(session: Awaited<ReturnType<typeof getSession>>): 
       const inserted = await db
         .insert(schema.animales)
         .values({
-          fundoId: smartFundoId,
+          predioId: smartFundoId,
           diio,
           tipoGanadoId,
           razaId: razaId ?? null,
@@ -968,7 +969,7 @@ async function migrarPesajes(session: Awaited<ReturnType<typeof getSession>>): P
       const animalId = mapAnimal.get(aKey)!;
 
       await db.insert(schema.pesajes).values({
-        fundoId: smartFundoId,
+        predioId: smartFundoId,
         animalId,
         pesoKg: String(pesoRaw),
         fecha,
@@ -1073,7 +1074,7 @@ async function migrarPartos(session: Awaited<ReturnType<typeof getSession>>): Pr
       }
 
       await db.insert(schema.partos).values({
-        fundoId: smartFundoId,
+        predioId: smartFundoId,
         madreId,
         fecha,
         resultado: "vivo", // AgroApp no registra resultado — default vivo
@@ -1165,7 +1166,7 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
           .from(schema.inseminadores)
           .where(
             and(
-              eq(schema.inseminadores.fundoId, smartFundoId),
+              eq(schema.inseminadores.predioId, smartFundoId),
               eq(schema.inseminadores.nombre, nombre)
             )
           )
@@ -1175,14 +1176,14 @@ async function migrarInseminaciones(session: Awaited<ReturnType<typeof getSessio
         } else {
           const created = await db
             .insert(schema.inseminadores)
-            .values({ fundoId: smartFundoId, nombre })
+            .values({ predioId: smartFundoId, nombre })
             .returning({ id: schema.inseminadores.id });
           inseminadorId = created[0].id;
         }
       }
 
       await db.insert(schema.inseminaciones).values({
-        fundoId: smartFundoId,
+        predioId: smartFundoId,
         animalId,
         fecha,
         semenId: semenId ?? null,
@@ -1261,7 +1262,7 @@ async function migrarEcografias(session: Awaited<ReturnType<typeof getSession>>)
       else if (resultadoRaw.includes("vac") || resultadoRaw.includes("neg")) resultado = "vacia";
 
       await db.insert(schema.ecografias).values({
-        fundoId: smartFundoId,
+        predioId: smartFundoId,
         animalId,
         fecha,
         resultado,
@@ -1313,7 +1314,7 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
         if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
-          fundoId: smartFundoId,
+          predioId: smartFundoId,
           animalId,
           tipo: "alta",
           fecha,
@@ -1357,7 +1358,7 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
         if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
-          fundoId: smartFundoId,
+          predioId: smartFundoId,
           animalId,
           tipo: "aparicion",
           fecha,
@@ -1407,7 +1408,7 @@ async function migrarAreteos(session: Awaited<ReturnType<typeof getSession>>): P
         if (!fecha) { continue; }
 
         await db.insert(schema.areteos).values({
-          fundoId: smartFundoId,
+          predioId: smartFundoId,
           animalId,
           tipo: "cambio_diio",
           fecha,
@@ -1488,7 +1489,7 @@ async function migrarBajas(session: Awaited<ReturnType<typeof getSession>>): Pro
       const causaId = cKey ? mapBajaCausa.get(cKey) : undefined;
 
       await db.insert(schema.bajas).values({
-        fundoId: smartFundoId,
+        predioId: smartFundoId,
         animalId,
         fecha,
         motivoId,
@@ -1529,7 +1530,7 @@ async function validar(): Promise<void> {
 
   // Conteo final por tabla
   const tables = [
-    { name: "fundos", table: schema.fundos },
+    { name: "fundos", table: schema.predios },
     { name: "tipo_ganado", table: schema.tipoGanado },
     { name: "razas", table: schema.razas },
     { name: "medieros", table: schema.medieros },
@@ -1543,7 +1544,7 @@ async function validar(): Promise<void> {
   ] as const;
 
   for (const { name, table } of tables) {
-    const rows = await db.select().from(table as typeof schema.fundos);
+    const rows = await db.select().from(table as typeof schema.predios);
     log("VALIDACION", `${name}: ${rows.length} rows in DB`);
   }
 }
