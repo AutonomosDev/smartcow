@@ -82,6 +82,10 @@ import CorralesScreen from './src/screens/feeding/CorralesScreen';
 import ArmarCarroScreen from './src/screens/feeding/ArmarCarroScreen';
 import RecorridoSobrasScreen from './src/screens/feeding/RecorridoSobrasScreen';
 import ReportesAlimentacionScreen from './src/screens/feeding/ReportesAlimentacionScreen';
+import ReasignacionCorralScreen from './src/screens/operations/ReasignacionCorralScreen';
+import ConteoCorralScreen from './src/screens/operations/ConteoCorralScreen';
+import EstadoCorralesScreen from './src/screens/operations/EstadoCorralesScreen';
+import TomaMuestrasScreen from './src/screens/operations/TomaMuestrasScreen';
 import SmartCowChatScreen from './src/screens/intelligence/SmartCowChatScreen';
 import VetBrainChatScreen from './src/screens/intelligence/VetBrainChatScreen';
 import AgroBrainChatScreen from './src/screens/intelligence/AgroBrainChatScreen';
@@ -160,6 +164,10 @@ export type RootStackParamList = {
   ArmarCarro: { batchNum?: number };
   RecorridoSobras: { batchNum?: number };
   ReportesAlimentacion: undefined;
+  ReasignacionCorral: undefined;
+  ConteoCorral: undefined;
+  EstadoCorrales: undefined;
+  TomaMuestras: undefined;
   SmartCowChat: undefined;
   VetBrainChat: undefined;
   AgroBrainChat: undefined;
@@ -270,6 +278,10 @@ function AppNavigator({ initialRoute }: { initialRoute: keyof RootStackParamList
       <AppStack.Screen name="ArmarCarro" component={ArmarCarroScreen} />
       <AppStack.Screen name="RecorridoSobras" component={RecorridoSobrasScreen} />
       <AppStack.Screen name="ReportesAlimentacion" component={ReportesAlimentacionScreen} />
+      <AppStack.Screen name="ReasignacionCorral" component={ReasignacionCorralScreen} />
+      <AppStack.Screen name="ConteoCorral" component={ConteoCorralScreen} />
+      <AppStack.Screen name="EstadoCorrales" component={EstadoCorralesScreen} />
+      <AppStack.Screen name="TomaMuestras" component={TomaMuestrasScreen} />
       <AppStack.Screen name="SmartCowChat" component={SmartCowChatScreen} />
       <AppStack.Screen name="VetBrainChat" component={VetBrainChatScreen} />
       <AppStack.Screen name="AgroBrainChat" component={AgroBrainChatScreen} />
