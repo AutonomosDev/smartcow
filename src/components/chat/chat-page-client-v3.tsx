@@ -19,6 +19,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChatSidebarV3 } from "@/src/components/chat/chat-sidebar-v3";
 import { MessageRenderer, type ChatMessage } from "@/src/components/chat/message-renderer";
 import { FontProvider } from "@/src/providers/font-provider";
@@ -401,6 +402,8 @@ function AiAvatar() {
 interface ChatPageClientV3Props {
   predioId: number;
   initialMessage?: string;
+  initialConversationId?: number;
+  initialMessages?: ChatMessage[];
   nombrePredio: string | null;
   userName: string | null;
   userEmail: string | null;
@@ -411,11 +414,15 @@ interface ChatPageClientV3Props {
 export function ChatPageClientV3({
   predioId,
   initialMessage,
+  initialConversationId,
+  initialMessages,
   nombrePredio,
   userName,
   userEmail,
 }: ChatPageClientV3Props) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const router = useRouter();
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages ?? []);
+  const [conversationId, setConversationId] = useState<number | null>(initialConversationId ?? null);
   const [isLoading, setIsLoading] = useState(false);
   const [thinkingText, setThinkingText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -443,9 +450,18 @@ export function ChatPageClientV3({
     abortControllerRef.current = null;
     hasSentInitial.current = false;
     setMessages([]);
+    setConversationId(null);
     setThinkingText("");
     setIsLoading(false);
-  }, []);
+    router.push("/chat");
+  }, [router]);
+
+  const handleSelectConversation = useCallback(
+    (id: number) => {
+      router.push(`/chat?conversation_id=${id}`);
+    },
+    [router]
+  );
 
   const handleStop = useCallback(() => {
     abortControllerRef.current?.abort();
@@ -465,6 +481,31 @@ export function ChatPageClientV3({
 
       setIsLoading(true);
       abortControllerRef.current = new AbortController();
+
+      // Crear conversación si es el primer turno (fire-and-forget, degrada elegante)
+      let convId: number | null = conversationId;
+      if (convId === null) {
+        try {
+          const res = await fetch("/api/conversations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              predio_id: predioId,
+              titulo: content.slice(0, 60),
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            convId = data.id as number;
+            setConversationId(convId);
+          }
+        } catch {
+          // Sin persistencia — el chat sigue funcionando
+        }
+      }
+
+      // Variable local para acumular el contenido del asistente durante el stream
+      let finalAssistantContent = "";
 
       try {
         const response = await fetch("/api/chat", {
@@ -516,6 +557,7 @@ export function ChatPageClientV3({
                 break;
               case "text_delta":
                 if (event.delta) {
+                  finalAssistantContent += event.delta;
                   setThinkingText("");
                   setMessages((prev) => {
                     const last = prev[prev.length - 1];
@@ -527,6 +569,18 @@ export function ChatPageClientV3({
                 }
                 break;
               case "done":
+                // Persistir mensajes al finalizar el turno (fire-and-forget)
+                if (convId !== null) {
+                  const snapshot: ChatMessage[] = [
+                    ...updatedMessages,
+                    { role: "assistant", content: finalAssistantContent },
+                  ];
+                  fetch(`/api/conversations/${convId}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ mensajes: snapshot }),
+                  }).catch(() => {});
+                }
                 break;
               case "error":
                 throw new Error(event.message ?? "Error en streaming");
@@ -551,7 +605,7 @@ export function ChatPageClientV3({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [messages, isLoading, predioId]
+    [messages, isLoading, predioId, conversationId]
   );
 
   return (
@@ -566,7 +620,10 @@ export function ChatPageClientV3({
           orgName={nombrePredio}
           userName={userName}
           userEmail={userEmail}
+          predioId={predioId}
+          activeConversationId={conversationId}
           onNewConversation={handleNewConversation}
+          onSelectConversation={handleSelectConversation}
         />
 
         {/* Chat área */}
