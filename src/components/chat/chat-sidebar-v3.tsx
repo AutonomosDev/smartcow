@@ -4,40 +4,55 @@
  * src/components/chat/chat-sidebar-v3.tsx
  * Chat sidebar V3 — historial de conversaciones agrupado por fecha.
  * Reemplaza el nav-link sidebar (V1/V2) por una lista de chats anteriores.
- * Ticket: AUT-209
+ * Tickets: AUT-209, AUT-144
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PanelLeftClose } from "lucide-react";
 
 interface ChatHistoryItem {
-  id: string;
-  title: string;
+  id: number;
+  titulo: string;
+  actualizadoEn: string;
 }
 
 interface ChatSidebarV3Props {
   orgName?: string | null;
   userName?: string | null;
   userEmail?: string | null;
+  predioId: number;
+  activeConversationId?: number | null;
   onNewConversation: () => void;
+  onSelectConversation: (id: number) => void;
 }
 
-const HISTORY_HOY: ChatHistoryItem[] = [
-  { id: "h1", title: "Venta Lote Norte proyección" },
-  { id: "h2", title: "Alertas Corral 3 bebedero" },
-  { id: "h3", title: "GDP lotes esta semana" },
-];
+// ─── Helpers de fecha (sin date-fns) ─────────────────────────────────────────
 
-const HISTORY_AYER: ChatHistoryItem[] = [
-  { id: "h4", title: "Receta Wagyu ajuste MS" },
-  { id: "h5", title: "Vacunación lote programar" },
-  { id: "h6", title: "Costo predio abril" },
-];
+function isToday(date: Date): boolean {
+  const now = new Date();
+  return (
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+  );
+}
 
-const HISTORY_SEMANA: ChatHistoryItem[] = [
-  { id: "h7", title: "Drone vuelo programar sáb" },
-  { id: "h8", title: "Eficiencia alimentación" },
-];
+function isYesterday(date: Date): boolean {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return (
+    date.getFullYear() === yesterday.getFullYear() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getDate() === yesterday.getDate()
+  );
+}
+
+function isThisWeek(date: Date): boolean {
+  const now = new Date();
+  const weekAgo = new Date();
+  weekAgo.setDate(now.getDate() - 7);
+  return date >= weekAgo && date <= now;
+}
 
 // Chat icon SVG (compact)
 function ChatIcon({ size = 12 }: { size?: number }) {
@@ -66,9 +81,10 @@ function HistorySection({
 }: {
   label: string;
   items: ChatHistoryItem[];
-  activeId: string;
-  onSelect: (id: string) => void;
+  activeId: number | null | undefined;
+  onSelect: (id: number) => void;
 }) {
+  if (items.length === 0) return null;
   return (
     <div style={{ marginBottom: 12 }}>
       <div
@@ -124,7 +140,7 @@ function HistorySection({
               flex: 1,
             }}
           >
-            {item.title}
+            {item.titulo}
           </span>
         </button>
       ))}
@@ -136,9 +152,27 @@ export function ChatSidebarV3({
   orgName,
   userName,
   userEmail,
+  predioId,
+  activeConversationId,
   onNewConversation,
+  onSelectConversation,
 }: ChatSidebarV3Props) {
-  const [activeId, setActiveId] = useState("h1");
+  const [historial, setHistorial] = useState<ChatHistoryItem[]>([]);
+
+  useEffect(() => {
+    if (!predioId) return;
+    fetch(`/api/conversations?predio_id=${predioId}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: ChatHistoryItem[]) => setHistorial(data))
+      .catch(() => {});
+  }, [predioId]);
+
+  const hoy = historial.filter((c) => isToday(new Date(c.actualizadoEn)));
+  const ayer = historial.filter((c) => isYesterday(new Date(c.actualizadoEn)));
+  const semana = historial.filter((c) => {
+    const d = new Date(c.actualizadoEn);
+    return isThisWeek(d) && !isToday(d) && !isYesterday(d);
+  });
 
   const initials = (userName ?? "U")
     .split(" ")
@@ -260,9 +294,36 @@ export function ChatSidebarV3({
           padding: 8,
         }}
       >
-        <HistorySection label="Hoy" items={HISTORY_HOY} activeId={activeId} onSelect={setActiveId} />
-        <HistorySection label="Ayer" items={HISTORY_AYER} activeId={activeId} onSelect={setActiveId} />
-        <HistorySection label="Esta semana" items={HISTORY_SEMANA} activeId={activeId} onSelect={setActiveId} />
+        <HistorySection
+          label="Hoy"
+          items={hoy}
+          activeId={activeConversationId}
+          onSelect={onSelectConversation}
+        />
+        <HistorySection
+          label="Ayer"
+          items={ayer}
+          activeId={activeConversationId}
+          onSelect={onSelectConversation}
+        />
+        <HistorySection
+          label="Esta semana"
+          items={semana}
+          activeId={activeConversationId}
+          onSelect={onSelectConversation}
+        />
+        {historial.length === 0 && (
+          <div
+            style={{
+              fontSize: 11,
+              color: "#ccc",
+              textAlign: "center",
+              padding: "20px 8px",
+            }}
+          >
+            Sin conversaciones
+          </div>
+        )}
       </div>
 
       {/* Footer: org + user */}

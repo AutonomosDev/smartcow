@@ -19,3 +19,6 @@ export * from "./bajas";
 export * from "./medieros";
 export * from "./potreros";
 export * from "./movimientos_potrero";
+
+// Chat
+export * from "./conversaciones";

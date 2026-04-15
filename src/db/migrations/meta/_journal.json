@@ -50,6 +50,13 @@
       "when": 1775703600000,
       "tag": "0006_rls_predio_isolation",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1776038400000,
+      "tag": "0007_conversaciones",
+      "breakpoints": true
     }
   ]
 }
