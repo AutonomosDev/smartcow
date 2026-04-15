@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://smartcow:SC2026-db-prod@db:5432/smartcow
+      - NEXTAUTH_SECRET=sc-jwt-secret-2026-prod-fundo-san-pedro
+      - NEXTAUTH_URL=https://smartcow.cl
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=production
+    depends_on:
+      - db
+      - redis
+    restart: always
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=smartcow
+      - POSTGRES_PASSWORD=SC2026-db-prod
+      - POSTGRES_DB=smartcow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    restart: always
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - certbot_certs:/etc/letsencrypt:ro
+    depends_on:
+      - app
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:
+  certbot_certs:
