@@ -121,14 +121,14 @@ export default function MarcajeClasificacionScreen() {
                   key={d}
                   style={[
                     s.btnSel,
-                    destino === d && (d === 'Venta' ? s.btnSelVenta : s.btnSelActive),
+                    d === 'Venta' ? s.btnSelVenta : destino === d && s.btnSelActive,
                   ]}
                   onPress={() => setDestino(d)}
                 >
                   <Text
                     style={[
                       s.btnSelTxt,
-                      destino === d && (d === 'Venta' ? { color: '#c0392b' } : s.btnSelTxtActive),
+                      d === 'Venta' ? { color: '#c0392b' } : destino === d && s.btnSelTxtActive,
                     ]}
                   >
                     {d}

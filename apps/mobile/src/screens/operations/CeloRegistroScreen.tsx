@@ -18,18 +18,14 @@ const F = {
 };
 
 type Intensidad = 'Celo claro' | 'Celo dudoso';
-type Obs = 'Monta activa · inquieta' | 'Inquieta sola' | 'Sin signos claros';
 
 export default function CeloRegistroScreen() {
   const navigation = useNavigation<any>();
   const [intensidad, setIntensidad] = useState<Intensidad>('Celo claro');
-  const [obs, setObs] = useState<Obs>('Monta activa · inquieta');
 
   const INTENSIDADES: Intensidad[] = ['Celo claro', 'Celo dudoso'];
-  const OBS_LIST: Obs[] = ['Monta activa · inquieta', 'Inquieta sola', 'Sin signos claros'];
 
-  // Cálculo de ventana IA (+12h y +18h de 07:30 AM = 19:30–01:30)
-  const ventanaIA = '14 abr · 19:30 – 01:30 hrs';
+  const ventanaIA = '14 abr · 18:00 – 20:00 hrs';
 
   return (
     <View style={s.container}>
@@ -86,17 +82,9 @@ export default function CeloRegistroScreen() {
               <Text style={s.fv}>14 abr 2026 · 07:30 AM</Text>
             </View>
             <View style={s.divider} />
-            <Text style={[s.fl, { marginBottom: 5 }]}>OBSERVACIÓN</Text>
-            <View style={s.btnCol}>
-              {OBS_LIST.map((o) => (
-                <TouchableOpacity
-                  key={o}
-                  style={[s.btnSel, { marginBottom: 4 }, obs === o && s.btnSelActive]}
-                  onPress={() => setObs(o)}
-                >
-                  <Text style={[s.btnSelTxt, obs === o && s.btnSelTxtActive]}>{o}</Text>
-                </TouchableOpacity>
-              ))}
+            <View style={s.field}>
+              <Text style={s.fl}>OBSERVACIÓN</Text>
+              <Text style={s.fv}>Monta activa · inquieta</Text>
             </View>
           </View>
 
@@ -136,7 +124,6 @@ const s = StyleSheet.create({
   field: { marginBottom: 7 },
 
   btnRow: { flexDirection: 'row', gap: 6, marginBottom: 8 },
-  btnCol: { gap: 4 },
   btnSel: {
     flex: 1, borderRadius: 10, paddingVertical: 9, paddingHorizontal: 12,
     alignItems: 'center', borderWidth: 1.5, borderColor: '#e0ddd8', backgroundColor: '#fff',
