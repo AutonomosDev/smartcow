@@ -8,7 +8,7 @@ const F = { r: 'DMSans_400Regular', m: 'DMSans_500Medium', b: 'DMSans_600SemiBol
 
 const INGREDIENTES = [
   { nombre: 'Ensilaje maíz', pct: 70, color: '#1e3a2f' },
-  { nombre: 'Heno ballica',  pct: 20, color: '#5a8870' },
+  { nombre: 'Heno ballica',  pct: 20, color: '#7ecfa0' },
   { nombre: 'Afrecho trigo', pct: 10, color: '#bbbbbb' },
 ];
 
@@ -139,7 +139,7 @@ const s = StyleSheet.create({
   heroItem:   { flex: 1, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 7, padding: 6 },
   heroItemLabel: { fontFamily: F.r, fontSize: 9, color: 'rgba(255,255,255,0.5)', marginBottom: 1 },
   heroItemVal:   { fontFamily: F.b, fontSize: 14, color: '#fff' },
-  warnCard: { backgroundColor: '#fdf8e6', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 10 },
+  warnCard: { backgroundColor: '#fdf0e6', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 10 },
   warnTitle: { fontFamily: F.b, fontSize: 12, color: '#9b5e1a', marginBottom: 4 },
   warnBody:  { fontFamily: F.r, fontSize: 11, color: '#555', lineHeight: 16 },
   card: { backgroundColor: '#fff', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 10 },

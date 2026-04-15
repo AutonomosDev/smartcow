@@ -9,8 +9,8 @@ const F = { r: 'DMSans_400Regular', m: 'DMSans_500Medium', b: 'DMSans_600SemiBol
 // Participantes
 const AVATARS = [
   { initials: 'JP', color: '#1e3a2f' },
-  { initials: 'R',  color: '#7b3f00' },
-  { initials: 'V',  color: '#1a5c3a' },
+  { initials: 'R',  color: '#9b5e1a' },
+  { initials: 'V',  color: '#1e3a2f' },
 ];
 
 export default function MeetingBriefScreen() {
@@ -136,7 +136,7 @@ const s = StyleSheet.create({
   badgeWarnText: { fontFamily: F.b, fontSize: 10, color: '#9b5e1a' },
   badgeOk:   { backgroundColor: '#e6f3ec', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 20 },
   badgeOkText: { fontFamily: F.b, fontSize: 10, color: '#1e3a2f' },
-  pregBtn: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fdf8e6', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 10 },
+  pregBtn: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fdf0e6', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 10 },
   pregText: { fontFamily: F.m, fontSize: 12, color: '#9b5e1a' },
   cta: { backgroundColor: '#1e3a2f', borderRadius: 12, paddingVertical: 13, alignItems: 'center' },
   ctaText: { fontFamily: F.m, fontSize: 13, color: '#fff' },

@@ -41,15 +41,15 @@ export default function DroneDashboardScreen() {
               <View style={styles.statusItem}>
                 <View style={styles.itemHeader}>
                   <Text style={styles.itemLabel}>Batería</Text>
-                  <Battery size={14} color="#2ecc71" />
+                  <Battery size={14} color="#7ecfa0" />
                 </View>
-                <Text style={[styles.itemValue, { color: '#2ecc71' }]}>87%</Text>
+                <Text style={[styles.itemValue, { color: '#7ecfa0' }]}>87%</Text>
               </View>
               <View style={styles.statusItem}>
                 <View style={styles.itemHeader}>
                   <Text style={styles.itemLabel}>Estado</Text>
                 </View>
-                <Text style={[styles.itemValue, { color: '#2ecc71' }]}>Listo</Text>
+                <Text style={[styles.itemValue, { color: '#7ecfa0' }]}>Listo</Text>
               </View>
               <View style={styles.statusItem}>
                 <View style={styles.itemHeader}>

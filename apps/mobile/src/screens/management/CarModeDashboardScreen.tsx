@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
   },
   fuelFill: {
     height: '100%',
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#7ecfa0',
     borderRadius: 3,
   },
   fuelText: {

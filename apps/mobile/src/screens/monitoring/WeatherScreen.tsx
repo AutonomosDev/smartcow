@@ -123,7 +123,7 @@ const s = StyleSheet.create({
   heroItem:  { flex: 1, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 7, padding: 6 },
   heroItemLabel: { fontFamily: F.r, fontSize: 9, color: 'rgba(255,255,255,0.5)', marginBottom: 1 },
   heroItemVal:   { fontFamily: F.b, fontSize: 12, color: '#fff' },
-  warnCard: { backgroundColor: '#fdf8e6', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 10 },
+  warnCard: { backgroundColor: '#fdf0e6', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 10 },
   warnTitle: { fontFamily: F.b, fontSize: 12, color: '#9b5e1a', marginBottom: 3 },
   warnBody:  { fontFamily: F.r, fontSize: 11, color: '#555', lineHeight: 16 },
   card: { backgroundColor: '#fff', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 10 },

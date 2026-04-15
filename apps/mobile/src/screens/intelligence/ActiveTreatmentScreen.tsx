@@ -115,7 +115,7 @@ const s = StyleSheet.create({
 
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 8 },
   backBtn: { width: 26, height: 26, borderRadius: 13, backgroundColor: '#ebe9e3', justifyContent: 'center', alignItems: 'center' },
-  hdrStatus: { fontFamily: F.b, fontSize: 11, color: '#e67e22', letterSpacing: 0.5 },
+  hdrStatus: { fontFamily: F.b, fontSize: 11, color: '#f39c12', letterSpacing: 0.5 },
 
   title:    { fontFamily: F.b, fontSize: 24, color: '#1a1a1a', marginTop: 4, marginBottom: 2 },
   subtitle: { fontFamily: F.r, fontSize: 11, color: '#888', marginBottom: 12 },

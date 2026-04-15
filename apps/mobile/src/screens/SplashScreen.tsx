@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   },
   brandSmart: {
     fontFamily: 'DMSans_600SemiBold',
-    color: '#4CAF50',
+    color: '#7ecfa0',
     fontSize: 28,
   },
   brandCow: {

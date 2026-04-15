@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   miniMapContainer: { height: 160, borderRadius: T.radius.card, overflow: 'hidden' },
   miniMapPlaceholder: {
     flex: 1,
-    backgroundColor: '#c8dfc8',
+    backgroundColor: '#e6f3ec',
     justifyContent: 'center',
     alignItems: 'center',
   },

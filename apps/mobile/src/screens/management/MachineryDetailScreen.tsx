@@ -147,7 +147,7 @@ const s = StyleSheet.create({
   svcTrack:  { flex: 1, height: 6, backgroundColor: '#f0ede8', borderRadius: 3 },
   svcFill:   { height: 6, borderRadius: 3 },
   svcEstado: { fontFamily: F.b, fontSize: 10, width: 80, textAlign: 'right' },
-  warnCard: { backgroundColor: '#fdf8e6', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 10 },
+  warnCard: { backgroundColor: '#fdf0e6', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 10 },
   warnTitle: { fontFamily: F.b, fontSize: 12, color: '#9b5e1a', marginBottom: 8 },
   warnGrid:  { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
   warnCell:  { width: '48%', marginBottom: 4 },

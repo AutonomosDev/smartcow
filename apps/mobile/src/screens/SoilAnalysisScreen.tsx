@@ -82,7 +82,7 @@ export default function SoilAnalysisScreen() {
           <View style={styles.mapContainer}>
             <Text style={styles.mapLabel}>CIREN - shapefile</Text>
             <View style={styles.mapContent}>
-              <View style={[styles.mapPolygon, { backgroundColor: '#cbd9bf', width: '70%', height: '100%', borderRightWidth: 1, borderColor: '#fff' }]}>
+              <View style={[styles.mapPolygon, { backgroundColor: '#e6f3ec', width: '70%', height: '100%', borderRightWidth: 1, borderColor: '#fff' }]}>
                 <Text style={styles.polygonTitle}>Serie Osorno</Text>
                 <Text style={styles.polygonSub}>Clase II — Apto forraje</Text>
               </View>
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ecebe6',
+    backgroundColor: '#ebe9e3',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
   footer: {
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: '#ecebe6',
+    borderTopColor: '#ebe9e3',
   },
   footerText: {
     fontSize: 14,
