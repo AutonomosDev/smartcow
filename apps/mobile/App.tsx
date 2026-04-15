@@ -82,6 +82,10 @@ import CorralesScreen from './src/screens/feeding/CorralesScreen';
 import ArmarCarroScreen from './src/screens/feeding/ArmarCarroScreen';
 import RecorridoSobrasScreen from './src/screens/feeding/RecorridoSobrasScreen';
 import ReportesAlimentacionScreen from './src/screens/feeding/ReportesAlimentacionScreen';
+import SmartCowChatScreen from './src/screens/intelligence/SmartCowChatScreen';
+import VetBrainChatScreen from './src/screens/intelligence/VetBrainChatScreen';
+import AgroBrainChatScreen from './src/screens/intelligence/AgroBrainChatScreen';
+import OwnBrainChatScreen from './src/screens/intelligence/OwnBrainChatScreen';
 
 // ─────────────────────────────────────────────
 // Tipos de navegación
@@ -156,6 +160,10 @@ export type RootStackParamList = {
   ArmarCarro: { batchNum?: number };
   RecorridoSobras: { batchNum?: number };
   ReportesAlimentacion: undefined;
+  SmartCowChat: undefined;
+  VetBrainChat: undefined;
+  AgroBrainChat: undefined;
+  OwnBrainChat: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -262,6 +270,10 @@ function AppNavigator({ initialRoute }: { initialRoute: keyof RootStackParamList
       <AppStack.Screen name="ArmarCarro" component={ArmarCarroScreen} />
       <AppStack.Screen name="RecorridoSobras" component={RecorridoSobrasScreen} />
       <AppStack.Screen name="ReportesAlimentacion" component={ReportesAlimentacionScreen} />
+      <AppStack.Screen name="SmartCowChat" component={SmartCowChatScreen} />
+      <AppStack.Screen name="VetBrainChat" component={VetBrainChatScreen} />
+      <AppStack.Screen name="AgroBrainChat" component={AgroBrainChatScreen} />
+      <AppStack.Screen name="OwnBrainChat" component={OwnBrainChatScreen} />
     </AppStack.Navigator>
   );
 }
