@@ -1,13 +1,11 @@
 /**
- * middleware.ts — Protege rutas con Next-Auth v5
- * Reemplaza verificación manual de cookie Firebase (AUT-215)
- * Edge Runtime: next-auth/middleware corre en edge sin firebase-admin ni pg.
+ * middleware.ts — Protege rutas con Firebase session cookie
+ * Edge Runtime: verifica __session cookie sin firebase-admin ni pg
  */
-import { auth } from "@/auth.config";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export default auth(function middleware(req) {
+export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const isPublic =
@@ -26,7 +24,10 @@ export default auth(function middleware(req) {
     pathname.startsWith("/chat") ||
     (pathname.startsWith("/api") && !pathname.startsWith("/api/auth"));
 
-  if (isProtected && !req.auth) {
+  // Check for Firebase session cookie
+  const sessionCookie = req.cookies.get("__session");
+
+  if (isProtected && !sessionCookie) {
     if (pathname.startsWith("/api")) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
     }
@@ -36,7 +37,7 @@ export default auth(function middleware(req) {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],

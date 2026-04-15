@@ -1,5 +1,5 @@
 import { pgTable, serial, integer, varchar, text, jsonb, timestamp } from "drizzle-orm/pg-core";
-import { organizaciones } from "./organizaciones.js";
+import { organizaciones } from "./organizaciones";
 
 /**
  * fundos — Predio / establecimiento ganadero.
