@@ -96,7 +96,7 @@ export async function withAuthBearer(
 
   let email: string;
   try {
-    const secret = process.env.NEXTAUTH_SECRET ?? "";
+    const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET ?? "";
     // Next-Auth v5 uses JWE encryption — use @auth/core/jwt decode
     const payload = await decode({
       token,

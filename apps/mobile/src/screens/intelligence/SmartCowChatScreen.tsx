@@ -1,9 +1,8 @@
 import React, { useState, useRef } from 'react';
 import ChatBaseScreen, { ChatConfig } from './ChatBaseScreen';
 import { mapToolResultToArtifact } from '../../components/generative/artifact-mapper';
-import { Platform } from 'react-native';
-
-const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000/api/chat' : 'http://localhost:3000/api/chat';
+import { API_BASE_URL } from '../../lib/config';
+import { getStoredToken } from '../../lib/auth';
 
 export default function SmartCowChatScreen() {
   const [messages, setMessages] = useState<ChatConfig['messages']>([]);
@@ -37,9 +36,11 @@ export default function SmartCowChatScreen() {
     setMessages((prev) => [...prev, aiMessageTemplate]);
 
     try {
+      const token = await getStoredToken();
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', API_URL);
+      xhr.open('POST', `${API_BASE_URL}/api/chat`);
       xhr.setRequestHeader('Content-Type', 'application/json');
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
       let processedIndex = 0;
       let finalContent = '';

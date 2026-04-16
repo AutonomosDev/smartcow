@@ -22,7 +22,7 @@
 
 import { NextRequest } from "next/server";
 import type { Content, Part, FunctionCallingConfigMode } from "@google/genai";
-import { withAuth } from "@/src/lib/with-auth";
+import { withAuth, withAuthBearer } from "@/src/lib/with-auth";
 import {
   getGoogleAIClient,
   buildSystemPrompt,
@@ -53,10 +53,15 @@ const MAX_TOOL_ITERATIONS = 5;
 const FUNCTION_CALLING_AUTO = "AUTO" as FunctionCallingConfigMode;
 
 export async function POST(req: NextRequest) {
-  // 1. Autenticación
+  // 1. Autenticación — Bearer (mobile) o cookie (web)
   let session;
   try {
-    session = await withAuth();
+    const authHeader = req.headers.get("authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      session = await withAuthBearer(req);
+    } else {
+      session = await withAuth();
+    }
   } catch (err) {
     if (err instanceof AuthError) {
       return new Response(

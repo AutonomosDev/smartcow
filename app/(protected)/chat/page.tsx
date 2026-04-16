@@ -9,7 +9,7 @@
 
 import { auth } from "@/src/lib/auth";
 import { redirect } from "next/navigation";
-import { getNombrePredio } from "@/src/lib/queries/predio";
+import { getNombrePredio, getPrediosConAnimales } from "@/src/lib/queries/predio";
 import { getConversacionById } from "@/src/lib/queries/conversaciones";
 import { ChatPageClientV3 } from "@/src/components/chat/chat-page-client-v3";
 import type { ChatMessage } from "@/src/components/chat/message-renderer";
@@ -21,7 +21,7 @@ export const metadata = {
 export default async function ChatPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; conversation_id?: string }>;
+  searchParams: Promise<{ q?: string; conversation_id?: string; predio_id?: string }>;
 }) {
   const session = await auth();
 
@@ -29,8 +29,14 @@ export default async function ChatPage({
     redirect("/login");
   }
 
-  const predioId = session.user.predios[0] ?? 0;
   const params = await searchParams;
+  const predioIds = session.user.predios;
+  const prediosConAnimales = await getPrediosConAnimales(predioIds);
+
+  // Predio desde URL param, fallback al que tiene más animales, fallback al primero
+  const defaultPredioId = prediosConAnimales[0]?.id ?? predioIds[0] ?? 0;
+  const predioId = params.predio_id ? Number(params.predio_id) : defaultPredioId;
+
   const initialMessage = params.q;
   const nombrePredio = await getNombrePredio(predioId);
 
@@ -53,6 +59,7 @@ export default async function ChatPage({
   return (
     <ChatPageClientV3
       predioId={predioId}
+      predios={prediosConAnimales.map((p) => ({ id: p.id, nombre: p.nombre }))}
       initialMessage={initialMessage}
       initialConversationId={initialConversationId}
       initialMessages={initialMessages}
