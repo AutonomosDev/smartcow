@@ -1,17 +1,19 @@
 /**
- * app/api/mobile/auth/login/route.ts — Login mobile via Next-Auth JWT token.
+ * app/api/mobile/auth/login/route.ts — Login mobile via email/password.
  * POST /api/mobile/auth/login
- * Body: { token: string }  ← Next-Auth JWT token del cliente Expo
+ * Body: { email: string, password: string }
  *
- * La app Expo autentica via credenciales (email/password) y recibe un JWT
- * de Next-Auth que envía aquí para validar y recibir datos del usuario.
- *
- * Ticket: AUT-216
+ * Verifica credenciales contra DB (bcrypt), emite un SmartCow JWT (NextAuth format)
+ * para usar como Bearer token en requests móviles posteriores.
  */
 
 import { NextRequest } from "next/server";
-import { decode } from "@auth/core/jwt";
+import { encode } from "@auth/core/jwt";
 import { loadUserByEmail } from "@/src/lib/auth";
+import { db } from "@/src/db/client";
+import { users } from "@/src/db/schema/index";
+import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -21,37 +23,30 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Body JSON inválido" }, { status: 400 });
   }
 
-  const { token } = body as { token?: unknown };
+  const { email, password } = body as { email?: unknown; password?: unknown };
 
-  if (typeof token !== "string" || !token) {
-    return Response.json({ error: "token requerido" }, { status: 400 });
+  if (typeof email !== "string" || !email) {
+    return Response.json({ error: "email requerido" }, { status: 400 });
+  }
+  if (typeof password !== "string" || !password) {
+    return Response.json({ error: "password requerido" }, { status: 400 });
   }
 
-  let email: string;
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  const user = result[0];
 
-  if (process.env.NODE_ENV === "development") {
-    // En desarrollo: decodificar sin verificar firma para facilitar testing
-    try {
-      const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString());
-      email = payload.email ?? "";
-      if (!email) return Response.json({ error: "Token sin email" }, { status: 401 });
-    } catch {
-      return Response.json({ error: "Token inválido" }, { status: 401 });
-    }
-  } else {
-    try {
-      const secret = process.env.NEXTAUTH_SECRET ?? "";
-      // Next-Auth v5 uses JWE encryption — use @auth/core/jwt decode
-      const payload = await decode({
-        token,
-        secret,
-        salt: "__session", // Same cookie name used in auth.config.ts
-      });
-      email = (payload?.email as string) ?? "";
-      if (!email) throw new Error("No email in token");
-    } catch {
-      return Response.json({ error: "Token inválido o expirado" }, { status: 401 });
-    }
+  if (!user) {
+    return Response.json({ error: "Credenciales inválidas" }, { status: 401 });
+  }
+
+  const hash = (user as typeof user & { passwordHash?: string }).passwordHash;
+  if (!hash) {
+    return Response.json({ error: "Credenciales inválidas" }, { status: 401 });
+  }
+
+  const valid = await bcrypt.compare(password, hash);
+  if (!valid) {
+    return Response.json({ error: "Credenciales inválidas" }, { status: 401 });
   }
 
   const session = await loadUserByEmail(email);
@@ -59,7 +54,18 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Usuario no registrado en SmartCow" }, { status: 403 });
   }
 
-  return Response.json({
-    user: session.user,
+  // Emitir SmartCow JWT (NextAuth JWE format) para uso como Bearer token
+  const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET ?? "";
+  const token = await encode({
+    token: {
+      sub: session.user.id,
+      email: session.user.email,
+      smartcow: session.user,
+    },
+    secret,
+    salt: "__session",
+    maxAge: 8 * 60 * 60, // 8 horas
   });
+
+  return Response.json({ user: session.user, token });
 }

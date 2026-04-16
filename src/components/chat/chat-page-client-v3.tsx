@@ -402,6 +402,7 @@ function AiAvatar() {
 
 interface ChatPageClientV3Props {
   predioId: number;
+  predios: { id: number; nombre: string }[];
   initialMessage?: string;
   initialConversationId?: number;
   initialMessages?: ChatMessage[];
@@ -414,6 +415,7 @@ interface ChatPageClientV3Props {
 
 export function ChatPageClientV3({
   predioId,
+  predios,
   initialMessage,
   initialConversationId,
   initialMessages,
@@ -427,6 +429,7 @@ export function ChatPageClientV3({
   const [refreshTrigger, setRefreshTrigger] = useState(0); // Para re-fetch del sidebar
   const [isLoading, setIsLoading] = useState(false);
   const [thinkingText, setThinkingText] = useState("");
+  const [showPredioMenu, setShowPredioMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasSentInitial = useRef(false);
@@ -676,30 +679,73 @@ export function ChatPageClientV3({
           >
             <div style={{ width: 80 }} />
 
-            {/* Centro: smartCow + chevron */}
-            <button
-              style={{
-                position: "absolute",
-                left: "50%",
-                transform: "translateX(-50%)",
-                display: "flex",
-                alignItems: "center",
-                gap: 4,
-                padding: "3px 8px",
-                borderRadius: 7,
-                cursor: "pointer",
-                background: "transparent",
-                border: "none",
-                fontFamily: "inherit",
-              }}
-            >
-              <span
-                style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a", letterSpacing: "-0.3px" }}
+            {/* Centro: predio selector */}
+            <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
+              <button
+                onClick={() => setShowPredioMenu((v) => !v)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  padding: "3px 8px",
+                  borderRadius: 7,
+                  cursor: "pointer",
+                  background: "transparent",
+                  border: "none",
+                  fontFamily: "inherit",
+                }}
               >
-                smartCow
-              </span>
-              <ChevronDown size={10} color="#bbb" />
-            </button>
+                <span
+                  style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a", letterSpacing: "-0.3px" }}
+                >
+                  {nombrePredio ?? "smartCow"}
+                </span>
+                <ChevronDown size={10} color="#bbb" />
+              </button>
+              {showPredioMenu && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    marginTop: 4,
+                    background: "#fff",
+                    border: "1px solid #e8e5df",
+                    borderRadius: 10,
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.10)",
+                    minWidth: 200,
+                    zIndex: 50,
+                    overflow: "hidden",
+                  }}
+                >
+                  {predios.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        setShowPredioMenu(false);
+                        router.push(`/chat?predio_id=${p.id}`);
+                      }}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        padding: "9px 14px",
+                        fontSize: 13,
+                        color: p.id === predioId ? "#1e3a2f" : "#555",
+                        fontWeight: p.id === predioId ? 600 : 400,
+                        background: p.id === predioId ? "#f0ede8" : "transparent",
+                        border: "none",
+                        textAlign: "left",
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      {p.nombre}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Derecha */}
             <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
@@ -836,8 +882,8 @@ export function ChatPageClientV3({
 
       {/* ── MOBILE ──────────────────────────────────────────────────── */}
       <div
-        className="flex md:hidden flex-col overflow-hidden"
-        style={{ height: "100vh", background: "#f8f6f1" }}
+        className="flex md:hidden flex-col overflow-hidden -mb-20"
+        style={{ height: "100dvh", background: "#f8f6f1" }}
       >
         <header
           style={{
@@ -851,7 +897,24 @@ export function ChatPageClientV3({
           }}
         >
           <div style={{ width: 26 }} />
-          <span style={{ fontSize: 14, fontWeight: 700, color: "#1a1a1a" }}>smartCow</span>
+          <select
+            value={predioId}
+            onChange={(e) => router.push(`/chat?predio_id=${e.target.value}`)}
+            style={{
+              fontSize: 14,
+              fontWeight: 700,
+              color: "#1a1a1a",
+              background: "transparent",
+              border: "none",
+              fontFamily: "inherit",
+              cursor: "pointer",
+              textAlign: "center",
+            }}
+          >
+            {predios.map((p) => (
+              <option key={p.id} value={p.id}>{p.nombre}</option>
+            ))}
+          </select>
           <Link href="/dashboard" style={{ color: "#aaa", display: "flex" }}>
             <X size={16} />
           </Link>

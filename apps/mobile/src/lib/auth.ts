@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_BASE_URL, FIREBASE_API_KEY } from './config';
+import { API_BASE_URL } from './config';
 
 const TOKEN_KEY = '@smartcow:idToken';
-const REFRESH_KEY = '@smartcow:refreshToken';
 const USER_KEY = '@smartcow:user';
 
 // Espejo de SmartCowSession['user'] del backend (src/lib/auth.ts)
@@ -24,87 +23,35 @@ export interface SmartCowUser {
   modulos: Record<string, boolean>;
 }
 
-interface FirebaseSignInResponse {
-  idToken: string;
-  refreshToken: string;
-  expiresIn: string;
-  localId: string;
-  email: string;
-}
-
-interface FirebaseRefreshResponse {
-  id_token: string;
-  refresh_token: string;
-}
-
 export async function signIn(
   email: string,
   password: string
 ): Promise<SmartCowUser> {
-  // Paso 1: Firebase REST Auth
-  const firebaseRes = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/auth:signInWithPassword?key=${FIREBASE_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, returnSecureToken: true }),
-    }
-  );
-
-  if (!firebaseRes.ok) {
-    const err = await firebaseRes.json().catch(() => ({}));
-    const msg: string = (err as { error?: { message?: string } }).error?.message ?? 'Error de autenticación';
-    throw new Error(mapFirebaseError(msg));
-  }
-
-  const firebaseData = (await firebaseRes.json()) as FirebaseSignInResponse;
-
-  // Paso 2: Validar con backend SmartCow y obtener datos del usuario
-  const smartcowRes = await fetch(`${API_BASE_URL}/api/mobile/auth/login`, {
+  const res = await fetch(`${API_BASE_URL}/api/mobile/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ idToken: firebaseData.idToken }),
+    body: JSON.stringify({ email, password }),
   });
 
-  if (!smartcowRes.ok) {
-    const err = await smartcowRes.json().catch(() => ({}));
-    throw new Error((err as { error?: string }).error ?? 'Usuario no autorizado en SmartCow');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const msg = (err as { error?: string }).error ?? 'Error de autenticación';
+    throw new Error(mapAuthError(msg));
   }
 
-  const { user } = (await smartcowRes.json()) as { user: SmartCowUser };
+  const { user, token } = (await res.json()) as { user: SmartCowUser; token: string };
 
-  // Paso 3: Persistir token + user
   await Promise.all([
-    AsyncStorage.setItem(TOKEN_KEY, firebaseData.idToken),
-    AsyncStorage.setItem(REFRESH_KEY, firebaseData.refreshToken),
+    AsyncStorage.setItem(TOKEN_KEY, token),
     AsyncStorage.setItem(USER_KEY, JSON.stringify(user)),
   ]);
 
   return user;
 }
 
+// Token no expirable por refresh — re-login requerido tras 8h
 export async function refreshIdToken(): Promise<string | null> {
-  const refreshToken = await AsyncStorage.getItem(REFRESH_KEY);
-  if (!refreshToken) return null;
-
-  const res = await fetch(
-    `https://securetoken.googleapis.com/v1/token?key=${FIREBASE_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(refreshToken)}`,
-    }
-  );
-
-  if (!res.ok) {
-    await signOut();
-    return null;
-  }
-
-  const data = (await res.json()) as FirebaseRefreshResponse;
-  await AsyncStorage.setItem(TOKEN_KEY, data.id_token);
-  await AsyncStorage.setItem(REFRESH_KEY, data.refresh_token);
-  return data.id_token;
+  return null;
 }
 
 export async function getStoredToken(): Promise<string | null> {
@@ -120,22 +67,13 @@ export async function getStoredUser(): Promise<SmartCowUser | null> {
 export async function signOut(): Promise<void> {
   await Promise.all([
     AsyncStorage.removeItem(TOKEN_KEY),
-    AsyncStorage.removeItem(REFRESH_KEY),
     AsyncStorage.removeItem(USER_KEY),
   ]);
 }
 
-function mapFirebaseError(code: string): string {
-  switch (code) {
-    case 'EMAIL_NOT_FOUND':
-    case 'INVALID_PASSWORD':
-    case 'INVALID_LOGIN_CREDENTIALS':
-      return 'Email o contraseña incorrectos';
-    case 'USER_DISABLED':
-      return 'Cuenta deshabilitada';
-    case 'TOO_MANY_ATTEMPTS_TRY_LATER':
-      return 'Demasiados intentos. Intenta más tarde';
-    default:
-      return 'Error de autenticación';
+function mapAuthError(msg: string): string {
+  if (msg.includes('Credenciales') || msg.includes('inválid')) {
+    return 'Email o contraseña incorrectos';
   }
+  return msg;
 }
