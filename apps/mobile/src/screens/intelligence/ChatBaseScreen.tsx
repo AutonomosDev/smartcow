@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const F = {
   regular: 'DMSans_400Regular',
@@ -48,6 +49,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
   const navigation = useNavigation<any>();
   const [input, setInput] = useState('');
   const scrollRef = useRef<ScrollView>(null);
+  const insets = useSafeAreaInsets();
 
   return (
     <View style={s.container}>
@@ -112,7 +114,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          <View style={s.inputBar}>
+          <View style={[s.inputBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
             <TextInput
               style={s.input}
               placeholder={config.placeholder}
@@ -186,7 +188,6 @@ const s = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 14,
     paddingTop: 12,
-    paddingBottom: 20,
     backgroundColor: '#f8f6f1',
     borderTopWidth: 0.5,
     borderTopColor: '#ebe9e3',
