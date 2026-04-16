@@ -32,7 +32,11 @@
       "expo-font"
     ],
     "extra": {
-      "apiUrl": "https://smartcow.cl"
-    }
+      "apiUrl": "https://smartcow.cl",
+      "eas": {
+        "projectId": "61eb868e-a310-408a-92d4-caeeb6b958d2"
+      }
+    },
+    "owner": "autonomo"
   }
 }
