@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
-  Image,
   ImageBackground,
   StyleSheet,
   Animated,
@@ -92,11 +91,6 @@ export default function SplashScreen({ fundoNombre }: SplashScreenProps) {
         {/* TOP — Logo + marca */}
         <View style={styles.top}>
           <View style={styles.logoRow}>
-            <Image
-              source={require('../../assets/cow_robot.png')}
-              style={styles.logoImg}
-              resizeMode="contain"
-            />
             <Text style={styles.brandText}>
               <Text style={styles.brandSmart}>smart</Text>
               <Text style={styles.brandCow}>Cow</Text>
@@ -122,7 +116,7 @@ export default function SplashScreen({ fundoNombre }: SplashScreenProps) {
               style={[styles.thumb, { transform: [{ translateX: thumbX }] }]}
               {...panResponder.panHandlers}
             >
-              <Text style={styles.thumbArrow}>→</Text>
+              <Text style={styles.thumbArrow}>›</Text>
             </Animated.View>
           </View>
         </View>
@@ -154,11 +148,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-  },
-  logoImg: {
-    width: 48,
-    height: 48,
-    marginRight: 10,
   },
   brandText: {
     fontSize: 28,
@@ -215,17 +204,14 @@ const styles = StyleSheet.create({
     width: THUMB_SIZE,
     height: THUMB_SIZE,
     borderRadius: THUMB_SIZE / 2,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
   },
   thumbArrow: {
-    fontSize: 20,
-    color: '#1E3A2F',
+    fontSize: 24,
+    color: '#ffffff',
   },
 });
