@@ -30,6 +30,9 @@
     "plugins": [
       "expo-asset",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "apiUrl": "https://smartcow.cl"
+    }
   }
 }
