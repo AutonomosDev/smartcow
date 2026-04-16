@@ -2,7 +2,7 @@
 // el emulador Android no resuelve localhost del host). En prod: dominio desplegado.
 export const API_BASE_URL = __DEV__
   ? 'http://192.168.1.213:3003'
-  : 'https://smartcow--smartcow-c22fb.us-central1.hosted.app';
+  : 'https://smartcow.cl';
 
 // Firebase Auth REST API key — proyecto smartcow-c22fb (activo)
 export const FIREBASE_API_KEY = 'AIzaSyBbpjCH2Vu0Tx0etlRxeIp7i5d_JpjiY04';
