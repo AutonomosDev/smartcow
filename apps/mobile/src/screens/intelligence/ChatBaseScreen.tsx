@@ -53,67 +53,65 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
     <View style={s.container}>
       <StatusBar style="dark" />
       <SafeAreaView style={s.safe}>
-        <KeyboardAvoidingView
-          style={s.kav}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={0}
-        >
 
-          {/* ── Header ── */}
-          <View style={s.hdr}>
-            <View style={s.hdrRow}>
-              <View style={s.avatar}>
-                <Text style={s.avatarTxt}>{config.avatarLabel}</Text>
-              </View>
-              <View style={s.hdrText}>
-                <Text style={s.hdrName}>{config.name}</Text>
-                <Text style={s.hdrSub}>{config.subtitle}</Text>
-              </View>
-              <View style={[s.dot, config.alertDot && s.dotAlert]} />
+        {/* ── Header ── */}
+        <View style={s.hdr}>
+          <View style={s.hdrRow}>
+            <View style={s.avatar}>
+              <Text style={s.avatarTxt}>{config.avatarLabel}</Text>
             </View>
+            <View style={s.hdrText}>
+              <Text style={s.hdrName}>{config.name}</Text>
+              <Text style={s.hdrSub}>{config.subtitle}</Text>
+            </View>
+            <View style={[s.dot, config.alertDot && s.dotAlert]} />
           </View>
+        </View>
 
-          {/* ── Mensajes ── */}
-          <ScrollView
-            ref={scrollRef}
-            style={s.msgs}
-            contentContainerStyle={s.msgsContent}
-            showsVerticalScrollIndicator={false}
-            onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
-          >
-            <Text style={s.dateSep}>{config.dateSep}</Text>
+        {/* ── Mensajes ── */}
+        <ScrollView
+          ref={scrollRef}
+          style={s.msgs}
+          contentContainerStyle={s.msgsContent}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
+        >
+          <Text style={s.dateSep}>{config.dateSep}</Text>
 
-            {config.messages.map((msg) => {
-              if (msg.from === 'user') {
-                return (
-                  <View key={msg.id} style={s.userRow}>
-                    <View style={s.userBubble}>
-                      <Text style={s.userTxt}>{msg.text}</Text>
-                      <Text style={s.userTime}>{msg.time}</Text>
-                    </View>
-                  </View>
-                );
-              }
+          {config.messages.map((msg) => {
+            if (msg.from === 'user') {
               return (
-                <View key={msg.id} style={s.aiRow}>
-                  <View style={s.aiAvatar}>
-                    <Text style={s.aiAvatarTxt}>{config.avatarLabel}</Text>
-                  </View>
-                  <View style={s.aiContent}>
-                    <View style={s.aiBubble}>
-                      <Text style={s.aiTxt}>{msg.text}</Text>
-                      <Text style={s.aiTime}>{msg.time}</Text>
-                    </View>
-                    {msg.artifacts && msg.artifacts.map((art, idx) => (
-                      <ArtifactRenderer key={idx} artifact={art} />
-                    ))}
+                <View key={msg.id} style={s.userRow}>
+                  <View style={s.userBubble}>
+                    <Text style={s.userTxt}>{msg.text}</Text>
+                    <Text style={s.userTime}>{msg.time}</Text>
                   </View>
                 </View>
               );
-            })}
-          </ScrollView>
+            }
+            return (
+              <View key={msg.id} style={s.aiRow}>
+                <View style={s.aiAvatar}>
+                  <Text style={s.aiAvatarTxt}>{config.avatarLabel}</Text>
+                </View>
+                <View style={s.aiContent}>
+                  <View style={s.aiBubble}>
+                    <Text style={s.aiTxt}>{msg.text}</Text>
+                    <Text style={s.aiTime}>{msg.time}</Text>
+                  </View>
+                  {msg.artifacts && msg.artifacts.map((art, idx) => (
+                    <ArtifactRenderer key={idx} artifact={art} />
+                  ))}
+                </View>
+              </View>
+            );
+          })}
+        </ScrollView>
 
-          {/* ── Input bar ── */}
+        {/* ── Input bar — KAV solo aquí para Android ── */}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
           <View style={s.inputBar}>
             <TextInput
               style={s.input}
@@ -123,7 +121,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
               onChangeText={setInput}
               multiline
             />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={s.sendBtn}
               onPress={() => {
                 if (input.trim() && config.onSend) {
@@ -135,8 +133,8 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
               <View style={s.sendArrow} />
             </TouchableOpacity>
           </View>
-
         </KeyboardAvoidingView>
+
       </SafeAreaView>
     </View>
   );
