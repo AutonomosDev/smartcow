@@ -25,17 +25,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Restaurar sesión persitida al abrir la app
   useEffect(() => {
     if (__DEV__) {
-      // Bypass auth en dev — saltar login directo a OwnerDashboard
-      setUser({
-        id: '5',
-        email: 'cesar@autonomos.dev',
-        nombre: 'JP Dev',
-        orgId: 1,
-        predios: [11, 7, 9, 8, 10, 6, 5],
-        rol: 'admin_org',
-        modulos: { feedlot: true, crianza: true },
-      });
-      setLoading(false);
+      // En dev: hacer login real para obtener token válido
+      authSignIn('admin@smartcow.cl', 'SmartCow2026!')
+        .then(setUser)
+        .catch(() => {
+          // Fallback si el servidor no está disponible
+          setUser({
+            id: '5',
+            email: 'cesar@autonomos.dev',
+            nombre: 'JP Dev',
+            orgId: 1,
+            predios: [11, 7, 9, 8, 10, 6, 5],
+            rol: 'admin_org',
+            modulos: { feedlot: true, crianza: true },
+          });
+        })
+        .finally(() => setLoading(false));
       return;
     }
     getStoredUser()
