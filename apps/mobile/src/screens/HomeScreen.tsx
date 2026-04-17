@@ -159,6 +159,33 @@ export default function HomeScreen() {
                  </LinearGradient>
               </TouchableOpacity>
 
+              {/* [DEV] Botón temporal para comparar Chat V2 */}
+              <TouchableOpacity 
+                style={[styles.chatBtn, { marginTop: 8 }]} 
+                onPress={() => navigation.navigate('SmartCowChatV2')} 
+                activeOpacity={0.8}
+              >
+                 <View style={[styles.chatBtnGradient, { backgroundColor: 'rgba(255,200,0,0.15)', borderColor: 'rgba(255,200,0,0.4)' }]}>
+                   <View style={styles.cbLeft}>
+                       <View style={[styles.cbIcon, { backgroundColor: 'rgba(255,200,0,0.2)' }]}>
+                         <Svg width={18} height={18} viewBox="0 0 16 16" fill="none">
+                           <Circle cx={8} cy={8} r={6} stroke="#ffd700" strokeWidth={2}/>
+                           <Path d="M8 5v3l2 2" stroke="#ffd700" strokeWidth={2} strokeLinecap="round"/>
+                         </Svg>
+                       </View>
+                       <View>
+                           <Text style={[styles.cbTitle, { color: '#ffd700' }]}>[DEV] Chat V2 — API Real</Text>
+                           <Text style={[styles.cbSub, { color: 'rgba(255,215,0,0.7)' }]}>SSE streaming + artifacts</Text>
+                       </View>
+                   </View>
+                   <View style={styles.cbArrCont}>
+                      <Svg width={12} height={12} viewBox="0 0 12 12" fill="none">
+                        <Path d="M3 6h6M6 3l3 3-3 3" stroke="#ffd700" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+                      </Svg>
+                   </View>
+                 </View>
+              </TouchableOpacity>
+
               {/* Dots */}
               <View style={styles.dots}>
                  <View style={[styles.dot, styles.dotOn]} />
