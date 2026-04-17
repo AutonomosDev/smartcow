@@ -1,12 +1,19 @@
-import React, { useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { GiftedChat, IMessage, Bubble, InputToolbar, Send } from 'react-native-gifted-chat';
+import { GenerativeArtifact, ArtifactRenderer } from '../../components/generative/ArtifactRenderer';
 
 const F = {
   regular: 'DMSans_400Regular',
@@ -15,8 +22,6 @@ const F = {
 };
 
 // ── Tipos ───────────────────────────────────────────────────────────────────
-
-import { GenerativeArtifact, ArtifactRenderer } from '../../components/generative/ArtifactRenderer';
 
 type Message = {
   id: string;
@@ -37,138 +42,97 @@ export type ChatConfig = {
   onSend?: (text: string) => void;
 };
 
-// ── Helpers de mapeo ─────────────────────────────────────────────────────────
-
-function toGiftedMessages(messages: Message[]): IMessage[] {
-  return messages.map((msg) => ({
-    _id: msg.id,
-    text: msg.text,
-    createdAt: new Date(msg.time),
-    user:
-      msg.from === 'user'
-        ? { _id: 'user' }
-        : { _id: 'ai' },
-  }));
-}
-
 // ── Componente principal ─────────────────────────────────────────────────────
 
 export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
   useNavigation<any>();
+  const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+  const [inputText, setInputText] = useState('');
 
-  const giftedMessages = useMemo(
-    () => toGiftedMessages(config.messages).reverse(),
-    [config.messages],
-  );
+  useEffect(() => {
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 80);
+  }, [config.messages]);
 
-  function handleSend(newMessages: IMessage[]) {
-    const text = newMessages[0]?.text;
-    if (text && config.onSend) {
-      config.onSend(text);
-    }
-  }
-
-  // Renders artifacts below AI bubbles
-  function renderMessageText(props: any) {
-    const msgId = props.currentMessage?._id as string | undefined;
-    const original = msgId
-      ? config.messages.find((m) => m.id === msgId)
-      : undefined;
-
-    return (
-      <View>
-        <Text
-          style={
-            props.currentMessage?.user?._id === 'user'
-              ? s.userTxt
-              : s.aiTxt
-          }
-        >
-          {props.currentMessage?.text}
-        </Text>
-        {original?.artifacts?.map((art, idx) => (
-          <ArtifactRenderer key={idx} artifact={art} />
-        ))}
-      </View>
-    );
-  }
-
-  function renderBubble(props: any) {
-    return (
-      <Bubble
-        {...props}
-        wrapperStyle={{
-          right: s.userBubble,
-          left: s.aiBubble,
-        }}
-        textStyle={{
-          right: s.userTxt,
-          left: s.aiTxt,
-        }}
-        timeTextStyle={{
-          right: s.userTime,
-          left: s.aiTime,
-        }}
-        renderMessageText={renderMessageText}
-      />
-    );
-  }
-
-  function renderInputToolbar(props: any) {
-    return (
-      <InputToolbar
-        {...props}
-        containerStyle={s.inputBar}
-        primaryStyle={s.inputPrimary}
-      />
-    );
-  }
-
-  function renderSend(props: any) {
-    return (
-      <Send {...props} containerStyle={s.sendBtnWrapper}>
-        <View style={s.sendBtn}>
-          <View style={s.sendArrow} />
-        </View>
-      </Send>
-    );
-  }
+  const handleSend = () => {
+    const text = inputText.trim();
+    if (!text) return;
+    setInputText('');
+    config.onSend?.(text);
+  };
 
   return (
     <View style={s.container}>
       <StatusBar style="dark" />
-
-      {/* ── Header ── */}
-      <View style={s.hdr}>
-        <View style={s.hdrRow}>
-          <View style={s.avatar}>
-            <Text style={s.avatarTxt}>{config.avatarLabel}</Text>
+      <SafeAreaView style={s.safe}>
+        {/* ── Header ── */}
+        <View style={s.hdr}>
+          <View style={s.hdrRow}>
+            <View style={s.avatar}>
+              <Text style={s.avatarTxt}>{config.avatarLabel}</Text>
+            </View>
+            <View style={s.hdrText}>
+              <Text style={s.hdrName}>{config.name}</Text>
+              <Text style={s.hdrSub}>{config.subtitle}</Text>
+            </View>
+            <View style={[s.dot, config.alertDot && s.dotAlert]} />
           </View>
-          <View style={s.hdrText}>
-            <Text style={s.hdrName}>{config.name}</Text>
-            <Text style={s.hdrSub}>{config.subtitle}</Text>
-          </View>
-          <View style={[s.dot, config.alertDot && s.dotAlert]} />
         </View>
-      </View>
 
-      {/* ── GiftedChat ── */}
-      <GiftedChat
-        messages={giftedMessages}
-        onSend={handleSend}
-        user={{ _id: 'user' }}
-        textInputProps={{ placeholder: config.placeholder, placeholderTextColor: '#aaa' }}
-        isSendButtonAlwaysVisible
-        renderBubble={renderBubble}
-        renderInputToolbar={renderInputToolbar}
-        renderSend={renderSend}
-        renderAvatar={null}
-        isUsernameVisible={false}
-        renderDay={() => (
+        {/* ── Messages ── */}
+        <ScrollView
+          ref={scrollRef}
+          style={s.msgsArea}
+          contentContainerStyle={s.msgsScroll}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text style={s.dateSep}>{config.dateSep}</Text>
-        )}
-        messagesContainerStyle={s.msgsContainer}
-      />
+
+          {config.messages.map((m) => (
+            <View key={m.id}>
+              <View style={[s.row, m.from === 'user' ? s.rowUser : s.rowAi]}>
+                {m.from === 'ai' && (
+                  <View style={s.miniAv}>
+                    <Text style={s.miniAvTxt}>{config.avatarLabel}</Text>
+                  </View>
+                )}
+                <View style={[s.bubble, m.from === 'user' ? s.bubbleUser : s.bubbleAi]}>
+                  <Text style={[s.txt, m.from === 'user' ? s.txtUser : s.txtAi]}>{m.text}</Text>
+                  <Text style={[s.time, m.from === 'user' ? s.timeUser : s.timeAi]}>{m.time}</Text>
+                </View>
+              </View>
+
+              {m.artifacts?.map((art, idx) => (
+                <View key={idx} style={s.artRow}>
+                  <ArtifactRenderer artifact={art} />
+                </View>
+              ))}
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* ── Input ── */}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+        >
+          <View style={[s.inputBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+            <TextInput
+              style={s.input}
+              placeholder={config.placeholder}
+              placeholderTextColor="#999"
+              value={inputText}
+              onChangeText={setInputText}
+              multiline
+              returnKeyType="default"
+            />
+            <TouchableOpacity style={s.sendBtn} onPress={handleSend} activeOpacity={0.8}>
+              <View style={s.sendArrow} />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </View>
   );
 }
@@ -177,7 +141,9 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f6f1' },
+  safe:      { flex: 1 },
 
+  // Header
   hdr: {
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -194,21 +160,29 @@ const s = StyleSheet.create({
   dot:       { width: 6, height: 6, borderRadius: 3, backgroundColor: '#1e3a2f' },
   dotAlert:  { backgroundColor: '#e74c3c', width: 8, height: 8, borderRadius: 4 },
 
-  msgsContainer: { backgroundColor: '#f8f6f1' },
-  dateSep:       { fontFamily: F.regular, fontSize: 9, color: '#bbb', textAlign: 'center', marginVertical: 4 },
+  // Messages
+  msgsArea:   { flex: 1 },
+  msgsScroll: { padding: 12, paddingBottom: 24 },
+  dateSep:    { fontFamily: F.regular, fontSize: 9, color: '#bbb', textAlign: 'center', marginVertical: 8 },
+  row:        { flexDirection: 'row', marginBottom: 8 },
+  rowUser:    { justifyContent: 'flex-end' },
+  rowAi:      { justifyContent: 'flex-start', alignItems: 'flex-end', gap: 6 },
+  miniAv:     { width: 22, height: 22, borderRadius: 11, backgroundColor: '#ebe9e3', justifyContent: 'center', alignItems: 'center' },
+  miniAvTxt:  { fontFamily: F.bold, fontSize: 8, color: '#1e3a2f' },
+  bubble:     { padding: 10, maxWidth: '80%' },
+  bubbleUser: { backgroundColor: '#1e3a2f', borderRadius: 16, borderBottomRightRadius: 4 },
+  bubbleAi:   { backgroundColor: '#ffffff', borderRadius: 16, borderBottomLeftRadius: 4, borderWidth: 0.5, borderColor: '#e8e5df' },
+  txt:        { fontFamily: F.regular, fontSize: 11, lineHeight: 15 },
+  txtUser:    { color: '#fff' },
+  txtAi:      { color: '#1a1a1a' },
+  time:       { fontSize: 8, marginTop: 4 },
+  timeUser:   { color: 'rgba(255,255,255,0.4)', textAlign: 'right' },
+  timeAi:     { color: '#bbb' },
+  artRow:     { marginLeft: 28, marginBottom: 12 },
 
-  // Burbujas
-  userBubble: { backgroundColor: '#1e3a2f', borderRadius: 16, borderBottomRightRadius: 4 },
-  aiBubble:   { backgroundColor: '#ffffff', borderRadius: 16, borderBottomLeftRadius: 4, borderWidth: 0.5, borderColor: '#e8e5df' },
-  userTxt:    { fontFamily: F.regular, fontSize: 11, color: '#fff', lineHeight: 15 },
-  aiTxt:      { fontFamily: F.regular, fontSize: 11, color: '#1a1a1a', lineHeight: 15 },
-  userTime:   { fontFamily: F.regular, fontSize: 8, color: 'rgba(255,255,255,0.4)' },
-  aiTime:     { fontFamily: F.regular, fontSize: 8, color: '#bbb' },
-
-  // Input bar
-  inputBar:      { backgroundColor: '#f8f6f1', borderTopWidth: 0.5, borderTopColor: '#ebe9e3' },
-  inputPrimary:  { alignItems: 'center' },
-  sendBtnWrapper:{ justifyContent: 'center', paddingRight: 6 },
-  sendBtn:       { width: 38, height: 38, borderRadius: 19, backgroundColor: '#1e3a2f', justifyContent: 'center', alignItems: 'center' },
+  // Input
+  inputBar:      { flexDirection: 'row', alignItems: 'flex-end', gap: 10, paddingHorizontal: 12, paddingTop: 10, backgroundColor: '#f8f6f1', borderTopWidth: 0.5, borderTopColor: '#ebe9e3' },
+  input:         { flex: 1, backgroundColor: '#fff', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 10, minHeight: 42, fontFamily: F.regular, fontSize: 13, color: '#1a1a1a', borderWidth: 0.5, borderColor: '#e0ddd8' },
+  sendBtn:       { width: 38, height: 38, borderRadius: 19, backgroundColor: '#1e3a2f', justifyContent: 'center', alignItems: 'center', marginBottom: 1 },
   sendArrow:     { width: 0, height: 0, borderLeftWidth: 9, borderLeftColor: '#fff', borderTopWidth: 5, borderTopColor: 'transparent', borderBottomWidth: 5, borderBottomColor: 'transparent', marginLeft: 2 },
 });
