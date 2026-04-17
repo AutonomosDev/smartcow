@@ -87,6 +87,15 @@ export async function withAuthBearer(
   req: NextRequest,
   options?: WithAuthOptions
 ): Promise<SmartCowSession> {
+  // Bypass en dev — mismo DEV_SESSION que auth() retorna
+  if (process.env.NODE_ENV === "development") {
+    const session = await auth();
+    if (session) {
+      applyOptions(session, options);
+      return session;
+    }
+  }
+
   const authHeader = req.headers.get("authorization");
   if (!authHeader?.startsWith("Bearer ")) {
     throw new AuthError("Token Bearer requerido", "UNAUTHENTICATED");
