@@ -6,7 +6,7 @@
 import { auth } from "@/src/lib/auth";
 import { redirect } from "next/navigation";
 import { getNombrePredio } from "@/src/lib/queries/predio";
-import { ChatPageClientV2 } from "./chat-page-client-v2";
+import { ChatPageClient } from "./chat-page-client";
 
 export const metadata = {
   title: "Chat IA V2 — smartCow",
@@ -29,7 +29,7 @@ export default async function ChatPageV2({
   const nombrePredio = await getNombrePredio(predioId);
 
   return (
-    <ChatPageClientV2 
+    <ChatPageClient 
       predioId={predioId} 
       initialMessage={initialMessage} 
       nombrePredio={nombrePredio} 

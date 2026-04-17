@@ -1,15 +1,14 @@
 /**
  * src/components/ui/ai-prompt-box.tsx
- * Versión Final — Estilo Open WebUI (Sin Model Pill).
  */
 
 "use client";
 
 import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ArrowUp, Globe, Paperclip, Square, X, Mic, Brain } from "lucide-react";
 import { motion } from "framer-motion";
+import { DialogV2 } from "./dialog-v2";
 
 // ─── Utility ────────────────────────────────────────────────────────────────
 
@@ -26,7 +25,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => (
     <textarea
       className={cn(
-        "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none",
+        "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none font-inherit",
         className
       )}
       ref={ref}
@@ -51,69 +50,13 @@ const TooltipContent = React.forwardRef<
     ref={ref}
     sideOffset={sideOffset}
     className={cn(
-      "z-50 overflow-hidden rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-md animate-in fade-in-0 zoom-in-95",
+      "z-50 overflow-hidden rounded-lg border border-gray-100 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm animate-in fade-in-0 zoom-in-95",
       className
     )}
     {...props}
   />
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
-
-// ─── Dialog ─────────────────────────────────────────────────────────────────
-
-const Dialog = DialogPrimitive.Root;
-const DialogPortal = DialogPrimitive.Portal;
-
-const DialogOverlay = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay
-    ref={ref}
-    className={cn(
-      "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
-    )}
-    {...props}
-  />
-));
-DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
-
-const DialogContent = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-[90vw] md:max-w-[800px] translate-x-[-50%] translate-y-[-50%] gap-4 border border-gray-200 bg-white p-0 shadow-xl duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 rounded-2xl",
-        className
-      )}
-      {...props}
-    >
-      {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 z-10 rounded-full bg-gray-100 p-2 hover:bg-gray-200 transition-all">
-        <X className="h-5 w-5 text-gray-500 hover:text-gray-900" />
-        <span className="sr-only">Cerrar</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </DialogPortal>
-));
-DialogContent.displayName = DialogPrimitive.Content.displayName;
-
-const DialogTitle = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Title
-    ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight text-gray-900", className)}
-    {...props}
-  />
-));
-DialogTitle.displayName = DialogPrimitive.Title.displayName;
 
 // ─── VoiceRecorder ──────────────────────────────────────────────────────────
 
@@ -132,23 +75,40 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 }) => {
   const [time, setTime] = React.useState(0);
   const timerRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeRef = React.useRef(0);
+  const wasRecordingRef = React.useRef(false);
+
+  // Mantener timeRef sincronizado sin incluirlo en deps del efecto principal
+  timeRef.current = time;
 
   React.useEffect(() => {
     if (isRecording) {
-      onStartRecording();
-      timerRef.current = setInterval(() => setTime((t) => t + 1), 1000);
-    } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
+      // Solo arrancar cuando transiciona a recording
+      if (!wasRecordingRef.current) {
+        wasRecordingRef.current = true;
+        setTime(0);
+        timeRef.current = 0;
+        onStartRecording();
+        timerRef.current = setInterval(() => setTime((t) => t + 1), 1000);
       }
-      onStopRecording(time);
-      setTime(0);
+    } else {
+      // Solo llamar onStopRecording cuando transiciona de recording a parado
+      if (wasRecordingRef.current) {
+        wasRecordingRef.current = false;
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        onStopRecording(timeRef.current);
+        setTime(0);
+      }
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isRecording, time, onStartRecording, onStopRecording]);
+  // time removido de deps — se lee via timeRef para evitar re-ejecución cada segundo
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRecording]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -160,7 +120,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     <div
       className={cn(
         "flex flex-col items-center justify-center w-full transition-all duration-300 py-3",
-        isRecording ? "opacity-100" : "opacity-0 h-0"
+        isRecording ? "opacity-100" : "opacity-0 h-0 overflow-hidden"
       )}
     >
       <div className="flex items-center gap-2 mb-3">
@@ -173,11 +133,7 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
             key={i}
             className="w-[2px] rounded-full bg-red-400"
             animate={{
-              height: [
-                Math.max(2, Math.random() * 8),
-                Math.max(4, Math.random() * 16),
-                Math.max(2, Math.random() * 8)
-              ],
+              height: [2, 12, 4, 16, 2],
               opacity: isRecording ? [0.4, 1, 0.4] : 0.2
             }}
             transition={{
@@ -190,38 +146,6 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         ))}
       </div>
     </div>
-  );
-};
-
-// ─── ImageViewDialog ─────────────────────────────────────────────────────────
-
-interface ImageViewDialogProps {
-  imageUrl: string | null;
-  onClose: () => void;
-}
-
-const ImageViewDialog: React.FC<ImageViewDialogProps> = ({ imageUrl, onClose }) => {
-  if (!imageUrl) return null;
-  return (
-    <Dialog open={!!imageUrl} onOpenChange={onClose}>
-      <DialogContent className="p-0 border-none bg-transparent shadow-none max-w-[90vw] md:max-w-[800px]">
-        <DialogTitle className="sr-only">Vista previa de imagen</DialogTitle>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="relative bg-white rounded-2xl overflow-hidden shadow-2xl"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imageUrl}
-            alt="Vista previa completa"
-            className="w-full max-h-[80vh] object-contain rounded-2xl"
-          />
-        </motion.div>
-      </DialogContent>
-    </Dialog>
   );
 };
 
@@ -251,7 +175,7 @@ function usePromptInput() {
   return context;
 }
 
-// ─── PromptInput Component ─────────────────────────────────────────────────────
+// ─── Main Wrapper ─────────────────────────────────────────────────────────────
 
 interface PromptInputProps {
   isLoading?: boolean;
@@ -304,8 +228,8 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           <div
             ref={ref}
             className={cn(
-              "rounded-xl border border-gray-100 bg-white p-3 shadow-sm transition-all duration-300 focus-within:shadow-md focus-within:border-gray-200 font-inherit",
-              isLoading && "border-gray-500/30",
+              "rounded-2xl border border-gray-100 bg-white p-2.5 shadow-sm transition-all duration-300 focus-within:shadow-md focus-within:border-gray-200 font-inherit",
+              isLoading && "border-emerald-100 shadow-emerald-50/20",
               className
             )}
             onDragOver={onDragOver}
@@ -321,34 +245,26 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
 );
 PromptInput.displayName = "PromptInput";
 
-// ─── PromptInputTextarea ──────────────────────────────────────────────────────
+// ─── Textarea Component ──────────────────────────────────────────────────────
 
-interface PromptInputTextareaProps {
-  disableAutosize?: boolean;
-  placeholder?: string;
-}
-
-const PromptInputTextarea: React.FC<
-  PromptInputTextareaProps & React.ComponentProps<typeof Textarea>
-> = ({ className, onKeyDown, disableAutosize = false, placeholder, ...props }) => {
+const PromptInputTextarea: React.FC<{ placeholder?: string; className?: string }> = ({ className, placeholder }) => {
   const { value, setValue, maxHeight, onSubmit, disabled } = usePromptInput();
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   React.useEffect(() => {
-    if (disableAutosize || !textareaRef.current) return;
+    if (!textareaRef.current) return;
     textareaRef.current.style.height = "auto";
     textareaRef.current.style.height =
       typeof maxHeight === "number"
         ? `${Math.min(textareaRef.current.scrollHeight, maxHeight)}px`
         : `min(${textareaRef.current.scrollHeight}px, ${maxHeight})`;
-  }, [value, maxHeight, disableAutosize]);
+  }, [value, maxHeight]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       onSubmit?.();
     }
-    onKeyDown?.(e);
   };
 
   return (
@@ -357,18 +273,18 @@ const PromptInputTextarea: React.FC<
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
-      className={cn("text-[15px] font-inherit placeholder:text-gray-400 px-2", className)}
+      className={cn("text-[15px] font-inherit placeholder:text-gray-400 px-1", className)}
       disabled={disabled}
       placeholder={placeholder}
-      {...props}
     />
   );
 };
 
-// ─── PromptInputBox (componente principal) ────────────────────────────────────
+// ─── PromptInputBoxV2 ────────────────────────────────────────────────────────
 
 export interface PromptInputBoxProps {
   onSend?: (message: string, files?: File[], webSearch?: boolean, reasoningMode?: boolean) => void;
+  onStop?: () => void;
   isLoading?: boolean;
   placeholder?: string;
   className?: string;
@@ -378,6 +294,7 @@ export const PromptInputBox = React.forwardRef(
   (props: PromptInputBoxProps, ref: React.Ref<HTMLDivElement>) => {
     const {
       onSend = () => {},
+      onStop,
       isLoading = false,
       placeholder = "Mensaje a SmartCow...",
       className,
@@ -391,63 +308,21 @@ export const PromptInputBox = React.forwardRef(
     const [webSearchEnabled, setWebSearchEnabled] = React.useState(false);
     const [reasoningMode, setReasoningMode] = React.useState(false);
     const uploadInputRef = React.useRef<HTMLInputElement>(null);
-    const promptBoxRef = React.useRef<HTMLDivElement>(null);
-
-    const isImageFile = (file: File) => file.type.startsWith("image/");
 
     const processFile = (file: File) => {
       if (file.size > 20 * 1024 * 1024) return;
       setFiles([file]);
-      if (isImageFile(file)) {
+      if (file.type.startsWith("image/")) {
         const reader = new FileReader();
-        reader.onload = (e) =>
-          setFilePreviews({ [file.name]: e.target?.result as string });
+        reader.onload = (e) => setFilePreviews({ [file.name]: e.target?.result as string });
         reader.readAsDataURL(file);
       }
     };
 
-    const handleDragOver = React.useCallback((e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-    }, []);
-
-    const handleDragLeave = React.useCallback((e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-    }, []);
-
-    const handleDrop = React.useCallback((e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const droppedFiles = Array.from(e.dataTransfer.files);
-      if (droppedFiles.length > 0) processFile(droppedFiles[0]);
-    }, []);
-
     const handleRemoveFile = (index: number) => {
-      const fileToRemove = files[index];
-      if (fileToRemove && filePreviews[fileToRemove.name]) setFilePreviews({});
       setFiles([]);
+      setFilePreviews({});
     };
-
-    const handlePaste = React.useCallback((e: ClipboardEvent) => {
-      const items = e.clipboardData?.items;
-      if (!items) return;
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf("image") !== -1) {
-          const file = items[i].getAsFile();
-          if (file) {
-            e.preventDefault();
-            processFile(file);
-            break;
-          }
-        }
-      }
-    }, []);
-
-    React.useEffect(() => {
-      document.addEventListener("paste", handlePaste);
-      return () => document.removeEventListener("paste", handlePaste);
-    }, [handlePaste]);
 
     const handleSubmit = () => {
       if (input.trim() || files.length > 0) {
@@ -456,12 +331,6 @@ export const PromptInputBox = React.forwardRef(
         setFiles([]);
         setFilePreviews({});
       }
-    };
-
-    const handleStartRecording = () => {};
-    const handleStopRecording = (duration: number) => {
-      setIsRecording(false);
-      onSend(`[Mensaje de voz - ${duration} segundos]`, []);
     };
 
     const hasContent = input.trim() !== "" || files.length > 0;
@@ -473,53 +342,34 @@ export const PromptInputBox = React.forwardRef(
           onValueChange={setInput}
           isLoading={isLoading}
           onSubmit={handleSubmit}
-          className={cn(
-            "w-full bg-white transition-all duration-300",
-            isRecording && "border-red-400/50 shadow-red-50/20",
-            className
-          )}
+          className={cn("w-full bg-white", className)}
           disabled={isLoading || isRecording}
-          ref={ref || promptBoxRef}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          onDrop={(e) => {
+             e.preventDefault();
+             if (e.dataTransfer.files.length > 0) processFile(e.dataTransfer.files[0]);
+          }}
+          onDragOver={(e) => e.preventDefault()}
         >
-          {/* Adjuntos */}
-          {files.length > 0 && !isRecording && (
-            <div className="flex flex-wrap gap-2 p-0 pb-2 transition-all duration-300">
-              {files.map((file, index) => (
-                <div key={index} className="relative group">
-                  {file.type.startsWith("image/") && filePreviews[file.name] ? (
-                    <div
-                      className="w-14 h-14 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border border-gray-100 shadow-sm"
+          {/* Archivos adjuntos */}
+          {files.length > 0 && (
+            <div className="flex flex-wrap gap-2 pb-2">
+              {files.map((file, idx) => (
+                <div key={idx} className="relative group">
+                  {file.type.startsWith("image/") ? (
+                    <div 
+                      className="w-14 h-14 rounded-xl overflow-hidden cursor-pointer border border-gray-100 shadow-sm"
                       onClick={() => setSelectedImage(filePreviews[file.name])}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={filePreviews[file.name]}
-                        alt={file.name}
-                        className="h-full w-full object-cover"
-                      />
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveFile(index);
-                        }}
-                        className="absolute top-1 right-1 rounded-full bg-black/70 p-0.5 opacity-100 transition-opacity"
-                      >
-                        <X className="h-3 w-3 text-white" />
+                      <img src={filePreviews[file.name]} alt={file.name} className="h-full w-full object-cover" />
+                      <button onClick={(e) => { e.stopPropagation(); handleRemoveFile(idx); }} className="absolute -top-1.5 -right-1.5 rounded-full bg-white border border-gray-100 p-0.5 shadow-sm">
+                        <X size={10} className="text-gray-400" />
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-700 max-w-[200px]">
-                      <Paperclip className="h-3 w-3 text-gray-400 flex-shrink-0" />
-                      <span className="truncate">{file.name}</span>
-                      <button
-                        onClick={() => handleRemoveFile(index)}
-                        className="flex-shrink-0 ml-1"
-                      >
-                        <X className="h-3 w-3 text-gray-400 hover:text-gray-700" />
-                      </button>
+                    <div className="flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-xl px-3 py-1.5 text-[11px] font-medium text-gray-600">
+                      <Paperclip size={12} className="text-gray-400" />
+                      <span className="max-w-[120px] truncate">{file.name}</span>
+                      <button onClick={() => handleRemoveFile(idx)}><X size={12} className="text-gray-400 hover:text-gray-950" /></button>
                     </div>
                   )}
                 </div>
@@ -527,127 +377,85 @@ export const PromptInputBox = React.forwardRef(
             </div>
           )}
 
-          {/* Textarea */}
-          <div
-            className={cn(
-              "transition-all duration-300",
-              isRecording ? "h-0 overflow-hidden opacity-0" : "opacity-100"
-            )}
-          >
-            <PromptInputTextarea
-              placeholder={placeholder}
-              className="text-base min-h-[44px]"
-            />
-          </div>
+          <PromptInputTextarea placeholder={placeholder} className={isRecording ? "hidden" : ""} />
+          
+          <VoiceRecorder 
+            isRecording={isRecording} 
+            onStartRecording={() => {}} 
+            onStopRecording={(d) => {
+              setIsRecording(false);
+              onSend(`[Voz: ${d}s]`, []);
+            }} 
+          />
 
-          {isRecording && (
-            <VoiceRecorder
-              isRecording={isRecording}
-              onStartRecording={handleStartRecording}
-              onStopRecording={handleStopRecording}
-            />
-          )}
+          {/* Toolbar V2 */}
+          <div className="flex items-center justify-between mt-1 px-1">
+            <div className="flex items-center gap-0.5">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button onClick={() => uploadInputRef.current?.click()} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-50 transition-colors">
+                    <Paperclip size={18} />
+                    <input ref={uploadInputRef} type="file" className="hidden" onChange={(e) => e.target.files?.[0] && processFile(e.target.files[0])} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Adjuntar</TooltipContent>
+              </Tooltip>
 
-          {/* Toolbar Estilo Open WebUI V2 - Sin Model Pill y sin Azules */}
-          <div className="flex items-center justify-between mt-1 pt-1 bg-white">
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-              {/* Botón Plus / Clip */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                      <button 
-                        className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-50/50 text-gray-400 transition-colors"
-                        onClick={() => uploadInputRef.current?.click()}
-                      >
-                       <Paperclip className="h-4 w-4" />
-                       <input
-                           ref={uploadInputRef}
-                           type="file"
-                           className="hidden"
-                           onChange={(e) => {
-                             if (e.target.files && e.target.files.length > 0)
-                               processFile(e.target.files[0]);
-                             if (e.target) e.target.value = "";
-                           }}
-                           accept="image/*,.pdf,.xlsx,.xls,.csv"
-                       />
-                     </button>
-                  </TooltipTrigger>
-                  <TooltipContent>Adjuntar Imagen</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={() => setWebSearchEnabled(!webSearchEnabled)} 
+                    className={cn("p-1.5 rounded-lg transition-colors", webSearchEnabled ? "text-[#06200F] bg-gray-50 font-bold" : "text-gray-400 hover:bg-gray-50")}
+                  >
+                    <Globe size={18} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Búsqueda Web</TooltipContent>
+              </Tooltip>
 
-              {/* Web Search Icon */}
-              <TooltipProvider>
-                <Tooltip>
-                   <TooltipTrigger asChild>
-                     <button 
-                       onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
-                          webSearchEnabled ? "text-[#06200F] bg-gray-50" : "text-gray-400 hover:bg-gray-50/50"
-                        )}
-                     >
-                       <Globe className="h-[17px] w-[17px]" />
-                     </button>
-                   </TooltipTrigger>
-                   <TooltipContent>Búsqueda Web</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {/* Reasoning Mode Icon */}
-              <TooltipProvider>
-                <Tooltip>
-                   <TooltipTrigger asChild>
-                     <button 
-                       onClick={() => setReasoningMode(!reasoningMode)}
-                        className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
-                          reasoningMode ? "text-emerald-700 bg-emerald-50/50" : "text-gray-400 hover:bg-gray-50/50"
-                        )}
-                     >
-                       <Brain className="h-[17px] w-[17px]" />
-                     </button>
-                   </TooltipTrigger>
-                   <TooltipContent>Razonamiento Profundo</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button 
+                    onClick={() => setReasoningMode(!reasoningMode)} 
+                    className={cn("p-1.5 rounded-lg transition-colors", reasoningMode ? "text-emerald-700 bg-emerald-50" : "text-gray-400 hover:bg-gray-50")}
+                  >
+                    <Brain size={18} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Razonamiento</TooltipContent>
+              </Tooltip>
             </div>
 
-            <div className="flex items-center gap-1.5">
-              {/* Voice icon */}
+            <div className="flex items-center gap-2">
               <button 
-                onClick={() => setIsRecording(!isRecording)}
-                  className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300",
-                    isRecording ? "bg-red-50 text-red-500" : "text-gray-400 hover:bg-gray-50/50"
-                  )}
+                onClick={() => setIsRecording(!isRecording)} 
+                className={cn("p-1.5 rounded-lg transition-colors", isRecording ? "text-red-500 bg-red-50" : "text-gray-400 hover:bg-gray-50")}
               >
-                <Mic className="h-[18px] w-[18px]" />
+                <Mic size={18} />
               </button>
-
-              {/* Send Button */}
+              
               <button
-                onClick={handleSubmit}
-                disabled={(!hasContent && !isLoading) || isRecording}
+                onClick={isLoading ? onStop : handleSubmit}
+                disabled={!isLoading && (!hasContent || isRecording)}
                 className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300",
-                  hasContent || isLoading 
-                    ? "bg-[#06200F] text-white hover:bg-black" 
-                    : "bg-gray-100 text-gray-300 cursor-not-allowed"
+                  "flex h-8 w-8 items-center justify-center rounded-xl transition-all",
+                  hasContent || isLoading ? "bg-[#06200F] text-white" : "bg-gray-50 text-gray-200"
                 )}
               >
-                {isLoading ? (
-                  <Square className="h-3 w-3 fill-white" />
-                ) : (
-                  <ArrowUp className="h-[17px] w-[17px]" />
-                )}
+                {isLoading ? <Square size={14} className="fill-white" /> : <ArrowUp size={18} />}
               </button>
             </div>
           </div>
         </PromptInput>
 
-        <ImageViewDialog imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />
+        <DialogV2.Root open={!!selectedImage} onOpenChange={(o) => !o && setSelectedImage(null)}>
+          <DialogV2.Content>
+            <DialogV2.Header>
+              <DialogV2.Title>Previsualización</DialogV2.Title>
+            </DialogV2.Header>
+            {selectedImage && <img src={selectedImage} alt="Preview" className="w-full h-auto rounded-xl shadow-sm" />}
+          </DialogV2.Content>
+        </DialogV2.Root>
       </>
     );
   }
