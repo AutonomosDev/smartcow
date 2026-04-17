@@ -1,7 +1,7 @@
 // Base URL del backend. En dev usar la IP local de la máquina (no localhost —
 // el emulador Android no resuelve localhost del host). En prod: dominio desplegado.
 export const API_BASE_URL = __DEV__
-  ? 'http://192.168.1.213:3003'
+  ? 'https://smartcow.cl'  // ← forzado a prod para testing en simulador/device
   : 'https://smartcow.cl';
 
 // Firebase Auth REST API key — proyecto smartcow-c22fb (activo)
