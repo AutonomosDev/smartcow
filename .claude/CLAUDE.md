@@ -9,7 +9,7 @@
 - Next.js 16 (App Router), React 19, TypeScript strict
 - PostgreSQL + **Drizzle ORM** (`drizzle-orm` + `drizzle-kit`) — NO raw queries
 - **Firebase Auth** (session cookie `__session`, NO NextAuth) — `src/lib/firebase/`
-- OpenRouter API (modelo `google/gemma-3-27b-it`) — chat ganadero
+- OpenRouter API (modelo `google/gemma-4-31b-it`) — chat ganadero
 - TailwindCSS v4, Radix UI, Recharts, Framer Motion
 - Firebase App Hosting (Cloud Run Gen1, us-central1) — deploy via CI push a `main`
 
@@ -26,7 +26,7 @@ src/
   lib/
     auth.config.ts     — NextAuth config (Edge-safe, sin bcrypt/pg)
     auth.ts            — NextAuth completo (Node runtime) + DEV mock
-    claude.ts          — Cliente Anthropic + tools ganaderos + ejecutarTool()
+    claude.ts          — Tools ganaderos + ejecutarTool() (nombre heredado, usa OpenRouter)
     mobile-jwt.ts      — JWT para endpoints REST mobile
     modules.ts         — Feature flags de módulos por org
     queries/           — Drizzle queries reutilizables
@@ -63,12 +63,15 @@ bin/smartcow           — CLI helper
   ⚠️ `admin_fundo` NO existe en el enum de prod — usar `admin`
 
 **Asistente ganadero (chat)**
-- Modelo: `google/gemma-3-27b-it` via OpenRouter (`OPENROUTER_API_KEY`)
+- Modelo: `google/gemma-4-31b-it` via OpenRouter (`OPENROUTER_API_KEY`) — ⚠️ PROHIBIDO CAMBIAR SIN APROBACIÓN DE CÉSAR
+- Endpoint: `app/api/chat/route.ts` — SSE streaming, OpenAI-compatible SDK apuntando a OpenRouter
 - Tools disponibles: `query_animales`, `query_pesajes`, `query_partos`, `query_indices_reproductivos`, `registrar_pesaje`, `registrar_parto`
 - `ejecutarTool()` en `src/lib/claude.ts` valida `predio_id` contra `prediosPermitidos` del usuario
 - Tools de escritura (`registrar_*`) requieren `rolRank >= 1` (operador)
 - EID = tag electrónico RFID | DIIO = identificador visual del arete — no intercambiar
 - Pesos en kg | Fechas en YYYY-MM-DD
+- Componentes chat: `src/components/chat/chat-panel.tsx`, `chat-sidebar.tsx`, `message-renderer.tsx`
+- UI input: `src/components/ui/ai-prompt-box.tsx` — sin sufijos de versión
 
 **Módulos**
 - Feature flags por org: `feedlot`, `crianza`, etc. — stored en `organizaciones.modulos` (JSONB)
@@ -88,7 +91,7 @@ bin/smartcow           — CLI helper
 
 **Env vars**
 - `DATABASE_URL` → IP directa: `postgresql://postgres:PASS@34.176.238.2:5432/smartcow`
-- `OPENROUTER_API_KEY` → OpenRouter (modelo gemma-3-27b-it)
+- `OPENROUTER_API_KEY` → OpenRouter (modelo gemma-4-31b-it)
 - `NEXT_PUBLIC_FIREBASE_PROJECT_ID` → `smartcow-c22fb`
 - `GCP_PROJECT_ID` → `smartcow-c22fb`
 - Ver `apphosting.yaml` para estado completo de vars en prod
