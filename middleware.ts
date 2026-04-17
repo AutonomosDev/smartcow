@@ -27,8 +27,9 @@ export default function middleware(req: NextRequest) {
     (pathname.startsWith("/api") && !pathname.startsWith("/api/auth"));
 
   const sessionCookie = req.cookies.get("__session");
+  const hasBearerToken = req.headers.get("authorization")?.startsWith("Bearer ");
 
-  if (isProtected && !sessionCookie) {
+  if (isProtected && !sessionCookie && !hasBearerToken) {
     if (pathname.startsWith("/api")) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
     }
