@@ -8,23 +8,23 @@
  */
 
 import { useState, useEffect } from "react";
-import { PanelLeftClose } from "lucide-react";
+import { PanelLeftClose, Plus } from "lucide-react";
 
 interface ChatHistoryItem {
   id: number;
   titulo: string;
   actualizadoEn: string;
 }
-
 interface ChatSidebarV3Props {
   orgName?: string | null;
   userName?: string | null;
   userEmail?: string | null;
-  predioId: number;
+  predioId?: number;
   activeConversationId?: number | null;
-  refreshTrigger?: number; // Cambiar este valor fuerza un re-fetch del historial
+  refreshTrigger?: number;
   onNewConversation: () => void;
   onSelectConversation: (id: number) => void;
+  isEmbedded?: boolean;
 }
 
 // ─── Helpers de fecha (sin date-fns) ─────────────────────────────────────────
@@ -113,24 +113,24 @@ function HistorySection({
             borderRadius: 7,
             cursor: "pointer",
             fontSize: 12,
-            color: activeId === item.id ? "#1e3a2f" : "#666",
-            fontWeight: activeId === item.id ? 500 : 400,
-            background: activeId === item.id ? "#f8f6f1" : "transparent",
+            color: activeId === item.id ? "#1a1a1a" : "#666",
+            fontWeight: activeId === item.id ? 600 : 400,
+            background: activeId === item.id ? "#f5f5f5" : "transparent",
             border: "none",
             width: "100%",
             textAlign: "left",
-            transition: "background 0.15s",
+            transition: "all 0.15s",
           }}
           onMouseEnter={(e) => {
             if (activeId !== item.id)
-              (e.currentTarget as HTMLElement).style.background = "#f8f6f1";
+              (e.currentTarget as HTMLElement).style.background = "#fafafa";
           }}
           onMouseLeave={(e) => {
             if (activeId !== item.id)
               (e.currentTarget as HTMLElement).style.background = "transparent";
           }}
         >
-          <span style={{ color: activeId === item.id ? "#1e3a2f" : "#bbb", flexShrink: 0 }}>
+          <span style={{ color: activeId === item.id ? "#1a1a1a" : "#ccc", flexShrink: 0 }}>
             <ChatIcon />
           </span>
           <span
@@ -158,6 +158,7 @@ export function ChatSidebarV3({
   refreshTrigger,
   onNewConversation,
   onSelectConversation,
+  isEmbedded = false,
 }: ChatSidebarV3Props) {
   const [historial, setHistorial] = useState<ChatHistoryItem[]>([]);
 
@@ -178,19 +179,62 @@ export function ChatSidebarV3({
 
   const initials = (userName ?? "U")
     .split(" ")
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
 
   const orgInitial = (orgName ?? "F")[0].toUpperCase();
 
+  const historyList = (
+    <div
+      style={{
+        flex: 1,
+        overflowY: "auto",
+        padding: isEmbedded ? "0" : "8px",
+      }}
+    >
+      <HistorySection
+        label="Hoy"
+        items={hoy}
+        activeId={activeConversationId}
+        onSelect={onSelectConversation}
+      />
+      <HistorySection
+        label="Ayer"
+        items={ayer}
+        activeId={activeConversationId}
+        onSelect={onSelectConversation}
+      />
+      <HistorySection
+        label="Esta semana"
+        items={semana}
+        activeId={activeConversationId}
+        onSelect={onSelectConversation}
+      />
+      {historial.length === 0 && (
+        <div
+          style={{
+            fontSize: 11,
+            color: "#ccc",
+            textAlign: "center",
+            padding: "20px 8px",
+          }}
+        >
+          Sin conversaciones
+        </div>
+      )}
+    </div>
+  );
+
+  if (isEmbedded) return historyList;
+
   return (
     <aside
       style={{
-        width: 220,
+        width: 260,
         background: "#fff",
-        borderRight: "0.5px solid #ebe9e3",
+        borderRight: "1px solid #f0f0f0",
         display: "flex",
         flexDirection: "column",
         flexShrink: 0,
@@ -200,196 +244,84 @@ export function ChatSidebarV3({
       {/* Top: logo + nueva conv */}
       <div
         style={{
-          padding: "10px 10px 8px",
-          borderBottom: "0.5px solid #ebe9e3",
+          padding: "20px 18px",
+          borderBottom: "1px solid #f9f9f9",
         }}
       >
-        {/* Logo row */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 8,
-            padding: "0 2px",
+            gap: 12,
+            marginBottom: 20,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <div
-              style={{
-                width: 26,
-                height: 26,
-                background: "#1e3a2f",
-                borderRadius: 7,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <circle cx="7" cy="7" r="5" stroke="#7ecfa0" strokeWidth="1.5" />
-                <path d="M5 7h4M7 5v4" stroke="#7ecfa0" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-            </div>
-            <span
-              style={{
-                fontSize: 13,
-                fontWeight: 700,
-                color: "#1a1a1a",
-                letterSpacing: "-0.3px",
-              }}
-            >
-              smartCow
-            </span>
-          </div>
-          <button
+          <div
             style={{
-              width: 26,
-              height: 26,
-              borderRadius: 7,
+              width: 32,
+              height: 32,
+              background: "#1a1a1a",
+              borderRadius: 8,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#bbb",
-              cursor: "pointer",
-              background: "transparent",
-              border: "none",
+              flexShrink: 0,
             }}
-            title="Colapsar sidebar"
           >
-            <PanelLeftClose size={14} />
-          </button>
+            <span style={{ color: "#fff", fontWeight: "bold", fontSize: 13 }}>SC</span>
+          </div>
+          <span
+            style={{
+              fontSize: 15,
+              fontWeight: 700,
+              color: "#1a1a1a",
+              letterSpacing: "-0.5px",
+            }}
+          >
+            smartCow
+          </span>
         </div>
 
-        {/* Nueva conversación */}
         <button
           onClick={onNewConversation}
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 7,
-            padding: "7px 10px",
-            borderRadius: 8,
-            background: "#f8f6f1",
-            border: "0.5px solid #e8e5df",
+            justifyContent: "center",
+            gap: 8,
+            padding: "10px",
+            borderRadius: 12,
+            background: "#f5f5f5",
+            border: "1px solid #eee",
             cursor: "pointer",
-            fontSize: 12,
-            fontWeight: 500,
-            color: "#555",
+            fontSize: 13,
+            fontWeight: 600,
+            color: "#1a1a1a",
             width: "100%",
             fontFamily: "inherit",
           }}
         >
-          <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-            <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
+          <Plus size={16} />
           Nueva conversación
         </button>
       </div>
 
-      {/* History */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: 8,
-        }}
-      >
-        <HistorySection
-          label="Hoy"
-          items={hoy}
-          activeId={activeConversationId}
-          onSelect={onSelectConversation}
-        />
-        <HistorySection
-          label="Ayer"
-          items={ayer}
-          activeId={activeConversationId}
-          onSelect={onSelectConversation}
-        />
-        <HistorySection
-          label="Esta semana"
-          items={semana}
-          activeId={activeConversationId}
-          onSelect={onSelectConversation}
-        />
-        {historial.length === 0 && (
-          <div
-            style={{
-              fontSize: 11,
-              color: "#ccc",
-              textAlign: "center",
-              padding: "20px 8px",
-            }}
-          >
-            Sin conversaciones
-          </div>
-        )}
-      </div>
+      {historyList}
 
-      {/* Footer: org + user */}
+      {/* Footer: User */}
       <div
         style={{
-          padding: "8px 10px",
-          borderTop: "0.5px solid #f0ede8",
+          padding: "16px 12px",
+          borderTop: "1px solid #f9f9f9",
         }}
       >
-        {/* Org selector */}
         <button
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            padding: "5px 6px",
-            borderRadius: 7,
-            cursor: "pointer",
-            marginBottom: 4,
-            background: "transparent",
-            border: "none",
-            width: "100%",
-            fontFamily: "inherit",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div
-              style={{
-                width: 18,
-                height: 18,
-                borderRadius: "50%",
-                background: "#e6f3ec",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 8,
-                fontWeight: 700,
-                color: "#1e3a2f",
-              }}
-            >
-              {orgInitial}
-            </div>
-            <span style={{ fontSize: 11, color: "#555", fontWeight: 500 }}>
-              {orgName ?? "Organización"}
-            </span>
-          </div>
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path
-              d="M3 4l2-2 2 2M3 6l2 2 2-2"
-              stroke="#bbb"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
-
-        {/* User row */}
-        <button
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            padding: "5px 6px",
-            borderRadius: 7,
+            gap: 10,
+            padding: "8px",
+            borderRadius: 12,
             cursor: "pointer",
             background: "transparent",
             border: "none",
@@ -400,26 +332,26 @@ export function ChatSidebarV3({
         >
           <div
             style={{
-              width: 22,
-              height: 22,
+              width: 32,
+              height: 32,
               borderRadius: "50%",
-              background: "#1e3a2f",
+              background: "#1a1a1a",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 9,
+              fontSize: 12,
               fontWeight: 700,
-              color: "#7ecfa0",
+              color: "#fff",
               flexShrink: 0,
             }}
           >
             {initials}
           </div>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: "#1a1a1a" }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>
               {userName ?? "Usuario"}
             </div>
-            <div style={{ fontSize: 9, color: "#bbb" }}>{userEmail ?? ""}</div>
+            <div style={{ fontSize: 11, color: "#aaa" }}>{userEmail ?? ""}</div>
           </div>
         </button>
       </div>

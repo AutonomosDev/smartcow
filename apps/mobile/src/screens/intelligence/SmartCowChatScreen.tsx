@@ -56,6 +56,12 @@ export default function SmartCowChatScreen() {
           const newChunk = responseText.substring(processedIndex);
           const lines = newChunk.split('\n');
           
+          // Actualizar processedIndex ANTES de procesar para no reprocesar
+          const lastNewline = responseText.lastIndexOf('\n');
+          if (lastNewline > processedIndex) {
+            processedIndex = lastNewline + 1;
+          }
+
           for (const line of lines) {
             if (!line.startsWith('data: ')) continue;
             const jsonStr = line.slice(6).trim();
@@ -72,16 +78,9 @@ export default function SmartCowChatScreen() {
                 }
               }
             } catch (e) {
-              // skip fragmentos JSON incompletos, se reintentará luego
+              // skip fragmentos JSON incompletos
             }
           }
-
-          // Si parseó algo, actualizamos índice hasta el último salto de línea válido
-          const lastNewline = responseText.lastIndexOf('\n');
-          if (lastNewline > processedIndex) {
-            processedIndex = lastNewline;
-          }
-
           setMessages((prev) => {
             const copy = [...prev];
             const lastIdx = copy.length - 1;
