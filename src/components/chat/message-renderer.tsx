@@ -1,11 +1,5 @@
 /**
  * src/components/chat/message-renderer.tsx
- * Renderiza respuestas de Claude con soporte para:
- * - Codeblocks con syntax highlighting (shiki)
- * - Tablas desde markdown (react-markdown + remark-gfm)
- * - Texto plano sin markdown rico
- * - Gráficos (recharts) — activados por artifacts de Claude
- * Ticket: AUT-113
  */
 
 "use client";
@@ -29,6 +23,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { Check, Copy } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -37,27 +32,24 @@ export type ChartData =
   | { type: "line"; data: Record<string, unknown>[]; xKey: string; yKey: string; title?: string }
   | { type: "pie"; data: { name: string; value: number }[]; title?: string };
 
-import { GenerativeArtifact, ArtifactRenderer } from "../generative/artifact-renderer";
-
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   charts?: ChartData[];
-  artifacts?: GenerativeArtifact[];
 }
 
 // ─── Chart colors ─────────────────────────────────────────────────────────────
 
 const COLORS = ["#06200F", "#9ADF59", "#1B3A26", "#4C7C54", "#8FB996", "#E1E8E2"];
 
-// ─── CodeBlock con highlighting ───────────────────────────────────────────────
+// ─── CodeBlock V2 (White Theme) ───────────────────────────────────────────────
 
 interface CodeBlockProps {
   language?: string;
   code: string;
 }
 
-function CodeBlock({ language, code }: CodeBlockProps) {
+function CodeBlockV2({ language, code }: CodeBlockProps) {
   const [copied, setCopied] = React.useState(false);
 
   const handleCopy = async () => {
@@ -67,260 +59,148 @@ function CodeBlock({ language, code }: CodeBlockProps) {
   };
 
   return (
-    <div className="relative my-4 rounded-xl overflow-hidden border border-gray-100 bg-white shadow-sm font-inter">
+    <div className="relative my-4 rounded-2xl overflow-hidden border border-gray-100 bg-white shadow-sm font-inherit">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[#252525] border-b border-[#333]">
-        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
+      <div className="flex items-center justify-between px-4 py-2 bg-gray-50/50 border-b border-gray-100/50">
+        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
           {language ?? "texto"}
         </span>
         <button
           onClick={handleCopy}
-          className="text-[10px] text-gray-400 hover:text-white transition-colors px-2 py-1 rounded bg-[#333] hover:bg-[#444] border border-[#444] font-medium"
+          className="text-gray-400 hover:text-gray-900 transition-colors p-1"
         >
-          {copied ? "copiado" : "copiar"}
+          {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
         </button>
       </div>
       {/* Code */}
-      <pre className="overflow-x-auto p-4 text-sm text-gray-300 font-mono leading-relaxed">
+      <pre className="overflow-x-auto p-4 text-sm text-gray-700 font-mono leading-relaxed bg-white">
         <code>{code}</code>
       </pre>
     </div>
   );
 }
 
-// ─── Chart Renderers ──────────────────────────────────────────────────────────
+// ─── Chart Renderers (V2 White) ──────────────────────────────────────────────
 
-function BarChartRenderer({
-  data,
-  xKey,
-  yKey,
-  title,
-}: Extract<ChartData, { type: "bar" }>) {
-  return (
-    <div className="my-4">
-      {title && (
-        <p className="text-sm text-gray-400 mb-2 text-center">{title}</p>
-      )}
-      <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={data as Record<string, string | number>[]}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey={xKey} stroke="#9ca3af" tick={{ fontSize: 12 }} />
-          <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#1f2023",
-              border: "1px solid #444",
-              borderRadius: 8,
-              color: "#f9fafb",
-            }}
-          />
-          <Legend />
-          <Bar dataKey={yKey} fill={COLORS[0]} radius={[4, 4, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
+function ChartRendererV2({ chart }: { chart: ChartData }) {
+  const commonTooltipStyles = {
+    backgroundColor: "#ffffff",
+    border: "1px solid #f3f4f6",
+    borderRadius: "12px",
+    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.05)",
+    fontSize: "12px",
+  };
 
-function LineChartRenderer({
-  data,
-  xKey,
-  yKey,
-  title,
-}: Extract<ChartData, { type: "line" }>) {
-  return (
-    <div className="my-4">
-      {title && (
-        <p className="text-sm text-gray-400 mb-2 text-center">{title}</p>
-      )}
-      <ResponsiveContainer width="100%" height={280}>
-        <LineChart data={data as Record<string, string | number>[]}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey={xKey} stroke="#9ca3af" tick={{ fontSize: 12 }} />
-          <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#1f2023",
-              border: "1px solid #444",
-              borderRadius: 8,
-              color: "#f9fafb",
-            }}
-          />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey={yKey}
-            stroke={COLORS[0]}
-            strokeWidth={2}
-            dot={{ fill: COLORS[0], r: 4 }}
-            activeDot={{ r: 6 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
+  const gridStroke = "#f3f4f6";
 
-function PieChartRenderer({
-  data,
-  title,
-}: Extract<ChartData, { type: "pie" }>) {
-  return (
-    <div className="my-4">
-      {title && (
-        <p className="text-sm text-gray-400 mb-2 text-center">{title}</p>
-      )}
-      <ResponsiveContainer width="100%" height={280}>
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-            label={({ name, percent }) =>
-              `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
-            }
-          >
-            {data.map((_, index) => (
-              <Cell key={index} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#1f2023",
-              border: "1px solid #444",
-              borderRadius: 8,
-              color: "#f9fafb",
-            }}
-          />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-function ChartRenderer({ chart }: { chart: ChartData }) {
   switch (chart.type) {
     case "bar":
-      return <BarChartRenderer {...chart} />;
+      return (
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={chart.data as any}>
+            <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+            <XAxis dataKey={chart.xKey} stroke="#9ca3af" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <Tooltip contentStyle={commonTooltipStyles} cursor={{ fill: '#f9fafb' }} />
+            <Bar dataKey={chart.yKey} fill={COLORS[0]} radius={[4, 4, 0, 0]} barSize={32} />
+          </BarChart>
+        </ResponsiveContainer>
+      );
     case "line":
-      return <LineChartRenderer {...chart} />;
+      return (
+        <ResponsiveContainer width="100%" height={280}>
+          <LineChart data={chart.data as any}>
+            <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+            <XAxis dataKey={chart.xKey} stroke="#9ca3af" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <Tooltip contentStyle={commonTooltipStyles} />
+            <Line type="monotone" dataKey={chart.yKey} stroke={COLORS[0]} strokeWidth={2.5} dot={{ fill: COLORS[0], r: 4, strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+          </LineChart>
+        </ResponsiveContainer>
+      );
     case "pie":
-      return <PieChartRenderer {...chart} />;
+      return (
+        <ResponsiveContainer width="100%" height={280}>
+          <PieChart>
+            <Pie data={chart.data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={60} paddingAngle={5}>
+              {chart.data.map((_, index) => (
+                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip contentStyle={commonTooltipStyles} />
+            <Legend verticalAlign="bottom" height={36} iconType="circle" />
+          </PieChart>
+        </ResponsiveContainer>
+      );
   }
 }
 
-// ─── Markdown components ──────────────────────────────────────────────────────
+// ─── Markdown components V2 ──────────────────────────────────────────────────
 
-const markdownComponents: Components = {
-  // Codeblocks
+const markdownComponentsV2: Components = {
   code({ className, children, ...props }) {
     const match = /language-(\w+)/.exec(className ?? "");
     const language = match ? match[1] : undefined;
     const code = String(children).replace(/\n$/, "");
 
-    // Inline code (sin saltos de línea)
     if (!className) {
       return (
-        <code
-          className="bg-white text-[#06200F] px-1.5 py-0.5 rounded text-[13px] font-mono border border-gray-100"
-          {...props}
-        >
+        <code className="bg-gray-50 text-gray-900 px-1.5 py-0.5 rounded-md text-[13px] font-mono border border-gray-100" {...props}>
           {children}
         </code>
       );
     }
-
-    return <CodeBlock language={language} code={code} />;
+    return <CodeBlockV2 language={language} code={code} />;
   },
 
-  // Tablas
   table({ children }) {
     return (
-      <div className="my-4 overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+      <div className="my-6 overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
         <table className="w-full text-sm text-left border-collapse">{children}</table>
       </div>
     );
   },
   thead({ children }) {
     return (
-      <thead className="bg-white text-gray-600 text-[10px] font-bold uppercase tracking-wider border-b border-gray-100">
+      <thead className="bg-gray-50/50 text-gray-400 text-[10px] font-bold uppercase tracking-widest border-b border-gray-100">
         {children}
       </thead>
     );
   },
   tbody({ children }) {
-    return (
-      <tbody className="divide-y divide-gray-100 bg-white text-gray-700 text-[13px]">
-        {children}
-      </tbody>
-    );
+    return <tbody className="divide-y divide-gray-50 bg-white text-gray-700 text-[13px]">{children}</tbody>;
   },
   th({ children }) {
-    return <th className="px-4 py-3 font-medium">{children}</th>;
+    return <th className="px-5 py-3 font-semibold">{children}</th>;
   },
   td({ children }) {
-    return <td className="px-4 py-3">{children}</td>;
+    return <td className="px-5 py-3">{children}</td>;
   },
 
-  // Párrafos
   p({ children }) {
-    return <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>;
+    return <p className="mb-4 last:mb-0 leading-[1.7] text-gray-700 font-inherit">{children}</p>;
   },
-
-  // Listas
   ul({ children }) {
-    return (
-      <ul className="mb-3 ml-4 list-disc space-y-1 text-gray-700">{children}</ul>
-    );
+    return <ul className="mb-4 ml-4 list-disc space-y-2 text-gray-700">{children}</ul>;
   },
   ol({ children }) {
-    return (
-      <ol className="mb-3 ml-4 list-decimal space-y-1 text-gray-700">{children}</ol>
-    );
+    return <ol className="mb-4 ml-4 list-decimal space-y-2 text-gray-700">{children}</ol>;
   },
   li({ children }) {
-    return <li className="leading-relaxed">{children}</li>;
+    return <li className="leading-relaxed pl-1">{children}</li>;
   },
-
-  // Headers — mínimos, el chat no es un documento
-  h1({ children }) {
-    return <h1 className="text-lg font-semibold mb-2 text-gray-900">{children}</h1>;
-  },
-  h2({ children }) {
-    return <h2 className="text-base font-semibold mb-2 text-gray-900">{children}</h2>;
-  },
-  h3({ children }) {
-    return <h3 className="text-sm font-semibold mb-1 text-gray-800">{children}</h3>;
-  },
-
-  // Strong / em
-  strong({ children }) {
-    return <strong className="font-semibold text-gray-900">{children}</strong>;
-  },
-  em({ children }) {
-    return <em className="italic text-gray-600">{children}</em>;
-  },
-
-  // Blockquote
-  blockquote({ children }) {
-    return (
-      <blockquote className="border-l-4 border-gray-200 pl-4 italic text-gray-500 my-4 bg-gray-50/50 py-1 rounded-r-lg">
-        {children}
-      </blockquote>
-    );
-  },
-
-  // HR
-  hr() {
-    return <hr className="border-gray-100 my-4" />;
-  },
+  h1: ({ children }) => <h1 className="text-xl font-bold mb-4 text-gray-900 tracking-tight">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-lg font-bold mb-3 text-gray-900 tracking-tight">{children}</h2>,
+  strong: ({ children }) => <strong className="font-bold text-gray-950">{children}</strong>,
+  blockquote: ({ children }) => (
+    <blockquote className="border-l-2 border-emerald-100 pl-4 italic text-gray-500 my-6 py-1">
+      {children}
+    </blockquote>
+  ),
+  hr: () => <hr className="border-gray-100 my-8" />,
 };
 
-// ─── MessageRenderer ──────────────────────────────────────────────────────────
+// ─── MessageRendererV2 ────────────────────────────────────────────────────────
 
 interface MessageRendererProps {
   message: ChatMessage;
@@ -330,45 +210,31 @@ export function MessageRenderer({ message }: MessageRendererProps) {
   const isUser = message.role === "user";
 
   return (
-    <div
-      className={`flex ${isUser ? "justify-end" : "justify-start"} mb-8 font-inherit`}
-    >
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-10 font-inherit animate-in fade-in slide-in-from-bottom-2 duration-500`}>
       {isUser ? (
         <div className="flex gap-4 max-w-[85%] ml-auto">
-          <div className="bg-white text-gray-900 border border-gray-100 rounded-[20px] rounded-tr-none px-5 py-3 text-[14px] leading-relaxed font-medium shadow-sm">
+          <div className="bg-white text-gray-950 border border-gray-100 rounded-[24px] rounded-tr-none px-6 py-3.5 text-[14px] leading-relaxed font-medium shadow-sm">
             <p className="whitespace-pre-wrap">{message.content}</p>
           </div>
-          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 border border-gray-100 text-[10px] font-bold text-gray-400 shadow-sm">
+          <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center flex-shrink-0 border border-gray-100 text-[11px] font-bold text-gray-400 shadow-sm mt-0.5">
             U
           </div>
         </div>
       ) : (
-        <div className="flex gap-4 max-w-[90%]">
-          <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 mt-1 mix-blend-multiply">
-            <img src="/cow_robot.png" alt="smartCow" className="w-full h-full object-contain" />
+        <div className="flex gap-5 max-w-[92%]">
+          <div className="w-9 h-9 flex items-center justify-center flex-shrink-0 mt-1.5 bg-white border border-gray-50 rounded-full p-1 shadow-sm">
+            <img src="/cow_robot.png" alt="smartCow" className="w-full h-full object-contain mix-blend-multiply" />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[15px] leading-[1.8] text-[#1a1a1a] font-inherit prose prose-neutral max-w-none prose-p:mb-4 prose-p:last:mb-0">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={markdownComponents}
-              >
+          <div className="flex-1 min-w-0 pt-1">
+            <div className="text-[15px] leading-[1.8] text-gray-800 font-inherit prose prose-neutral max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponentsV2}>
                 {message.content}
               </ReactMarkdown>
 
-              {/* Gráficos (artifacts obsoletos) */}
               {message.charts && message.charts.length > 0 && (
-                <div className="mt-6 border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm p-4">
-                  <ChartRenderer chart={message.charts[0]} />
-                </div>
-              )}
-
-              {/* Generative UI Artifacts */}
-              {message.artifacts && message.artifacts.length > 0 && (
-                <div className="mt-4 flex flex-col gap-3">
-                  {message.artifacts.map((artifact, i) => (
-                    <ArtifactRenderer key={i} artifact={artifact} />
-                  ))}
+                <div className="mt-8 border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm p-6 animate-in zoom-in-95 duration-700">
+                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 text-center">{message.charts[0].title || 'Análisis de Datos'}</p>
+                   <ChartRendererV2 chart={message.charts[0]} />
                 </div>
               )}
             </div>

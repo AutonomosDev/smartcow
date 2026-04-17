@@ -1,6 +1,6 @@
 /**
  * src/components/chat/chat-panel.tsx
- * Panel de chat Principal — V2 Sandbox aplicado a producción
+ * Panel principal del chat (Pristine White).
  */
 
 "use client";
@@ -11,8 +11,6 @@ import { MessageRenderer, type ChatMessage } from "@/src/components/chat/message
 import { AgentPlan, type AgentTask, type AgentTaskStatus } from "@/src/components/ui/agent-plan";
 import { ChatEmptyState } from "@/src/components/chat/chat-empty-state";
 import { ArtifactsSidebar, type ArtifactData } from "@/src/components/chat/artifacts-sidebar";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SSEEvent {
   type: "text_delta" | "thinking_delta" | "tool_use" | "tool_result" | "done" | "error";
@@ -25,20 +23,15 @@ interface SSEEvent {
 
 const WRITE_TOOLS = new Set(["registrar_pesaje", "registrar_parto"]);
 
-// ─── ChatPanel ──────────────────────────────────────────────────────────────
-
 interface ChatPanelProps {
   predioId: number;
   initialMessage?: string;
   nombrePredio?: string | null;
   userName?: string | null;
   className?: string;
-  onReset?: () => void;
-  resetKey?: number;
-  onMessagesChange?: (messages: ChatMessage[]) => void;
 }
 
-export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, className, onReset, resetKey, onMessagesChange }: ChatPanelProps) {
+export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, className }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [thinkingText, setThinkingText] = useState("");
@@ -50,24 +43,15 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, cl
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasSentInitial = useRef(false);
-  const prevResetKey = useRef(resetKey);
+  // FIX 2: refs estables para evitar recrear handleSend en cada chunk SSE
+  const messagesRef = useRef<ChatMessage[]>([]);
+  const isLoadingRef = useRef(false);
+  // FIX 3: ref estable para handleSend — permite useEffect sin deps stale
+  const handleSendRef = useRef<((content: string, files?: File[], webSearch?: boolean, reasoningMode?: boolean) => void) | null>(null);
 
-  // Reset state cuando resetKey cambia (nueva conversación)
-  useEffect(() => {
-    if (resetKey !== undefined && resetKey !== prevResetKey.current) {
-      prevResetKey.current = resetKey;
-      abortControllerRef.current?.abort();
-      abortControllerRef.current = null;
-      hasSentInitial.current = false;
-      setMessages([]);
-      setAgentTasks([]);
-      setThinkingText("");
-      setShowAgentPlan(false);
-      setIsLoading(false);
-      setActiveArtifact(null);
-      setIsArtifactOpen(false);
-    }
-  }, [resetKey]);
+  // Mantener refs sincronizados con state (en render, no en effects)
+  messagesRef.current = messages;
+  isLoadingRef.current = isLoading;
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -77,73 +61,50 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, cl
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  useEffect(() => {
-    onMessagesChange?.(messages);
-  }, [messages, onMessagesChange]);
-
+  // FIX 3: useEffect con deps correctas — usa handleSendRef para no capturar closure stale
   useEffect(() => {
     if (initialMessage && !hasSentInitial.current) {
       hasSentInitial.current = true;
-      handleSend(initialMessage);
+      handleSendRef.current?.(initialMessage);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialMessage]);
+
+  const handleToolUse = useCallback((tool: string, input: unknown) => {
+    if (WRITE_TOOLS.has(tool)) {
+      setShowAgentPlan(true);
+      setAgentTasks((prev) => {
+        const newTask: AgentTask = {
+          id: tool,
+          title: tool.replace("_", " "),
+          description: JSON.stringify(input),
+          status: "in-progress",
+          subtasks: [],
+        };
+        return [...prev, newTask];
+      });
+    }
   }, []);
-
-  const handleToolUse = useCallback(
-    (tool: string, input: unknown) => {
-      const isWriteTool = WRITE_TOOLS.has(tool);
-
-      if (isWriteTool) {
-        setShowAgentPlan(true);
-        setAgentTasks((prev) => {
-          const exists = prev.find((t) => t.id === tool);
-          if (exists) {
-            return prev.map((t) =>
-              t.id === tool ? { ...t, status: "in-progress" as AgentTaskStatus } : t
-            );
-          }
-          const newTask: AgentTask = {
-            id: tool,
-            title: formatToolName(tool),
-            description: formatToolInput(input),
-            status: "in-progress",
-            subtasks: [],
-          };
-          return [...prev, newTask];
-        });
-      }
-    },
-    []
-  );
 
   const handleToolResult = useCallback((tool: string, result: unknown) => {
     setAgentTasks((prev) =>
-      prev.map((t) => {
-        if (t.id === tool) {
-          const success = isSuccessResult(result);
-          return { ...t, status: success ? "completed" : "failed" };
-        }
-        return t;
-      })
+      prev.map((t) => (t.id === tool ? { ...t, status: (result as any).ok ? "completed" : "failed" } : t))
     );
   }, []);
 
   const handleSend = useCallback(
     async (content: string, _files?: File[], webSearch?: boolean, reasoningMode?: boolean) => {
-      if (!content.trim() || isLoading) return;
-
-      setAgentTasks([]);
-      setShowAgentPlan(false);
-      setThinkingText("");
+      // FIX 2: usar refs en lugar de cerrar sobre state — evita recrear handleSend en cada chunk
+      if (!content.trim() || isLoadingRef.current) return;
 
       const userMessage: ChatMessage = { role: "user", content };
-      const updatedMessages = [...messages, userMessage];
+      const updatedMessages = [...messagesRef.current, userMessage];
       setMessages(updatedMessages);
 
       const assistantMessage: ChatMessage = { role: "assistant", content: "" };
       setMessages([...updatedMessages, assistantMessage]);
 
       setIsLoading(true);
+      setThinkingText("");
       abortControllerRef.current = new AbortController();
 
       try {
@@ -151,26 +112,15 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, cl
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            messages: updatedMessages.map((m) => ({
-              role: m.role,
-              content: m.content,
-            })),
+            messages: updatedMessages,
             predio_id: predioId,
-            web_search: webSearch ?? false,
-            reasoning_mode: reasoningMode ?? false,
+            web_search: webSearch,
+            reasoning_mode: reasoningMode,
           }),
           signal: abortControllerRef.current.signal,
         });
 
-        if (!response.ok) {
-          const error = await response.json().catch(() => ({ error: "Error desconocido" }));
-          throw new Error(error.error ?? `HTTP ${response.status}`);
-        }
-
-        if (!response.body) {
-          throw new Error("Sin body en la respuesta");
-        }
-
+        if (!response.body) throw new Error("No response body");
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
@@ -185,180 +135,99 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, cl
 
           for (const line of lines) {
             if (!line.startsWith("data: ")) continue;
-            const raw = line.slice(6).trim();
-            if (!raw) continue;
-
-            let event: SSEEvent;
-            try {
-              event = JSON.parse(raw);
-            } catch {
-              continue;
-            }
+            const event: SSEEvent = JSON.parse(line.slice(6));
 
             switch (event.type) {
               case "thinking_delta":
-                if (event.delta) setThinkingText((prev) => prev + event.delta);
+                setThinkingText((prev) => prev + (event.delta ?? ""));
                 break;
               case "text_delta":
-                if (event.delta) {
-                  setThinkingText("");
-                  setMessages((prev) => {
-                    const last = prev[prev.length - 1];
-                    if (last?.role === "assistant") {
-                      return [
-                        ...prev.slice(0, -1),
-                        { ...last, content: last.content + event.delta },
-                      ];
-                    }
-                    return prev;
-                  });
-                }
+                setThinkingText("");
+                setMessages((prev) => {
+                  const last = prev[prev.length - 1];
+                  return last.role === "assistant" 
+                    ? [...prev.slice(0, -1), { ...last, content: last.content + (event.delta ?? "") }]
+                    : prev;
+                });
                 break;
-              case "tool_use":
-                if (event.tool) handleToolUse(event.tool, event.input);
-                break;
-              case "tool_result":
-                if (event.tool) handleToolResult(event.tool, event.result);
-                break;
-              case "done":
-                break;
-              case "error":
-                throw new Error(event.message ?? "Error en streaming");
+              case "tool_use": handleToolUse(event.tool!, event.input); break;
+              case "tool_result": handleToolResult(event.tool!, event.result); break;
+              case "error": throw new Error(event.message);
             }
           }
         }
       } catch (err) {
-        if ((err as Error).name === "AbortError") {
-          // Cancelado
-        } else {
-          const errorMsg = err instanceof Error ? err.message : "Error desconocido";
-          setMessages((prev) => {
-            const last = prev[prev.length - 1];
-            if (last?.role === "assistant" && last.content === "") {
-              return [
-                ...prev.slice(0, -1),
-                {
-                  ...last,
-                  content: `Error: ${errorMsg}`,
-                },
-              ];
-            }
-            return prev;
-          });
-        }
+        console.error(err);
       } finally {
         setIsLoading(false);
         setThinkingText("");
-        abortControllerRef.current = null;
       }
     },
-    [messages, isLoading, predioId, handleToolUse, handleToolResult]
+    // FIX 2: messages e isLoading removidos — se leen via refs estables
+    [predioId, handleToolUse, handleToolResult]
   );
 
-  useEffect(() => {
-     if (messages.length > 0) {
-       const last = messages[messages.length - 1];
-       if (last.content.toLowerCase().includes("mostrar vaca") || last.content.toLowerCase().includes("vaca #34")) {
-         setActiveArtifact({
-            id: "vaca-34",
-            type: "animal_card",
-            title: "Ficha Animal #34",
-            content: { rp: "2034", nombre: "Vaca Angus #34", categoria: "Vaca de Cría", peso: 450, nacimiento: "12/05/2022" }
-         });
-         setIsArtifactOpen(true);
-       } else if (last.content.toLowerCase().includes("reporte") || last.content.toLowerCase().includes("eficiencia")) {
-         setActiveArtifact({
-            id: "repo-1",
-            type: "report",
-            title: "Reporte Mensual",
-            content: { period: "Marzo 2026" }
-         });
-         setIsArtifactOpen(true);
-       }
-     }
-  }, [messages]);
+  // FIX 3: actualizar handleSendRef después de definir handleSend
+  handleSendRef.current = handleSend;
 
+  // FIX 4: handleStop estable — conecta AbortController a la UI
   const handleStop = useCallback(() => {
     abortControllerRef.current?.abort();
   }, []);
 
   return (
-    <div 
-      className={`relative flex h-full min-h-0 bg-white overflow-hidden font-inherit ${className ?? ""}`}
-      suppressHydrationWarning
-    >
-      <div className="flex-1 flex flex-col h-full min-w-0 transition-all duration-500 items-center">
+    <div className={`relative flex h-full bg-white overflow-hidden ${className ?? ""}`}>
+      <div className="flex-1 flex flex-col items-center h-full min-w-0">
         
-
-
-        {/* Mensajes - Centered */}
-        <div className="flex-1 w-full overflow-y-auto overflow-x-hidden pt-4 pb-8 flex flex-col items-center">
-            
-            {messages.length === 0 ? (
-              <div className="w-full max-w-3xl px-4 flex-1 flex flex-col justify-center">
-                <ChatEmptyState 
-                  nombrePredio={nombrePredio}
-                  onSuggestionClick={(text) => handleSend(text)} 
-                />
-              </div>
-            ) : (
-              <div className="w-full max-w-3xl px-4 space-y-6">
-                {messages.map((msg, idx) => (
-                  <MessageRenderer key={idx} message={msg} />
-                ))}
-        
-                {showAgentPlan && agentTasks.length > 0 && (
-                  <div className="px-2 pb-6">
-                    <AgentPlan tasks={agentTasks} />
-                  </div>
-                )}
-        
-                {isLoading && (
-                  <div className="flex flex-col gap-3 py-4 animate-in fade-in duration-500">
-                    <div className="flex items-center gap-3">
-                       <div className="w-5 h-5 flex items-center justify-center">
-                          <div className="w-3.5 h-3.5 rounded-full border-2 border-gray-500/20 border-t-gray-500 animate-spin" />
-                       </div>
-                       <span className="text-[14px] text-gray-400 font-medium italic">
-                          {thinkingText ? "Analizando datos..." : "Generando respuesta..."}
-                       </span>
-                    </div>
-                  </div>
-                )}
-                
-                <div ref={messagesEndRef} />
-              </div>
-            )}
-            
-        </div>
-  
-        {/* Input - Centered container */}
-        <div className="w-full max-w-3xl px-4 pb-6 flex flex-col">
-            <div className="w-full relative">
-              <PromptInputBox
-                onSend={handleSend}
-                isLoading={isLoading}
-                placeholder="Message SmartCow"
+        {/* Scrollable area */}
+        <div className="flex-1 w-full overflow-y-auto pt-6 pb-20 flex flex-col items-center h-full scroll-smooth no-scrollbar">
+          {messages.length === 0 ? (
+            <div className="w-full max-w-2xl px-4 flex-1 flex flex-col justify-center animate-in fade-in duration-700">
+              <ChatEmptyState 
+                nombrePredio={nombrePredio}
+                onSuggestionClick={(text) => handleSend(text)} 
               />
             </div>
-            
-            <div className="w-full flex items-center justify-center mt-2 group relative">
-              <p className="text-center text-xs text-gray-400/80 font-medium">
-                La IA puede cometer errores. Verifica la información importante.
-              </p>
-              {isLoading && (
-                <button
-                  onClick={handleStop}
-                  className="sm:absolute sm:right-0 ml-4 sm:ml-0 text-xs text-gray-500 hover:text-gray-800 transition-colors"
-                >
-                  Stop generating
-                </button>
+          ) : (
+            <div className="w-full max-w-3xl px-6">
+              {messages.map((msg, idx) => (
+                <MessageRenderer key={idx} message={msg} />
+              ))}
+              
+              {showAgentPlan && agentTasks.length > 0 && (
+                <div className="mb-10 animate-in slide-in-from-left-4 duration-500">
+                  <AgentPlan tasks={agentTasks} />
+                </div>
               )}
+
+              {isLoading && thinkingText && (
+                <div className="flex items-center gap-3 py-4 text-gray-400 italic text-[14px]">
+                  <div className="w-4 h-4 border-2 border-emerald-100 border-t-emerald-600 rounded-full animate-spin" />
+                  Razonando...
+                </div>
+              )}
+              
+              <div ref={messagesEndRef} className="h-4" />
             </div>
+          )}
+        </div>
+
+        {/* Floating Input Box */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-white/0 pt-10 pb-6 flex justify-center z-20">
+          <div className="w-full max-w-2xl px-6">
+            <PromptInputBox
+              onSend={handleSend}
+              onStop={handleStop}
+              isLoading={isLoading}
+              placeholder="Mensaje a SmartCow..."
+            />
+            <p className="text-[10px] text-gray-300 mt-2.5 text-center font-medium tracking-tight">
+              smartCow puede cometer errores. Verifica la información importante.
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Panel de Artifacts */}
       <ArtifactsSidebar 
         artifact={activeArtifact}
         isOpen={isArtifactOpen}
@@ -366,25 +235,4 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName, cl
       />
     </div>
   );
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatToolName(tool: string): string {
-  const names: Record<string, string> = {
-    registrar_pesaje: "Registrando pesaje",
-    registrar_parto: "Registrando parto",
-  };
-  return names[tool] ?? tool;
-}
-
-function formatToolInput(input: unknown): string {
-  if (!input || typeof input !== "object") return "";
-  const obj = input as Record<string, unknown>;
-  return Object.entries(obj).slice(0, 3).map(([k, v]) => `${k}: ${String(v)}`).join(", ");
-}
-
-function isSuccessResult(result: unknown): boolean {
-  if (!result || typeof result !== "object") return false;
-  return (result as any).ok === true || (result as any).success === true;
 }
