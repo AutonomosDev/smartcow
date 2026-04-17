@@ -556,5 +556,8 @@ export function getGoogleAIClient(): GoogleGenAI {
   return new GoogleGenAI({ apiKey });
 }
 
+// ⚠️ PROHIBIDO CAMBIAR ESTOS MODELOS SIN APROBACIÓN DE CÉSAR
+// HOY: gemini-2.5-flash (transitorio)
+// FUTURO: Gemma 4 (gratis, opensource, multimodal) + claude-sonnet-4-20250514 para JP
 export const GOOGLE_FLASH_MODEL = "gemini-2.5-flash";
-export const GOOGLE_REASONING_MODEL = "gemini-2.5-pro";
+export const GOOGLE_REASONING_MODEL = "gemini-2.5-flash";

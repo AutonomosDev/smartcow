@@ -1,7 +1,8 @@
 /**
- * app/api/chat/route.ts — Endpoint SSE para chat ganadero con Google AI (Gemini).
+ * app/api/chat/route.ts — Endpoint SSE para chat ganadero con OpenRouter/Gemma 4.
  * Ticket: AUT-176
- * Migrado: OpenRouter/OpenAI SDK → Google AI SDK (@google/genai)
+ * Migrado: Google AI SDK → OpenRouter (OpenAI-compatible SDK)
+ * Modelo: google/gemma-4-31b-it via OpenRouter
  *
  * POST /api/chat
  * Body: { messages: {role, content}[], predio_id: number, reasoning_mode?: boolean }
@@ -21,21 +22,21 @@
  */
 
 import { NextRequest } from "next/server";
-import type { Content, Part, FunctionCallingConfigMode } from "@google/genai";
+import OpenAI from "openai";
 import { withAuth, withAuthBearer } from "@/src/lib/with-auth";
 import {
-  getGoogleAIClient,
   buildSystemPrompt,
   CATTLE_TOOLS,
   ejecutarTool,
-  GOOGLE_FLASH_MODEL,
-  GOOGLE_REASONING_MODEL,
 } from "@/src/lib/claude";
 import { getNombrePredio, getPredioKpis, getPrediosNombres } from "@/src/lib/queries/predio";
 import { AuthError } from "@/src/lib/with-auth";
 import { db } from "@/src/db/client";
-import { kbDocuments } from "@/src/db/schema/index";
-import { eq, gt } from "drizzle-orm";
+import { kbDocuments, type KbDocument } from "@/src/db/schema/index";
+import { eq } from "drizzle-orm";
+
+// ⚠️ PROHIBIDO CAMBIAR ESTE MODELO SIN APROBACIÓN DE CÉSAR
+const OR_MODEL = "google/gemma-4-31b-it";
 
 // Jerarquía de roles
 const ROL_RANK: Record<string, number> = {
@@ -49,8 +50,32 @@ const ROL_RANK: Record<string, number> = {
 
 const MAX_TOOL_ITERATIONS = 5;
 
-// FunctionCallingConfigMode.AUTO value
-const FUNCTION_CALLING_AUTO = "AUTO" as FunctionCallingConfigMode;
+function getOpenRouterClient(): OpenAI {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error("OPENROUTER_API_KEY no configurada");
+  return new OpenAI({
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey,
+    defaultHeaders: {
+      "HTTP-Referer": "https://smartcow.cl",
+      "X-Title": "SmartCow",
+    },
+  });
+}
+
+// Convertir CATTLE_TOOLS (formato Google) al formato OpenAI function calling
+function toOpenAITools(cattleTools: typeof CATTLE_TOOLS): OpenAI.Chat.ChatCompletionTool[] {
+  return cattleTools
+    .filter((t) => t.name && t.description)
+    .map((t) => ({
+      type: "function" as const,
+      function: {
+        name: t.name as string,
+        description: t.description as string,
+        parameters: t.parameters as Record<string, unknown>,
+      },
+    }));
+}
 
 export async function POST(req: NextRequest) {
   // 1. Autenticación — Bearer (mobile) o cookie (web)
@@ -90,7 +115,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { messages, predio_id: predioId, reasoning_mode: reasoningMode } = body;
+  const { messages, predio_id: predioId } = body;
 
   if (!predioId || typeof predioId !== "number") {
     return new Response(JSON.stringify({ error: "predio_id requerido" }), {
@@ -120,10 +145,10 @@ export async function POST(req: NextRequest) {
   const prediosPermitidos = tieneAccesoTotal ? [] : predios;
   const rolRank = ROL_RANK[rol] ?? 0;
 
-  // 4. Inicializar cliente Google AI
-  let ai;
+  // 4. Inicializar cliente OpenRouter
+  let client: OpenAI;
   try {
-    ai = getGoogleAIClient();
+    client = getOpenRouterClient();
   } catch {
     return new Response(JSON.stringify({ error: "Servicio no disponible" }), {
       status: 503,
@@ -159,138 +184,129 @@ export async function POST(req: NextRequest) {
           kpis,
         });
 
-        // Cargar documentos KB válidos (no expirados) para este predio
-        const now = new Date();
-        const kbFiles = await db
-          .select()
-          .from(kbDocuments)
-          .where(eq(kbDocuments.predioId, predioId));
-
-        const validKbFiles = kbFiles.filter((f) => f.expiresAt > now);
-
-        const model = reasoningMode ? GOOGLE_REASONING_MODEL : GOOGLE_FLASH_MODEL;
-
-        // Convertir historial al formato Google AI
-        // Gemini usa "model" en vez de "assistant"
-        const conversationContents: Content[] = messages.map((m) => ({
-          role: m.role === "assistant" ? "model" : "user",
-          parts: [{ text: m.content }],
-        }));
-
-        // Si hay archivos KB válidos, agregarlos como contexto al primer mensaje del usuario
-        if (validKbFiles.length > 0) {
-          const kbParts: Part[] = validKbFiles.map((f) => ({
-            fileData: { fileUri: f.fileUri, mimeType: f.mimeType },
-          }));
-
-          // Insertar contexto KB antes de los mensajes como turno de usuario separado
-          conversationContents.unshift({
-            role: "user",
-            parts: [
-              ...kbParts,
-              {
-                text: `[Documentos de la base de conocimiento del predio ${predioId} — usar como referencia]`,
-              },
-            ],
-          });
-          // Agregar turno model vacío para mantener alternancia user/model
-          conversationContents.splice(1, 0, {
-            role: "model",
-            parts: [{ text: "Entendido. Usaré estos documentos como referencia." }],
-          });
+        // Cargar documentos KB válidos — como texto en el system prompt
+        // (OpenRouter no soporta Google Files API fileData)
+        let kbContext = "";
+        try {
+          const now = new Date();
+          const kbFiles: KbDocument[] = await db
+            .select()
+            .from(kbDocuments)
+            .where(eq(kbDocuments.predioId, predioId));
+          const validKbFiles = kbFiles.filter((f) => f.expiresAt > now);
+          if (validKbFiles.length > 0) {
+            kbContext = `\n\n[BASE DE CONOCIMIENTO — ${validKbFiles.length} documento(s) disponibles: ${validKbFiles.map((f) => f.nombre).join(", ")}]`;
+          }
+        } catch {
+          // kb_documents tabla no disponible — continuar sin KB
         }
 
+        // Construir historial en formato OpenAI
+        const chatMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+          { role: "system", content: systemPrompt + kbContext },
+          ...messages.map((m) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content,
+          })),
+        ];
+
+        const tools = toOpenAITools(CATTLE_TOOLS);
         let iteraciones = 0;
-        let currentContents = [...conversationContents];
 
         while (iteraciones < MAX_TOOL_ITERATIONS) {
           iteraciones++;
 
-          const response = await ai.models.generateContentStream({
-            model,
-            contents: currentContents,
-            config: {
-              systemInstruction: systemPrompt,
-              tools: [{ functionDeclarations: CATTLE_TOOLS }],
-              toolConfig: {
-                functionCallingConfig: { mode: FUNCTION_CALLING_AUTO },
-              },
-              maxOutputTokens: 8192,
-            },
+          const response = await client.chat.completions.create({
+            model: OR_MODEL,
+            messages: chatMessages,
+            tools,
+            tool_choice: "auto",
+            stream: true,
+            max_tokens: 8192,
           });
 
           let accumulatedText = "";
-          const functionCalls: Array<{ id?: string; name: string; args: Record<string, unknown> }> = [];
+          const toolCallsMap: Map<number, { id: string; name: string; args: string }> = new Map();
 
           for await (const chunk of response) {
+            const delta = chunk.choices[0]?.delta;
+            if (!delta) continue;
+
             // Stream texto
-            const textDelta = chunk.text;
-            if (textDelta) {
-              accumulatedText += textDelta;
-              sendEvent({ type: "text_delta", delta: textDelta });
+            if (delta.content) {
+              accumulatedText += delta.content;
+              sendEvent({ type: "text_delta", delta: delta.content });
             }
 
-            // Recolectar function calls (completos, no incrementales)
-            const fcs = chunk.functionCalls;
-            if (fcs && fcs.length > 0) {
-              for (const fc of fcs) {
-                if (fc.name) {
-                  functionCalls.push({
-                    id: fc.id,
-                    name: fc.name,
-                    args: (fc.args ?? {}) as Record<string, unknown>,
-                  });
+            // Acumular tool calls (llegan en fragmentos)
+            if (delta.tool_calls) {
+              for (const tc of delta.tool_calls) {
+                const idx = tc.index;
+                if (!toolCallsMap.has(idx)) {
+                  toolCallsMap.set(idx, { id: tc.id ?? "", name: tc.function?.name ?? "", args: "" });
                 }
+                const existing = toolCallsMap.get(idx)!;
+                if (tc.id) existing.id = tc.id;
+                if (tc.function?.name) existing.name = tc.function.name;
+                if (tc.function?.arguments) existing.args += tc.function.arguments;
               }
             }
           }
 
-          // Sin function calls → respuesta final
-          if (functionCalls.length === 0) {
+          const toolCalls = Array.from(toolCallsMap.values());
+
+          // Sin tool calls → respuesta final
+          if (toolCalls.length === 0) {
             sendEvent({ type: "done" });
             controller.close();
             return;
           }
 
-          // Agregar turno del modelo con los function calls al historial
-          const modelParts: Part[] = [];
-          if (accumulatedText) modelParts.push({ text: accumulatedText });
-          for (const fc of functionCalls) {
-            modelParts.push({ functionCall: { id: fc.id, name: fc.name, args: fc.args } });
-          }
-          currentContents.push({ role: "model", parts: modelParts });
+          // Agregar turno del asistente con tool calls al historial
+          chatMessages.push({
+            role: "assistant",
+            content: accumulatedText || null,
+            tool_calls: toolCalls.map((tc) => ({
+              id: tc.id,
+              type: "function" as const,
+              function: { name: tc.name, arguments: tc.args },
+            })),
+          });
 
-          // Ejecutar tools y agregar resultados como turno de usuario
-          const toolResultParts: Part[] = [];
-          for (const fc of functionCalls) {
-            sendEvent({ type: "tool_use", tool: fc.name, input: fc.args });
+          // Ejecutar tools y agregar resultados
+          for (const tc of toolCalls) {
+            let args: Record<string, unknown> = {};
+            try {
+              args = JSON.parse(tc.args);
+            } catch {
+              args = {};
+            }
+
+            sendEvent({ type: "tool_use", tool: tc.name, input: args });
 
             const result = await ejecutarTool(
-              fc.name,
-              fc.args,
+              tc.name,
+              args,
               prediosPermitidos,
               Number(userId),
               rolRank
             );
 
-            sendEvent({ type: "tool_result", tool: fc.name, result });
+            sendEvent({ type: "tool_result", tool: tc.name, result });
 
-            toolResultParts.push({
-              functionResponse: {
-                id: fc.id,
-                name: fc.name,
-                response: result as Record<string, unknown>,
-              },
+            chatMessages.push({
+              role: "tool",
+              tool_call_id: tc.id,
+              content: JSON.stringify(result),
             });
           }
-
-          currentContents.push({ role: "user", parts: toolResultParts });
         }
 
         sendEvent({ type: "done" });
         controller.close();
       } catch (err) {
-        console.error("[chat] error en stream:", err instanceof Error ? err.message : "unknown");
+        const msg = err instanceof Error ? err.message : JSON.stringify(err);
+        console.error("[chat] error en stream:", msg);
         sendError("Error procesando la consulta");
       }
     },

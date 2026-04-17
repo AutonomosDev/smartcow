@@ -159,10 +159,10 @@ export function ChatSidebarV2({
           active={pathname === "/dashboard"}
         />
         <NavItem
-          href="/chat-v2"
+          href="/chat"
           icon={MessageSquare}
           label="Nuevo Chat"
-          active={pathname === "/chat-v2"}
+          active={pathname === "/chat"}
         />
 
         <NavItem href="#" icon={Clock} label="Historial" onClick={onHistoryClick} />
