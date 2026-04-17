@@ -1,14 +1,22 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ChatBaseScreen, { ChatConfig } from './ChatBaseScreen';
 import { mapToolResultToArtifact } from '../../components/generative/artifact-mapper';
-import { API_BASE_URL } from '../../lib/config';
-import { getStoredToken } from '../../lib/auth';
+import { API_BASE_URL, DEFAULT_PREDIO_ID } from '../../lib/config';
+import { getStoredToken, getStoredUser } from '../../lib/auth';
 
 export default function SmartCowChatScreen() {
   const [messages, setMessages] = useState<ChatConfig['messages']>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [predioId, setPredioId] = useState<number>(DEFAULT_PREDIO_ID);
 
-  // Mantiene ID de conversacion (mocked por ahora)
+  useEffect(() => {
+    getStoredUser().then((user) => {
+      if (user?.predios?.length) {
+        setPredioId(user.predios[0]);
+      }
+    });
+  }, []);
+
   const conversationId = useRef<number | null>(null);
 
   const handleSend = async (text: string) => {
@@ -127,7 +135,7 @@ export default function SmartCowChatScreen() {
           role: m.from === 'ai' ? 'assistant' : 'user',
           content: m.text,
         })),
-        predio_id: 1, // Predio mockeado
+        predio_id: predioId,
         reasoning_mode: false,
       }));
 
