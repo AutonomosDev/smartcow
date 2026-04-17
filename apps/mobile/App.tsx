@@ -86,7 +86,8 @@ import ReasignacionCorralScreen from './src/screens/operations/ReasignacionCorra
 import ConteoCorralScreen from './src/screens/operations/ConteoCorralScreen';
 import EstadoCorralesScreen from './src/screens/operations/EstadoCorralesScreen';
 import TomaMuestrasScreen from './src/screens/operations/TomaMuestrasScreen';
-import SmartCowChatScreen from './src/screens/intelligence/SmartCowChatScreen';
+import SmartCowChatScreen from './src/screens/management/SmartCowChatScreen';
+import SmartCowChatScreenV2 from './src/screens/intelligence/SmartCowChatScreen';
 import VetBrainChatScreen from './src/screens/intelligence/VetBrainChatScreen';
 import AgroBrainChatScreen from './src/screens/intelligence/AgroBrainChatScreen';
 import OwnBrainChatScreen from './src/screens/intelligence/OwnBrainChatScreen';
@@ -169,6 +170,7 @@ export type RootStackParamList = {
   EstadoCorrales: undefined;
   TomaMuestras: undefined;
   SmartCowChat: undefined;
+  SmartCowChatV2: undefined;
   VetBrainChat: undefined;
   AgroBrainChat: undefined;
   OwnBrainChat: undefined;
@@ -283,6 +285,7 @@ function AppNavigator({ initialRoute }: { initialRoute: keyof RootStackParamList
       <AppStack.Screen name="EstadoCorrales" component={EstadoCorralesScreen} />
       <AppStack.Screen name="TomaMuestras" component={TomaMuestrasScreen} />
       <AppStack.Screen name="SmartCowChat" component={SmartCowChatScreen} />
+      <AppStack.Screen name="SmartCowChatV2" component={SmartCowChatScreenV2} />
       <AppStack.Screen name="VetBrainChat" component={VetBrainChatScreen} />
       <AppStack.Screen name="AgroBrainChat" component={AgroBrainChatScreen} />
       <AppStack.Screen name="OwnBrainChat" component={OwnBrainChatScreen} />
