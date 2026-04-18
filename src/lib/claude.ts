@@ -27,8 +27,13 @@ import {
   tipoGanado,
   razas,
   estadoReproductivo,
+  inseminaciones,
+  semen,
+  tratamientos,
+  traslados,
+  ventas,
 } from "@/src/db/schema/index";
-import { eq, and, gte, lte, desc } from "drizzle-orm";
+import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 import type { SmartCowSession } from "./auth";
 import type { PredioKpis } from "@/src/lib/queries/predio";
 
@@ -164,6 +169,63 @@ export const CATTLE_TOOLS: FunctionDeclaration[] = [
     },
   },
   {
+    name: "query_toros",
+    description:
+      "Analiza el rendimiento de toros usados en inseminación artificial. Retorna ranking por número de inseminaciones, tasa de concepción, crías vendidas y peso promedio de venta. Permite comparar toros o filtrar por nombre.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        predio_id: { type: Type.NUMBER, description: "ID del predio (obligatorio)" },
+        toro_nombre: { type: Type.STRING, description: "Nombre del toro para filtrar (opcional — si se omite, retorna ranking de todos los toros)" },
+        rango_fechas: {
+          type: Type.OBJECT,
+          description: "Rango de fechas para las inseminaciones (opcional)",
+          properties: {
+            inicio: { type: Type.STRING, description: "Fecha inicio YYYY-MM-DD" },
+            fin: { type: Type.STRING, description: "Fecha fin YYYY-MM-DD" },
+          },
+        },
+        limite: { type: Type.NUMBER, description: "Máximo de toros en el ranking (default 20)" },
+      },
+      required: ["predio_id"],
+    },
+  },
+  {
+    name: "query_historial_animal",
+    description:
+      "Retorna el historial completo de un animal: inseminaciones (con toro), tratamientos (con medicamentos, hora y diagnóstico), traslados entre fundos, y genealogía (padre, abuelo, madre). Usar cuando el usuario pregunta por un animal específico.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        predio_id: { type: Type.NUMBER, description: "ID del predio (obligatorio)" },
+        diio: { type: Type.STRING, description: "DIIO del animal (número de arete visual)" },
+        animal_id: { type: Type.NUMBER, description: "ID interno del animal (alternativo al DIIO)" },
+      },
+      required: ["predio_id"],
+    },
+  },
+  {
+    name: "query_feedlot",
+    description:
+      "Calcula métricas de feedlot: días en engorde por animal (desde traslado de entrada hasta venta), ganancia diaria de peso (ADG) y ranking de animales por rendimiento. Usar para preguntas sobre eficiencia de engorde.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        predio_id: { type: Type.NUMBER, description: "ID del predio (obligatorio)" },
+        rango_fechas: {
+          type: Type.OBJECT,
+          description: "Rango de fechas de ventas (opcional)",
+          properties: {
+            inicio: { type: Type.STRING, description: "Fecha inicio YYYY-MM-DD" },
+            fin: { type: Type.STRING, description: "Fecha fin YYYY-MM-DD" },
+          },
+        },
+        limite: { type: Type.NUMBER, description: "Máximo de animales en el ranking (default 50)" },
+      },
+      required: ["predio_id"],
+    },
+  },
+  {
     name: "registrar_parto",
     description:
       "Registra un nuevo parto para una madre identificada por su EID. Requiere rol operador o superior.",
@@ -224,6 +286,27 @@ export async function ejecutarTool(
 
     case "query_indices_reproductivos":
       return queryIndicesReproductivos(predioId);
+
+    case "query_toros":
+      return queryToros(predioId, {
+        toro_nombre: toolInput["toro_nombre"] as string | undefined,
+        fecha_inicio: (toolInput["rango_fechas"] as Record<string, string> | undefined)?.inicio,
+        fecha_fin: (toolInput["rango_fechas"] as Record<string, string> | undefined)?.fin,
+        limite: toolInput["limite"] as number | undefined,
+      });
+
+    case "query_historial_animal":
+      return queryHistorialAnimal(predioId, {
+        diio: toolInput["diio"] as string | undefined,
+        animal_id: toolInput["animal_id"] as number | undefined,
+      });
+
+    case "query_feedlot":
+      return queryFeedlot(predioId, {
+        fecha_inicio: (toolInput["rango_fechas"] as Record<string, string> | undefined)?.inicio,
+        fecha_fin: (toolInput["rango_fechas"] as Record<string, string> | undefined)?.fin,
+        limite: toolInput["limite"] as number | undefined,
+      });
 
     case "registrar_pesaje": {
       if (rolRank < 1) {
@@ -489,6 +572,303 @@ async function registrarParto(predioId: number, datos: DatosRegistrarParto, usua
   };
 }
 
+interface FiltrosToros {
+  toro_nombre?: string;
+  fecha_inicio?: string;
+  fecha_fin?: string;
+  limite?: number;
+}
+
+interface FiltrosHistorial {
+  diio?: string;
+  animal_id?: number;
+}
+
+interface FiltrosFeedlot {
+  fecha_inicio?: string;
+  fecha_fin?: string;
+  limite?: number;
+}
+
+async function queryToros(predioId: number, filtros: FiltrosToros) {
+  const limite = Math.min(filtros.limite ?? 20, 100);
+
+  const condiciones = [
+    eq(inseminaciones.predioId, predioId),
+    filtros.fecha_inicio ? gte(inseminaciones.fecha, filtros.fecha_inicio) : undefined,
+    filtros.fecha_fin ? lte(inseminaciones.fecha, filtros.fecha_fin) : undefined,
+  ].filter(Boolean) as Parameters<typeof and>;
+
+  const rows = await db
+    .select({
+      toro: semen.toro,
+      total_inseminaciones: sql<number>`count(*)::int`,
+      preñadas: sql<number>`count(*) filter (where ${inseminaciones.resultado} = 'preñada')::int`,
+      vacias: sql<number>`count(*) filter (where ${inseminaciones.resultado} = 'vacia')::int`,
+      pendientes: sql<number>`count(*) filter (where ${inseminaciones.resultado} = 'pendiente')::int`,
+    })
+    .from(inseminaciones)
+    .innerJoin(semen, eq(inseminaciones.semenId, semen.id))
+    .where(
+      and(
+        ...condiciones,
+        filtros.toro_nombre ? sql`lower(${semen.toro}) like ${'%' + filtros.toro_nombre.toLowerCase() + '%'}` : undefined
+      )
+    )
+    .groupBy(semen.toro)
+    .orderBy(desc(sql`count(*)`))
+    .limit(limite);
+
+  // Calcular tasa de concepción
+  const toros = rows.map((r) => ({
+    toro: r.toro,
+    total_inseminaciones: r.total_inseminaciones,
+    preñadas: r.preñadas,
+    vacias: r.vacias,
+    pendientes: r.pendientes,
+    tasa_concepcion_pct:
+      r.total_inseminaciones - r.pendientes > 0
+        ? Math.round((r.preñadas / (r.total_inseminaciones - r.pendientes)) * 100)
+        : null,
+  }));
+
+  // Crías vendidas por toro: inseminación → parto → venta
+  const ventasPorToro = await db
+    .select({
+      toro: semen.toro,
+      crias_vendidas: sql<number>`count(distinct ${ventas.animalId})::int`,
+      peso_promedio_kg: sql<number>`round(avg(${ventas.pesoKg})::numeric, 1)`,
+    })
+    .from(inseminaciones)
+    .innerJoin(semen, eq(inseminaciones.semenId, semen.id))
+    .innerJoin(partos, and(eq(partos.madreId, inseminaciones.animalId), eq(partos.predioId, predioId)))
+    .innerJoin(ventas, and(eq(ventas.animalId, partos.criaId!), eq(ventas.predioId, predioId)))
+    .where(eq(inseminaciones.predioId, predioId))
+    .groupBy(semen.toro);
+
+  const ventasMap = new Map(ventasPorToro.map((v) => [v.toro, v]));
+
+  const resultado = toros.map((t) => ({
+    ...t,
+    crias_vendidas: ventasMap.get(t.toro)?.crias_vendidas ?? 0,
+    peso_promedio_venta_kg: ventasMap.get(t.toro)?.peso_promedio_kg ?? null,
+  }));
+
+  return { total_toros: resultado.length, toros: resultado };
+}
+
+async function queryHistorialAnimal(predioId: number, filtros: FiltrosHistorial) {
+  if (!filtros.diio && !filtros.animal_id) {
+    return { error: "Se requiere diio o animal_id" };
+  }
+
+  const animalRow = await db
+    .select({
+      id: animales.id,
+      diio: animales.diio,
+      eid: animales.eid,
+      padre: animales.padre,
+      abuelo: animales.abuelo,
+      diioMadre: animales.diioMadre,
+      fechaNacimiento: animales.fechaNacimiento,
+      estado: animales.estado,
+    })
+    .from(animales)
+    .where(
+      and(
+        eq(animales.predioId, predioId),
+        filtros.diio ? eq(animales.diio, filtros.diio) : eq(animales.id, filtros.animal_id!)
+      )
+    )
+    .limit(1);
+
+  if (!animalRow[0]) {
+    return { error: "Animal no encontrado en este predio" };
+  }
+
+  const animal = animalRow[0];
+
+  const [insems, tratos, traslAdos] = await Promise.all([
+    db
+      .select({
+        fecha: inseminaciones.fecha,
+        toro: semen.toro,
+        resultado: inseminaciones.resultado,
+        observaciones: inseminaciones.observaciones,
+      })
+      .from(inseminaciones)
+      .leftJoin(semen, eq(inseminaciones.semenId, semen.id))
+      .where(eq(inseminaciones.animalId, animal.id))
+      .orderBy(desc(inseminaciones.fecha)),
+
+    db
+      .select({
+        fecha: tratamientos.fecha,
+        hora: tratamientos.horaRegistro,
+        diagnostico: tratamientos.diagnostico,
+        observaciones: tratamientos.observaciones,
+        medicamentos: tratamientos.medicamentos,
+      })
+      .from(tratamientos)
+      .where(eq(tratamientos.animalId, animal.id))
+      .orderBy(desc(tratamientos.fecha)),
+
+    db
+      .select({
+        fecha: traslados.fecha,
+        fundoOrigen: traslados.fundoOrigenNombre,
+        fundoDestino: traslados.fundoDestinoNombre,
+        observacion: traslados.observacion,
+      })
+      .from(traslados)
+      .where(eq(traslados.animalId, animal.id))
+      .orderBy(desc(traslados.fecha)),
+  ]);
+
+  return {
+    animal: {
+      id: animal.id,
+      diio: animal.diio,
+      eid: animal.eid,
+      fecha_nacimiento: animal.fechaNacimiento,
+      estado: animal.estado,
+      genealogia: {
+        padre: animal.padre,
+        abuelo: animal.abuelo,
+        diio_madre: animal.diioMadre,
+      },
+    },
+    inseminaciones: insems,
+    tratamientos: tratos,
+    traslados: traslAdos,
+  };
+}
+
+async function queryFeedlot(predioId: number, filtros: FiltrosFeedlot) {
+  const limite = Math.min(filtros.limite ?? 50, 200);
+
+  // Animales vendidos desde este predio en el rango de fechas
+  const ventasConds = [
+    eq(ventas.predioId, predioId),
+    filtros.fecha_inicio ? gte(ventas.fecha, filtros.fecha_inicio) : undefined,
+    filtros.fecha_fin ? lte(ventas.fecha, filtros.fecha_fin) : undefined,
+  ].filter(Boolean) as Parameters<typeof and>;
+
+  const ventasRows = await db
+    .select({
+      animalId: ventas.animalId,
+      fechaVenta: ventas.fecha,
+      pesoVentaKg: ventas.pesoKg,
+      destino: ventas.destino,
+      diio: animales.diio,
+    })
+    .from(ventas)
+    .innerJoin(animales, eq(ventas.animalId, animales.id))
+    .where(and(...ventasConds))
+    .orderBy(desc(ventas.fecha))
+    .limit(limite);
+
+  if (!ventasRows.length) {
+    return { total: 0, animales: [], mensaje: "Sin ventas en el período indicado" };
+  }
+
+  const animalIds = ventasRows.map((v) => v.animalId);
+
+  // Traslado de entrada al feedlot (primer traslado con predio_destino = predioId)
+  const trasladosEntrada = await db
+    .select({
+      animalId: traslados.animalId,
+      fechaEntrada: sql<string>`min(${traslados.fecha})`,
+    })
+    .from(traslados)
+    .where(
+      and(
+        eq(traslados.predioDestinoId, predioId),
+        sql`${traslados.animalId} = any(${sql.raw(`ARRAY[${animalIds.join(",")}]`)})`
+      )
+    )
+    .groupBy(traslados.animalId);
+
+  const entradaMap = new Map(trasladosEntrada.map((t) => [t.animalId, t.fechaEntrada]));
+
+  // Peso de entrada: pesaje más cercano a la fecha de traslado
+  const pesajesEntrada = await db
+    .select({
+      animalId: pesajes.animalId,
+      pesoKg: pesajes.pesoKg,
+      fecha: pesajes.fecha,
+    })
+    .from(pesajes)
+    .where(
+      and(
+        eq(pesajes.predioId, predioId),
+        sql`${pesajes.animalId} = any(${sql.raw(`ARRAY[${animalIds.join(",")}]`)})`
+      )
+    )
+    .orderBy(pesajes.animalId, pesajes.fecha);
+
+  const pesoEntradaMap = new Map<number, { pesoKg: string; fecha: string }>();
+  for (const p of pesajesEntrada) {
+    const entrada = entradaMap.get(p.animalId);
+    if (!entrada) continue;
+    const existing = pesoEntradaMap.get(p.animalId);
+    if (!existing || Math.abs(new Date(p.fecha).getTime() - new Date(entrada).getTime()) <
+        Math.abs(new Date(existing.fecha).getTime() - new Date(entrada).getTime())) {
+      pesoEntradaMap.set(p.animalId, { pesoKg: p.pesoKg, fecha: p.fecha });
+    }
+  }
+
+  const resultado = ventasRows.map((v) => {
+    const fechaEntrada = entradaMap.get(v.animalId);
+    const pesoEntrada = pesoEntradaMap.get(v.animalId);
+    const diasFeedlot =
+      fechaEntrada && v.fechaVenta
+        ? Math.round(
+            (new Date(v.fechaVenta).getTime() - new Date(fechaEntrada).getTime()) /
+              (1000 * 60 * 60 * 24)
+          )
+        : null;
+    const adg =
+      diasFeedlot && diasFeedlot > 0 && pesoEntrada && v.pesoVentaKg
+        ? Math.round(
+            ((Number(v.pesoVentaKg) - Number(pesoEntrada.pesoKg)) / diasFeedlot) * 1000
+          ) / 1000
+        : null;
+
+    return {
+      diio: v.diio,
+      animal_id: v.animalId,
+      fecha_venta: v.fechaVenta,
+      fecha_entrada_feedlot: fechaEntrada ?? null,
+      dias_feedlot: diasFeedlot,
+      peso_entrada_kg: pesoEntrada ? Number(pesoEntrada.pesoKg) : null,
+      peso_venta_kg: v.pesoVentaKg ? Number(v.pesoVentaKg) : null,
+      adg_kg_dia: adg,
+      destino: v.destino,
+    };
+  });
+
+  const conAdg = resultado.filter((r) => r.adg_kg_dia !== null);
+  const adgPromedio =
+    conAdg.length > 0
+      ? Math.round((conAdg.reduce((s, r) => s + r.adg_kg_dia!, 0) / conAdg.length) * 1000) / 1000
+      : null;
+  const diasPromedio =
+    conAdg.length > 0
+      ? Math.round(conAdg.reduce((s, r) => s + (r.dias_feedlot ?? 0), 0) / conAdg.length)
+      : null;
+
+  return {
+    total: resultado.length,
+    resumen: {
+      adg_promedio_kg_dia: adgPromedio,
+      dias_feedlot_promedio: diasPromedio,
+      animales_con_datos_completos: conAdg.length,
+    },
+    animales: resultado,
+  };
+}
+
 // ─────────────────────────────────────────────
 // CLIENTE + SYSTEM PROMPT
 // ─────────────────────────────────────────────
@@ -532,7 +912,7 @@ Contexto del usuario:
 ${kpisText}
 
 INSTRUCCIÓN: Para totales generales usa los datos de arriba directamente.
-Usa tools solo para: historial filtrado, animales específicos, o registrar datos.
+Usa tools para: historial filtrado, animales específicos, análisis de toros, feedlot, o registrar datos.
 
 Reglas de comportamiento:
 1. Solo puedes consultar datos del predio ${predioId}. Nunca accedas a datos de otros predios.
@@ -541,7 +921,13 @@ Reglas de comportamiento:
 4. No inventes datos. Si no encuentras información, dilo claramente.
 5. Para consultas de animales, usa los filtros disponibles para acotar resultados.
 6. Los pesos van en kilogramos. Las fechas en formato YYYY-MM-DD.
-7. DIIO = identificador visual del arete. EID = tag electrónico RFID.`;
+7. DIIO = identificador visual del arete. EID = tag electrónico RFID.
+
+Guía de tools:
+- query_toros: preguntas sobre toros, IA, tasa de concepción, qué toro produce más peso
+- query_historial_animal: historial de un animal (inseminaciones, tratamientos, traslados, genealogía)
+- query_feedlot: días en engorde, ADG, eficiencia de feedlot
+- query_indices_reproductivos: resumen global del predio (preñez, partos, estados)`;
 }
 
 /**
