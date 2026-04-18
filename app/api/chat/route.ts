@@ -1,8 +1,11 @@
 /**
- * app/api/chat/route.ts — Endpoint SSE para chat ganadero con OpenRouter/Gemma 4.
+ * app/api/chat/route.ts — Endpoint SSE del chat ganadero.
  * Ticket: AUT-176
- * Migrado: Google AI SDK → OpenRouter (OpenAI-compatible SDK)
- * Modelo: google/gemma-4-31b-it via OpenRouter
+ *
+ * Cliente: OpenAI SDK apuntando a OpenRouter.
+ * Modelo: google/gemma-4-31b-it (PROHIBIDO cambiar sin aprobación de César — AUT-176).
+ * Tools declaradas en src/lib/claude.ts (formato Google AI SDK),
+ * convertidas a formato OpenAI function calling por toOpenAITools().
  *
  * POST /api/chat
  * Body: { messages: {role, content}[], predio_id: number, reasoning_mode?: boolean }
