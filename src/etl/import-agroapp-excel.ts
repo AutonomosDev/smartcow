@@ -23,9 +23,10 @@ import {
   inseminaciones,
   semen,
 } from "../db/schema";
+import { tipoGanado, razas, inseminadores } from "../db/schema/catalogos";
 import { eq, sql } from "drizzle-orm";
 
-type Tipo = "tratamientos" | "partos" | "ventas" | "ganado" | "traslados" | "inseminaciones" | "pesajes";
+type Tipo = "tratamientos" | "partos" | "ventas" | "ganado" | "bajas" | "traslados" | "inseminaciones" | "pesajes";
 
 const LOG_EVERY = 1000;
 
@@ -321,12 +322,230 @@ async function importPesajes(filePath: string) {
   console.log(`Inserted: ${ok} | Sin animal: ${noAnimal} | Errores: ${errors}`);
 }
 
+async function importGanado(filePath: string) {
+  const rows = await loadSheet(filePath);
+  console.log(`Rows en Excel: ${rows.length.toLocaleString()}`);
+  const predioMap = await getPredioMap();
+
+  // Cargar catálogos en memoria
+  const tgRows = await db.select({ id: tipoGanado.id, nombre: tipoGanado.nombre }).from(tipoGanado);
+  const tgMap = new Map(tgRows.map(r => [r.nombre.toLowerCase().trim(), r.id]));
+
+  const rzRows = await db.select({ id: razas.id, nombre: razas.nombre }).from(razas);
+  const rzMap = new Map(rzRows.map(r => [r.nombre.toLowerCase().trim(), r.id]));
+
+  // DIIO existentes para upsert
+  const existingRows = await db.select({ diio: animales.diio, predioId: animales.predioId }).from(animales);
+  const existingSet = new Set(existingRows.map(r => `${r.predioId}:${r.diio}`));
+
+  const SEXO_MAP: Record<string, "M" | "H"> = {
+    novillo: "M", ternero: "M", toro: "M",
+    vaca: "H", vaquilla: "H", ternera: "H",
+  };
+
+  let ok = 0, skipped = 0, errors = 0;
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const diio = String(r["Diio"] ?? "").replace(/\.0$/, "").trim();
+    if (!diio) { errors++; continue; }
+
+    const fundoNombre = cleanStr(r["Fundo"]);
+    if (!fundoNombre) { errors++; continue; }
+    const predioId = await ensurePredio(predioMap, fundoNombre);
+    if (!predioId) { errors++; continue; }
+
+    const tipoNombre = cleanStr(r["Tipo ganado"])?.toLowerCase() ?? "";
+    const tgId = tgMap.get(tipoNombre);
+    if (!tgId) { errors++; if (errors <= 5) console.error(`  ERR tipoGanado="${tipoNombre}" diio=${diio}`); continue; }
+
+    const sexo: "M" | "H" = SEXO_MAP[tipoNombre] ?? "M";
+    const razaNombre = cleanStr(r["Raza"])?.toLowerCase() ?? "";
+    const razaId = rzMap.get(razaNombre) ?? null;
+    const fechaNac = toDateStr(r["Fecha nacimiento"]);
+
+    const key = `${predioId}:${diio}`;
+    if (existingSet.has(key)) {
+      // Upsert — actualizar genealogía si está vacía
+      await db.update(animales)
+        .set({
+          padre: cleanStr(r["Padre"], 200) ?? undefined,
+          abuelo: cleanStr(r["Abuelo"], 200) ?? undefined,
+          diioMadre: cleanStr(r["Diio Madre"], 50) ?? undefined,
+          origen: cleanStr(r["Origen"], 200) ?? undefined,
+          fechaNacimiento: fechaNac ?? undefined,
+          razaId: razaId ?? undefined,
+          actualizadoEn: new Date(),
+        })
+        .where(eq(animales.diio, diio));
+      skipped++;
+    } else {
+      try {
+        await db.insert(animales).values({
+          predioId,
+          diio,
+          tipoGanadoId: tgId,
+          sexo,
+          fechaNacimiento: fechaNac,
+          razaId,
+          estado: "activo",
+          padre: cleanStr(r["Padre"], 200),
+          abuelo: cleanStr(r["Abuelo"], 200),
+          diioMadre: cleanStr(r["Diio Madre"], 50),
+          origen: cleanStr(r["Origen"], 200),
+          observaciones: cleanStr(r["Observaciones"], 500),
+        }).onConflictDoNothing();
+        existingSet.add(key);
+        ok++;
+      } catch (err) {
+        errors++;
+        if (errors <= 5) console.error(`  ERR diio=${diio}:`, (err as Error).message);
+      }
+    }
+
+    if ((i + 1) % LOG_EVERY === 0) {
+      console.log(`  ${i + 1}/${rows.length} | new:${ok} updated:${skipped} err:${errors}`);
+    }
+  }
+
+  console.log(`\n=== GANADO DONE ===`);
+  console.log(`Insertados: ${ok} | Actualizados: ${skipped} | Errores: ${errors}`);
+}
+
+async function importBajas(filePath: string) {
+  const rows = await loadSheet(filePath);
+  console.log(`Rows en Excel: ${rows.length.toLocaleString()}`);
+  const predioMap = await getPredioMap();
+  const animalMap = await getAnimalMap();
+
+  const tgRows = await db.select({ id: tipoGanado.id, nombre: tipoGanado.nombre }).from(tipoGanado);
+  const tgMap = new Map(tgRows.map(r => [r.nombre.toLowerCase().trim(), r.id]));
+
+  const rzRows = await db.select({ id: razas.id, nombre: razas.nombre }).from(razas);
+  const rzMap = new Map(rzRows.map(r => [r.nombre.toLowerCase().trim(), r.id]));
+
+  const SEXO_MAP: Record<string, "M" | "H"> = {
+    novillo: "M", ternero: "M", toro: "M",
+    vaca: "H", vaquilla: "H", ternera: "H",
+  };
+
+  let ok = 0, created = 0, noAnimal = 0, errors = 0;
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const diio = String(r["Diio"] ?? "").replace(/\.0$/, "").trim();
+    const fundoNombre = cleanStr(r["Fundo"]);
+    if (!diio || !fundoNombre) { errors++; continue; }
+
+    const predioId = await ensurePredio(predioMap, fundoNombre);
+    if (!predioId) { errors++; continue; }
+
+    let animal = animalMap.get(diio);
+    if (!animal) {
+      // El animal fue dado de baja — lo creamos en estado "baja"
+      const tipoNombre = cleanStr(r["Tipo ganado"])?.toLowerCase() ?? "";
+      const tgId = tgMap.get(tipoNombre);
+      if (!tgId) { noAnimal++; continue; }
+      const sexo: "M" | "H" = SEXO_MAP[tipoNombre] ?? "M";
+      const rzId = rzMap.get(cleanStr(r["Raza"])?.toLowerCase() ?? "") ?? null;
+      try {
+        const ins = await db.insert(animales).values({
+          predioId,
+          diio,
+          tipoGanadoId: tgId,
+          sexo,
+          razaId: rzId,
+          fechaNacimiento: toDateStr(r["Fecha nacimiento"]),
+          estado: "baja",
+        }).returning({ id: animales.id, predioId: animales.predioId });
+        if (ins[0]) {
+          animalMap.set(diio, { id: ins[0].id, predioId: ins[0].predioId });
+          animal = { id: ins[0].id, predioId: ins[0].predioId };
+          created++;
+        }
+      } catch { noAnimal++; continue; }
+    } else {
+      // Marcar como baja si no lo está
+      await db.update(animales).set({ estado: "baja" }).where(eq(animales.diio, diio));
+    }
+
+    ok++;
+    if ((i + 1) % LOG_EVERY === 0) {
+      console.log(`  ${i + 1}/${rows.length} | ok:${ok} creados:${created} sinAnimal:${noAnimal} err:${errors}`);
+    }
+  }
+
+  console.log(`\n=== BAJAS DONE ===`);
+  console.log(`Procesados: ${ok} | Animales creados: ${created} | Sin animal: ${noAnimal} | Errores: ${errors}`);
+}
+
+async function importInseminaciones(filePath: string) {
+  const rows = await loadSheet(filePath);
+  console.log(`Rows en Excel: ${rows.length.toLocaleString()}`);
+  const predioMap = await getPredioMap();
+  const animalMap = await getAnimalMap();
+
+  // Cargar toros (semen) en memoria
+  const semenRows = await db.select({ id: semen.id, toro: semen.toro }).from(semen);
+  const semenMap = new Map(semenRows.map(r => [r.toro?.toLowerCase().trim() ?? "", r.id]));
+
+  // Cargar inseminadores
+  const insRows = await db.select({ id: inseminadores.id, nombre: inseminadores.nombre }).from(inseminadores);
+  const insMap = new Map(insRows.map(r => [r.nombre.toLowerCase().trim(), r.id]));
+
+  let ok = 0, noAnimal = 0, errors = 0;
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const diio = String(r["Diio"] ?? "").replace(/\.0$/, "").trim();
+    const fundoNombre = cleanStr(r["Fundo"]);
+    const fecha = toDateStr(r["Fecha inseminación"]);
+    if (!diio || !fecha) { errors++; continue; }
+
+    const animal = animalMap.get(diio);
+    if (!animal) { noAnimal++; continue; }
+
+    const predioId = fundoNombre
+      ? (await ensurePredio(predioMap, fundoNombre)) ?? animal.predioId
+      : animal.predioId;
+
+    const toroNombre = cleanStr(r["Toro"])?.toLowerCase() ?? "";
+    const semenId = semenMap.get(toroNombre) ?? null;
+
+    const insNombre = cleanStr(r["Inseminador"])?.toLowerCase() ?? "";
+    const insId = insMap.get(insNombre) ?? null;
+
+    try {
+      await db.insert(inseminaciones).values({
+        predioId,
+        animalId: animal.id,
+        fecha,
+        semenId,
+        inseminadorId: insId,
+        resultado: "pendiente",
+        observaciones: cleanStr(r["Observaciones"], 500),
+      }).onConflictDoNothing();
+      ok++;
+    } catch (err) {
+      errors++;
+      if (errors <= 5) console.error(`  ERR diio=${diio}:`, (err as Error).message);
+    }
+
+    if ((i + 1) % LOG_EVERY === 0) {
+      console.log(`  ${i + 1}/${rows.length} | ok:${ok} noAnimal:${noAnimal} err:${errors}`);
+    }
+  }
+
+  console.log(`\n=== INSEMINACIONES DONE ===`);
+  console.log(`Insertadas: ${ok} | Sin animal: ${noAnimal} | Errores: ${errors}`);
+}
+
 async function main() {
   const tipo = process.argv[2] as Tipo;
   const filePath = process.argv[3];
   if (!tipo || !filePath) {
     console.error("Uso: npx tsx src/etl/import-agroapp-excel.ts <tipo> <archivo.xlsx>");
-    console.error("Tipos: tratamientos, partos, ventas, ganado, traslados, inseminaciones");
+    console.error("Tipos: tratamientos, partos, ventas, ganado, bajas, inseminaciones, pesajes");
     process.exit(1);
   }
 
@@ -346,17 +565,23 @@ async function main() {
       await importPesajes(filePath);
       break;
     case "ganado":
-    case "traslados":
+      await importGanado(filePath);
+      break;
+    case "bajas":
+      await importBajas(filePath);
+      break;
     case "inseminaciones":
-      console.error(`TODO: importer para "${tipo}" — no implementado aún`);
+      await importInseminaciones(filePath);
+      break;
+    case "traslados":
+      console.error(`Traslados son agregados por lote (sin DIIO) — no importar en tabla traslados`);
       process.exit(1);
     default:
       console.error(`Tipo desconocido: ${tipo}`);
       process.exit(1);
   }
 
-  // Silencia unused warnings
-  void sql; void semen; void ventas; void traslados; void inseminaciones; void eq;
+  void sql; void ventas; void traslados; void eq;
 
   process.exit(0);
 }
