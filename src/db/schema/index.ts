@@ -21,6 +21,9 @@ export * from "./areteos";
 export * from "./bajas";
 export * from "./potreros";
 export * from "./movimientos_potrero";
+export * from "./ventas";
+export * from "./tratamientos";
+export * from "./traslados";
 
 // Chat
 export * from "./conversaciones";
