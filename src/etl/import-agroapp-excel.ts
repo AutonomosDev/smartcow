@@ -26,13 +26,14 @@ import {
 import { tipoGanado, razas, inseminadores } from "../db/schema/catalogos";
 import { eq, sql } from "drizzle-orm";
 
-type Tipo = "tratamientos" | "partos" | "ventas" | "ganado" | "bajas" | "traslados" | "inseminaciones" | "pesajes";
+type Tipo = "tratamientos" | "partos" | "ventas" | "ganado" | "bajas" | "traslados" | "inseminaciones" | "pesajes" | "stubs";
 
 const LOG_EVERY = 1000;
 
 function toDateStr(v: unknown): string | null {
   if (!v) return null;
   if (v instanceof Date) {
+    if (isNaN(v.getTime())) return null;
     if (v.getFullYear() < 2000 || v.getFullYear() > 2100) return null;
     return v.toISOString().slice(0, 10);
   }
@@ -540,6 +541,68 @@ async function importInseminaciones(filePath: string) {
   console.log(`Insertadas: ${ok} | Sin animal: ${noAnimal} | Errores: ${errors}`);
 }
 
+/**
+ * importStubsFromTratamientos — Crea registros mínimos en `animales` para DIIOs
+ * que aparecen en el Excel de tratamientos pero no existen en la DB.
+ * Esto recupera los ~12k animales vendidos (no en GanadoActual ni Bajas).
+ * Usa tipo_ganado_id=1 (Novillo) como default conservador, estado=activo.
+ */
+async function importStubsFromTratamientos(filePath: string) {
+  const rows = await loadSheet(filePath);
+  console.log(`Rows en Excel: ${rows.length.toLocaleString()}`);
+  const predioMap = await getPredioMap();
+
+  // Cargar DIIOs existentes
+  const existingRows = await db.select({ diio: animales.diio }).from(animales);
+  const existingDiios = new Set(existingRows.map(r => r.diio));
+  console.log(`DIIOs ya en DB: ${existingDiios.size.toLocaleString()}`);
+
+  // Extraer DIIOs únicos con su fundo del Excel
+  const diioFundo = new Map<string, string>(); // diio → fundo
+  for (const r of rows) {
+    const diio = String(r["Diio"] ?? "").replace(/\.0$/, "").trim();
+    const fundo = cleanStr(r["Fundo"]);
+    if (diio && fundo && !existingDiios.has(diio)) {
+      diioFundo.set(diio, fundo);
+    }
+  }
+  console.log(`DIIOs faltantes a crear: ${diioFundo.size.toLocaleString()}`);
+
+  // Tipo_ganado_id default = 1 (Novillo) — más común en context feedlot/mediería
+  const DEFAULT_TIPO_GANADO_ID = 1;
+
+  let ok = 0, errors = 0;
+  let i = 0;
+  for (const [diio, fundoNombre] of diioFundo) {
+    i++;
+    const predioId = await ensurePredio(predioMap, fundoNombre);
+    if (!predioId) { errors++; continue; }
+
+    try {
+      await db.insert(animales).values({
+        predioId,
+        diio,
+        tipoGanadoId: DEFAULT_TIPO_GANADO_ID,
+        sexo: "M",
+        estado: "activo",
+        observaciones: "stub — creado desde tratamientos sin animal",
+      }).onConflictDoNothing();
+      existingDiios.add(diio);
+      ok++;
+    } catch (err) {
+      errors++;
+      if (errors <= 5) console.error(`  ERR diio=${diio}:`, (err as Error).message);
+    }
+
+    if (i % LOG_EVERY === 0) {
+      console.log(`  ${i}/${diioFundo.size} | created:${ok} err:${errors}`);
+    }
+  }
+
+  console.log(`\n=== STUBS DONE ===`);
+  console.log(`Creados: ${ok} | Errores: ${errors}`);
+}
+
 async function main() {
   const tipo = process.argv[2] as Tipo;
   const filePath = process.argv[3];
@@ -576,6 +639,9 @@ async function main() {
     case "traslados":
       console.error(`Traslados son agregados por lote (sin DIIO) — no importar en tabla traslados`);
       process.exit(1);
+    case "stubs":
+      await importStubsFromTratamientos(filePath);
+      break;
     default:
       console.error(`Tipo desconocido: ${tipo}`);
       process.exit(1);
