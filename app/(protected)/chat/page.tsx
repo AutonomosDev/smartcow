@@ -5,7 +5,7 @@
 import { auth } from "@/src/lib/auth";
 import { redirect } from "next/navigation";
 import { getNombrePredio } from "@/src/lib/queries/predio";
-import { ChatPageClient } from "../chat-v2/chat-page-client";
+import { ChatPageClient } from "./chat-page-client";
 
 export const metadata = {
   title: "Chat IA — smartCow",
