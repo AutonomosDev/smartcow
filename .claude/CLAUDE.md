@@ -8,31 +8,10 @@
 
 - Next.js 16 (App Router), React 19, TypeScript strict
 - PostgreSQL + **Drizzle ORM** (`drizzle-orm` + `drizzle-kit`) — NO raw queries
-- **Firebase Auth** (session cookie `__session`, NO NextAuth) — `src/lib/firebase/`
-- OpenRouter API (modelo `google/gemma-4-31b-it`) — chat ganadero
+- **NextAuth v5** (JWT strategy, cookie `__session`, 8h) — `auth.config.ts`
+- OpenRouter API (modelo `google/gemma-4-31b-it`) — chat ganadero SSE
 - TailwindCSS v4, Radix UI, Recharts, Framer Motion
 - Firebase App Hosting (Cloud Run Gen1, us-central1) — deploy via CI push a `main`
-
-```
-app/                    — App Router (layout, login, (protected)/*)
-src/
-  agroapp/             — Integración API externa AgroApp (JP Ferrada)
-  components/          — UI components
-  db/
-    schema/index.ts    — 18 tablas Drizzle exportadas
-    migrations/        — Drizzle Kit migrations
-    client.ts          — db singleton
-  etl/                 — Pipelines de importación datos
-  lib/
-    auth.config.ts     — NextAuth config (Edge-safe, sin bcrypt/pg)
-    auth.ts            — NextAuth completo (Node runtime) + DEV mock
-    claude.ts          — Tools ganaderos + ejecutarTool() (nombre heredado, usa OpenRouter)
-    mobile-jwt.ts      — JWT para endpoints REST mobile
-    modules.ts         — Feature flags de módulos por org
-    queries/           — Drizzle queries reutilizables
-    with-auth.ts       — withAuth() + withAuthBearer() guards
-bin/smartcow           — CLI helper
-```
 
 ## WHY — Reglas no deducibles del código
 
@@ -44,17 +23,17 @@ bin/smartcow           — CLI helper
 - Migraciones: `npm run db:migrate` (drizzle-kit) — NO modificar SQL a mano
 - Push solo en dev: `npm run db:push` — en prod siempre migrate
 
-**Auth — Firebase session cookie (NO NextAuth)**
-- `src/lib/firebase/client.ts` → Firebase Client SDK (browser) — `signInWithEmailAndPassword` / `signInWithPopup`
-- `src/lib/firebase/admin.ts` → Firebase Admin SDK (server) — `applicationDefault()` en Cloud Run
-- `app/api/auth/session/route.ts` → POST: recibe idToken → verifyIdToken → loadUserByFirebaseUid → createSessionCookie
-- Cookie: `__session` HttpOnly, 8h, path=/
-- `src/lib/auth.ts` → `auth()`: en dev retorna DEV_SESSION. En prod: verifySessionCookie → loadUserByFirebaseUid
+**Auth — NextAuth v5 (migrado desde Firebase, AUT-215)**
+- `auth.config.ts` → NextAuth config: CredentialsProvider (bcryptjs) + GoogleProvider (OAuth)
+- JWT strategy, cookie `__session` HttpOnly 8h (mismo nombre que Firebase para compat con middleware)
+- `src/lib/auth.ts` → `auth()` wrapper: en dev retorna DEV_SESSION, en prod usa NextAuth session
+- `src/lib/with-auth.ts` → `withAuth()` para server actions, `withAuthBearer()` para mobile REST
+- `src/lib/mobile-jwt.ts` → JWT HS256 firmado con AUTH_SECRET para app Expo
 - DEV_SESSION hardcodeado: orgId=1, predios=[11,7,9,8,10,6,5], rol=admin_org
+- `src/lib/firebase/` ya no existe — Firebase Auth eliminado
 
 **Auth — DEV BYPASS ACTIVO**
 - `NODE_ENV === 'development'` → `auth()` retorna `DEV_SESSION` sin verificar cookie
-- REVERTIR antes de deploy a staging/prod
 
 **Auth — roles y withAuth()**
 - Toda server action que toque datos DEBE usar `withAuth()`
@@ -91,7 +70,9 @@ bin/smartcow           — CLI helper
 
 **Env vars**
 - `DATABASE_URL` → IP directa: `postgresql://postgres:PASS@34.176.238.2:5432/smartcow`
-- `OPENROUTER_API_KEY` → OpenRouter (modelo gemma-4-31b-it)
+- `NEXTAUTH_SECRET` / `AUTH_SECRET` → Secreto JWT para NextAuth + mobile tokens
+- `GOOGLE_API_KEY` → Google AI SDK (Gemini, para tool declarations en claude.ts)
+- `OPENROUTER_API_KEY` → OpenRouter (modelo gemma-4-31b-it, chat principal)
 - `NEXT_PUBLIC_FIREBASE_PROJECT_ID` → `smartcow-c22fb`
 - `GCP_PROJECT_ID` → `smartcow-c22fb`
 - Ver `apphosting.yaml` para estado completo de vars en prod
