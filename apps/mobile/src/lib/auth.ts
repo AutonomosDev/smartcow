@@ -49,9 +49,38 @@ export async function signIn(
   return user;
 }
 
-// Token no expirable por refresh — re-login requerido tras 8h
+/**
+ * Refresca el token actual silenciosamente via POST /api/mobile/auth/refresh.
+ * El servidor acepta el token aunque lleve hasta 1h expirado.
+ * Si el refresh tiene éxito guarda el nuevo token y lo retorna.
+ * Si falla retorna null (el llamador debe hacer sign-out).
+ */
 export async function refreshIdToken(): Promise<string | null> {
-  return null;
+  const currentToken = await getStoredToken();
+  if (!currentToken) return null;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/mobile/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: currentToken }),
+    });
+
+    if (!res.ok) return null;
+
+    const data = (await res.json()) as { token?: string; user?: SmartCowUser };
+    if (!data.token) return null;
+
+    const saveOps: Promise<void>[] = [AsyncStorage.setItem(TOKEN_KEY, data.token)];
+    if (data.user) {
+      saveOps.push(AsyncStorage.setItem(USER_KEY, JSON.stringify(data.user)));
+    }
+    await Promise.all(saveOps);
+
+    return data.token;
+  } catch {
+    return null;
+  }
 }
 
 export async function getStoredToken(): Promise<string | null> {
