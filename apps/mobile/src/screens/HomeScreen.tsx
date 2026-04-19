@@ -50,22 +50,22 @@ export default function HomeScreen() {
 
       {/* Input flotante — glassmorphism */}
       <BlurView
-        intensity={28}
-        tint="dark"
-        style={[s.bar, { bottom: insets.bottom + 24 }]}
+        intensity={55}
+        tint="default"
+        style={[s.bar, { bottom: insets.bottom + 56 }]}
       >
         <TextInput
           style={s.input}
           placeholder="Escribe a SmartCow..."
-          placeholderTextColor="rgba(255,255,255,0.5)"
+          placeholderTextColor="rgba(0,0,0,0.32)"
           value={inputText}
           onChangeText={setInputText}
           onFocus={() => { if (!inputText) goToChat(); }}
           returnKeyType="send"
           onSubmitEditing={handleSend}
         />
-        <TouchableOpacity style={s.sendBtn} onPress={handleSend} activeOpacity={0.85}>
-          <ArrowRight size={16} color="#fff" />
+        <TouchableOpacity onPress={handleSend} activeOpacity={0.7} style={{ padding: 6 }}>
+          <ArrowRight size={18} color="rgba(0,0,0,0.5)" />
         </TouchableOpacity>
       </BlurView>
     </View>
@@ -96,16 +96,9 @@ const s = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: '#fff',
+    color: 'rgba(0,0,0,0.82)',
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
     paddingVertical: 2,
-  },
-  sendBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    borderWidth: 0.5,
-    borderColor: 'rgba(255,255,255,0.35)',
-    justifyContent: 'center', alignItems: 'center',
   },
 });
