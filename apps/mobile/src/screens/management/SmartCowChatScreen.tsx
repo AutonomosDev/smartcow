@@ -77,7 +77,7 @@ export default function SmartCowChatScreen() {
             setMessages((prev) => {
               const copy = [...prev];
               const idx = copy.findIndex((m) => m.id === aiMsgId);
-              if (idx !== -1) copy[idx] = { ...copy[idx], text: 'Error al consultar SmartCow.', isTyping: false };
+              if (idx !== -1) copy[idx] = { ...copy[idx], text: 'Error al consultar smartCow.', isTyping: false };
               return copy;
             });
           }
@@ -112,9 +112,9 @@ export default function SmartCowChatScreen() {
 
   const config: ChatConfig = {
     avatarSource: require('../../../assets/cow_robot.png'),
-    name: 'SmartCow AI',
+    name: 'smartCow AI',
     subtitle: 'Fundo San Pedro · en línea',
-    placeholder: isLoading ? 'Conectando...' : 'Preguntá algo a SmartCow…',
+    placeholder: isLoading ? 'Conectando...' : 'Preguntá algo a smartCow…',
     dateSep: 'Hoy',
     slashChips: ['/feedlot', '/FT', '/vaquillas', '/partos', '/tratamientos', '/ventas'],
     messages,

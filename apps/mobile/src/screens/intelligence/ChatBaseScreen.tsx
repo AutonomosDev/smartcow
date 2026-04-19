@@ -332,7 +332,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
                   <Text style={s.dsPillBold}>{fundo}</Text>
                 </Text>
                 <Text style={s.dsPillArrow}>→</Text>
-                <Text style={s.dsPillSrc}>AgroApp</Text>
+                <Text style={s.dsPillSrc}>smartCow</Text>
               </View>
 
               {/* Slash chips — solo cuando hay mensajes */}
@@ -449,7 +449,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
               >
                 <CwModalOpt color="red"   icon={<FileText  size={16} color="#c23030" />} t1="Guardar como PDF"           t2={saving === 'pdf'     ? 'Generando PDF…'       : 'Se descarga local al equipo'}           working={saving === 'pdf'}     onPress={() => startSave('pdf')} />
                 <CwModalOpt color="green" icon={<MessageCircle size={16} color="#1e3a2f" />} t1="Enviar por WhatsApp a JP" t2={saving === 'wa'      ? 'Enviando…'            : '+56 9 5432 1876 · contacto frecuente'}  working={saving === 'wa'}      onPress={() => startSave('wa')} />
-                <CwModalOpt color="blue"  icon={<Cloud     size={16} color="#1a5276" />} t1="Guardar en Google Drive"      t2={saving === 'drive'   ? 'Subiendo…'            : 'smartCow / Informes / Fundo San Pedro'} working={saving === 'drive'}   onPress={() => startSave('drive')} />
+                <CwModalOpt color="blue"  icon={<Cloud     size={16} color="#1a5276" />} t1="Guardar en Google Drive"      t2={saving === 'drive'   ? 'Subiendo…'            : 'smartCow / Informes / Fundo San Pedro' } working={saving === 'drive'}   onPress={() => startSave('drive')} />
                 <CwModalOpt color="amber" icon={<Mail      size={16} color="#9b5e1a" />} t1="Enviar por email"             t2={saving === 'email'   ? 'Enviando…'            : 'jp@agropecuaria.cl'}                    working={saving === 'email'}   onPress={() => startSave('email')} />
                 <CwModalOpt              icon={<Zap       size={16} color="#1a5276" />} t1="Guardar como routine"         t2={saving === 'routine' ? 'Creando routine…'     : 'Re-ejecutable con /routine pesajes'}    working={saving === 'routine'} onPress={() => startSave('routine')} />
                 <CwModalFoot saving={!!saving} label="listo para exportar" />
