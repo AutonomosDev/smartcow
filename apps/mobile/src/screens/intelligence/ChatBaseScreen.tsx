@@ -572,7 +572,7 @@ const s = StyleSheet.create({
     flex: 1, alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 32, paddingTop: 60, paddingBottom: 40,
   },
-  emptyImg:   { width: 120, height: 120, marginBottom: 18 },
+  emptyImg:   { width: 200, height: 200, marginBottom: 18 },
   emptyTitle: { fontFamily: F.bold, fontSize: 18, color: C.ink1, letterSpacing: -0.3, textAlign: 'center', marginBottom: 6 },
   emptySub:   { fontFamily: F.regular, fontSize: 13, color: C.ink3, textAlign: 'center', marginBottom: 24, lineHeight: 19 },
   emptyChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
