@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import {
   Search, Menu, Paperclip, Mic, ArrowRight, ChevronLeft,
   Database, Copy, RefreshCcw, Bookmark, Share2, MoreHorizontal,
-  MessageCircle, Save,
+  MessageCircle, Save, SquarePen,
 } from 'lucide-react-native';
 import { GenerativeArtifact, ArtifactRenderer } from '../../components/generative/ArtifactRenderer';
 
@@ -116,7 +116,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
 // ── ChatBaseScreen ────────────────────────────────────────────────────────────
 
 export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
-  useNavigation<any>();
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const [inputText, setInputText] = useState('');
@@ -201,6 +201,13 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
             </View>
             <TouchableOpacity style={s.icBtn} activeOpacity={0.7}>
               <Search size={16} color={C.ink2} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.icBtn, s.icBtnNew]}
+              activeOpacity={0.7}
+              onPress={() => navigation.goBack()}
+            >
+              <SquarePen size={16} color={C.green} />
             </TouchableOpacity>
             <TouchableOpacity style={s.icBtn} activeOpacity={0.7}>
               <Menu size={16} color={C.ink2} />
@@ -397,6 +404,7 @@ const s = StyleSheet.create({
   hdrName:      { fontFamily: F.bold, fontSize: 14, color: C.ink1, lineHeight: 17 },
   hdrMeta:      { fontFamily: F.mono, fontSize: 10.5, color: C.ink3, marginTop: 2 },
   icBtn:        { width: 30, height: 30, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+  icBtnNew:     { backgroundColor: C.note, borderWidth: 0.5, borderColor: C.noteBd },
 
   // Messages — .chat-body
   msgs:    { flex: 1, backgroundColor: C.bg },
