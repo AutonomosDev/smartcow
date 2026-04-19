@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
   KeyboardAvoidingView, Platform, SafeAreaView, Animated, PanResponder,
-  Dimensions, Image,
+  Dimensions, Image, Modal,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -693,22 +693,20 @@ function CwModal({ title, sub, onClose, children }: {
   title: string; sub: string; onClose: () => void; children: React.ReactNode;
 }) {
   return (
-    <TouchableOpacity
-      style={s.modalOverlay}
-      activeOpacity={1}
-      onPress={onClose}
-    >
-      <TouchableOpacity activeOpacity={1} style={s.modalCard} onPress={() => {}}>
-        <View style={s.modalHead}>
-          <Text style={s.modalTitle}>{title}</Text>
-          <TouchableOpacity style={s.modalClose} onPress={onClose} activeOpacity={0.7}>
-            <XIcon size={15} color={C.ink3} />
-          </TouchableOpacity>
-        </View>
-        <Text style={s.modalSub}>{sub}</Text>
-        <View style={s.modalBody}>{children}</View>
+    <Modal transparent animationType="fade" visible onRequestClose={onClose}>
+      <TouchableOpacity style={s.modalOverlay} activeOpacity={1} onPress={onClose}>
+        <TouchableOpacity activeOpacity={1} style={s.modalCard} onPress={() => {}}>
+          <View style={s.modalHead}>
+            <Text style={s.modalTitle}>{title}</Text>
+            <TouchableOpacity style={s.modalClose} onPress={onClose} activeOpacity={0.7}>
+              <XIcon size={15} color={C.ink3} />
+            </TouchableOpacity>
+          </View>
+          <Text style={s.modalSub}>{sub}</Text>
+          <View style={s.modalBody}>{children}</View>
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
+    </Modal>
   );
 }
 
