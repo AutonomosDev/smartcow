@@ -257,6 +257,19 @@ export async function POST(req: NextRequest) {
 
           // Sin tool calls → respuesta final
           if (toolCalls.length === 0) {
+            // Parsear bloques ```artifact\n{...}\n``` del texto acumulado
+            const artifactRe = /```artifact\s*\n([\s\S]*?)\n```/g;
+            let match: RegExpExecArray | null;
+            while ((match = artifactRe.exec(accumulatedText)) !== null) {
+              try {
+                const parsed = JSON.parse(match[1].trim());
+                if (parsed && typeof parsed === "object" && parsed.type) {
+                  sendEvent({ type: "artifact_block", artifact: parsed });
+                }
+              } catch {
+                // JSON malformado — ignorar silenciosamente
+              }
+            }
             sendEvent({ type: "done" });
             controller.close();
             return;

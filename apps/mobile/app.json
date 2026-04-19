@@ -2,6 +2,7 @@
   "expo": {
     "name": "SmartCow",
     "slug": "smartcow",
+    "scheme": "smartcow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

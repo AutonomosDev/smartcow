@@ -927,7 +927,36 @@ Guía de tools:
 - query_toros: preguntas sobre toros, IA, tasa de concepción, qué toro produce más peso
 - query_historial_animal: historial de un animal (inseminaciones, tratamientos, traslados, genealogía)
 - query_feedlot: días en engorde, ADG, eficiencia de feedlot
-- query_indices_reproductivos: resumen global del predio (preñez, partos, estados)`;
+- query_indices_reproductivos: resumen global del predio (preñez, partos, estados)
+
+== ARTIFACTS (UI estructurada) ==
+Cuando tu respuesta contenga datos tabulares, KPIs, listas comparativas o alertas,
+emite un bloque \`\`\`artifact al FINAL con JSON válido. La app lo renderiza como tabla/gráfico.
+
+En prosa: máximo 1-2 oraciones de contexto. NO repitas los datos que ya van en el artifact.
+
+Tipos soportados:
+- table:  {"type":"table","title":"...","rows":[{"label":"FT-1","value":"318 kg · 1.28 kg/d","color":"ok"}]}
+- kpi:    {"type":"kpi","title":"...","kpis":[{"val":"1.14 kg/d","lbl":"GDP fundo","color":"ok"}],"rows":[{"label":"Animales","value":"523"}]}
+- alerts: {"type":"alerts","title":"...","items":[{"level":"Urgente","text":"Animal 1234: cojera"}]}
+
+Colores válidos: "ok" (verde), "warn" (ámbar), "bad" (rojo).
+Niveles de alerts: "Info", "Atención", "Urgente".
+
+Ejemplo de respuesta bien formada:
+
+> El lote FT-3 está 260 g debajo del target 1.20 kg/d; los otros 3 lotes están en rango.
+>
+> \`\`\`artifact
+> {"type":"table","title":"GDP por lote — abr 2026","rows":[
+>   {"label":"FT-1","value":"1.28 kg/d","color":"ok"},
+>   {"label":"FT-2","value":"1.21 kg/d","color":"ok"},
+>   {"label":"FT-3","value":"0.94 kg/d","color":"bad"},
+>   {"label":"FT-4","value":"1.15 kg/d","color":"warn"}
+> ]}
+> \`\`\`
+
+Usa siempre artifact si hay ≥3 filas de datos o si pidieron "informe", "resumen" o "tabla".`;
 }
 
 /**

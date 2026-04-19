@@ -14,7 +14,6 @@ import {
   FileText, Cloud, Mail, Zap, Code2, Link2, Table2, Type,
 } from 'lucide-react-native';
 import { GenerativeArtifact, ArtifactRenderer } from '../../components/generative/ArtifactRenderer';
-import InformeMock from '../../components/chat/InformeMock';
 import { useAuth } from '../../context/AuthContext';
 
 const { width: SW } = Dimensions.get('window');
@@ -127,7 +126,8 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
   const [inputText, setInputText] = useState('');
   const [reportContent, setReportContent] = useState<string | null>(null);
   const [reportTitle, setReportTitle] = useState('Informe');
-  const [reportMock, setReportMock] = useState(false);
+  const [reportArtifacts, setReportArtifacts] = useState<GenerativeArtifact[]>([]);
+  const [reportSummary, setReportSummary] = useState('');
   const [saveOpen, setSaveOpen] = useState(false);
   const [copyOpen, setCopyOpen] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
@@ -142,20 +142,17 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
   const reportX = useRef(new Animated.Value(SW)).current;
   const chatX   = useRef(new Animated.Value(0)).current;
 
-  const openReport = (content: string, title = 'Informe') => {
-    setReportMock(false);
-    setReportContent(content);
-    setReportTitle(title);
-    Animated.parallel([
-      Animated.timing(reportX, { toValue: 0,          duration: 320, useNativeDriver: true }),
-      Animated.timing(chatX,   { toValue: -SW * 0.18, duration: 320, useNativeDriver: true }),
-    ]).start();
-  };
+  const openReport = (msg: Message) => {
+    const firstLine = (msg.text || '').split('\n').find((l) => l.trim()) ?? '';
+    const title = firstLine.replace(/^#+\s*/, '').trim().slice(0, 60) || 'Informe';
+    const arts = msg.artifacts ?? [];
+    // Summary = primera oración del texto (sin los datos que ya van en el artifact)
+    const summary = (msg.text || '').split(/[.\n]/)[0].trim();
 
-  const openMock = () => {
-    setReportContent('');
-    setReportTitle('Informe pesajes vaquillas FT');
-    setReportMock(true);
+    setReportTitle(title);
+    setReportArtifacts(arts);
+    setReportSummary(summary);
+    setReportContent(arts.length > 0 ? null : msg.text); // fallback markdown si no hay artifacts
     Animated.parallel([
       Animated.timing(reportX, { toValue: 0,          duration: 320, useNativeDriver: true }),
       Animated.timing(chatX,   { toValue: -SW * 0.18, duration: 320, useNativeDriver: true }),
@@ -168,7 +165,11 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
     Animated.parallel([
       Animated.timing(reportX, { toValue: SW, duration: 280, useNativeDriver: true }),
       Animated.timing(chatX,   { toValue: 0,  duration: 280, useNativeDriver: true }),
-    ]).start(() => { setReportContent(null); setReportMock(false); });
+    ]).start(() => {
+      setReportContent(null);
+      setReportArtifacts([]);
+      setReportSummary('');
+    });
   };
 
   const startSave = (key: string) => {
@@ -286,7 +287,6 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
                   style={s.icBtn}
                   activeOpacity={0.7}
                   hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
-                  onPress={openMock}
                 >
                   <Menu size={16} color={C.ink2} />
                 </TouchableOpacity>
@@ -354,13 +354,10 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
                       <ArtifactRenderer key={i} artifact={art} />
                     ))}
 
-                    {m.text.length > 300 && (
+                    {((m.artifacts?.length ?? 0) > 0 || m.text.length > 300) && (
                       <TouchableOpacity
                         style={s.reportBtn}
-                        onPress={() => {
-                          const title = m.text.split('\n')[0].replace(/^#+\s*/, '').trim() || 'Informe';
-                          openReport(m.text, title);
-                        }}
+                        onPress={() => openReport(m)}
                         activeOpacity={0.85}
                       >
                         <Text style={s.reportBtnTxt}>Ver informe completo</Text>
@@ -511,7 +508,20 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
               contentContainerStyle={s.rptBodyPad}
               showsVerticalScrollIndicator={false}
             >
-              {reportMock ? <InformeMock /> : renderMarkdown(reportContent)}
+              {reportArtifacts.length > 0 ? (
+                <View>
+                  {reportSummary ? (
+                    <Text style={s.rptSummary}>{reportSummary}</Text>
+                  ) : null}
+                  {reportArtifacts.map((art, i) => (
+                    <View key={i} style={{ marginBottom: 16 }}>
+                      <ArtifactRenderer artifact={art} />
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                renderMarkdown(reportContent)
+              )}
             </ScrollView>
 
             <TouchableOpacity
@@ -709,6 +719,7 @@ const s = StyleSheet.create({
   rptCommentTxt: { fontFamily: F.regular, fontSize: 11.5, color: C.ink2 },
   rptBody:       { flex: 1, backgroundColor: C.rptBg },
   rptBodyPad:    { padding: 18, paddingBottom: 120 },
+  rptSummary:    { fontFamily: F.regular, fontSize: 14, lineHeight: 21, color: C.blueFg, marginBottom: 16 },
 
   // Modal overlay
   modalOverlay: {
