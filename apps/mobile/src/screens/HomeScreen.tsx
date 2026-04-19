@@ -1,31 +1,32 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  View, Text, StyleSheet, ImageBackground, TouchableOpacity,
-  PanResponder, TextInput, ScrollView, Image,
+  View, Text, StyleSheet, TouchableOpacity, TextInput,
+  ScrollView, Image, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
-import { ArrowRight, Paperclip, Mic } from 'lucide-react-native';
+import { Search, SquarePen, Menu, Paperclip, Mic, ArrowRight, Database } from 'lucide-react-native';
 
-import { Hero } from '../components/Hero';
 import { useAuth } from '../context/AuthContext';
 import { api, PredioKpis } from '../lib/api';
 
-// ── Design tokens (same as ChatBaseScreen) ────────────────────────────────────
+// ── Tokens exactos del spec ────────────────────────────────────────────────────
 const C = {
-  bg:     '#fff',
+  bg:     '#f8f6f1',
+  card:   '#ffffff',
   fog:    '#f0ede8',
   cream:  '#ebe9e3',
   ink1:   '#1a1a1a',
-  ink2:   '#666',
-  ink3:   '#999',
-  ink4:   '#bbb',
+  ink2:   '#888',
+  ink3:   '#bbb',
+  ink4:   '#f0ede8',
   blue:   '#eaf0f7',
   blueFg: '#1a5276',
   green:  '#1e3a2f',
+  leaf:   '#7ecfa0',
   note:   '#fafaf7',
   noteBd: '#e8e5dd',
 };
@@ -45,8 +46,12 @@ type NavProp = NativeStackNavigationProp<any>;
 export default function HomeScreen() {
   const { predioId, user } = useAuth();
   const navigation = useNavigation<NavProp>();
+  const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
   const [kpis, setKpis] = useState<PredioKpis | null>(null);
   const [inputText, setInputText] = useState('');
+
+  const firstName = (user?.nombre ?? 'JP').split(' ')[0];
 
   useEffect(() => {
     api.get<PredioKpis>(`/api/predio/${predioId}/kpis`)
@@ -54,283 +59,281 @@ export default function HomeScreen() {
       .catch(() => {});
   }, [predioId]);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gs) => Math.abs(gs.dx) > 20,
-      onPanResponderRelease: (_, gs) => {
-        if (gs.dx < -50) navigation.navigate('SmartCowChat');
-      },
-    })
-  ).current;
-
-  const goToChat = (chip?: string) => {
-    navigation.navigate('SmartCowChat', chip ? { initialText: chip + ' ' } : undefined);
+  const goToChat = (text?: string) => {
+    navigation.navigate('SmartCowChat', text ? { initialText: text } : undefined);
   };
 
   const handleSend = () => {
-    if (!inputText.trim()) { goToChat(); return; }
-    navigation.navigate('SmartCowChat', { initialText: inputText.trim() });
+    const t = inputText.trim();
+    goToChat(t || undefined);
     setInputText('');
   };
 
-  const weatherStrip = [
-    { day: 'Hoy', icon: '🌧', temp: '6°', isToday: true },
-    { day: 'Sáb', icon: '🌦', temp: '8°' },
-    { day: 'Dom', icon: '⛅', temp: '11°' },
-    { day: 'Lun', icon: '☀️', temp: '13°' },
-    { day: 'Mar', icon: '☀️', temp: '14°' },
-    { day: 'Mié', icon: '🌦', temp: '9°' },
-  ];
+  const handleChip = (chip: string) => {
+    goToChat(chip + ' ');
+  };
+
+  const totalAnimales = kpis?.totalAnimales ?? 242;
 
   return (
-    <View style={s.container} {...panResponder.panHandlers}>
-      <StatusBar style="light" />
-      <ImageBackground
-        source={require('../../../../public/1.jpg')}
-        style={s.bg}
-        imageStyle={{ objectFit: 'cover' }}
-      >
-        <LinearGradient
-          colors={['rgba(5,18,10,0.72)', 'transparent']}
-          style={s.ovTop}
-          start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}
-        />
-        <LinearGradient
-          colors={['transparent', 'rgba(5,18,10,0.82)', 'rgba(5,18,10,0.96)']}
-          locations={[0, 0.45, 1]}
-          style={s.ovBot}
-          start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}
-        />
+    <View style={s.root}>
+      <StatusBar style="dark" />
+      <SafeAreaView style={s.safe} edges={['top']}>
 
-        <SafeAreaView style={s.content} edges={['top', 'bottom']}>
-          <Hero userName={user?.nombre} />
+        {/* ── Header ── */}
+        <View style={[s.hdr, { paddingTop: insets.top + 4 }]}>
+          <Image
+            source={require('../../../../public/cow_robot.png')}
+            style={s.avatar}
+          />
+          <View style={s.hdrText}>
+            <Text style={s.hdrName}>SmartCow AI</Text>
+            <Text style={s.hdrMeta}>Fundo San Pedro · en línea</Text>
+          </View>
+          <TouchableOpacity style={s.icBtn} activeOpacity={0.7}>
+            <Search size={16} color={C.ink2} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[s.icBtn, s.icBtnNew]}
+            activeOpacity={0.7}
+            onPress={() => goToChat()}
+          >
+            <SquarePen size={16} color={C.green} />
+          </TouchableOpacity>
+          <TouchableOpacity style={s.icBtn} activeOpacity={0.7}>
+            <Menu size={16} color={C.ink2} />
+          </TouchableOpacity>
+        </View>
 
-          <View style={s.spacer} />
+        {/* ── Messages ── */}
+        <ScrollView
+          ref={scrollRef}
+          style={s.body}
+          contentContainerStyle={s.bodyPad}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={s.dateSep}>Hoy · Resumen matutino</Text>
 
-          <View style={s.bottom}>
+          {/* AI greeting */}
+          <View style={s.aBlock}>
+            <Text style={s.aProse}>
+              Buenos días {firstName}. Aquí el resumen del fundo:
+            </Text>
 
-            {/* Weather Card */}
-            <View style={[s.card, s.blurCard]}>
-              <View style={s.wTop}>
-                <View>
-                  <Text style={s.temp}>6<Text style={s.tempSup}>°C</Text></Text>
-                  <Text style={s.wDesc}>Lluvia leve · Fundo San Pedro</Text>
-                </View>
-                <View style={s.wRight}>
-                  <Text style={s.wPredio}>Los Lagos</Text>
-                  <Text style={s.wStatus}>Drone no vuela hoy</Text>
-                </View>
+            {/* KPI artifact */}
+            <View style={s.artifact}>
+              <View style={s.artHdr}>
+                <Text style={s.artTitle}>📊 Indicadores — Fundo San Pedro</Text>
               </View>
-              <View style={s.wStrip}>
-                {weatherStrip.map((w, idx) => (
-                  <View key={idx} style={s.wday}>
-                    <Text style={s.wdN}>{w.day}</Text>
-                    <Text style={s.wdI}>{w.icon}</Text>
-                    <Text style={[s.wdT, w.isToday && s.wdTHoy]}>{w.temp}</Text>
-                    {w.isToday && <View style={s.wdDot} />}
-                  </View>
-                ))}
+              <View style={s.artBody}>
+                <View style={s.artRow}>
+                  <Text style={s.artLbl}>Animales activos</Text>
+                  <Text style={[s.artVal, { color: C.green }]}>{totalAnimales}</Text>
+                </View>
+                <View style={s.artDivider} />
+                <View style={s.artRow}>
+                  <Text style={s.artLbl}>Dólar</Text>
+                  <Text style={s.artVal}>$938 <Text style={s.artSub}>+$4 vs ayer</Text></Text>
+                </View>
+                <View style={s.artDivider} />
+                <View style={s.artRow}>
+                  <Text style={s.artLbl}>UF</Text>
+                  <Text style={s.artVal}>$38.420</Text>
+                </View>
+                <View style={s.artDivider} />
+                <View style={s.artRow}>
+                  <Text style={s.artLbl}>Clima · Los Lagos</Text>
+                  <Text style={s.artVal}>🌧 6°C · lluvia leve</Text>
+                </View>
               </View>
             </View>
 
-            {/* Data Row */}
-            <View style={s.dataRow}>
-              <View style={[s.dc, s.blurCard]}>
-                <Text style={s.dcL}>DÓLAR</Text>
-                <Text style={s.dcV}>$938</Text>
-                <Text style={s.dcS}>+$4 vs ayer</Text>
+            {/* Alert artifact */}
+            <View style={[s.artifact, s.alertArt]}>
+              <View style={[s.artHdr, s.alertHdr]}>
+                <Text style={[s.artTitle, { color: '#c0392b' }]}>🚨 Alerta urgente</Text>
               </View>
-              <View style={[s.dc, s.blurCard]}>
-                <Text style={s.dcL}>UF</Text>
-                <Text style={s.dcV}>$38.420</Text>
-                <Text style={s.dcS}>Actualizada</Text>
-              </View>
-              <View style={[s.dc, s.blurCard]}>
-                <Text style={s.dcL}>ANIMALES</Text>
-                <Text style={[s.dcV, s.ok]}>{kpis?.totalAnimales || 242}</Text>
-                <Text style={s.dcS}>Activos</Text>
-              </View>
-            </View>
-
-            {/* Alert */}
-            <View style={s.alert}>
-              <View style={s.aDot} />
-              <Text style={s.aTxt}>Bebedero Corral 3 vacío · 38 animales sin agua 13 hrs</Text>
-              <Text style={s.aArr}>›</Text>
-            </View>
-
-            {/* ── Chat Card ── */}
-            <View style={s.chatCard}>
-
-              {/* Header */}
-              <View style={s.chatHdr}>
-                <Image
-                  source={require('../../../../public/cow_robot.png')}
-                  style={s.chatAvatar}
-                />
-                <View style={s.chatHdrText}>
-                  <Text style={s.chatName}>SmartCow AI</Text>
-                  <Text style={s.chatMeta}>Fundo San Pedro · 3 alertas</Text>
+              <View style={s.artBody}>
+                <View style={s.alertRow}>
+                  <View style={s.alertDot} />
+                  <Text style={s.alertTxt}>
+                    Bebedero Corral 3 vacío · 38 animales sin agua 13 hrs
+                  </Text>
                 </View>
-                <View style={s.onlineDot} />
               </View>
+            </View>
 
-              {/* Divider */}
-              <View style={s.chatDivider} />
+            <Text style={[s.aProse, { marginTop: 6 }]}>
+              ¿Qué quieres revisar primero?
+            </Text>
+          </View>
+        </ScrollView>
 
-              {/* Slash chips */}
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={s.chipScroll}
-                contentContainerStyle={s.chipRow}
-              >
-                {CHIPS.map((chip) => (
-                  <TouchableOpacity
-                    key={chip}
-                    style={s.chip}
-                    onPress={() => goToChat(chip)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={s.chipTxt}>{chip}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+        {/* ── Composer ── */}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={insets.top}
+        >
+          <View style={[s.comp, { paddingBottom: Math.max(insets.bottom + 6, 44) }]}>
 
-              {/* Input row */}
-              <View style={s.inputRow}>
-                <TouchableOpacity style={s.inputIc} activeOpacity={0.7}>
-                  <Paperclip size={14} color={C.ink1} />
-                </TouchableOpacity>
-                <TextInput
-                  style={s.inputTxt}
-                  placeholder="Escribe a SmartCow..."
-                  placeholderTextColor={C.ink4}
-                  value={inputText}
-                  onChangeText={setInputText}
-                  onFocus={() => { if (!inputText) goToChat(); }}
-                  returnKeyType="send"
-                  onSubmitEditing={handleSend}
-                />
-                <TouchableOpacity style={s.inputIc} activeOpacity={0.7}>
-                  <Mic size={14} color={C.ink1} />
-                </TouchableOpacity>
+            {/* Data-source pill */}
+            <View style={s.dsPill}>
+              <Database size={12} color={C.ink2} />
+              <Text style={s.dsPillTxt}>
+                <Text style={s.dsPillBold}>Fundo San Pedro</Text>
+              </Text>
+              <Text style={s.dsPillArr}>→</Text>
+              <Text style={s.dsPillSrc}>AgroApp</Text>
+            </View>
+
+            {/* Slash chips */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={s.chipScroll}
+              contentContainerStyle={s.chipRow}
+            >
+              {CHIPS.map((chip) => (
                 <TouchableOpacity
-                  style={[s.inputIc, s.sendBtn]}
-                  onPress={handleSend}
-                  activeOpacity={0.85}
+                  key={chip}
+                  style={s.chip}
+                  onPress={() => handleChip(chip)}
+                  activeOpacity={0.7}
                 >
-                  <ArrowRight size={14} color="#fff" />
+                  <Text style={s.chipTxt}>{chip}</Text>
                 </TouchableOpacity>
-              </View>
+              ))}
+            </ScrollView>
 
-            </View>
-
-            {/* Dots */}
-            <View style={s.dots}>
-              <View style={[s.dot, s.dotOn]} />
-              <View style={s.dot} />
+            {/* Input row */}
+            <View style={s.inputBox}>
+              <TouchableOpacity style={s.inputIc} activeOpacity={0.7}>
+                <Paperclip size={14} color={C.ink1} />
+              </TouchableOpacity>
+              <TextInput
+                style={s.inputTxt}
+                placeholder="Escribe a SmartCow..."
+                placeholderTextColor={C.ink3}
+                value={inputText}
+                onChangeText={setInputText}
+                onFocus={() => { if (!inputText) goToChat(); }}
+                multiline
+                returnKeyType="default"
+              />
+              <TouchableOpacity style={s.inputIc} activeOpacity={0.7}>
+                <Mic size={14} color={C.ink1} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[s.inputIc, s.sendBtn]}
+                onPress={handleSend}
+                activeOpacity={0.85}
+              >
+                <ArrowRight size={14} color="#fff" />
+              </TouchableOpacity>
             </View>
 
           </View>
-        </SafeAreaView>
-      </ImageBackground>
+        </KeyboardAvoidingView>
+
+      </SafeAreaView>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  bg:        { flex: 1, width: '100%', height: '100%' },
-  ovTop:     { position: 'absolute', top: 0, left: 0, right: 0, height: 180 },
-  ovBot:     { position: 'absolute', bottom: 0, left: 0, right: 0, height: 460 },
-  content:   { flex: 1, flexDirection: 'column' },
-  spacer:    { flex: 1 },
-  bottom:    { paddingHorizontal: 16, paddingBottom: 24, gap: 12 },
+  root: { flex: 1, backgroundColor: C.bg },
+  safe: { flex: 1 },
 
-  // Dark glassmorphism cards (weather / kpis / alert)
-  card:     { paddingVertical: 20, paddingHorizontal: 18 },
-  blurCard: {
-    backgroundColor: 'rgba(5,22,12,0.65)',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', borderRadius: 24,
-  },
-
-  wTop:   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  temp:   { fontSize: 44, fontFamily: F.bold, color: '#fff', letterSpacing: -1 },
-  tempSup:{ fontSize: 16, fontFamily: F.regular, color: 'rgba(255,255,255,0.5)' },
-  wDesc:  { fontSize: 12, color: 'rgba(255,255,255,0.5)', fontFamily: F.regular, marginTop: 4 },
-  wRight: { alignItems: 'flex-end' },
-  wPredio:{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: F.regular, marginBottom: 4 },
-  wStatus:{ fontSize: 12, fontFamily: F.medium, color: '#7ecfa0' },
-
-  wStrip: { flexDirection: 'row', gap: 5, justifyContent: 'space-between', marginTop: 8 },
-  wday:   { flex: 1, alignItems: 'center', gap: 4 },
-  wdN:    { fontSize: 9, color: 'rgba(255,255,255,0.35)', fontFamily: F.medium },
-  wdI:    { fontSize: 16, lineHeight: 20 },
-  wdT:    { fontSize: 12, fontFamily: F.bold, color: 'rgba(255,255,255,0.7)' },
-  wdTHoy: { color: '#fff', fontSize: 13 },
-  wdDot:  { width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#7ecfa0', marginTop: 2 },
-
-  dataRow: { flexDirection: 'row', gap: 10 },
-  dc: {
-    flex: 1, paddingVertical: 14, paddingHorizontal: 11,
-    borderRadius: 16, borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)', backgroundColor: 'rgba(5,22,12,0.65)',
-  },
-  dcL: { fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 4, fontFamily: F.medium, letterSpacing: 0.3 },
-  dcV: { fontSize: 18, fontFamily: F.bold, color: '#fff', letterSpacing: -0.3 },
-  ok:  { color: '#7ecfa0' },
-  dcS: { fontSize: 9, color: 'rgba(255,255,255,0.35)', marginTop: 2, fontFamily: F.regular },
-
-  alert: {
-    backgroundColor: 'rgba(160,30,20,0.45)',
-    borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,100,80,0.3)',
-    paddingVertical: 14, paddingHorizontal: 16,
+  // Header
+  hdr: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
+    paddingHorizontal: 16, paddingBottom: 10,
+    backgroundColor: C.card,
+    borderBottomWidth: 0.5, borderBottomColor: C.fog,
   },
-  aDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#ff6b6b' },
-  aTxt: { fontSize: 13, color: 'rgba(255,255,255,0.88)', lineHeight: 18, flex: 1, fontFamily: F.medium },
-  aArr: { fontSize: 16, color: 'rgba(255,255,255,0.3)', fontFamily: F.regular },
+  avatar:   { width: 36, height: 36, borderRadius: 8, resizeMode: 'contain' },
+  hdrText:  { flex: 1 },
+  hdrName:  { fontFamily: F.bold, fontSize: 14, color: C.ink1, lineHeight: 17 },
+  hdrMeta:  { fontFamily: F.mono, fontSize: 10.5, color: C.ink2, marginTop: 2 },
+  icBtn:    { width: 30, height: 30, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+  icBtnNew: { backgroundColor: C.note, borderWidth: 0.5, borderColor: C.noteBd },
 
-  // ── White chat card ───────────────────────────────────────────────────────
-  chatCard: {
-    backgroundColor: C.bg,
-    borderRadius: 20,
-    paddingTop: 14,
-    paddingBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 16,
-    elevation: 8,
+  // Body
+  body:    { flex: 1, backgroundColor: C.bg },
+  bodyPad: { padding: 16, gap: 14, paddingBottom: 24 },
+
+  dateSep: {
+    fontFamily: F.mono, fontSize: 10, color: C.ink2,
+    textAlign: 'center', marginBottom: 4,
   },
 
-  chatHdr: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    paddingHorizontal: 14, paddingBottom: 10,
+  // AI block
+  aBlock: { gap: 8 },
+  aProse: {
+    fontFamily: F.regular, fontSize: 12.5, lineHeight: 20,
+    color: C.blueFg, maxWidth: '88%',
   },
-  chatAvatar:   { width: 36, height: 36, borderRadius: 8, resizeMode: 'contain' },
-  chatHdrText:  { flex: 1 },
-  chatName:     { fontFamily: F.bold, fontSize: 13, color: C.ink1 },
-  chatMeta:     { fontFamily: F.mono, fontSize: 10, color: C.ink3, marginTop: 2 },
-  onlineDot:    { width: 8, height: 8, borderRadius: 4, backgroundColor: '#2ecc71', marginRight: 4 },
 
-  chatDivider:  { height: 0.5, backgroundColor: C.fog, marginHorizontal: 14 },
+  // Artifact card
+  artifact: {
+    backgroundColor: C.card,
+    borderRadius: 8, borderWidth: 0.5, borderColor: C.fog,
+    overflow: 'hidden', maxWidth: '92%',
+  },
+  artHdr: {
+    backgroundColor: C.green,
+    paddingVertical: 7, paddingHorizontal: 10,
+  },
+  artTitle: { fontFamily: F.bold, fontSize: 10, color: '#fff' },
+  artBody:  { padding: 10, gap: 0 },
+  artRow: {
+    flexDirection: 'row', justifyContent: 'space-between',
+    alignItems: 'center', paddingVertical: 6,
+  },
+  artLbl: { fontFamily: F.regular, fontSize: 11, color: C.ink2 },
+  artVal: { fontFamily: F.bold, fontSize: 11, color: C.ink1 },
+  artSub: { fontFamily: F.regular, fontSize: 10, color: C.ink2 },
+  artDivider: { height: 0.5, backgroundColor: C.fog },
 
-  chipScroll:   { marginTop: 10 },
-  chipRow:      { paddingHorizontal: 14, gap: 6, flexDirection: 'row' },
+  // Alert artifact variant
+  alertArt: {},
+  alertHdr: { backgroundColor: '#fde8e8' },
+  alertRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8 },
+  alertDot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#e74c3c' },
+  alertTxt: { fontFamily: F.medium, fontSize: 11.5, color: '#c0392b', flex: 1, lineHeight: 16 },
+
+  // Composer
+  comp: {
+    backgroundColor: C.card,
+    borderTopWidth: 0.5, borderTopColor: C.fog,
+    paddingTop: 10, paddingHorizontal: 12, gap: 7,
+  },
+  dsPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    paddingVertical: 7, paddingHorizontal: 10,
+    backgroundColor: C.card,
+    borderWidth: 0.5, borderColor: '#e0ddd8', borderRadius: 8,
+  },
+  dsPillTxt:  { fontFamily: F.mono, fontSize: 11, color: C.ink1 },
+  dsPillBold: { fontFamily: F.monoMd, fontWeight: '500' },
+  dsPillArr:  { fontFamily: F.mono, fontSize: 11, color: C.ink3, marginHorizontal: 2 },
+  dsPillSrc:  { fontFamily: F.mono, fontSize: 11, color: C.ink2 },
+
+  chipScroll: {},
+  chipRow:    { gap: 6, flexDirection: 'row' },
   chip: {
     backgroundColor: C.blue, borderRadius: 8,
-    paddingVertical: 5, paddingHorizontal: 10,
+    paddingVertical: 4, paddingHorizontal: 9,
   },
   chipTxt: { fontFamily: F.monoMd, fontSize: 10.5, color: C.blueFg },
 
-  inputRow: {
+  inputBox: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    marginHorizontal: 10, marginTop: 10,
-    backgroundColor: C.note,
-    borderRadius: 12, borderWidth: 0.5, borderColor: C.noteBd,
+    backgroundColor: C.card,
+    borderWidth: 0.5, borderColor: '#e0ddd8', borderRadius: 8,
     paddingVertical: 6, paddingHorizontal: 8,
+    minHeight: 44,
   },
   inputIc: {
     width: 28, height: 28, borderRadius: 14,
@@ -341,8 +344,4 @@ const s = StyleSheet.create({
     paddingVertical: 2,
   },
   sendBtn: { backgroundColor: C.green },
-
-  dots: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 8 },
-  dot:  { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.2)' },
-  dotOn:{ backgroundColor: '#7ecfa0', width: 16, borderRadius: 3 },
 });
