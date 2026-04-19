@@ -33,7 +33,12 @@ export default function SmartCowChatScreen() {
 
       let processedIndex = 0;
       let finalContent = '';
-      let artifacts: ReturnType<typeof mapToolResultToArtifact>[] = [];
+      let artifacts: any[] = [];
+
+      // Oculta los bloques ```artifact ... ``` mientras Gemma los emite por stream.
+      // El backend ya los parsea y manda artifact_block events al terminar.
+      const stripArtifactBlocks = (s: string) =>
+        s.replace(/```artifact\s*\n[\s\S]*?(```|$)/g, '').trim();
 
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 3 || xhr.readyState === 4) {
@@ -53,6 +58,8 @@ export default function SmartCowChatScreen() {
               const event = JSON.parse(jsonStr);
               if (event.type === 'text_delta') {
                 finalContent += event.delta;
+              } else if (event.type === 'artifact_block' && event.artifact) {
+                artifacts.push(event.artifact);
               } else if (event.type === 'tool_result' && event.tool && event.result) {
                 const art = mapToolResultToArtifact({ tool: event.tool, result: event.result });
                 if (art) artifacts.push(art);
@@ -66,7 +73,7 @@ export default function SmartCowChatScreen() {
             if (idx !== -1) {
               copy[idx] = {
                 ...copy[idx],
-                text: finalContent || '',
+                text: stripArtifactBlocks(finalContent || ''),
                 artifacts: artifacts.filter(Boolean) as any,
                 isTyping: xhr.readyState !== 4,
               };

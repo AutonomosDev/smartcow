@@ -164,6 +164,15 @@ function runNpmScript(script) {
   }
 }
 
+function getLanIp() {
+  try {
+    const out = execSync('ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null', { encoding: 'utf8' }).trim();
+    return out || '127.0.0.1';
+  } catch (e) {
+    return '127.0.0.1';
+  }
+}
+
 function startMobile() {
   const mobileRoot = path.join(projectRoot, 'apps/mobile');
   if (!fs.existsSync(mobileRoot)) {
@@ -171,15 +180,29 @@ function startMobile() {
     process.exit(1);
   }
 
-  console.log('\nStarting Metro bundler (conecta al simulador ya instalado)...\n');
+  const lanIp = getLanIp();
+
+  // 1. Next.js dev server (:3003) — mobile apunta aquí en __DEV__
+  console.log(`\nStarting Next.js dev server on http://${lanIp}:3003 ...\n`);
+  const dev = spawn('npm', ['run', 'dev', '--', '-p', '3003'], {
+    stdio: 'inherit',
+    shell: true,
+    cwd: projectRoot,
+  });
+
+  // 2. Metro bundler — inyecta EXPO_PUBLIC_DEV_HOST para que config.ts lo resuelva
+  console.log(`\nStarting Metro bundler (dev client) — API_BASE_URL=http://${lanIp}:3003\n`);
   const expo = spawn('npx', ['expo', 'start', '--dev-client'], {
     stdio: 'inherit',
     shell: true,
     cwd: mobileRoot,
+    env: { ...process.env, EXPO_PUBLIC_DEV_HOST: lanIp },
   });
 
   const cleanup = () => {
+    console.log('\n\nShutting down...');
     try { expo.kill('SIGTERM'); } catch (e) {}
+    try { dev.kill('SIGTERM'); } catch (e) {}
     process.exit();
   };
   process.on('SIGINT', cleanup);
@@ -238,6 +261,7 @@ Press Ctrl+C to stop.
 // Main
 const isMobAlias = path.basename(process.argv[1]) === 'smartcow_mob';
 if (isMobAlias) {
+  killNextDevServer();
   killPorts();
   startMobile();
 } else if (!command) {
