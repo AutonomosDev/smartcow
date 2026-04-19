@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
-  Image, KeyboardAvoidingView, Platform,
+  Image, KeyboardAvoidingView, Platform, Animated,
+  PanResponder, Dimensions,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Paperclip, Mic, ArrowRight, Zap } from 'lucide-react-native';
-
+import { Paperclip, Mic, ArrowRight, Zap, ChevronRight } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
+
+const { width: SW } = Dimensions.get('window');
 
 const C = {
   bg:     '#ffffff',
@@ -19,9 +21,8 @@ const C = {
   ink2:   '#666',
   ink3:   '#999',
   ink4:   '#bbb',
-  blue:   '#eaf0f7',
-  blueFg: '#1a5276',
   green:  '#1e3a2f',
+  leaf:   '#7ecfa0',
   note:   '#fafaf7',
   noteBd: '#e8e5dd',
 };
@@ -34,17 +35,34 @@ const F = {
   monoMd:  'JetBrainsMono_500Medium',
 };
 
-const CHIPS = ['/feedlot', '/FT', '/vaquillas', '/partos', '/tratamientos', '/ventas'];
-
 type NavProp = NativeStackNavigationProp<any>;
 
 export default function HomeScreen() {
-  const { user } = useAuth();
+  const { } = useAuth();
   const navigation = useNavigation<NavProp>();
   const insets = useSafeAreaInsets();
   const [inputText, setInputText] = useState('');
 
-  const firstName = (user?.nombre ?? 'JP').split(' ')[0];
+  // Pulsing arrow animation
+  const arrowX = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(arrowX, { toValue: 6,  duration: 560, useNativeDriver: true }),
+        Animated.timing(arrowX, { toValue: 0,  duration: 560, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
+  // Swipe left → chat
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gs) => Math.abs(gs.dx) > 18 && Math.abs(gs.dy) < 40,
+      onPanResponderRelease: (_, gs) => {
+        if (gs.dx < -50) navigation.navigate('SmartCowChat');
+      },
+    })
+  ).current;
 
   const goToChat = (text?: string) => {
     navigation.navigate('SmartCowChat', text ? { initialText: text } : undefined);
@@ -57,33 +75,30 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={s.root}>
+    <View style={s.root} {...panResponder.panHandlers}>
       <StatusBar style="dark" />
       <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
 
-        {/* ── Centro — vaca protagonista + chips ── */}
+        {/* ── Centro — vaca protagonista ── */}
         <View style={s.center}>
           <Image
             source={require('../../../../public/cow_robot.png')}
             style={s.cowImg}
             resizeMode="contain"
           />
-          <Text style={s.title}>¿En qué te ayudo, {firstName}?</Text>
-          <Text style={s.sub}>Fundo San Pedro · SmartCow AI</Text>
 
-          {/* Chips centrados, wrap */}
-          <View style={s.chips}>
-            {CHIPS.map((chip) => (
-              <TouchableOpacity
-                key={chip}
-                style={s.chip}
-                onPress={() => goToChat(chip + ' ')}
-                activeOpacity={0.7}
-              >
-                <Text style={s.chipTxt}>{chip}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          {/* Swipe pill */}
+          <TouchableOpacity
+            style={s.swipePill}
+            onPress={() => goToChat()}
+            activeOpacity={0.75}
+          >
+            <View style={s.swipeDot} />
+            <Text style={s.swipeTxt}>Desliza para chatear</Text>
+            <Animated.View style={{ transform: [{ translateX: arrowX }] }}>
+              <ChevronRight size={14} color={C.green} />
+            </Animated.View>
+          </TouchableOpacity>
         </View>
 
         {/* ── Cajón inferior ── */}
@@ -147,27 +162,37 @@ const s = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
-    gap: 0,
+    gap: 32,
   },
-  cowImg: { width: 120, height: 120, marginBottom: 20 },
-  title: {
-    fontFamily: F.bold, fontSize: 20, color: C.ink1,
-    letterSpacing: -0.3, textAlign: 'center', marginBottom: 6,
+  cowImg: {
+    width: SW * 0.68,
+    height: SW * 0.68,
   },
-  sub: {
-    fontFamily: F.mono, fontSize: 11, color: C.ink3,
-    textAlign: 'center', marginBottom: 24,
+
+  // Swipe pill
+  swipePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 11,
+    paddingHorizontal: 18,
+    borderRadius: 30,
+    borderWidth: 0.5,
+    borderColor: C.noteBd,
+    backgroundColor: C.note,
   },
-  chips: {
-    flexDirection: 'row', flexWrap: 'wrap',
-    justifyContent: 'center', gap: 8,
+  swipeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: C.leaf,
   },
-  chip: {
-    backgroundColor: C.blue, borderRadius: 8,
-    paddingVertical: 6, paddingHorizontal: 14,
+  swipeTxt: {
+    fontFamily: F.monoMd,
+    fontSize: 12,
+    color: C.green,
+    letterSpacing: 0.2,
   },
-  chipTxt: { fontFamily: F.monoMd, fontSize: 12, color: C.blueFg },
 
   // Cajón
   comp: {
@@ -195,5 +220,5 @@ const s = StyleSheet.create({
     backgroundColor: C.cream, justifyContent: 'center', alignItems: 'center',
   },
   inputTxt: { flex: 1, fontFamily: F.regular, fontSize: 13, color: C.ink1, paddingVertical: 2 },
-  sendBtn: { backgroundColor: C.green },
+  sendBtn:  { backgroundColor: C.green },
 });
