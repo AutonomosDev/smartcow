@@ -1,6 +1,5 @@
 /**
- * app/(protected)/chat-v2/page.tsx
- * Versión aislada para pruebas de diseño "Pristine White" y Modales V2.
+ * app/(protected)/chat/page.tsx
  */
 
 import { auth } from "@/src/lib/auth";
@@ -9,10 +8,10 @@ import { getNombrePredio } from "@/src/lib/queries/predio";
 import { ChatPageClient } from "./chat-page-client";
 
 export const metadata = {
-  title: "Chat IA V2 — smartCow",
+  title: "Chat IA — smartCow",
 };
 
-export default async function ChatPageV2({
+export default async function ChatPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string }>;
@@ -29,11 +28,11 @@ export default async function ChatPageV2({
   const nombrePredio = await getNombrePredio(predioId);
 
   return (
-    <ChatPageClient 
-      predioId={predioId} 
-      initialMessage={initialMessage} 
-      nombrePredio={nombrePredio} 
-      session={session} 
+    <ChatPageClient
+      predioId={predioId}
+      initialMessage={initialMessage}
+      nombrePredio={nombrePredio}
+      session={session}
     />
   );
 }

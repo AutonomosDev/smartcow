@@ -1,15 +1,23 @@
 /**
- * claude.ts — Cliente Google AI (Gemini) con tool use para consultas ganaderas.
+ * claude.ts — Declaración de CATTLE_TOOLS del chat ganadero en formato Google AI SDK
+ * (@google/genai — FunctionDeclaration, Type).
  * Ticket: AUT-176
- * Migrado: OpenRouter/OpenAI SDK → Google AI SDK (@google/genai)
  *
- * Tools disponibles:
- *   query_animales           — Lista animales de un predio con filtros
- *   query_pesajes            — Historial de pesajes de un animal o predio
- *   query_partos             — Historial de partos en un rango de fechas
+ * Runtime: OpenRouter (modelo google/gemma-4-31b-it) — ver app/api/chat/route.ts.
+ * Conversión a formato OpenAI function calling por toOpenAITools() en route.ts.
+ *
+ * Tools de lectura (9):
+ *   query_animales              — Lista animales de un predio con filtros
+ *   query_pesajes               — Historial de pesajes de un animal o predio
+ *   query_partos                — Historial de partos en un rango de fechas
  *   query_indices_reproductivos — Resumen reproductivo del predio
- *   registrar_pesaje         — Registra un nuevo pesaje (escritura)
- *   registrar_parto          — Registra un nuevo parto (escritura)
+ *   query_toros                 — Lista toros disponibles para inseminación
+ *   query_historial_animal      — Historial completo de un animal por EID/DIIO
+ *   query_feedlot               — Datos de engorda y feedlot del predio
+ *
+ * Tools de escritura (2):
+ *   registrar_pesaje            — Registra un nuevo pesaje (escritura)
+ *   registrar_parto             — Registra un nuevo parto (escritura)
  *
  * Reglas:
  *   - No PII en logs
