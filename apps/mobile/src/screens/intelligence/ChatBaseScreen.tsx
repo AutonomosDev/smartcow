@@ -390,7 +390,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
             {/* Comment bar */}
             <View style={s.rptCommentBar}>
               <Info size={11} color={C.ink3} />
-              <Text style={s.rptCommentTxt}>Toca cualquier texto para comentar a SmartCow</Text>
+              <Text style={s.rptCommentTxt}>Toca cualquier texto para comentar a smartCow</Text>
             </View>
 
             <ScrollView
@@ -418,7 +418,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
               >
                 <CwModalOpt color="red"   icon={<FileText  size={16} color="#c23030" />} t1="Guardar como PDF"           t2={saving === 'pdf'     ? 'Generando PDF…'       : 'Se descarga local al equipo'}           working={saving === 'pdf'}     onPress={() => startSave('pdf')} />
                 <CwModalOpt color="green" icon={<MessageCircle size={16} color="#1e3a2f" />} t1="Enviar por WhatsApp a JP" t2={saving === 'wa'      ? 'Enviando…'            : '+56 9 5432 1876 · contacto frecuente'}  working={saving === 'wa'}      onPress={() => startSave('wa')} />
-                <CwModalOpt color="blue"  icon={<Cloud     size={16} color="#1a5276" />} t1="Guardar en Google Drive"      t2={saving === 'drive'   ? 'Subiendo…'            : 'SmartCow / Informes / Fundo San Pedro'} working={saving === 'drive'}   onPress={() => startSave('drive')} />
+                <CwModalOpt color="blue"  icon={<Cloud     size={16} color="#1a5276" />} t1="Guardar en Google Drive"      t2={saving === 'drive'   ? 'Subiendo…'            : 'smartCow / Informes / Fundo San Pedro'} working={saving === 'drive'}   onPress={() => startSave('drive')} />
                 <CwModalOpt color="amber" icon={<Mail      size={16} color="#9b5e1a" />} t1="Enviar por email"             t2={saving === 'email'   ? 'Enviando…'            : 'jp@agropecuaria.cl'}                    working={saving === 'email'}   onPress={() => startSave('email')} />
                 <CwModalOpt              icon={<Zap       size={16} color="#1a5276" />} t1="Guardar como routine"         t2={saving === 'routine' ? 'Creando routine…'     : 'Re-ejecutable con /routine pesajes'}    working={saving === 'routine'} onPress={() => startSave('routine')} />
                 <CwModalFoot saving={!!saving} label="listo para exportar" />
@@ -434,7 +434,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
               >
                 <CwModalOpt              icon={<Code2     size={16} color="#1a5276" />} t1="Copiar como Markdown"         t2={copied === 'md'    ? '✓ Copiado al portapapeles' : 'Formato crudo con headings y listas'}    onPress={() => doCopy('md')} />
                 <CwModalOpt color="blue" icon={<Type      size={16} color="#1a5276" />} t1="Copiar como texto enriquecido" t2={copied === 'rich'  ? '✓ Copiado'               : 'Pegá directo en Docs, Notion, Gmail'}   onPress={() => doCopy('rich')} />
-                <CwModalOpt color="amber"icon={<Link2     size={16} color="#9b5e1a" />} t1="Copiar link compartible"      t2={copied === 'link'  ? '✓ Copiado'               : 'Acceso solo para equipo SmartCow'}       onPress={() => doCopy('link')} />
+                <CwModalOpt color="amber"icon={<Link2     size={16} color="#9b5e1a" />} t1="Copiar link compartible"      t2={copied === 'link'  ? '✓ Copiado'               : 'Acceso solo para equipo smartCow'}       onPress={() => doCopy('link')} />
                 <CwModalOpt color="red"  icon={<Table2    size={16} color="#c23030" />} t1="Exportar a Excel / CSV"       t2={copied === 'xlsx'  ? '✓ Generando .xlsx…'      : 'Solo tablas y KPIs del informe'}         onPress={() => doCopy('xlsx')} />
                 <CwModalFoot saving={false} label="markdown · listo para exportar" />
               </CwModal>

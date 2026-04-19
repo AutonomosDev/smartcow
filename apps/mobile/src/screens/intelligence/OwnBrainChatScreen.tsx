@@ -3,9 +3,9 @@ import ChatBaseScreen, { ChatConfig } from './ChatBaseScreen';
 
 const config: ChatConfig = {
   avatarLabel: 'SC',
-  name: 'SmartCow AI',
+  name: 'smartCow AI',
   subtitle: 'Fundo San Pedro · 3 alertas',
-  placeholder: 'Escribe a SmartCow...',
+  placeholder: 'Escribe a smartCow...',
   dateSep: 'Hoy · 07:00 — Resumen matutino',
   messages: [
     {

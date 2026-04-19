@@ -30,8 +30,6 @@ export default function HomeScreen() {
     api.get<PredioKpis>(`/api/predio/${predioId}/kpis`).then(setKpis).catch(() => {});
   }, [predioId]);
 
-  const initials = (user?.nombre ?? 'JP').split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
-  const nombre   = user?.nombre ?? 'Fundo San Pedro';
 
   const panResponder = useRef(
     PanResponder.create({
@@ -60,9 +58,8 @@ export default function HomeScreen() {
       <View style={[s.widgetWrap, { bottom: widgetBottom }]}>
         <BlurView intensity={52} tint="default" style={s.widget}>
 
-          {/* Fila: nombre  |  temp + emoji (derecha) */}
+          {/* Fila: temp + emoji alineados a la derecha */}
           <View style={s.wTop}>
-            <Text style={s.wName}>SmartCow</Text>
             <Text style={s.wTemp}>6°C</Text>
             <Text style={s.wEmoji}>🌧️</Text>
           </View>
@@ -91,7 +88,7 @@ export default function HomeScreen() {
         <BlurView intensity={55} tint="default" style={s.bar}>
           <TextInput
             style={s.input}
-            placeholder="Escribe a SmartCow..."
+            placeholder="Escribe a smartCow..."
             placeholderTextColor="rgba(0,0,0,0.32)"
             value={inputText}
             onChangeText={setInputText}
@@ -122,14 +119,7 @@ const s = StyleSheet.create({
   },
   widget: { padding: 14, gap: 10 },
 
-  wTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  wAvatar: {
-    width: 34, height: 34, borderRadius: 17,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    justifyContent: 'center', alignItems: 'center',
-  },
-  wAvatarTxt: { fontFamily: F.bold, fontSize: 12, color: TXT },
-  wName:  { flex: 1, fontFamily: F.medium, fontSize: 14, color: TXT },
+  wTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 8 },
   wTemp:  { fontFamily: F.bold, fontSize: 18, color: TXT, letterSpacing: -0.3 },
   wEmoji: { fontSize: 22 },
 
@@ -141,9 +131,9 @@ const s = StyleSheet.create({
     borderColor: BORDER,
     overflow: 'hidden',
   },
-  wCard: { paddingVertical: 9, paddingHorizontal: 10 },
-  wCardLbl: { fontFamily: F.medium, fontSize: 11, color: TXT2, marginBottom: 4 },
-  wCardVal: { fontFamily: F.bold, fontSize: 14, color: TXT, letterSpacing: -0.2, textAlign: 'right' },
+  wCard: { paddingVertical: 10, paddingHorizontal: 12, alignItems: 'flex-end' },
+  wCardLbl: { fontFamily: F.medium, fontSize: 10, color: TXT2, marginBottom: 3 },
+  wCardVal: { fontFamily: F.bold, fontSize: 20, color: '#1a1a1a', letterSpacing: -0.5 },
 
   // Input bar
   barWrap: {

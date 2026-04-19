@@ -110,7 +110,7 @@ export default function SmartCowChatScreen() {
               const copy = [...prev];
               const lastIdx = copy.length - 1;
               if (copy[lastIdx].id === aiMsgId) {
-                copy[lastIdx].text = 'Ups, ocurrió un error de conexión al consultar a SmartCow.';
+                copy[lastIdx].text = 'Ups, ocurrió un error de conexión al consultar a smartCow.';
               }
               return copy;
             });
@@ -124,7 +124,7 @@ export default function SmartCowChatScreen() {
           const copy = [...prev];
           const lastIdx = copy.length - 1;
           if (copy[lastIdx].id === aiMsgId) {
-            copy[lastIdx].text = 'Ups, ocurrió un error de red al consultar a SmartCow.';
+            copy[lastIdx].text = 'Ups, ocurrió un error de red al consultar a smartCow.';
           }
           return copy;
         });
@@ -146,9 +146,9 @@ export default function SmartCowChatScreen() {
 
   const config: ChatConfig = {
     avatarSource: require('../../../assets/cow_robot.png'),
-    name: 'SmartCow AI',
+    name: 'smartCow AI',
     subtitle: 'Fundo San Pedro · en línea',
-    placeholder: isLoading ? 'Conectando...' : 'Preguntá algo a SmartCow…',
+    placeholder: isLoading ? 'Conectando...' : 'Preguntá algo a smartCow…',
     dateSep: 'Hoy',
     slashChips: ['/feedlot', '/FT', '/vaquillas', '/partos', '/tratamientos', '/ventas'],
     messages,

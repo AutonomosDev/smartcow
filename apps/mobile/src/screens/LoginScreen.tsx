@@ -65,7 +65,7 @@ export default function LoginScreen({ navigation }: Props) {
       )}
 
       <View style={styles.card}>
-        <Text style={styles.title}>SmartCow</Text>
+        <Text style={styles.title}>smartCow</Text>
         <Text style={styles.subtitle}>Gestión ganadera inteligente</Text>
 
         <TextInput
