@@ -43,10 +43,10 @@ export default function HomeScreen() {
 
   const handleSend = () => { goToChat(inputText.trim() || undefined); setInputText(''); };
 
-  // Widget sits above the input bar
-  const barBottom  = insets.bottom + 56;
-  const barHeight  = 50;
-  const widgetBottom = barBottom + barHeight + 10;
+  // Unified widget — holds weather, KPIs and input in one box
+  const widgetBottom = insets.bottom + 24;
+
+  const today = new Date().toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' });
 
   return (
     <View style={s.root} {...panResponder.panHandlers}>
@@ -54,21 +54,24 @@ export default function HomeScreen() {
 
       <Image
         source={require('../../../../public/cow_robot.png')}
-        style={[s.cow, { bottom: widgetBottom + 20 }]}
+        style={[s.cow, { bottom: widgetBottom + 210 }]}
         resizeMode="contain"
       />
 
-      {/* ── Widget — entre vaca e input ── */}
+      {/* ── Widget unificado — weather + KPIs + input ── */}
       <View style={[s.widgetWrap, { bottom: widgetBottom }]}>
         <BlurView intensity={52} tint="default" style={s.widget}>
 
-          {/* Fila: temp + emoji alineados a la derecha */}
+          {/* Row 1: fecha izq · temp + emoji der */}
           <View style={s.wTop}>
-            <Text style={s.wTemp}>6°C</Text>
-            <Text style={s.wEmoji}>🌧️</Text>
+            <Text style={s.wDate}>{today}</Text>
+            <View style={s.wTempGroup}>
+              <Text style={s.wTemp}>6°C</Text>
+              <Text style={s.wEmoji}>🌧️</Text>
+            </View>
           </View>
 
-          {/* Sub-cards: label izq — valor der */}
+          {/* Row 2: 3 KPI cards */}
           <View style={s.wRow}>
             {[
               { lbl: 'Animales', val: String(kpis?.totalAnimales ?? 242) },
@@ -84,25 +87,26 @@ export default function HomeScreen() {
             ))}
           </View>
 
-        </BlurView>
-      </View>
+          {/* Divider */}
+          <View style={s.wDiv} />
 
-      {/* ── Input flotante ── */}
-      <View style={[s.barWrap, { bottom: barBottom }]}>
-        <BlurView intensity={55} tint="default" style={s.bar}>
-          <TextInput
-            style={s.input}
-            placeholder="Escribe a smartCow..."
-            placeholderTextColor="rgba(0,0,0,0.32)"
-            value={inputText}
-            onChangeText={setInputText}
-            onFocus={() => { if (!inputText) goToChat(); }}
-            returnKeyType="send"
-            onSubmitEditing={handleSend}
-          />
-          <TouchableOpacity onPress={handleSend} activeOpacity={0.7} style={{ padding: 6 }}>
-            <ArrowRight size={18} color={TXT2} />
-          </TouchableOpacity>
+          {/* Row 3: input */}
+          <View style={s.wInputRow}>
+            <TextInput
+              style={s.input}
+              placeholder="Escribe a smartCow..."
+              placeholderTextColor="rgba(0,0,0,0.32)"
+              value={inputText}
+              onChangeText={setInputText}
+              onFocus={() => { if (!inputText) goToChat(); }}
+              returnKeyType="send"
+              onSubmitEditing={handleSend}
+            />
+            <TouchableOpacity onPress={handleSend} activeOpacity={0.7} style={s.sendBtn}>
+              <ArrowRight size={18} color={TXT2} />
+            </TouchableOpacity>
+          </View>
+
         </BlurView>
       </View>
     </View>
@@ -121,13 +125,15 @@ const s = StyleSheet.create({
     borderColor: BORDER,
     overflow: 'hidden',
   },
-  widget: { padding: 14, gap: 10 },
+  widget: { padding: 12, gap: 8 },
 
-  wTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 8 },
-  wTemp:  { fontFamily: F.bold, fontSize: 18, color: TXT, letterSpacing: -0.3 },
-  wEmoji: { fontSize: 22 },
+  wTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 2 },
+  wDate: { fontFamily: F.medium, fontSize: 12, color: TXT2, textTransform: 'capitalize', letterSpacing: 0.2 },
+  wTempGroup: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  wTemp:  { fontFamily: F.bold, fontSize: 17, color: TXT, letterSpacing: -0.3 },
+  wEmoji: { fontSize: 19 },
 
-  wRow: { flexDirection: 'row', gap: 8 },
+  wRow: { flexDirection: 'row', gap: 6 },
   wCardWrap: {
     flex: 1,
     borderRadius: 12,
@@ -135,24 +141,21 @@ const s = StyleSheet.create({
     borderColor: BORDER,
     overflow: 'hidden',
   },
-  wCard: { paddingVertical: 10, paddingHorizontal: 12, alignItems: 'flex-end' },
-  wCardLbl: { fontFamily: F.medium, fontSize: 10, color: TXT2, marginBottom: 3 },
-  wCardVal: { fontFamily: F.bold, fontSize: 20, color: '#1a1a1a', letterSpacing: -0.5 },
+  wCard: { paddingVertical: 9, paddingHorizontal: 10, alignItems: 'flex-end' },
+  wCardLbl: { fontFamily: F.medium, fontSize: 10, color: TXT2, marginBottom: 2 },
+  wCardVal: { fontFamily: F.bold, fontSize: 18, color: '#1a1a1a', letterSpacing: -0.5 },
 
-  // Input bar
-  barWrap: {
-    position: 'absolute', left: 16, right: 16,
-    borderRadius: 30,
-    borderWidth: 0.8,
-    borderColor: BORDER,
-    overflow: 'hidden',
-  },
-  bar: {
+  // Divider between KPIs and input
+  wDiv: { height: 0.6, backgroundColor: 'rgba(0,0,0,0.08)', marginHorizontal: 2 },
+
+  // Input row inside unified widget
+  wInputRow: {
     flexDirection: 'row', alignItems: 'center',
-    paddingVertical: 10, paddingLeft: 22, paddingRight: 10, gap: 10,
+    paddingHorizontal: 4, paddingVertical: 2, gap: 8,
   },
+  sendBtn: { padding: 6 },
   input: {
     flex: 1, color: TXT,
-    fontSize: 15, fontFamily: F.regular, paddingVertical: 2,
+    fontSize: 15, fontFamily: F.regular, paddingVertical: 6,
   },
 });

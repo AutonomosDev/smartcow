@@ -108,7 +108,7 @@ export function ChatSidebar({ open = false, onClose, userName, nombrePredio, org
           className="cw-scrollbar"
           style={{ flex: 1, overflowY: "auto", padding: "4px 8px 6px" }}
         >
-          <SbSection label={effectivePredio ?? "smartcow_prod"} />
+          <SbSection label={effectivePredio ?? "smartCow"} />
           <SbItem label="Nueva conversación" active />
           <SbItem label="Importar Excels AgroApp" />
           <SbItem label="Schema Drizzle — tratamientos" />

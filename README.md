@@ -1,4 +1,4 @@
-# smartcow_prod
+# smartcow
 
 Entorno de produccion — SmartCow
 
