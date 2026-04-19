@@ -164,7 +164,7 @@ export function ArtifactRenderer({ artifact }: { artifact: GenerativeArtifact })
     <View style={a.wrap}>
       <View style={a.hdr}><Text style={a.title}>Datos crudos</Text></View>
       <View style={a.body}>
-        <Text style={a.alertTxt}>{JSON.stringify(artifact.data)}</Text>
+        <Text style={a.alertTxt}>{JSON.stringify((artifact as any).data)}</Text>
       </View>
     </View>
   );
