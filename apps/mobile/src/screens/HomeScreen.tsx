@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
 import {
   View, StyleSheet, TextInput, TouchableOpacity,
-  Image, Animated, PanResponder,
+  Image, PanResponder,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
@@ -47,12 +48,16 @@ export default function HomeScreen() {
         resizeMode="contain"
       />
 
-      {/* Input flotante */}
-      <View style={[s.bar, { bottom: insets.bottom + 20 }]}>
+      {/* Input flotante — glassmorphism */}
+      <BlurView
+        intensity={28}
+        tint="dark"
+        style={[s.bar, { bottom: insets.bottom + 24 }]}
+      >
         <TextInput
           style={s.input}
           placeholder="Escribe a SmartCow..."
-          placeholderTextColor="#bbb"
+          placeholderTextColor="rgba(255,255,255,0.5)"
           value={inputText}
           onChangeText={setInputText}
           onFocus={() => { if (!inputText) goToChat(); }}
@@ -62,7 +67,7 @@ export default function HomeScreen() {
         <TouchableOpacity style={s.sendBtn} onPress={handleSend} activeOpacity={0.85}>
           <ArrowRight size={16} color="#fff" />
         </TouchableOpacity>
-      </View>
+      </BlurView>
     </View>
   );
 }
@@ -82,30 +87,25 @@ const s = StyleSheet.create({
     left: 20, right: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(250,250,247,0.94)',
     borderRadius: 30,
-    borderWidth: 0.5,
-    borderColor: '#e8e5dd',
-    paddingVertical: 8,
-    paddingLeft: 20,
-    paddingRight: 8,
+    overflow: 'hidden',
+    paddingVertical: 10,
+    paddingLeft: 22,
+    paddingRight: 10,
     gap: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 6,
   },
   input: {
     flex: 1,
-    color: '#1a1a1a',
+    color: '#fff',
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
     paddingVertical: 2,
   },
   sendBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#1e3a2f',
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderWidth: 0.5,
+    borderColor: 'rgba(255,255,255,0.35)',
     justifyContent: 'center', alignItems: 'center',
   },
 });
