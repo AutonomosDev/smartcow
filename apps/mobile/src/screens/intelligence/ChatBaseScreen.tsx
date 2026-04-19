@@ -570,7 +570,7 @@ const s = StyleSheet.create({
   // Empty state
   emptyState: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
-    paddingHorizontal: 32, paddingTop: 60, paddingBottom: 40,
+    paddingHorizontal: 32, paddingTop: 160, paddingBottom: 40,
   },
   emptyImg:   { width: 200, height: 200, marginBottom: 18 },
   emptyTitle: { fontFamily: F.bold, fontSize: 18, color: C.ink1, letterSpacing: -0.3, textAlign: 'center', marginBottom: 6 },
