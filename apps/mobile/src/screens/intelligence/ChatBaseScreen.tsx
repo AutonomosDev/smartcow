@@ -205,8 +205,8 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
         {/* ── Chat panel ── */}
         <Animated.View style={[s.chatPanel, { transform: [{ translateX: chatX }] }]}>
 
-          {/* Header */}
-          <View style={[s.hdr, { paddingTop: insets.top + 10 }]}>
+          {/* Header — oculto en empty state */}
+          {config.messages.length > 0 && <View style={[s.hdr, { paddingTop: insets.top + 10 }]}>
             {config.avatarSource ? (
               <Image source={config.avatarSource} style={s.avatarImg} />
             ) : (
@@ -231,7 +231,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
             <TouchableOpacity style={s.icBtn} activeOpacity={0.7}>
               <Menu size={16} color={C.ink2} />
             </TouchableOpacity>
-          </View>
+          </View>}
 
           {/* Messages */}
           <ScrollView
@@ -572,7 +572,7 @@ const s = StyleSheet.create({
     flex: 1, alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 32, paddingTop: 60, paddingBottom: 40,
   },
-  emptyImg:   { width: 72, height: 72, marginBottom: 18 },
+  emptyImg:   { width: 120, height: 120, marginBottom: 18 },
   emptyTitle: { fontFamily: F.bold, fontSize: 18, color: C.ink1, letterSpacing: -0.3, textAlign: 'center', marginBottom: 6 },
   emptySub:   { fontFamily: F.regular, fontSize: 13, color: C.ink3, textAlign: 'center', marginBottom: 24, lineHeight: 19 },
   emptyChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
