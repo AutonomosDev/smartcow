@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
-  KeyboardAvoidingView, Platform, SafeAreaView, Animated, PanResponder,
+  KeyboardAvoidingView, Platform, Animated, PanResponder,
   Dimensions, Image, Modal,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import {
   Search, Menu, Paperclip, Mic, ArrowRight, ChevronLeft, SquarePen,
