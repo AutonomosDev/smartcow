@@ -8,9 +8,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import {
-  Search, Menu, Paperclip, Mic, ArrowRight, ChevronLeft,
-  Database, Copy, RefreshCcw, Bookmark, Share2, MoreHorizontal,
-  MessageCircle, Save, SquarePen,
+  Search, Menu, Paperclip, Mic, ArrowRight, ChevronLeft, SquarePen,
+  Database, Copy, RefreshCcw, Bookmark, MessageCircle,
+  FolderOpen, PanelRight, Info, X as XIcon,
+  FileText, Cloud, Mail, Zap, Code2, Link2, Table2, Type,
 } from 'lucide-react-native';
 import { GenerativeArtifact, ArtifactRenderer } from '../../components/generative/ArtifactRenderer';
 
@@ -122,6 +123,10 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
   const [inputText, setInputText] = useState('');
   const [reportContent, setReportContent] = useState<string | null>(null);
   const [reportTitle, setReportTitle] = useState('Informe');
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [copyOpen, setCopyOpen] = useState(false);
+  const [saving, setSaving] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
 
   const reportX = useRef(new Animated.Value(SW)).current;
   const chatX   = useRef(new Animated.Value(0)).current;
@@ -136,10 +141,21 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
   };
 
   const closeReport = () => {
+    setSaveOpen(false);
+    setCopyOpen(false);
     Animated.parallel([
       Animated.timing(reportX, { toValue: SW, duration: 280, useNativeDriver: true }),
       Animated.timing(chatX,   { toValue: 0,  duration: 280, useNativeDriver: true }),
     ]).start(() => setReportContent(null));
+  };
+
+  const startSave = (key: string) => {
+    setSaving(key);
+    setTimeout(() => { setSaving(null); setSaveOpen(false); }, 1800);
+  };
+  const doCopy = (key: string) => {
+    setCopied(key);
+    setTimeout(() => { setCopied(null); setCopyOpen(false); }, 1200);
   };
 
   const panResponder = useRef(
@@ -347,17 +363,34 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
           >
             <View style={s.edgeHint} />
 
+            {/* Header — igual que ArtifactPanel web */}
             <View style={[s.rptHdr, { paddingTop: insets.top + 10 }]}>
               <TouchableOpacity style={s.rptBack} onPress={closeReport} activeOpacity={0.8}>
                 <ChevronLeft size={18} color={C.ink1} />
               </TouchableOpacity>
-              <View style={s.rptHdrInfo}>
-                <Text style={s.rptKind}>INFORME</Text>
-                <Text style={s.rptTitle} numberOfLines={1}>{reportTitle}</Text>
+              <Text style={s.rptKind} numberOfLines={1}>{reportTitle}</Text>
+              <View style={s.rptActions}>
+                <TouchableOpacity style={s.rptAct} onPress={() => setSaveOpen(true)} activeOpacity={0.7}>
+                  <FolderOpen size={14} color={C.ink2} />
+                  <Text style={s.rptActArr}>▾</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={s.rptAct} onPress={() => setCopyOpen(true)} activeOpacity={0.7}>
+                  <Copy size={14} color={C.ink2} />
+                </TouchableOpacity>
+                <TouchableOpacity style={s.rptAct} onPress={closeReport} activeOpacity={0.7}>
+                  <XIcon size={14} color={C.ink2} />
+                </TouchableOpacity>
+                <TouchableOpacity style={s.rptAct} activeOpacity={0.7}>
+                  <PanelRight size={14} color={C.ink2} />
+                  <Text style={s.rptActArr}>▾</Text>
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity style={s.rptAct}><Save size={15} color={C.ink2} /></TouchableOpacity>
-              <TouchableOpacity style={s.rptAct}><Share2 size={15} color={C.ink2} /></TouchableOpacity>
-              <TouchableOpacity style={s.rptAct}><MoreHorizontal size={15} color={C.ink2} /></TouchableOpacity>
+            </View>
+
+            {/* Comment bar */}
+            <View style={s.rptCommentBar}>
+              <Info size={11} color={C.ink3} />
+              <Text style={s.rptCommentTxt}>Toca cualquier texto para comentar a SmartCow</Text>
             </View>
 
             <ScrollView
@@ -375,6 +408,37 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
             >
               <MessageCircle size={22} color="#fff" />
             </TouchableOpacity>
+
+            {/* Save modal */}
+            {saveOpen && (
+              <CwModal
+                title="Guardar o compartir"
+                sub={reportTitle}
+                onClose={() => setSaveOpen(false)}
+              >
+                <CwModalOpt color="red"   icon={<FileText  size={16} color="#c23030" />} t1="Guardar como PDF"           t2={saving === 'pdf'     ? 'Generando PDF…'       : 'Se descarga local al equipo'}           working={saving === 'pdf'}     onPress={() => startSave('pdf')} />
+                <CwModalOpt color="green" icon={<MessageCircle size={16} color="#1e3a2f" />} t1="Enviar por WhatsApp a JP" t2={saving === 'wa'      ? 'Enviando…'            : '+56 9 5432 1876 · contacto frecuente'}  working={saving === 'wa'}      onPress={() => startSave('wa')} />
+                <CwModalOpt color="blue"  icon={<Cloud     size={16} color="#1a5276" />} t1="Guardar en Google Drive"      t2={saving === 'drive'   ? 'Subiendo…'            : 'SmartCow / Informes / Fundo San Pedro'} working={saving === 'drive'}   onPress={() => startSave('drive')} />
+                <CwModalOpt color="amber" icon={<Mail      size={16} color="#9b5e1a" />} t1="Enviar por email"             t2={saving === 'email'   ? 'Enviando…'            : 'jp@agropecuaria.cl'}                    working={saving === 'email'}   onPress={() => startSave('email')} />
+                <CwModalOpt              icon={<Zap       size={16} color="#1a5276" />} t1="Guardar como routine"         t2={saving === 'routine' ? 'Creando routine…'     : 'Re-ejecutable con /routine pesajes'}    working={saving === 'routine'} onPress={() => startSave('routine')} />
+                <CwModalFoot saving={!!saving} label="listo para exportar" />
+              </CwModal>
+            )}
+
+            {/* Copy modal */}
+            {copyOpen && (
+              <CwModal
+                title="Copiar o exportar"
+                sub={reportTitle}
+                onClose={() => setCopyOpen(false)}
+              >
+                <CwModalOpt              icon={<Code2     size={16} color="#1a5276" />} t1="Copiar como Markdown"         t2={copied === 'md'    ? '✓ Copiado al portapapeles' : 'Formato crudo con headings y listas'}    onPress={() => doCopy('md')} />
+                <CwModalOpt color="blue" icon={<Type      size={16} color="#1a5276" />} t1="Copiar como texto enriquecido" t2={copied === 'rich'  ? '✓ Copiado'               : 'Pegá directo en Docs, Notion, Gmail'}   onPress={() => doCopy('rich')} />
+                <CwModalOpt color="amber"icon={<Link2     size={16} color="#9b5e1a" />} t1="Copiar link compartible"      t2={copied === 'link'  ? '✓ Copiado'               : 'Acceso solo para equipo SmartCow'}       onPress={() => doCopy('link')} />
+                <CwModalOpt color="red"  icon={<Table2    size={16} color="#c23030" />} t1="Exportar a Excel / CSV"       t2={copied === 'xlsx'  ? '✓ Generando .xlsx…'      : 'Solo tablas y KPIs del informe'}         onPress={() => doCopy('xlsx')} />
+                <CwModalFoot saving={false} label="markdown · listo para exportar" />
+              </CwModal>
+            )}
           </Animated.View>
         )}
 
@@ -507,18 +571,63 @@ const s = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   rptHdr: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingHorizontal: 14, paddingBottom: 10,
     backgroundColor: C.bg,
     borderBottomWidth: 0.5, borderBottomColor: C.fog,
   },
-  rptBack:    { width: 30, height: 30, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
-  rptHdrInfo: { flex: 1 },
-  rptKind:    { fontFamily: F.mono,   fontSize: 9.5, color: C.ink3, letterSpacing: 0.3 },
-  rptTitle:   { fontFamily: F.bold,   fontSize: 14,  color: C.ink1, lineHeight: 18, marginTop: 1 },
-  rptAct:     { width: 30, height: 30, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
-  rptBody:    { flex: 1, backgroundColor: C.rptBg },
-  rptBodyPad: { padding: 18, paddingBottom: 120 },
+  rptBack:       { width: 30, height: 30, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+  rptKind:       { flex: 1, fontFamily: F.regular, fontSize: 13, color: C.ink2 },
+  rptActions:    { flexDirection: 'row', gap: 2, alignItems: 'center' },
+  rptAct:        { width: 26, height: 26, borderRadius: 5, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 1 },
+  rptActArr:     { fontSize: 9, color: C.ink4 },
+  rptCommentBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8, paddingBottom: 12 },
+  rptCommentTxt: { fontFamily: F.regular, fontSize: 11.5, color: C.ink2 },
+  rptBody:       { flex: 1, backgroundColor: C.rptBg },
+  rptBodyPad:    { padding: 18, paddingBottom: 120 },
+
+  // Modal overlay
+  modalOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(20,20,20,.38)',
+    zIndex: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCard: {
+    width: '88%', backgroundColor: '#fff',
+    borderRadius: 12,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.22, shadowRadius: 60, elevation: 20,
+    overflow: 'hidden',
+  },
+  modalHead: {
+    paddingHorizontal: 20, paddingTop: 16, paddingBottom: 6,
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+  },
+  modalTitle: { flex: 1, fontFamily: F.bold, fontSize: 15, color: C.ink1 },
+  modalClose: { width: 26, height: 26, borderRadius: 6, justifyContent: 'center', alignItems: 'center' },
+  modalSub:   { paddingHorizontal: 20, paddingBottom: 12, fontFamily: F.regular, fontSize: 12.5, color: C.ink2 },
+  modalBody:  { paddingHorizontal: 10, paddingBottom: 10 },
+  modalOpt: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    padding: 10, borderRadius: 8,
+  },
+  modalOptIco: {
+    width: 34, height: 34, borderRadius: 8,
+    justifyContent: 'center', alignItems: 'center', flexShrink: 0,
+  },
+  modalOptT1:  { fontFamily: F.medium, fontSize: 13.5, color: C.ink1 },
+  modalOptT2:  { fontFamily: F.regular, fontSize: 11.5, color: C.ink2, marginTop: 1 },
+  modalOptArr: { fontFamily: F.regular, fontSize: 14, color: C.ink4 },
+  modalFoot: {
+    borderTopWidth: 1, borderTopColor: '#eee',
+    paddingHorizontal: 14, paddingVertical: 10,
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+  },
+  modalFootDot:  { width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#7bc59c' },
+  modalFootSpin: { width: 11, height: 11, borderRadius: 5.5, borderWidth: 1.5, borderColor: '#dde3f5', borderTopColor: '#4b7bec' },
+  modalFootTxt:  { fontFamily: F.mono, fontSize: 11.5, color: C.ink3 },
 
   fab: {
     position: 'absolute', right: 18,
@@ -529,6 +638,70 @@ const s = StyleSheet.create({
     shadowOpacity: 0.35, shadowRadius: 24, elevation: 8,
   },
 });
+
+// ── Modal components ─────────────────────────────────────────────────────────
+
+const COLOR_MAP: Record<string, { bg: string; fg: string }> = {
+  red:   { bg: '#fbefef', fg: '#c23030' },
+  green: { bg: '#e6f3ec', fg: '#1e3a2f' },
+  blue:  { bg: '#eaf0f7', fg: '#1a5276' },
+  amber: { bg: '#fdf0e6', fg: '#9b5e1a' },
+};
+
+function CwModal({ title, sub, onClose, children }: {
+  title: string; sub: string; onClose: () => void; children: React.ReactNode;
+}) {
+  return (
+    <TouchableOpacity
+      style={s.modalOverlay}
+      activeOpacity={1}
+      onPress={onClose}
+    >
+      <TouchableOpacity activeOpacity={1} style={s.modalCard} onPress={() => {}}>
+        <View style={s.modalHead}>
+          <Text style={s.modalTitle}>{title}</Text>
+          <TouchableOpacity style={s.modalClose} onPress={onClose} activeOpacity={0.7}>
+            <XIcon size={15} color={C.ink3} />
+          </TouchableOpacity>
+        </View>
+        <Text style={s.modalSub}>{sub}</Text>
+        <View style={s.modalBody}>{children}</View>
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+}
+
+function CwModalOpt({ color, icon, t1, t2, working, onPress }: {
+  color?: string; icon: React.ReactNode; t1: string; t2: string;
+  working?: boolean; onPress?: () => void;
+}) {
+  const c = color ? (COLOR_MAP[color] ?? COLOR_MAP.blue) : COLOR_MAP.blue;
+  return (
+    <TouchableOpacity style={s.modalOpt} onPress={onPress} activeOpacity={0.7}>
+      <View style={[s.modalOptIco, { backgroundColor: c.bg }]}>
+        {working
+          ? <View style={{ width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: c.fg, borderTopColor: 'transparent' }} />
+          : icon}
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={s.modalOptT1}>{t1}</Text>
+        <Text style={s.modalOptT2}>{t2}</Text>
+      </View>
+      <Text style={s.modalOptArr}>→</Text>
+    </TouchableOpacity>
+  );
+}
+
+function CwModalFoot({ saving, label }: { saving: boolean; label: string }) {
+  return (
+    <View style={s.modalFoot}>
+      {saving
+        ? <View style={s.modalFootSpin} />
+        : <View style={s.modalFootDot} />}
+      <Text style={s.modalFootTxt}>{saving ? 'procesando…' : label}</Text>
+    </View>
+  );
+}
 
 // ── Markdown styles ───────────────────────────────────────────────────────────
 
