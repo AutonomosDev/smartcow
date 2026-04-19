@@ -14,6 +14,7 @@ import {
   FileText, Cloud, Mail, Zap, Code2, Link2, Table2, Type,
 } from 'lucide-react-native';
 import { GenerativeArtifact, ArtifactRenderer } from '../../components/generative/ArtifactRenderer';
+import { useAuth } from '../../context/AuthContext';
 
 const { width: SW } = Dimensions.get('window');
 
@@ -191,8 +192,10 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
     config.onSend?.(text);
   };
 
+  const { user } = useAuth();
   const chips = config.slashChips ?? DEFAULT_CHIPS;
   const fundo = config.subtitle.split('·')[0].trim();
+  const firstName = user?.nombre?.split(' ')[0];
 
   return (
     <View style={s.root}>
@@ -238,7 +241,33 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            <Text style={s.dateSep}>{config.dateSep}</Text>
+            {config.messages.length === 0 ? (
+              <View style={s.emptyState}>
+                {config.avatarSource && (
+                  <Image source={config.avatarSource} style={s.emptyImg} resizeMode="contain" />
+                )}
+                <Text style={s.emptyTitle}>
+                  {firstName ? `¿En qué te ayudo, ${firstName}?` : '¿En qué te ayudo?'}
+                </Text>
+                <Text style={s.emptySub}>
+                  {fundo} · Pregunta sobre tus lotes, animales o finanzas
+                </Text>
+                <View style={s.emptyChips}>
+                  {chips.map((chip) => (
+                    <TouchableOpacity
+                      key={chip}
+                      style={s.chip}
+                      onPress={() => setInputText(chip + ' ')}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={s.chipTxt}>{chip}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            ) : (
+              <Text style={s.dateSep}>{config.dateSep}</Text>
+            )}
 
             {config.messages.map((m) => (
               <View key={m.id} style={s.msgWrap}>
@@ -306,24 +335,26 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
                 <Text style={s.dsPillSrc}>AgroApp</Text>
               </View>
 
-              {/* Slash chips */}
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={s.chipScroll}
-                contentContainerStyle={s.chipRow}
-              >
-                {chips.map((chip) => (
-                  <TouchableOpacity
-                    key={chip}
-                    style={s.chip}
-                    onPress={() => setInputText(chip + ' ')}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={s.chipTxt}>{chip}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+              {/* Slash chips — solo cuando hay mensajes */}
+              {config.messages.length > 0 && (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={s.chipScroll}
+                  contentContainerStyle={s.chipRow}
+                >
+                  {chips.map((chip) => (
+                    <TouchableOpacity
+                      key={chip}
+                      style={s.chip}
+                      onPress={() => setInputText(chip + ' ')}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={s.chipTxt}>{chip}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              )}
 
               {/* Input row */}
               <View style={s.inputBox}>
@@ -536,6 +567,16 @@ const s = StyleSheet.create({
   dsPillSrc:   { fontFamily: F.mono,   fontSize: 11, color: C.ink3 },
 
   // .slash-row .chip
+  // Empty state
+  emptyState: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 32, paddingTop: 60, paddingBottom: 40,
+  },
+  emptyImg:   { width: 72, height: 72, marginBottom: 18 },
+  emptyTitle: { fontFamily: F.bold, fontSize: 18, color: C.ink1, letterSpacing: -0.3, textAlign: 'center', marginBottom: 6 },
+  emptySub:   { fontFamily: F.regular, fontSize: 13, color: C.ink3, textAlign: 'center', marginBottom: 24, lineHeight: 19 },
+  emptyChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
+
   chipScroll: { flexGrow: 0 },
   chipRow:    { flexDirection: 'row', gap: 5, paddingBottom: 2 },
   chip: {
