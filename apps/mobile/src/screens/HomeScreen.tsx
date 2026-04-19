@@ -60,12 +60,9 @@ export default function HomeScreen() {
       <View style={[s.widgetWrap, { bottom: widgetBottom }]}>
         <BlurView intensity={52} tint="default" style={s.widget}>
 
-          {/* Fila: avatar + nombre  |  temp + emoji (derecha) */}
+          {/* Fila: nombre  |  temp + emoji (derecha) */}
           <View style={s.wTop}>
-            <View style={s.wAvatar}>
-              <Text style={s.wAvatarTxt}>{initials}</Text>
-            </View>
-            <Text style={s.wName} numberOfLines={1}>{nombre}</Text>
+            <Text style={s.wName}>SmartCow</Text>
             <Text style={s.wTemp}>6°C</Text>
             <Text style={s.wEmoji}>🌧️</Text>
           </View>
