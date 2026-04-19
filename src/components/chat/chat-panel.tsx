@@ -29,10 +29,6 @@ interface ChatPanelProps {
   className?: string;
 }
 
-// ─── Context chips ────────────────────────────────────────────────────────────
-
-const CONTEXT_CHIPS = ["/feedlot", "/FT", "/vaquillas", "/partos", "/tratamientos", "/ventas"];
-
 // ─── ChatPanel ────────────────────────────────────────────────────────────────
 
 export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: ChatPanelProps) {
@@ -346,7 +342,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
               <div style={{
                 background: "#fff", border: "1px solid #e0e0e0", borderRadius: 10,
                 padding: "8px 10px", display: "flex", alignItems: "center",
-                gap: 6, flexWrap: "wrap", boxShadow: "0 1px 2px rgba(0,0,0,.02)",
+                gap: 6, boxShadow: "0 1px 2px rgba(0,0,0,.02)",
               }}>
                 <div style={{
                   width: 22, height: 22, borderRadius: 6, background: "#f5f5f5",
@@ -355,17 +351,6 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
                 }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
                 </div>
-                {CONTEXT_CHIPS.map((chip) => (
-                  <span key={chip} style={{
-                    fontFamily: "var(--cw-mono)", fontSize: 12,
-                    background: "var(--cw-blue)", color: "var(--cw-blue-fg)",
-                    padding: "4px 10px", borderRadius: 8,
-                    cursor: "pointer", fontWeight: 500,
-                    border: "1px solid transparent",
-                  }}>
-                    {chip}
-                  </span>
-                ))}
                 <span style={{ fontSize: 12, color: "var(--cw-ink3)", fontFamily: "var(--cw-mono)", padding: "4px 8px", cursor: "pointer" }}>
                   más ▾
                 </span>
