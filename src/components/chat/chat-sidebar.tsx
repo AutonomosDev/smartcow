@@ -1,90 +1,46 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  MessageSquare,
-  Layers,
-  Users,
-  GitCompare,
-  BookOpen,
-  FileSearch,
-  Settings,
-  ChevronsUpDown,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Type,
-  Clock,
-  Bell,
-} from "lucide-react";
-import { useState } from "react";
-import { useFont } from "@/src/providers/font-provider";
+import React from "react";
+import { IconX, IconPlus, IconZap, IconChat } from "./chat-icons";
 
-interface NavItemProps {
-  href: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
-  label: string;
-  badge?: string;
-  active?: boolean;
-  disabled?: boolean;
-  onClick?: () => void;
-}
+// ── Static sessions ────────────────────────────────────────────────────────────
 
-function NavItem({ href, icon: Icon, label, badge, active, disabled, onClick }: NavItemProps) {
-  const base =
-    "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors w-full text-left";
+const SESSIONS = {
+  pinned: [] as string[],
+  smartcow_prod: [
+    "Initialize project setup",
+    "Importar Excels AgroApp",
+    "Schema Drizzle — tratamientos",
+    "Fix DIIO resolver bajas",
+    "Revisar partos duplicados",
+  ],
+  fundos_chile: [
+    "Los Aromos — resumen semanal",
+    "Plan vacunación Q2 2026",
+    "Reporte movimientos marzo",
+    "Auditoría tratamientos ISA",
+  ],
+};
 
-  if (disabled) {
-    return (
-      <div className={`${base} text-gray-400 cursor-not-allowed opacity-60`} title={label}>
-        <Icon size={16} className="flex-shrink-0" />
-        <span className="whitespace-nowrap overflow-hidden transition-opacity duration-200">{label}</span>
-      </div>
-    );
-  }
+// ── Dot icon ───────────────────────────────────────────────────────────────────
 
-  if (onClick) {
-    return (
-      <button
-        onClick={onClick}
-        className={`${base} ${
-          active
-            ? "bg-white shadow-sm border border-gray-200/60 text-[#06200F] font-semibold"
-            : "text-gray-500 hover:bg-white/80 hover:text-gray-900"
-        }`}
-        title={label}
-      >
-        <Icon size={16} className="flex-shrink-0" />
-        <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis transition-opacity duration-200 text-left">{label}</span>
-      </button>
-    );
-  }
-
+function SessionDot({ active = false }: { active?: boolean }) {
   return (
-    <Link
-      href={href}
-      className={`${base} ${
-        active
-          ? "bg-white shadow-sm border border-gray-200/60 text-[#06200F] font-semibold"
-          : "text-gray-500 hover:bg-white/80 hover:text-gray-900"
-        }`}
-      title={label}
-    >
-      <Icon size={16} className="flex-shrink-0" />
-      <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis transition-opacity duration-200">{label}</span>
-      {badge && (
-        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-900 text-white flex-shrink-0">
-          {badge}
-        </span>
-      )}
-    </Link>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeDasharray={active ? "0" : "2 2.5"}>
+      <circle cx="12" cy="12" r="8" />
+      {active && <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none" />}
+    </svg>
   );
 }
 
+// ── Props ──────────────────────────────────────────────────────────────────────
+
 interface ChatSidebarProps {
-  orgName?: string | null;
+  open?: boolean;
+  onClose?: () => void;
   userName?: string | null;
+  // Legacy compat props (used by animales, lotes, reportes pages)
+  orgName?: string | null;
   userEmail?: string | null;
   onKBClick?: () => void;
   onOrgClick?: () => void;
@@ -92,143 +48,126 @@ interface ChatSidebarProps {
   onHistoryClick?: () => void;
   onSettingsClick?: () => void;
   onProfileClick?: () => void;
+  activeSession?: string;
+  onNewSession?: () => void;
 }
 
-export function ChatSidebar({ 
-  orgName, 
-  userName, 
-  userEmail, 
-  onKBClick,
-  onOrgClick,
-  onNotificationsClick,
-  onHistoryClick,
-  onSettingsClick,
-  onProfileClick
+// ── Component ──────────────────────────────────────────────────────────────────
+
+export function ChatSidebar({
+  open = false,
+  onClose,
+  userName,
+  activeSession = "Initialize project setup",
+  onNewSession,
 }: ChatSidebarProps) {
-  const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const { font, setFont } = useFont();
+  const [activeTab, setActiveTab] = React.useState<"chats" | "tasks">("chats");
 
   return (
-    <aside 
-      className={`min-h-screen bg-white border-r border-gray-100 flex flex-col flex-shrink-0 transition-all duration-300 ease-in-out font-inherit ${isCollapsed ? 'w-16' : 'w-[260px]'}`}
-      suppressHydrationWarning
-    >
-      {/* Logo + Organization dropdown */}
-      <div className="px-3 py-3 border-b border-gray-50/50">
-        {/* Logo and Collapse Toggle */}
-        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-2 py-1 mb-2`}>
-          {!isCollapsed && (
-            <div className="flex items-center gap-2">
-              <img src="/cow_robot.png" alt="smartCow" className="w-8 h-8 object-contain flex-shrink-0 mix-blend-multiply" />
-              <span className="text-gray-900 text-sm font-bold tracking-tight whitespace-nowrap overflow-hidden">smartCow</span>
-            </div>
-          )}
-          <button 
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="text-gray-400 hover:text-gray-800 p-1 rounded-md hover:bg-gray-50/50 transition-colors"
-            title="Toggle Sidebar"
+    <>
+      {/* Backdrop */}
+      {open && <div className="sc-backdrop" onClick={onClose} />}
+
+      {/* Sidebar panel */}
+      <aside className={`sc-sidebar ${open ? "open" : ""}`} role="dialog" aria-label="Historial de conversaciones">
+
+        {/* Tabs row */}
+        <div className="flex items-center gap-[2px] px-[8px] pt-[10px] pb-[6px] border-b border-[#f0ede8]">
+          <button
+            onClick={() => setActiveTab("chats")}
+            className={`flex items-center gap-[5px] px-[10px] py-[5px] rounded-[6px] text-[12px] font-medium transition-colors ${
+              activeTab === "chats" ? "bg-[#f0ede8] text-[#1a1a1a]" : "text-[#999] hover:text-[#666]"
+            }`}
           >
-            {isCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+            <IconChat size={14} /> Chats
+          </button>
+          <button
+            onClick={() => setActiveTab("tasks")}
+            className={`flex items-center gap-[5px] px-[10px] py-[5px] rounded-[6px] text-[12px] font-medium transition-colors ${
+              activeTab === "tasks" ? "bg-[#f0ede8] text-[#1a1a1a]" : "text-[#999] hover:text-[#666]"
+            }`}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <path d="M4 6h16M4 12h10M4 18h16" />
+            </svg>
+            Tareas
+          </button>
+          <button
+            onClick={onClose}
+            className="ml-auto text-[#bbb] hover:text-[#666] transition-colors p-[4px]"
+            aria-label="Cerrar sidebar"
+          >
+            <IconX size={14} />
           </button>
         </div>
-        
-        {/* Organization */}
-        {!isCollapsed && (
-          <button 
-            onClick={onOrgClick}
-            className="flex items-center justify-between w-full px-2 py-1.5 rounded-md hover:bg-white transition-colors text-left border border-transparent hover:border-gray-50 hover:shadow-sm"
+
+        {/* Top actions */}
+        <div className="px-[8px] py-[8px] border-b border-[#f0ede8]">
+          <button
+            onClick={onNewSession}
+            className="flex items-center gap-[8px] w-full px-[10px] py-[7px] rounded-[6px] text-[12.5px] text-[#555] hover:bg-[#f8f6f1] hover:text-[#1a1a1a] transition-colors"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center">
-                <span className="text-[10px] text-gray-500 font-bold">O</span>
-              </div>
-              <span className="text-sm text-gray-700 whitespace-nowrap overflow-hidden">{orgName ?? "Organización"}</span>
-            </div>
-            <ChevronsUpDown size={14} className="text-gray-400" />
+            <IconPlus size={14} /> Nueva sesión
           </button>
-        )}
-      </div>
-
-      {/* Nav items */}
-      <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto no-scrollbar">
-        <NavItem
-          href="/dashboard"
-          icon={LayoutDashboard}
-          label="Inicio"
-          active={pathname === "/dashboard"}
-        />
-        <NavItem
-          href="/chat"
-          icon={MessageSquare}
-          label="Nuevo Chat"
-          active={pathname === "/chat"}
-        />
-
-        <NavItem href="#" icon={Clock} label="Historial" onClick={onHistoryClick} />
-        <NavItem href="#" icon={BookOpen} label="Base de Conocimiento" onClick={onKBClick} />
-        
-        <div className="py-2 px-3">
-           <div className="border-t border-gray-50"></div>
+          <button className="flex items-center gap-[8px] w-full px-[10px] py-[7px] rounded-[6px] text-[12.5px] text-[#555] hover:bg-[#f8f6f1] hover:text-[#1a1a1a] transition-colors">
+            <IconZap size={13} /> Routines
+          </button>
         </div>
 
-        <NavItem href="#" icon={LayoutDashboard} label="Lotes" disabled />
-        <NavItem href="#" icon={Users} label="Animales" disabled />
-        <NavItem href="#" icon={FileSearch} label="Reportes PDF" disabled />
-        <NavItem href="#" icon={Bell} label="Notificaciones" onClick={onNotificationsClick} badge="4" />
-      </nav>
-
-      {/* selector de fuentes (Solo V2) */}
-      {!isCollapsed && (
-        <div className="px-4 py-3 border-t border-gray-50 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Type size={14} className="text-gray-400" />
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Fuentes</span>
-          </div>
-          <div className="flex gap-1">
-            {(["inter", "jakarta", "manrope"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFont(f)}
-                className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold transition-all ${
-                  font === f 
-                    ? "bg-[#06200F] text-white shadow-sm" 
-                    : "bg-white text-gray-400 border border-gray-100 hover:bg-gray-50/50"
-                }`}
-                title={`Usar fuente ${f}`}
-              >
-                {f[0].toUpperCase()}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Footer: Account */}
-      <div className="px-2 py-2 border-t border-gray-50 space-y-0.5">
-        <NavItem href="#" icon={Settings} label="Ajustes" onClick={onSettingsClick} />
-        <button 
-          onClick={onProfileClick}
-          className="flex items-center justify-between w-full px-2.5 py-2 rounded-md hover:bg-white transition-colors text-left border border-transparent hover:border-gray-100 hover:shadow-sm"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-              <span className="text-[10px] text-gray-600 font-semibold uppercase">
-                {userName?.[0] ?? "U"}
-              </span>
-            </div>
-            {!isCollapsed && (
-              <div className="min-w-0">
-                <p className="text-sm text-gray-700 font-medium truncate leading-none mb-0.5">
-                  {userName ?? "Usuario"}
-                </p>
-                <p className="text-[10px] text-gray-400 truncate leading-none">{userEmail ?? ""}</p>
+        {/* Session list */}
+        <nav className="flex-1 overflow-y-auto no-scrollbar px-[6px] py-[8px]">
+          {Object.entries(SESSIONS).map(([group, items]) => {
+            if (items.length === 0) return null;
+            return (
+              <div key={group} className="mb-[14px]">
+                <div
+                  className="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#bbb] px-[8px] mb-[4px]"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
+                  {group === "pinned" ? "Pinned" : group.replace(/_/g, " ")}
+                </div>
+                {items.map((label) => {
+                  const isActive = label === activeSession;
+                  return (
+                    <button
+                      key={label}
+                      className={`flex items-center gap-[8px] w-full px-[8px] py-[6px] rounded-[6px] text-left text-[12.5px] transition-colors ${
+                        isActive
+                          ? "bg-[#f0ede8] text-[#1a1a1a] font-medium"
+                          : "text-[#666] hover:bg-[#fafaf7] hover:text-[#1a1a1a]"
+                      }`}
+                    >
+                      <span className={isActive ? "text-[#1e3a2f]" : "text-[#ccc]"}>
+                        <SessionDot active={isActive} />
+                      </span>
+                      <span className="flex-1 truncate">{label}</span>
+                    </button>
+                  );
+                })}
               </div>
-            )}
+            );
+          })}
+        </nav>
+
+        {/* Footer */}
+        <div className="flex items-center gap-[8px] px-[14px] py-[10px] border-t border-[#f0ede8]">
+          <div className="w-[24px] h-[24px] rounded-full bg-[#1e3a2f] flex items-center justify-center text-[9px] font-bold text-[#7ecfa0] flex-shrink-0">
+            {userName?.[0]?.toUpperCase() ?? "C"}
           </div>
-          {!isCollapsed && <ChevronsUpDown size={14} className="text-gray-400 flex-shrink-0" />}
-        </button>
-      </div>
-    </aside>
+          <span className="text-[12px] font-medium text-[#1a1a1a] flex-1 truncate">
+            {userName ?? "César"}
+          </span>
+          <button
+            title="Tema"
+            className="text-[#bbb] hover:text-[#666] transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+            </svg>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }

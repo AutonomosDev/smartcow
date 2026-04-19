@@ -1,36 +1,21 @@
-/**
- * src/components/chat/message-renderer.tsx
- */
-
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
-import { Check, Copy } from "lucide-react";
+import { IconCopy, IconCheck, IconRefresh, IconBookmark } from "./chat-icons";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────────────────
 
 export type ChartData =
-  | { type: "bar"; data: Record<string, unknown>[]; xKey: string; yKey: string; title?: string }
+  | { type: "bar";  data: Record<string, unknown>[]; xKey: string; yKey: string; title?: string }
   | { type: "line"; data: Record<string, unknown>[]; xKey: string; yKey: string; title?: string }
-  | { type: "pie"; data: { name: string; value: number }[]; title?: string };
+  | { type: "pie";  data: { name: string; value: number }[]; title?: string };
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -38,209 +23,273 @@ export interface ChatMessage {
   charts?: ChartData[];
 }
 
-// ─── Chart colors ─────────────────────────────────────────────────────────────
+// ── Chart colors ───────────────────────────────────────────────────────────────
 
-const COLORS = ["#06200F", "#9ADF59", "#1B3A26", "#4C7C54", "#8FB996", "#E1E8E2"];
+const CHART_COLORS = ["#1e3a2f", "#7ecfa0", "#2b6a4a", "#4c7c54", "#8fb996", "#e6f3ec"];
 
-// ─── CodeBlock V2 (White Theme) ───────────────────────────────────────────────
+// ── Code block ─────────────────────────────────────────────────────────────────
 
-interface CodeBlockProps {
-  language?: string;
-  code: string;
-}
-
-function CodeBlockV2({ language, code }: CodeBlockProps) {
-  const [copied, setCopied] = React.useState(false);
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
+function CodeBlock({ language, code }: { language?: string; code: string }) {
+  const [copied, setCopied] = useState(false);
   return (
-    <div className="relative my-4 rounded-2xl overflow-hidden border border-gray-100 bg-white shadow-sm font-inherit">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-50/50 border-b border-gray-100/50">
-        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-          {language ?? "texto"}
+    <div className="my-3 rounded-[8px] overflow-hidden border border-[#e8e5df] bg-[#fafaf7]">
+      <div className="flex items-center justify-between px-[12px] py-[7px] border-b border-[#f0ede8]">
+        <span
+          className="text-[10px] font-medium uppercase tracking-[0.6px]"
+          style={{ fontFamily: "var(--font-mono)", color: "#999" }}
+        >
+          {language ?? "código"}
         </span>
         <button
-          onClick={handleCopy}
-          className="text-gray-400 hover:text-gray-900 transition-colors p-1"
+          onClick={async () => {
+            await navigator.clipboard.writeText(code);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          }}
+          className="text-[#bbb] hover:text-[#666] transition-colors"
         >
-          {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+          {copied ? <IconCheck size={13} /> : <IconCopy size={13} />}
         </button>
       </div>
-      {/* Code */}
-      <pre className="overflow-x-auto p-4 text-sm text-gray-700 font-mono leading-relaxed bg-white">
+      <pre
+        className="overflow-x-auto px-[14px] py-[12px] text-[12.5px] leading-[1.6] text-[#1a1a1a]"
+        style={{ fontFamily: "var(--font-mono)" }}
+      >
         <code>{code}</code>
       </pre>
     </div>
   );
 }
 
-// ─── Chart Renderers (V2 White) ──────────────────────────────────────────────
+// ── Charts ─────────────────────────────────────────────────────────────────────
 
-function ChartRendererV2({ chart }: { chart: ChartData }) {
-  const commonTooltipStyles = {
-    backgroundColor: "#ffffff",
-    border: "1px solid #f3f4f6",
-    borderRadius: "12px",
-    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.05)",
+function ChartRenderer({ chart }: { chart: ChartData }) {
+  const tooltipStyle = {
+    backgroundColor: "#fff",
+    border: "1px solid #f0ede8",
+    borderRadius: "6px",
     fontSize: "12px",
+    fontFamily: "var(--font-mono)",
   };
-
-  const gridStroke = "#f3f4f6";
-
   switch (chart.type) {
     case "bar":
       return (
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={chart.data as any}>
-            <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
-            <XAxis dataKey={chart.xKey} stroke="#9ca3af" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-            <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-            <Tooltip contentStyle={commonTooltipStyles} cursor={{ fill: '#f9fafb' }} />
-            <Bar dataKey={chart.yKey} fill={COLORS[0]} radius={[4, 4, 0, 0]} barSize={32} />
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart data={chart.data as never}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0ede8" vertical={false} />
+            <XAxis dataKey={chart.xKey} stroke="#bbb" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis stroke="#bbb" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#f8f6f1" }} />
+            <Bar dataKey={chart.yKey} fill="#1e3a2f" radius={[4,4,0,0]} barSize={28} />
           </BarChart>
         </ResponsiveContainer>
       );
     case "line":
       return (
-        <ResponsiveContainer width="100%" height={280}>
-          <LineChart data={chart.data as any}>
-            <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
-            <XAxis dataKey={chart.xKey} stroke="#9ca3af" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-            <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-            <Tooltip contentStyle={commonTooltipStyles} />
-            <Line type="monotone" dataKey={chart.yKey} stroke={COLORS[0]} strokeWidth={2.5} dot={{ fill: COLORS[0], r: 4, strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+        <ResponsiveContainer width="100%" height={240}>
+          <LineChart data={chart.data as never}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0ede8" vertical={false} />
+            <XAxis dataKey={chart.xKey} stroke="#bbb" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis stroke="#bbb" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Line type="monotone" dataKey={chart.yKey} stroke="#1e3a2f" strokeWidth={2} dot={{ fill: "#1e3a2f", r: 3, strokeWidth: 1.5, stroke: "#fff" }} />
           </LineChart>
         </ResponsiveContainer>
       );
     case "pie":
       return (
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height={240}>
           <PieChart>
-            <Pie data={chart.data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={60} paddingAngle={5}>
-              {chart.data.map((_, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
-              ))}
+            <Pie data={chart.data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={72} innerRadius={48} paddingAngle={4}>
+              {chart.data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
             </Pie>
-            <Tooltip contentStyle={commonTooltipStyles} />
-            <Legend verticalAlign="bottom" height={36} iconType="circle" />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Legend verticalAlign="bottom" height={32} iconType="circle" />
           </PieChart>
         </ResponsiveContainer>
       );
   }
 }
 
-// ─── Markdown components V2 ──────────────────────────────────────────────────
+// ── Markdown components — DM Sans prose + mono tokens ─────────────────────────
 
-const markdownComponentsV2: Components = {
-  code({ className, children, ...props }) {
+const mdComponents: Components = {
+  code({ className, children }) {
     const match = /language-(\w+)/.exec(className ?? "");
-    const language = match ? match[1] : undefined;
+    const language = match?.[1];
     const code = String(children).replace(/\n$/, "");
-
     if (!className) {
       return (
-        <code className="bg-gray-50 text-gray-900 px-1.5 py-0.5 rounded-md text-[13px] font-mono border border-gray-100" {...props}>
+        <code
+          className="px-[5px] py-[1px] rounded-[4px] text-[12.5px]"
+          style={{
+            fontFamily: "var(--font-mono)",
+            background: "var(--code-red-bg)",
+            color: "var(--code-red-fg)",
+          }}
+        >
           {children}
         </code>
       );
     }
-    return <CodeBlockV2 language={language} code={code} />;
+    return <CodeBlock language={language} code={code} />;
   },
 
   table({ children }) {
     return (
-      <div className="my-6 overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <table className="w-full text-sm text-left border-collapse">{children}</table>
+      <div className="my-4 overflow-x-auto rounded-[8px] border border-[#e8e5df]">
+        <table
+          className="w-full text-left border-collapse"
+          style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}
+        >
+          {children}
+        </table>
       </div>
     );
   },
   thead({ children }) {
+    return <thead className="border-b border-[#e8e5df] bg-[#fafaf7]">{children}</thead>;
+  },
+  th({ children }) {
     return (
-      <thead className="bg-gray-50/50 text-gray-400 text-[10px] font-bold uppercase tracking-widest border-b border-gray-100">
+      <th
+        className="px-[12px] py-[8px] text-[10px] font-semibold uppercase tracking-[0.5px] text-[#999]"
+        style={{ fontFamily: "var(--font-mono)" }}
+      >
         {children}
-      </thead>
+      </th>
     );
   },
   tbody({ children }) {
-    return <tbody className="divide-y divide-gray-50 bg-white text-gray-700 text-[13px]">{children}</tbody>;
-  },
-  th({ children }) {
-    return <th className="px-5 py-3 font-semibold">{children}</th>;
+    return <tbody className="divide-y divide-[#f0ede8]">{children}</tbody>;
   },
   td({ children }) {
-    return <td className="px-5 py-3">{children}</td>;
+    return <td className="px-[12px] py-[8px] text-[12px] text-[#1a1a1a]">{children}</td>;
   },
 
   p({ children }) {
-    return <p className="mb-4 last:mb-0 leading-[1.7] text-gray-700 font-inherit">{children}</p>;
+    return (
+      <p
+        className="mb-[14px] last:mb-0 text-[13.5px] leading-[1.65] text-[#1a1a1a]"
+        style={{ textWrap: "pretty" } as React.CSSProperties}
+      >
+        {children}
+      </p>
+    );
   },
   ul({ children }) {
-    return <ul className="mb-4 ml-4 list-disc space-y-2 text-gray-700">{children}</ul>;
+    return <ul className="mb-[14px] space-y-[6px] text-[#1a1a1a]">{children}</ul>;
   },
   ol({ children }) {
-    return <ol className="mb-4 ml-4 list-decimal space-y-2 text-gray-700">{children}</ol>;
+    return <ol className="mb-[14px] space-y-[6px] text-[#1a1a1a]">{children}</ol>;
   },
   li({ children }) {
-    return <li className="leading-relaxed pl-1">{children}</li>;
+    return (
+      <li className="flex gap-[8px] text-[13.5px] leading-[1.6]">
+        <span className="text-[#bbb] flex-shrink-0 mt-[3px]">·</span>
+        <span>{children}</span>
+      </li>
+    );
   },
-  h1: ({ children }) => <h1 className="text-xl font-bold mb-4 text-gray-900 tracking-tight">{children}</h1>,
-  h2: ({ children }) => <h2 className="text-lg font-bold mb-3 text-gray-900 tracking-tight">{children}</h2>,
-  strong: ({ children }) => <strong className="font-bold text-gray-950">{children}</strong>,
+  h1: ({ children }) => <h1 className="text-[18px] font-bold mb-[12px] text-[#1a1a1a] tracking-tight">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-[14px] font-semibold mb-[8px] mt-[18px] text-[#1a1a1a] tracking-tight">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-[13px] font-semibold mb-[6px] mt-[14px] text-[#1a1a1a]">{children}</h3>,
+  strong: ({ children }) => <strong className="font-semibold text-[#1a1a1a]">{children}</strong>,
   blockquote: ({ children }) => (
-    <blockquote className="border-l-2 border-emerald-100 pl-4 italic text-gray-500 my-6 py-1">
+    <blockquote className="border-l-2 border-[#e8e5df] pl-[12px] italic text-[#666] my-4 py-[2px]">
       {children}
     </blockquote>
   ),
-  hr: () => <hr className="border-gray-100 my-8" />,
+  hr: () => <hr className="border-[#f0ede8] my-6" />,
+  a: ({ children, href }) => (
+    <a href={href} className="text-[#2b6a4a] underline underline-offset-2 decoration-[#7ecfa0]">
+      {children}
+    </a>
+  ),
 };
 
-// ─── MessageRendererV2 ────────────────────────────────────────────────────────
+// ── Typing indicator ───────────────────────────────────────────────────────────
 
-interface MessageRendererProps {
-  message: ChatMessage;
+export function TypingIndicator() {
+  return (
+    <div className="flex gap-[10px] mb-[18px] items-center">
+      <div className="w-[22px] h-[22px] rounded-full bg-[#1e3a2f] flex items-center justify-center flex-shrink-0">
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="5" stroke="#7ecfa0" strokeWidth="1.5"/>
+          <path d="M5 7h4M7 5v4" stroke="#7ecfa0" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </div>
+      <div className="flex gap-[4px] items-center py-[2px]">
+        {[0, 200, 400].map((delay) => (
+          <div
+            key={delay}
+            className="w-[5px] h-[5px] rounded-full bg-[#1e3a2f]"
+            style={{ animation: `chat-blink 1.4s infinite ${delay}ms` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
 
-export function MessageRenderer({ message }: MessageRendererProps) {
-  const isUser = message.role === "user";
+// ── Main export ────────────────────────────────────────────────────────────────
 
-  return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-10 font-inherit animate-in fade-in slide-in-from-bottom-2 duration-500`}>
-      {isUser ? (
-        <div className="flex gap-4 max-w-[85%] ml-auto">
-          <div className="bg-white text-gray-950 border border-gray-100 rounded-[24px] rounded-tr-none px-6 py-3.5 text-[14px] leading-relaxed font-medium shadow-sm">
-            <p className="whitespace-pre-wrap">{message.content}</p>
-          </div>
-          <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center flex-shrink-0 border border-gray-100 text-[11px] font-bold text-gray-400 shadow-sm mt-0.5">
-            U
-          </div>
+export function MessageRenderer({ message }: { message: ChatMessage }) {
+  if (message.role === "user") {
+    return (
+      <div className="flex mb-[18px] animate-in fade-in duration-300">
+        <div
+          className="sc-chip max-w-[72%] text-left"
+          style={{ whiteSpace: "pre-wrap" }}
+        >
+          {message.content}
         </div>
-      ) : (
-        <div className="flex gap-5 max-w-[92%]">
-          <div className="w-9 h-9 flex items-center justify-center flex-shrink-0 mt-1.5 bg-white border border-gray-50 rounded-full p-1 shadow-sm">
-            <img src="/cow_robot.png" alt="smartCow" className="w-full h-full object-contain mix-blend-multiply" />
-          </div>
-          <div className="flex-1 min-w-0 pt-1">
-            <div className="text-[15px] leading-[1.8] text-gray-800 font-inherit prose prose-neutral max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponentsV2}>
-                {message.content}
-              </ReactMarkdown>
+      </div>
+    );
+  }
+  return (
+    <div className="flex gap-[10px] mb-[18px] items-start animate-in fade-in duration-300">
+      <div className="w-[22px] h-[22px] rounded-full bg-[#1e3a2f] flex items-center justify-center flex-shrink-0 mt-[2px]">
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="5" stroke="#7ecfa0" strokeWidth="1.5"/>
+          <path d="M5 7h4M7 5v4" stroke="#7ecfa0" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[13.5px] leading-[1.65] text-[#1a1a1a]">
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+            {message.content}
+          </ReactMarkdown>
+        </div>
 
-              {message.charts && message.charts.length > 0 && (
-                <div className="mt-8 border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm p-6 animate-in zoom-in-95 duration-700">
-                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 text-center">{message.charts[0].title || 'Análisis de Datos'}</p>
-                   <ChartRendererV2 chart={message.charts[0]} />
-                </div>
-              )}
+        {message.charts && message.charts.length > 0 && (
+          <div className="mt-3 bg-white border border-[#e8e5df] rounded-[8px] overflow-hidden">
+            <div className="px-[12px] py-[8px] border-b border-[#f0ede8]">
+              <span
+                className="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#999]"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                {message.charts[0].title ?? "análisis"}
+              </span>
+            </div>
+            <div className="p-[12px]">
+              <ChartRenderer chart={message.charts[0]} />
             </div>
           </div>
+        )}
+
+        <div className="flex gap-[10px] mt-[8px]">
+          {[
+            { icon: <IconCopy size={12} />, label: "Copiar" },
+            { icon: <IconRefresh size={12} />, label: "Regenerar" },
+            { icon: <IconBookmark size={12} />, label: "Guardar" },
+          ].map(({ icon, label }) => (
+            <button key={label} title={label} className="text-[#ccc] hover:text-[#666] transition-colors">
+              {icon}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }

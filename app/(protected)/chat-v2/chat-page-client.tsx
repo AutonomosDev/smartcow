@@ -1,185 +1,222 @@
 "use client";
 
-import { useState } from "react";
-import { FontProvider } from "@/src/providers/font-provider";
+import React, { useState, useRef, useEffect } from "react";
 import { ChatSidebar } from "@/src/components/chat/chat-sidebar";
 import { ChatPanel } from "@/src/components/chat/chat-panel";
-import { KBUploadModal } from "@/src/components/modals/kb-upload-modal";
-import { KBManagementModal } from "@/src/components/modals/kb-management-modal";
-import { ConfirmationModal } from "@/src/components/modals/confirmation-modal";
-import { OrgSwitcherModal } from "@/src/components/modals/org-switcher-modal";
-import { UserProfileModal } from "@/src/components/modals/user-profile-modal";
-import { NotificationsModal } from "@/src/components/modals/notifications-modal";
-import { ChatHistoryModal } from "@/src/components/modals/chat-history-modal";
-import { SettingsModal } from "@/src/components/modals/settings-modal";
-import { ChevronLeft, ChevronDown, SquarePen, X } from "lucide-react";
-import Link from "next/link";
-import { ChatShareButton } from "@/src/components/chat/chat-share-button";
+import { ChatArtifact, type ArtifactData } from "@/src/components/chat/chat-artifact";
+import {
+  IconHamburger, IconChevronLeft, IconChevronRight, IconSearch,
+  IconFolder, IconSidebarRight,
+} from "@/src/components/chat/chat-icons";
 
-export function ChatPageClient({ predioId, initialMessage, nombrePredio, session }: any) {
-  // Estados para modales existentes
-  const [isKBMgmtOpen, setIsKBMgmtOpen] = useState(false);
-  const [isKBUploadOpen, setIsKBUploadOpen] = useState(false);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [fileToDelete, setFileToDelete] = useState<any>(null);
+// ── Traffic lights ─────────────────────────────────────────────────────────────
 
-  // Estados para nuevos modales V2
-  const [isOrgSwitcherOpen, setIsOrgSwitcherOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+function TrafficLights() {
+  return (
+    <div className="flex gap-[8px] items-center">
+      <span className="w-[12px] h-[12px] rounded-full block bg-[#ff5f57] border-[0.5px] border-[#e0443e]" />
+      <span className="w-[12px] h-[12px] rounded-full block bg-[#febc2e] border-[0.5px] border-[#dea123]" />
+      <span className="w-[12px] h-[12px] rounded-full block bg-[#28c840] border-[0.5px] border-[#1aab29]" />
+    </div>
+  );
+}
 
-  const handleDeleteRequest = (file: any) => {
-    setFileToDelete(file);
-    setIsConfirmOpen(true);
-  };
+// ── Reopen chip ────────────────────────────────────────────────────────────────
 
-  const handleConfirmDelete = () => {
-    console.log("Eliminando archivo:", fileToDelete);
-    setIsConfirmOpen(false);
-    setFileToDelete(null);
-  };
+function ReopenChip({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-[6px] px-[10px] py-[4px] rounded-[6px] text-[11.5px] font-medium transition-colors border border-transparent"
+      style={{
+        fontFamily: "var(--font-mono)",
+        background: "var(--green-chip-bg)",
+        color: "var(--green-chip-fg)",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.background = "var(--green-chip-hover-bg)";
+        (e.currentTarget as HTMLElement).style.borderColor = "rgba(43,106,74,.2)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.background = "var(--green-chip-bg)";
+        (e.currentTarget as HTMLElement).style.borderColor = "transparent";
+      }}
+    >
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/>
+      </svg>
+      Plan
+    </button>
+  );
+}
 
-  const handleOrgSelect = (org: any) => {
-    console.log("Cambiando a predio:", org.name);
-    // Aquí iría la lógica de redirección o cambio de contexto si fuera necesario
+// ── Props ──────────────────────────────────────────────────────────────────────
+
+export function ChatPageClient({
+  predioId,
+  initialMessage,
+  nombrePredio,
+  session,
+}: {
+  predioId: number;
+  initialMessage?: string;
+  nombrePredio?: string | null;
+  session: { user: { nombre: string; email: string } };
+}) {
+  const [sbOpen, setSbOpen] = useState(false);
+  const [artVisible, setArtVisible] = useState(true);
+  const [artifact, setArtifact] = useState<ArtifactData | null>({
+    kind: "Plan",
+    title: "Captura datos AgroApp — ruta Excel del UI + Puppeteer",
+    content: "Documento de plan generado por SmartCow.\n\nEste panel mostrará el contenido del próximo informe o plan generado por el asistente.",
+  });
+
+  // Artifact panel width — draggable
+  const [artWidth, setArtWidth] = useState(() => {
+    try { return parseInt(localStorage.getItem("sc_art_w") ?? "0") || 560; } catch { return 560; }
+  });
+  const dragRef = useRef({ dragging: false, startX: 0, startW: 0 });
+  const dividerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!dragRef.current.dragging) return;
+      const dx = dragRef.current.startX - e.clientX;
+      const nw = Math.max(320, Math.min(window.innerWidth - 420, dragRef.current.startW + dx));
+      setArtWidth(nw);
+    };
+    const onUp = () => {
+      if (!dragRef.current.dragging) return;
+      dragRef.current.dragging = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      dividerRef.current?.classList.remove("dragging");
+      try { localStorage.setItem("sc_art_w", String(artWidth)); } catch {}
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [artWidth]);
+
+  const onDragStart = (e: React.MouseEvent) => {
+    dragRef.current = { dragging: true, startX: e.clientX, startW: artWidth };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    dividerRef.current?.classList.add("dragging");
   };
 
   return (
-    <FontProvider>
-      {/* ── MODALES ── */}
-      <KBManagementModal 
-        isOpen={isKBMgmtOpen} 
-        onOpenChange={setIsKBMgmtOpen} 
-        onUploadClick={() => {
-          setIsKBMgmtOpen(false);
-          setIsKBUploadOpen(true);
-        }}
-        onDeleteRequest={handleDeleteRequest}
-      />
-      <KBUploadModal 
-        isOpen={isKBUploadOpen} 
-        onOpenChange={setIsKBUploadOpen} 
-      />
-      <ConfirmationModal 
-        isOpen={isConfirmOpen} 
-        onOpenChange={setIsConfirmOpen} 
-        onConfirm={handleConfirmDelete}
-        title="¿Eliminar documento?"
-        description={`Esta acción eliminará "${fileToDelete?.name || 'el documento'}" de la base de conocimiento y SmartCow dejará de usarlo como contexto.`}
-      />
-
-      <OrgSwitcherModal 
-        isOpen={isOrgSwitcherOpen} 
-        onOpenChange={setIsOrgSwitcherOpen}
-        currentOrgId={predioId}
-        onSelect={handleOrgSelect}
-      />
-
-      <UserProfileModal 
-        isOpen={isProfileOpen} 
-        onOpenChange={setIsProfileOpen}
-        user={{
-          name: session.user.nombre,
-          email: session.user.email,
-          role: "Administrador SmartCow"
-        }}
-        onLogout={() => console.log("Cerrando sesión...")}
-      />
-
-      <NotificationsModal 
-        isOpen={isNotificationsOpen} 
-        onOpenChange={setIsNotificationsOpen}
-      />
-
-      <ChatHistoryModal 
-        isOpen={isHistoryOpen} 
-        onOpenChange={setIsHistoryOpen}
-        onSelect={(id) => console.log("Cargando charla:", id)}
-      />
-
-      <SettingsModal 
-        isOpen={isSettingsOpen} 
-        onOpenChange={setIsSettingsOpen}
-      />
-
-      {/* ── LAYOUT: una sola instancia de ChatPanel — desktop y mobile comparten el panel ── */}
-      <div className="flex h-screen overflow-hidden bg-white">
-
-        {/* Sidebar — solo visible en desktop */}
-        <div className="hidden md:flex">
-          <ChatSidebar
-            orgName={nombrePredio}
-            userName={session.user.nombre}
-            userEmail={session.user.email}
-            onKBClick={() => setIsKBMgmtOpen(true)}
-            onOrgClick={() => setIsOrgSwitcherOpen(true)}
-            onNotificationsClick={() => setIsNotificationsOpen(true)}
-            onHistoryClick={() => setIsHistoryOpen(true)}
-            onSettingsClick={() => setIsSettingsOpen(true)}
-            onProfileClick={() => setIsProfileOpen(true)}
-          />
+    <div
+      className="flex flex-col h-screen overflow-hidden"
+      style={{ background: "#fff" }}
+    >
+      {/* ── macOS titlebar ── */}
+      <div
+        className="flex items-center flex-shrink-0 select-none gap-[10px] px-[10px]"
+        style={{ height: 38, borderBottom: "1px solid #ececec", background: "#fff" }}
+      >
+        {/* Left: traffic lights + nav */}
+        <TrafficLights />
+        <div className="flex items-center gap-[2px] ml-[4px]">
+          <button
+            onClick={() => setSbOpen((o) => !o)}
+            title="Menú"
+            className="w-[22px] h-[22px] flex items-center justify-center rounded-[4px] text-[#b0b0b0] hover:bg-black/5 hover:text-[#6a6a6a] transition-colors"
+          >
+            <IconHamburger size={15} />
+          </button>
+          <button className="w-[22px] h-[22px] flex items-center justify-center rounded-[4px] text-[#c8c8c8]">
+            <IconChevronLeft size={16} />
+          </button>
+          <button className="w-[22px] h-[22px] flex items-center justify-center rounded-[4px] text-[#c8c8c8]">
+            <IconChevronRight size={16} />
+          </button>
         </div>
 
-        {/* Área principal — flex-col compartida desktop + mobile */}
-        <div className="flex-1 flex flex-col min-h-0 bg-transparent overflow-hidden">
+        {/* Center: project title */}
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-[7px] text-[12.5px] text-[#333] font-medium"
+          style={{ fontFamily: "var(--font-sans)" }}
+        >
+          <span className="text-[#666] flex items-center">
+            <IconFolder size={13} />
+          </span>
+          <span>smartcow_prod</span>
+          <span className="text-[#999] mx-[2px]">/</span>
+          <span>{nombrePredio ?? "Asistente ganadero"}</span>
+          <span className="text-[#8a8a8a] ml-[2px]">▾</span>
+        </div>
 
-          {/* Header desktop */}
-          <header className="hidden md:flex items-center justify-between px-4 py-2.5 border-b border-gray-100/50 flex-shrink-0 bg-white sticky top-0 z-10">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsHistoryOpen(true)}
-                className="flex items-center gap-1.5 hover:bg-gray-50 px-2 py-1 rounded-md transition-colors"
-              >
-                <span className="text-gray-900 text-sm font-medium text-opacity-50 italic">Nueva conversación...</span>
-                <ChevronDown size={14} className="text-gray-400" />
-              </button>
-            </div>
-            <div
-              onClick={() => setIsOrgSwitcherOpen(true)}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-colors text-[#06200F] cursor-pointer hover:bg-gray-50 font-inherit"
-            >
-              <span className="text-[15px] font-bold tracking-tight">
-                {nombrePredio || "smartCow"}
-              </span>
-              <ChevronDown size={14} className="text-gray-400" />
-            </div>
-            <div className="flex items-center gap-1">
-              <Link href="/chat" className="p-1.5 rounded-md hover:bg-gray-50/50 transition-colors text-gray-400 hover:text-gray-600">
-                <SquarePen size={16} />
-              </Link>
-              <ChatShareButton />
-              <Link href="/dashboard" className="p-1.5 rounded-full border border-gray-200 hover:bg-gray-50/50 transition-colors text-gray-400 hover:text-gray-600">
-                <X size={16} />
-              </Link>
-            </div>
-          </header>
-
-          {/* Header mobile */}
-          <header className="flex md:hidden items-center justify-between px-4 py-3 flex-shrink-0">
-            <Link href="/dashboard" className="p-1 -ml-1 text-gray-400">
-              <ChevronLeft size={22} />
-            </Link>
-            <div className="w-8 h-8 flex items-center justify-center mix-blend-multiply">
-              <img src="/cow_robot.png" alt="smartCow" className="w-full h-full object-contain" />
-            </div>
-            <button onClick={() => setIsProfileOpen(true)} className="w-8 h-8 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-400">
-              {session.user.nombre?.[0] ?? "U"}
-            </button>
-          </header>
-
-          {/* UNA sola instancia del panel de chat */}
-          <div className="flex-1 min-h-0">
-            <ChatPanel
-              predioId={predioId}
-              initialMessage={initialMessage}
-              nombrePredio={nombrePredio}
-              userName={session.user.nombre}
-            />
-          </div>
+        {/* Right: reopen chip + search */}
+        <div className="ml-auto flex items-center gap-[6px] pr-[10px]">
+          {!artVisible && (
+            <ReopenChip onClick={() => setArtVisible(true)} />
+          )}
+          <button
+            title="Buscar"
+            className="w-[24px] h-[24px] flex items-center justify-center rounded-[4px] text-[#666] hover:bg-black/5 transition-colors"
+          >
+            <IconSearch size={14} />
+          </button>
         </div>
       </div>
-    </FontProvider>
+
+      {/* ── Body split ── */}
+      <div className="flex flex-1 min-h-0 bg-white relative">
+        {/* Sidebar overlay */}
+        <ChatSidebar
+          open={sbOpen}
+          onClose={() => setSbOpen(false)}
+          userName={session.user.nombre}
+          onNewSession={() => setSbOpen(false)}
+        />
+
+        {/* Chat pane */}
+        <ChatPanel
+          predioId={predioId}
+          initialMessage={initialMessage}
+          nombrePredio={nombrePredio}
+          userName={session.user.nombre}
+          artWidth={artWidth}
+          artVisible={artVisible}
+          onArtifactUpdate={setArtifact}
+          onArtifactOpen={setArtVisible}
+          className="flex-1 min-w-0"
+        />
+
+        {/* Drag divider */}
+        {artVisible && (
+          <div
+            ref={dividerRef}
+            className="sc-divider"
+            onMouseDown={onDragStart}
+            title="Arrastrar para redimensionar"
+          />
+        )}
+
+        {/* Artifact pane */}
+        {artVisible && (
+          <div
+            className="flex flex-col flex-shrink-0 overflow-hidden"
+            style={{
+              width: artWidth,
+              marginTop: 6,
+              borderRadius: "10px 10px 0 0",
+              boxShadow: "-1px 0 0 rgba(0,0,0,.05), -6px -2px 18px rgba(0,0,0,.07)",
+              background: "#fff",
+            }}
+          >
+            <ChatArtifact
+              artifact={artifact}
+              isOpen={artVisible}
+              onClose={() => setArtVisible(false)}
+            />
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
