@@ -15,7 +15,7 @@ import { SignIn2 } from "@/src/components/ui/clean-minimal-sign-in";
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/chat";
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
