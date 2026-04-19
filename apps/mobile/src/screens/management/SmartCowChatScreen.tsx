@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Alert } from 'react-native';
 import ChatBaseScreen, { ChatConfig, Message } from '../intelligence/ChatBaseScreen';
 import { mapToolResultToArtifact } from '../../components/generative/artifact-mapper';
 import { API_BASE_URL } from '../../lib/config';
@@ -110,6 +111,22 @@ export default function SmartCowChatScreen() {
     }
   };
 
+  const handleNewChat = () => {
+    if (messages.length === 0) return;
+    Alert.alert('Nuevo chat', '¿Empezar un chat limpio? Se descartan los mensajes actuales.', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Nuevo chat', style: 'destructive', onPress: () => setMessages([]) },
+    ]);
+  };
+
+  const handleAttach = () => {
+    Alert.alert('Adjuntar', '¿Qué querés adjuntar?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Imagen', onPress: () => Alert.alert('Imagen', 'Selector de imagen aún no implementado.') },
+      { text: 'Documento', onPress: () => Alert.alert('Documento', 'Selector de documento aún no implementado.') },
+    ]);
+  };
+
   const config: ChatConfig = {
     avatarSource: require('../../../assets/cow_robot.png'),
     name: 'smartCow AI',
@@ -119,6 +136,8 @@ export default function SmartCowChatScreen() {
     slashChips: ['/feedlot', '/FT', '/vaquillas', '/partos', '/tratamientos', '/ventas'],
     messages,
     onSend: handleSend,
+    onNewChat: handleNewChat,
+    onAttach: handleAttach,
   };
 
   return <ChatBaseScreen config={config} />;

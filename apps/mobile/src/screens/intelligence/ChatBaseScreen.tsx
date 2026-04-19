@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
   KeyboardAvoidingView, Platform, Animated, PanResponder,
-  Dimensions, Image, Modal,
+  Dimensions, Image, Modal, Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import {
   FileText, Cloud, Mail, Zap, Code2, Link2, Table2, Type,
 } from 'lucide-react-native';
 import { GenerativeArtifact, ArtifactRenderer } from '../../components/generative/ArtifactRenderer';
+import InformeMock from '../../components/chat/InformeMock';
 import { useAuth } from '../../context/AuthContext';
 
 const { width: SW } = Dimensions.get('window');
@@ -66,6 +67,8 @@ export type ChatConfig = {
   slashChips?: string[];
   messages: Message[];
   onSend?: (text: string) => void;
+  onNewChat?: () => void;
+  onAttach?: () => void;
 };
 
 const DEFAULT_CHIPS = ['/feedlot', '/FT', '/vaquillas', '/partos', '/tratamientos', '/ventas'];
@@ -124,17 +127,35 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
   const [inputText, setInputText] = useState('');
   const [reportContent, setReportContent] = useState<string | null>(null);
   const [reportTitle, setReportTitle] = useState('Informe');
+  const [reportMock, setReportMock] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
   const [copyOpen, setCopyOpen] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const openModalDeferred = (setter: (v: boolean) => void) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => setter(true)));
+  };
 
   const reportX = useRef(new Animated.Value(SW)).current;
   const chatX   = useRef(new Animated.Value(0)).current;
 
   const openReport = (content: string, title = 'Informe') => {
+    setReportMock(false);
     setReportContent(content);
     setReportTitle(title);
+    Animated.parallel([
+      Animated.timing(reportX, { toValue: 0,          duration: 320, useNativeDriver: true }),
+      Animated.timing(chatX,   { toValue: -SW * 0.18, duration: 320, useNativeDriver: true }),
+    ]).start();
+  };
+
+  const openMock = () => {
+    setReportContent('');
+    setReportTitle('Informe pesajes vaquillas FT');
+    setReportMock(true);
     Animated.parallel([
       Animated.timing(reportX, { toValue: 0,          duration: 320, useNativeDriver: true }),
       Animated.timing(chatX,   { toValue: -SW * 0.18, duration: 320, useNativeDriver: true }),
@@ -147,7 +168,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
     Animated.parallel([
       Animated.timing(reportX, { toValue: SW, duration: 280, useNativeDriver: true }),
       Animated.timing(chatX,   { toValue: 0,  duration: 280, useNativeDriver: true }),
-    ]).start(() => setReportContent(null));
+    ]).start(() => { setReportContent(null); setReportMock(false); });
   };
 
   const startSave = (key: string) => {
@@ -197,6 +218,10 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
   const fundo = config.subtitle.split('·')[0].trim();
   const firstName = user?.nombre?.split(' ')[0];
 
+  const visibleMessages = (searchOpen && searchQuery.trim())
+    ? config.messages.filter((m) => m.text.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    : config.messages;
+
   return (
     <View style={s.root}>
       <StatusBar style="dark" />
@@ -206,32 +231,68 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
         <Animated.View style={[s.chatPanel, { transform: [{ translateX: chatX }] }]}>
 
           {/* Header — oculto en empty state */}
-          {config.messages.length > 0 && <View style={[s.hdr, { paddingTop: insets.top + 10 }]}>
-            {config.avatarSource ? (
-              <Image source={config.avatarSource} style={s.avatarImg} />
-            ) : (
-              <View style={s.avatarCircle}>
-                <Text style={s.avatarTxt}>{config.avatarLabel ?? 'AI'}</Text>
+          {config.messages.length > 0 && (
+            searchOpen ? (
+              <View style={[s.hdr, { paddingTop: insets.top + 10 }]}>
+                <Search size={16} color={C.ink3} />
+                <TextInput
+                  style={s.searchInput}
+                  placeholder="Buscar en el chat"
+                  placeholderTextColor={C.ink4}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  autoFocus
+                  returnKeyType="search"
+                />
+                <TouchableOpacity
+                  style={s.icBtn}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  onPress={() => { setSearchOpen(false); setSearchQuery(''); }}
+                >
+                  <XIcon size={16} color={C.ink2} />
+                </TouchableOpacity>
               </View>
-            )}
-            <View style={s.hdrText}>
-              <Text style={s.hdrName}>{config.name}</Text>
-              <Text style={s.hdrMeta}>{config.subtitle}</Text>
-            </View>
-            <TouchableOpacity style={s.icBtn} activeOpacity={0.7}>
-              <Search size={16} color={C.ink2} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[s.icBtn, s.icBtnNew]}
-              activeOpacity={0.7}
-              onPress={() => navigation.goBack()}
-            >
-              <SquarePen size={16} color={C.green} />
-            </TouchableOpacity>
-            <TouchableOpacity style={s.icBtn} activeOpacity={0.7}>
-              <Menu size={16} color={C.ink2} />
-            </TouchableOpacity>
-          </View>}
+            ) : (
+              <View style={[s.hdr, { paddingTop: insets.top + 10 }]}>
+                {config.avatarSource ? (
+                  <Image source={config.avatarSource} style={s.avatarImg} />
+                ) : (
+                  <View style={s.avatarCircle}>
+                    <Text style={s.avatarTxt}>{config.avatarLabel ?? 'AI'}</Text>
+                  </View>
+                )}
+                <View style={s.hdrText}>
+                  <Text style={s.hdrName}>{config.name}</Text>
+                  <Text style={s.hdrMeta}>{config.subtitle}</Text>
+                </View>
+                <TouchableOpacity
+                  style={s.icBtn}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+                  onPress={() => setSearchOpen(true)}
+                >
+                  <Search size={16} color={C.ink2} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[s.icBtn, s.icBtnNew]}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+                  onPress={() => config.onNewChat?.()}
+                >
+                  <SquarePen size={16} color={C.green} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={s.icBtn}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+                  onPress={openMock}
+                >
+                  <Menu size={16} color={C.ink2} />
+                </TouchableOpacity>
+              </View>
+            )
+          )}
 
           {/* Messages */}
           <ScrollView
@@ -269,7 +330,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
               <Text style={s.dateSep}>{config.dateSep}</Text>
             )}
 
-            {config.messages.map((m) => (
+            {visibleMessages.map((m) => (
               <View key={m.id} style={s.msgWrap}>
                 {m.from === 'user' ? (
                   // User message — blue pill, LEFT aligned, mono font
@@ -308,9 +369,26 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
                     )}
 
                     <View style={s.aActions}>
-                      <TouchableOpacity style={s.aAct} onPress={() => setCopyOpen(true)}><Copy size={12} color={C.ink4} /></TouchableOpacity>
-                      <TouchableOpacity style={s.aAct}><RefreshCcw size={12} color={C.ink4} /></TouchableOpacity>
-                      <TouchableOpacity style={s.aAct} onPress={() => setSaveOpen(true)}><Bookmark size={12} color={C.ink4} /></TouchableOpacity>
+                      <TouchableOpacity
+                        style={s.aAct}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        onPress={() => openModalDeferred(setCopyOpen)}
+                      >
+                        <Copy size={12} color={C.ink4} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={s.aAct}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      >
+                        <RefreshCcw size={12} color={C.ink4} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={s.aAct}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        onPress={() => openModalDeferred(setSaveOpen)}
+                      >
+                        <Bookmark size={12} color={C.ink4} />
+                      </TouchableOpacity>
                     </View>
                   </View>
                 )}
@@ -358,7 +436,11 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
 
               {/* Input row */}
               <View style={s.inputBox}>
-                <TouchableOpacity style={s.inputIc} activeOpacity={0.7}>
+                <TouchableOpacity
+                  style={s.inputIc}
+                  activeOpacity={0.7}
+                  onPress={() => config.onAttach?.()}
+                >
                   <Paperclip size={14} color={C.ink1} />
                 </TouchableOpacity>
                 <TextInput
@@ -429,7 +511,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
               contentContainerStyle={s.rptBodyPad}
               showsVerticalScrollIndicator={false}
             >
-              {renderMarkdown(reportContent)}
+              {reportMock ? <InformeMock /> : renderMarkdown(reportContent)}
             </ScrollView>
 
             <TouchableOpacity
@@ -496,15 +578,16 @@ const s = StyleSheet.create({
   avatarCircle: { width: 36, height: 36, borderRadius: 8, backgroundColor: C.green, justifyContent: 'center', alignItems: 'center' },
   avatarTxt:    { fontFamily: F.bold, fontSize: 12, color: '#7ecfa0' },
   hdrText:      { flex: 1 },
-  hdrName:      { fontFamily: F.bold, fontSize: 14, color: C.ink1, lineHeight: 17 },
-  hdrMeta:      { fontFamily: F.mono, fontSize: 10.5, color: C.ink3, marginTop: 2 },
+  hdrName:      { fontFamily: F.bold, fontSize: 16, color: C.ink1, lineHeight: 19 },
+  hdrMeta:      { fontFamily: F.mono, fontSize: 12, color: C.ink3, marginTop: 2 },
   icBtn:        { width: 30, height: 30, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
   icBtnNew:     { backgroundColor: C.note, borderWidth: 0.5, borderColor: C.noteBd },
+  searchInput:  { flex: 1, fontFamily: F.mono, fontSize: 13, color: C.ink1, paddingVertical: 4, paddingHorizontal: 8 },
 
   // Messages — .chat-body
   msgs:    { flex: 1, backgroundColor: C.bg },
   msgsPad: { paddingHorizontal: 14, paddingTop: 16, paddingBottom: 12, gap: 14, flexGrow: 1 },
-  dateSep: { fontFamily: F.mono, fontSize: 9, color: C.ink4, textAlign: 'center', marginBottom: 4 },
+  dateSep: { fontFamily: F.mono, fontSize: 11, color: C.ink4, textAlign: 'center', marginBottom: 4 },
   msgWrap: { flexDirection: 'column' },
 
   // User message — .u-msg
@@ -517,15 +600,15 @@ const s = StyleSheet.create({
   },
   uMsgTxt: {
     fontFamily: F.monoMd,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '500',
     color: C.blueFg,
-    lineHeight: 17,
+    lineHeight: 20,
   },
 
   // AI prose — .a-prose
   aBlock:  { maxWidth: '88%' },
-  aProse:  { fontFamily: F.regular, fontSize: 12.5, lineHeight: 20, color: C.blueFg },
+  aProse:  { fontFamily: F.regular, fontSize: 14.5, lineHeight: 22, color: C.blueFg },
 
   shimmerRow: { flexDirection: 'row', gap: 5, paddingVertical: 8 },
   shimmerDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: C.green },
@@ -540,7 +623,7 @@ const s = StyleSheet.create({
     borderWidth: 1, borderColor: 'transparent',
     marginTop: 6,
   },
-  reportBtnTxt: { fontFamily: F.monoMd, fontSize: 12, fontWeight: '500', color: '#2b6a4a', letterSpacing: 0.2 },
+  reportBtnTxt: { fontFamily: F.monoMd, fontSize: 13.5, fontWeight: '500', color: '#2b6a4a', letterSpacing: 0.2 },
 
   // .a-actions
   aActions: { flexDirection: 'row', gap: 4, marginTop: 4 },
@@ -561,10 +644,10 @@ const s = StyleSheet.create({
     borderWidth: 0.5, borderColor: C.ink5, borderRadius: 8,
     alignSelf: 'flex-start',
   },
-  dsPillTxt:   { fontFamily: F.mono,   fontSize: 11, color: C.ink1 },
-  dsPillBold:  { fontFamily: F.monoMd, fontSize: 11, fontWeight: '500' },
-  dsPillArrow: { fontFamily: F.mono,   fontSize: 11, color: C.ink4 },
-  dsPillSrc:   { fontFamily: F.mono,   fontSize: 11, color: C.ink3 },
+  dsPillTxt:   { fontFamily: F.mono,   fontSize: 13, color: C.ink1 },
+  dsPillBold:  { fontFamily: F.monoMd, fontSize: 13, fontWeight: '500' },
+  dsPillArrow: { fontFamily: F.mono,   fontSize: 13, color: C.ink4 },
+  dsPillSrc:   { fontFamily: F.mono,   fontSize: 13, color: C.ink3 },
 
   // .slash-row .chip
   // Empty state
@@ -573,8 +656,8 @@ const s = StyleSheet.create({
     paddingHorizontal: 32, paddingTop: 160, paddingBottom: 40,
   },
   emptyImg:   { width: 200, height: 200, marginBottom: 18 },
-  emptyTitle: { fontFamily: F.bold, fontSize: 18, color: C.ink1, letterSpacing: -0.3, textAlign: 'center', marginBottom: 6 },
-  emptySub:   { fontFamily: F.regular, fontSize: 13, color: C.ink3, textAlign: 'center', marginBottom: 24, lineHeight: 19 },
+  emptyTitle: { fontFamily: F.bold, fontSize: 22, color: C.ink1, letterSpacing: -0.3, textAlign: 'center', marginBottom: 8 },
+  emptySub:   { fontFamily: F.regular, fontSize: 15, color: C.ink3, textAlign: 'center', marginBottom: 24, lineHeight: 22 },
   emptyChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
 
   chipScroll: { flexGrow: 0 },
@@ -583,7 +666,7 @@ const s = StyleSheet.create({
     backgroundColor: C.blue, borderRadius: 8,
     paddingVertical: 4, paddingHorizontal: 9, flexShrink: 0,
   },
-  chipTxt: { fontFamily: F.monoMd, fontSize: 10.5, fontWeight: '500', color: C.blueFg },
+  chipTxt: { fontFamily: F.monoMd, fontSize: 12.5, fontWeight: '500', color: C.blueFg },
 
   // .input-box
   inputBox: {
@@ -595,7 +678,7 @@ const s = StyleSheet.create({
   },
   inputIc:   { width: 28, height: 28, borderRadius: 14, backgroundColor: C.cream, justifyContent: 'center', alignItems: 'center', flexShrink: 0 },
   inputSend: { backgroundColor: C.green },
-  inputTxt:  { flex: 1, fontFamily: F.mono, fontSize: 12, color: C.ink1, maxHeight: 100 },
+  inputTxt:  { flex: 1, fontFamily: F.mono, fontSize: 14, color: C.ink1, maxHeight: 100 },
 
   // Report panel
   reportPanel: {
@@ -694,8 +777,13 @@ function CwModal({ title, sub, onClose, children }: {
 }) {
   return (
     <Modal transparent animationType="fade" visible onRequestClose={onClose}>
-      <TouchableOpacity style={s.modalOverlay} activeOpacity={1} onPress={onClose}>
-        <TouchableOpacity activeOpacity={1} style={s.modalCard} onPress={() => {}}>
+      <View style={s.modalOverlay}>
+        <View
+          style={StyleSheet.absoluteFill}
+          onStartShouldSetResponder={() => true}
+          onResponderRelease={onClose}
+        />
+        <View style={s.modalCard}>
           <View style={s.modalHead}>
             <Text style={s.modalTitle}>{title}</Text>
             <TouchableOpacity style={s.modalClose} onPress={onClose} activeOpacity={0.7}>
@@ -704,8 +792,8 @@ function CwModal({ title, sub, onClose, children }: {
           </View>
           <Text style={s.modalSub}>{sub}</Text>
           <View style={s.modalBody}>{children}</View>
-        </TouchableOpacity>
-      </TouchableOpacity>
+        </View>
+      </View>
     </Modal>
   );
 }
