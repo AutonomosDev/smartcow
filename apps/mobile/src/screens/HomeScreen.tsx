@@ -52,7 +52,7 @@ export default function HomeScreen() {
         <TextInput
           style={s.input}
           placeholder="Escribe a SmartCow..."
-          placeholderTextColor="rgba(255,255,255,0.55)"
+          placeholderTextColor="#bbb"
           value={inputText}
           onChangeText={setInputText}
           onFocus={() => { if (!inputText) goToChat(); }}
@@ -82,16 +82,23 @@ const s = StyleSheet.create({
     left: 20, right: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(30,58,47,0.72)',
+    backgroundColor: 'rgba(250,250,247,0.94)',
     borderRadius: 30,
-    paddingVertical: 10,
+    borderWidth: 0.5,
+    borderColor: '#e8e5dd',
+    paddingVertical: 8,
     paddingLeft: 20,
     paddingRight: 8,
     gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 6,
   },
   input: {
     flex: 1,
-    color: '#fff',
+    color: '#1a1a1a',
     fontSize: 15,
     fontFamily: 'DMSans_400Regular',
     paddingVertical: 2,
