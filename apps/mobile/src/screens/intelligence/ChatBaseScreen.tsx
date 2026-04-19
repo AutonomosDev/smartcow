@@ -309,7 +309,7 @@ export default function ChatBaseScreen({ config }: { config: ChatConfig }) {
 
                     <View style={s.aActions}>
                       <TouchableOpacity style={s.aAct} onPress={() => setCopyOpen(true)}><Copy size={12} color={C.ink4} /></TouchableOpacity>
-                      <TouchableOpacity style={s.aAct} onPress={() => config.onSend?.(m.text)}><RefreshCcw size={12} color={C.ink4} /></TouchableOpacity>
+                      <TouchableOpacity style={s.aAct}><RefreshCcw size={12} color={C.ink4} /></TouchableOpacity>
                       <TouchableOpacity style={s.aAct} onPress={() => setSaveOpen(true)}><Bookmark size={12} color={C.ink4} /></TouchableOpacity>
                     </View>
                   </View>
@@ -503,7 +503,7 @@ const s = StyleSheet.create({
 
   // Messages — .chat-body
   msgs:    { flex: 1, backgroundColor: C.bg },
-  msgsPad: { paddingHorizontal: 14, paddingTop: 16, paddingBottom: 12, gap: 14 },
+  msgsPad: { paddingHorizontal: 14, paddingTop: 16, paddingBottom: 12, gap: 14, flexGrow: 1 },
   dateSep: { fontFamily: F.mono, fontSize: 9, color: C.ink4, textAlign: 'center', marginBottom: 4 },
   msgWrap: { flexDirection: 'column' },
 
