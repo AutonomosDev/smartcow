@@ -5,7 +5,6 @@ const config: ChatConfig = {
   avatarLabel: 'AB',
   name: 'AgroBrain',
   subtitle: 'Nutrición y recetas TMR · en línea',
-  alertDot: false,
   placeholder: 'Consulta de nutrición, recetas...',
   dateSep: 'Hoy · 10:15',
   messages: [
@@ -20,7 +19,7 @@ const config: ChatConfig = {
       from: 'ai',
       text: 'Con ese aumento puedo sustituir parcialmente por heno de avena sin bajar MS. Te propongo un ajuste que mantiene el costo en rango.',
       time: '10:16',
-      artifact: {
+      artifacts: [{
         type: 'kpi',
         title: '🌾 Receta ajustada — Engorda Angus V2',
         kpis: [
@@ -33,7 +32,7 @@ const config: ChatConfig = {
           { label: 'Heno avena',   value: '8% → 12%',  color: 'ok' },
           { label: 'Concentrado', value: 'sin cambio' },
         ],
-      },
+      }],
     },
     {
       id: '3',

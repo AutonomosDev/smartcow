@@ -5,7 +5,6 @@ const config: ChatConfig = {
   avatarLabel: 'SC',
   name: 'SmartCow AI',
   subtitle: 'Fundo San Pedro · 3 alertas',
-  alertDot: true,
   placeholder: 'Escribe a SmartCow...',
   dateSep: 'Hoy · 07:00 — Resumen matutino',
   messages: [
@@ -14,7 +13,7 @@ const config: ChatConfig = {
       from: 'ai',
       text: 'Buenos días JP. 3 cosas que necesitan tu atención:',
       time: '07:00',
-      artifact: {
+      artifacts: [{
         type: 'alerts',
         title: '🚨 Alertas del día — 14 abr',
         items: [
@@ -22,7 +21,7 @@ const config: ChatConfig = {
           { level: 'Atención', text: 'Stock concentrado: 3 días restantes.' },
           { level: 'Info',     text: 'MUE-00847: negativo Brucelosis. OK.' },
         ],
-      },
+      }],
     },
     {
       id: '2',

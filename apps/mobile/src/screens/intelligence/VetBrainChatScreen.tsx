@@ -5,7 +5,6 @@ const config: ChatConfig = {
   avatarLabel: 'VB',
   name: 'VetBrain',
   subtitle: 'Asistente veterinario · en línea',
-  alertDot: false,
   placeholder: 'Consulta clínica, tratamientos...',
   dateSep: 'Hoy · 09:00',
   messages: [
@@ -20,7 +19,7 @@ const config: ChatConfig = {
       from: 'ai',
       text: 'Con ese perfil (GDP 0.5, decaimiento) lo más probable es un cuadro respiratorio o parasitario. Revisa temperatura y frecuencia respiratoria.',
       time: '09:01',
-      artifact: {
+      artifacts: [{
         type: 'table',
         title: '🩺 Protocolo diagnóstico — AR 078',
         rows: [
@@ -29,7 +28,7 @@ const config: ChatConfig = {
           { label: 'Heces',           value: 'Líquidas → digestivo', color: 'orange' },
           { label: 'Último desparasit', value: '68 días · vencido', color: 'warn' },
         ],
-      },
+      }],
     },
     {
       id: '3',

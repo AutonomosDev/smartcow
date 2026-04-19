@@ -145,12 +145,12 @@ export default function SmartCowChatScreen() {
   };
 
   const config: ChatConfig = {
-    avatarLabel: 'SC',
+    avatarSource: require('../../../assets/cow_robot.png'),
     name: 'SmartCow AI',
     subtitle: 'Fundo San Pedro · en línea',
-    alertDot: false,
-    placeholder: isLoading ? 'Conectando...' : 'Escribe a SmartCow...',
+    placeholder: isLoading ? 'Conectando...' : 'Preguntá algo a SmartCow…',
     dateSep: 'Hoy',
+    slashChips: ['/feedlot', '/FT', '/vaquillas', '/partos', '/tratamientos', '/ventas'],
     messages,
     onSend: handleSend,
   };
