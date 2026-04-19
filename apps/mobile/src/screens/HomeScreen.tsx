@@ -52,7 +52,11 @@ export default function HomeScreen() {
     <View style={s.root} {...panResponder.panHandlers}>
       <StatusBar style="dark" />
 
-      <Image source={require('../../../../public/cow_robot.png')} style={s.cow} resizeMode="contain" />
+      <Image
+        source={require('../../../../public/cow_robot.png')}
+        style={[s.cow, { bottom: widgetBottom + 20 }]}
+        resizeMode="contain"
+      />
 
       {/* ── Widget — entre vaca e input ── */}
       <View style={[s.widgetWrap, { bottom: widgetBottom }]}>
@@ -107,7 +111,7 @@ export default function HomeScreen() {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#fff' },
-  cow:  { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
+  cow:  { position: 'absolute', top: 0, left: 0, right: 0, width: '100%' },
 
   // Widget wrapper — border vive aquí porque BlurView necesita overflow:hidden
   widgetWrap: {
@@ -137,7 +141,7 @@ const s = StyleSheet.create({
 
   // Input bar
   barWrap: {
-    position: 'absolute', left: 20, right: 20,
+    position: 'absolute', left: 16, right: 16,
     borderRadius: 30,
     borderWidth: 0.8,
     borderColor: BORDER,
