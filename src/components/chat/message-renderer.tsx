@@ -1,245 +1,295 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
+import {
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+} from "recharts";
+import { IconCopy, IconCheck, IconRefresh, IconBookmark } from "./chat-icons";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────────────────
+
+export type ChartData =
+  | { type: "bar";  data: Record<string, unknown>[]; xKey: string; yKey: string; title?: string }
+  | { type: "line"; data: Record<string, unknown>[]; xKey: string; yKey: string; title?: string }
+  | { type: "pie";  data: { name: string; value: number }[]; title?: string };
 
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  charts?: ChartData[];
 }
 
-// ─── Markdown components — spec prose styles ──────────────────────────────────
+// ── Chart colors ───────────────────────────────────────────────────────────────
 
-const markdownComponents: Components = {
-  p({ children }) {
-    return (
-      <p style={{
-        fontSize: 14, lineHeight: 1.55, color: "var(--cw-ink1)",
-        margin: 0, fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
-      }}>
-        {children}
-      </p>
-    );
+const CHART_COLORS = ["#1e3a2f", "#7ecfa0", "#2b6a4a", "#4c7c54", "#8fb996", "#e6f3ec"];
+
+// ── Code block ─────────────────────────────────────────────────────────────────
+
+function CodeBlock({ language, code }: { language?: string; code: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="my-3 rounded-[8px] overflow-hidden border border-[#e8e5df] bg-[#fafaf7]">
+      <div className="flex items-center justify-between px-[12px] py-[7px] border-b border-[#f0ede8]">
+        <span
+          className="text-[10px] font-medium uppercase tracking-[0.6px]"
+          style={{ fontFamily: "var(--font-mono)", color: "#999" }}
+        >
+          {language ?? "código"}
+        </span>
+        <button
+          onClick={async () => {
+            await navigator.clipboard.writeText(code);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          }}
+          className="text-[#bbb] hover:text-[#666] transition-colors"
+        >
+          {copied ? <IconCheck size={13} /> : <IconCopy size={13} />}
+        </button>
+      </div>
+      <pre
+        className="overflow-x-auto px-[14px] py-[12px] text-[12.5px] leading-[1.6] text-[#1a1a1a]"
+        style={{ fontFamily: "var(--font-mono)" }}
+      >
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+}
+
+// ── Charts ─────────────────────────────────────────────────────────────────────
+
+function ChartRenderer({ chart }: { chart: ChartData }) {
+  const tooltipStyle = {
+    backgroundColor: "#fff",
+    border: "1px solid #f0ede8",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontFamily: "var(--font-mono)",
+  };
+  switch (chart.type) {
+    case "bar":
+      return (
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart data={chart.data as never}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0ede8" vertical={false} />
+            <XAxis dataKey={chart.xKey} stroke="#bbb" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis stroke="#bbb" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#f8f6f1" }} />
+            <Bar dataKey={chart.yKey} fill="#1e3a2f" radius={[4,4,0,0]} barSize={28} />
+          </BarChart>
+        </ResponsiveContainer>
+      );
+    case "line":
+      return (
+        <ResponsiveContainer width="100%" height={240}>
+          <LineChart data={chart.data as never}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0ede8" vertical={false} />
+            <XAxis dataKey={chart.xKey} stroke="#bbb" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis stroke="#bbb" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <Tooltip contentStyle={tooltipStyle} />
+            <Line type="monotone" dataKey={chart.yKey} stroke="#1e3a2f" strokeWidth={2} dot={{ fill: "#1e3a2f", r: 3, strokeWidth: 1.5, stroke: "#fff" }} />
+          </LineChart>
+        </ResponsiveContainer>
+      );
+    case "pie":
+      return (
+        <ResponsiveContainer width="100%" height={240}>
+          <PieChart>
+            <Pie data={chart.data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={72} innerRadius={48} paddingAngle={4}>
+              {chart.data.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+            </Pie>
+            <Tooltip contentStyle={tooltipStyle} />
+            <Legend verticalAlign="bottom" height={32} iconType="circle" />
+          </PieChart>
+        </ResponsiveContainer>
+      );
+  }
+}
+
+// ── Markdown components — DM Sans prose + mono tokens ─────────────────────────
+
+const mdComponents: Components = {
+  code({ className, children }) {
+    const match = /language-(\w+)/.exec(className ?? "");
+    const language = match?.[1];
+    const code = String(children).replace(/\n$/, "");
+    if (!className) {
+      return (
+        <code
+          className="px-[5px] py-[1px] rounded-[4px] text-[12.5px]"
+          style={{
+            fontFamily: "var(--font-mono)",
+            background: "var(--code-red-bg)",
+            color: "var(--code-red-fg)",
+          }}
+        >
+          {children}
+        </code>
+      );
+    }
+    return <CodeBlock language={language} code={code} />;
   },
 
-  strong({ children }) {
-    return <strong style={{ fontWeight: 600, color: "var(--cw-ink1)" }}>{children}</strong>;
-  },
-
-  ul({ children }) {
-    return (
-      <ul style={{
-        fontSize: 14, lineHeight: 1.6, color: "var(--cw-ink1)",
-        margin: 0, paddingLeft: 22,
-      }}>
-        {children}
-      </ul>
-    );
-  },
-
-  ol({ children }) {
-    return (
-      <ol style={{
-        fontSize: 14, lineHeight: 1.6, color: "var(--cw-ink1)",
-        margin: 0, paddingLeft: 22,
-      }}>
-        {children}
-      </ol>
-    );
-  },
-
-  li({ children }) {
-    return <li style={{ marginBottom: 4 }}>{children}</li>;
-  },
-
-  h1({ children }) {
-    return (
-      <h1 style={{
-        fontSize: 20, fontWeight: 700, letterSpacing: "-.3px",
-        margin: "0 0 16px", color: "var(--cw-ink1)", lineHeight: 1.3,
-      }}>
-        {children}
-      </h1>
-    );
-  },
-
-  h2({ children }) {
-    return (
-      <h2 style={{
-        fontSize: 16, fontWeight: 700, margin: "18px 0 8px",
-        color: "var(--cw-ink1)", letterSpacing: "-.2px",
-      }}>
-        {children}
-      </h2>
-    );
-  },
-
-  h3({ children }) {
-    return (
-      <h3 style={{
-        fontSize: 14, fontWeight: 600, margin: "14px 0 6px",
-        color: "var(--cw-ink1)",
-      }}>
-        {children}
-      </h3>
-    );
-  },
-
-  // Data table → chat-note styled block
   table({ children }) {
     return (
-      <div style={{
-        background: "var(--cw-note)",
-        border: ".5px solid var(--cw-note-bd)",
-        borderRadius: 8,
-        padding: "12px 14px",
-        margin: "4px 0",
-        fontFamily: "var(--cw-mono)",
-        fontSize: 11.5,
-        lineHeight: 1.6,
-        color: "var(--cw-ink1)",
-      }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>{children}</table>
+      <div className="my-4 overflow-x-auto rounded-[8px] border border-[#e8e5df]">
+        <table
+          className="w-full text-left border-collapse"
+          style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}
+        >
+          {children}
+        </table>
       </div>
     );
   },
-
   thead({ children }) {
-    return <thead>{children}</thead>;
+    return <thead className="border-b border-[#e8e5df] bg-[#fafaf7]">{children}</thead>;
   },
-
-  tbody({ children }) {
-    return <tbody>{children}</tbody>;
-  },
-
   th({ children }) {
     return (
-      <th style={{
-        textAlign: "left",
-        padding: "0 18px 7px 0",
-        color: "var(--cw-ink3)",
-        fontWeight: 500,
-        fontSize: 10,
-        letterSpacing: ".3px",
-        textTransform: "uppercase",
-        borderBottom: ".5px dashed var(--cw-note-bd)",
-      }}>
+      <th
+        className="px-[12px] py-[8px] text-[10px] font-semibold uppercase tracking-[0.5px] text-[#999]"
+        style={{ fontFamily: "var(--font-mono)" }}
+      >
         {children}
       </th>
     );
   },
-
+  tbody({ children }) {
+    return <tbody className="divide-y divide-[#f0ede8]">{children}</tbody>;
+  },
   td({ children }) {
+    return <td className="px-[12px] py-[8px] text-[12px] text-[#1a1a1a]">{children}</td>;
+  },
+
+  p({ children }) {
     return (
-      <td style={{
-        textAlign: "left",
-        padding: "5px 18px 5px 0",
-        color: "var(--cw-ink1)",
-        borderBottom: ".5px dashed var(--cw-note-bd)",
-        fontSize: 11.5,
-      }}>
+      <p
+        className="mb-[14px] last:mb-0 text-[13.5px] leading-[1.65] text-[#1a1a1a]"
+        style={{ textWrap: "pretty" } as React.CSSProperties}
+      >
         {children}
-      </td>
+      </p>
     );
   },
-
-  tr({ children }) {
-    return <tr>{children}</tr>;
+  ul({ children }) {
+    return <ul className="mb-[14px] space-y-[6px] text-[#1a1a1a]">{children}</ul>;
   },
-
-  code({ className, children }) {
-    const isBlock = !!className;
-    if (isBlock) {
-      return (
-        <pre style={{
-          background: "var(--cw-cream)",
-          borderRadius: 6,
-          padding: "10px 14px",
-          overflowX: "auto",
-          margin: "8px 0",
-          fontFamily: "var(--cw-mono)",
-          fontSize: 12.5,
-          color: "var(--cw-ink1)",
-        }}>
-          <code>{children}</code>
-        </pre>
-      );
-    }
+  ol({ children }) {
+    return <ol className="mb-[14px] space-y-[6px] text-[#1a1a1a]">{children}</ol>;
+  },
+  li({ children }) {
     return (
-      <code style={{
-        fontFamily: "var(--cw-mono)",
-        fontSize: ".88em",
-        background: "var(--cw-cream)",
-        color: "var(--cw-ink1)",
-        padding: "1px 6px",
-        borderRadius: 4,
-        whiteSpace: "nowrap",
-      }}>
-        {children}
-      </code>
+      <li className="flex gap-[8px] text-[13.5px] leading-[1.6]">
+        <span className="text-[#bbb] flex-shrink-0 mt-[3px]">·</span>
+        <span>{children}</span>
+      </li>
     );
   },
-
-  blockquote({ children }) {
-    return (
-      <blockquote style={{
-        borderLeft: "2px solid var(--cw-leaf)",
-        paddingLeft: 14,
-        color: "var(--cw-ink2)",
-        margin: "10px 0",
-        fontStyle: "italic",
-      }}>
-        {children}
-      </blockquote>
-    );
-  },
-
-  hr() {
-    return <hr style={{ border: 0, borderTop: "1px solid var(--cw-note-bd)", margin: "16px 0" }} />;
-  },
+  h1: ({ children }) => <h1 className="text-[18px] font-bold mb-[12px] text-[#1a1a1a] tracking-tight">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-[14px] font-semibold mb-[8px] mt-[18px] text-[#1a1a1a] tracking-tight">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-[13px] font-semibold mb-[6px] mt-[14px] text-[#1a1a1a]">{children}</h3>,
+  strong: ({ children }) => <strong className="font-semibold text-[#1a1a1a]">{children}</strong>,
+  blockquote: ({ children }) => (
+    <blockquote className="border-l-2 border-[#e8e5df] pl-[12px] italic text-[#666] my-4 py-[2px]">
+      {children}
+    </blockquote>
+  ),
+  hr: () => <hr className="border-[#f0ede8] my-6" />,
+  a: ({ children, href }) => (
+    <a href={href} className="text-[#2b6a4a] underline underline-offset-2 decoration-[#7ecfa0]">
+      {children}
+    </a>
+  ),
 };
 
-// ─── MessageRenderer ──────────────────────────────────────────────────────────
+// ── Typing indicator ───────────────────────────────────────────────────────────
 
-interface MessageRendererProps {
-  message: ChatMessage;
+export function TypingIndicator() {
+  return (
+    <div className="flex gap-[10px] mb-[18px] items-center">
+      <div className="w-[22px] h-[22px] rounded-full bg-[#1e3a2f] flex items-center justify-center flex-shrink-0">
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="5" stroke="#7ecfa0" strokeWidth="1.5"/>
+          <path d="M5 7h4M7 5v4" stroke="#7ecfa0" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </div>
+      <div className="flex gap-[4px] items-center py-[2px]">
+        {[0, 200, 400].map((delay) => (
+          <div
+            key={delay}
+            className="w-[5px] h-[5px] rounded-full bg-[#1e3a2f]"
+            style={{ animation: `chat-blink 1.4s infinite ${delay}ms` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
 
-export function MessageRenderer({ message }: MessageRendererProps) {
+// ── Main export ────────────────────────────────────────────────────────────────
+
+export function MessageRenderer({ message }: { message: ChatMessage }) {
   if (message.role === "user") {
     return (
-      <div style={{ display: "flex", marginBottom: 2 }}>
-        <div style={{
-          background: "var(--cw-blue)",
-          color: "var(--cw-blue-fg)",
-          padding: "8px 12px",
-          borderRadius: 8,
-          fontFamily: "var(--cw-mono)",
-          fontSize: 12,
-          fontWeight: 500,
-          letterSpacing: ".2px",
-          lineHeight: 1.4,
-          border: "1px solid transparent",
-          cursor: "default",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-        }}>
+      <div className="flex mb-[18px] animate-in fade-in duration-300">
+        <div
+          className="sc-chip max-w-[72%] text-left"
+          style={{ whiteSpace: "pre-wrap" }}
+        >
           {message.content}
         </div>
       </div>
     );
   }
-
-  // Assistant message — flat prose, no bubble/avatar
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-        {message.content}
-      </ReactMarkdown>
+    <div className="flex gap-[10px] mb-[18px] items-start animate-in fade-in duration-300">
+      <div className="w-[22px] h-[22px] rounded-full bg-[#1e3a2f] flex items-center justify-center flex-shrink-0 mt-[2px]">
+        <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="5" stroke="#7ecfa0" strokeWidth="1.5"/>
+          <path d="M5 7h4M7 5v4" stroke="#7ecfa0" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[13.5px] leading-[1.65] text-[#1a1a1a]">
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+            {message.content}
+          </ReactMarkdown>
+        </div>
+
+        {message.charts && message.charts.length > 0 && (
+          <div className="mt-3 bg-white border border-[#e8e5df] rounded-[8px] overflow-hidden">
+            <div className="px-[12px] py-[8px] border-b border-[#f0ede8]">
+              <span
+                className="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#999]"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                {message.charts[0].title ?? "análisis"}
+              </span>
+            </div>
+            <div className="p-[12px]">
+              <ChartRenderer chart={message.charts[0]} />
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-[10px] mt-[8px]">
+          {[
+            { icon: <IconCopy size={12} />, label: "Copiar" },
+            { icon: <IconRefresh size={12} />, label: "Regenerar" },
+            { icon: <IconBookmark size={12} />, label: "Guardar" },
+          ].map(({ icon, label }) => (
+            <button key={label} title={label} className="text-[#ccc] hover:text-[#666] transition-colors">
+              {icon}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
