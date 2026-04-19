@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, TextInput,
-  ScrollView, Image, KeyboardAvoidingView, Platform,
+  Image, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Paperclip, Mic, ArrowRight, Database } from 'lucide-react-native';
+import { Paperclip, Mic, ArrowRight, Zap } from 'lucide-react-native';
 
 import { useAuth } from '../context/AuthContext';
 
@@ -93,31 +93,15 @@ export default function HomeScreen() {
         >
           <View style={[s.comp, { paddingBottom: Math.max(insets.bottom + 6, 28) }]}>
 
-            {/* Data-source pill */}
-            <View style={s.dsPill}>
-              <Database size={12} color={C.ink2} />
-              <Text style={s.dsPillTxt}><Text style={s.dsPillBold}>Fundo San Pedro</Text></Text>
-              <Text style={s.dsPillArr}>→</Text>
-              <Text style={s.dsPillSrc}>AgroApp</Text>
+            {/* ⚡ + más ▾ */}
+            <View style={s.ctxRow}>
+              <View style={s.rayoBtn}>
+                <Zap size={13} color={C.ink2} />
+              </View>
+              <TouchableOpacity activeOpacity={0.7}>
+                <Text style={s.masText}>más ▾</Text>
+              </TouchableOpacity>
             </View>
-
-            {/* Chips en el cajón — scroll horizontal */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={s.chipRow}
-            >
-              {CHIPS.map((chip) => (
-                <TouchableOpacity
-                  key={chip}
-                  style={s.chip}
-                  onPress={() => goToChat(chip + ' ')}
-                  activeOpacity={0.7}
-                >
-                  <Text style={s.chipTxt}>{chip}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
 
             {/* Input */}
             <View style={s.inputBox}>
@@ -191,16 +175,16 @@ const s = StyleSheet.create({
     borderTopWidth: 0.5, borderTopColor: C.fog,
     paddingTop: 10, paddingHorizontal: 12, gap: 7,
   },
-  dsPill: {
+  ctxRow: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     paddingVertical: 7, paddingHorizontal: 10,
     borderWidth: 0.5, borderColor: '#e0ddd8', borderRadius: 8,
   },
-  dsPillTxt:  { fontFamily: F.mono, fontSize: 11, color: C.ink1 },
-  dsPillBold: { fontFamily: F.monoMd },
-  dsPillArr:  { fontFamily: F.mono, fontSize: 11, color: C.ink3 },
-  dsPillSrc:  { fontFamily: F.mono, fontSize: 11, color: C.ink2 },
-  chipRow: { gap: 6, flexDirection: 'row' },
+  rayoBtn: {
+    width: 22, height: 22, borderRadius: 6, backgroundColor: C.cream,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  masText: { fontFamily: F.mono, fontSize: 12, color: C.ink3 },
   inputBox: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     borderWidth: 0.5, borderColor: '#e0ddd8', borderRadius: 8,
