@@ -64,9 +64,15 @@
 | OS | Ubuntu 24.04 con template Docker |
 | Estado | running |
 
-- Deploy: asumir docker-compose + git pull + restart — flujo exacto a confirmar con Cesar
-- DB: ubicacion a confirmar con Cesar (VPS local o Cloud SQL restante)
-- Secrets: probablemente en .env del VPS — verificar con Cesar. NO commitear secrets al repo
+- Deploy oficial: `./deploy.sh` (solo código) o `./deploy.sh --migrate` (código + migrations)
+  - Requiere alias SSH `smartcow-vps` apuntando a 2.24.204.73
+  - /var/www/smartcow debe ser clone git de AutonomosDev/smartcow (setup one-time: ver deploy.sh)
+  - El script hace: git pull → docker compose build app → docker compose up -d
+  - `--migrate` usa el stage `migrate` del Dockerfile (drizzle-kit incluido)
+- Migrations en prod: `docker compose run --rm migrate` (stage Dockerfile separado)
+  - Si __drizzle_migrations desincronizado: `docker compose exec -T app npx tsx scripts/sync-drizzle-tracking.ts`
+- DB: PostgreSQL en VPS local (docker compose postgres service), .env en /var/www/smartcow/.env
+- Secrets: en /var/www/smartcow/.env del VPS — NO commitear al repo. Backup antes de cualquier rsync.
 - Staging: no existe aun — hoy solo existe prod (Hostinger VPS) y local
 - `apphosting.yaml` en el repo: RESIDUO LEGACY — otro agente lo elimina
 

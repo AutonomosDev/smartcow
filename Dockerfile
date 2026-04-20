@@ -13,6 +13,16 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
+# Stage for running drizzle migrations (has full node_modules including drizzle-kit)
+FROM base AS migrate
+WORKDIR /app
+RUN apk add --no-cache libc6-compat
+COPY --from=deps /app/node_modules ./node_modules
+COPY package*.json ./
+COPY drizzle.config.ts ./
+COPY src/db ./src/db
+CMD ["npx", "drizzle-kit", "migrate"]
+
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
