@@ -5,6 +5,8 @@ import { MessageRenderer, type ChatMessage } from "@/src/components/chat/message
 import { ChatEmptyState } from "@/src/components/chat/chat-empty-state";
 import { ArtifactPanel, type ArtifactData } from "@/src/components/chat/artifacts-sidebar";
 import { ChatSidebar } from "@/src/components/chat/chat-sidebar";
+import { NuevaTareaModal } from "@/src/components/chat/nueva-tarea-modal";
+import { MasDropdown } from "@/src/components/chat/mas-dropdown";
 
 // ─── SSE types ────────────────────────────────────────────────────────────────
 
@@ -37,6 +39,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
   const [activeArtifact, setActiveArtifact] = useState<ArtifactData | null>(null);
   const [isArtifactOpen, setIsArtifactOpen] = useState(false);
   const [sbOpen, setSbOpen] = useState(true);
+  const [tareaModalOpen, setTareaModalOpen] = useState(false);
   const [artWidth, setArtWidth] = useState(() => {
     try { return parseInt(localStorage.getItem("cw_art_w") ?? "") || 560; } catch { return 560; }
   });
@@ -214,6 +217,8 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
       fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
     }}>
 
+      <NuevaTareaModal open={tareaModalOpen} onClose={() => setTareaModalOpen(false)} />
+
       {/* ── macOS Titlebar ── */}
       <div style={{
         height: 38, background: "#ffffff", borderBottom: "1px solid #ececec",
@@ -341,16 +346,19 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
                 padding: "8px 10px", display: "flex", alignItems: "center",
                 gap: 6, boxShadow: "0 1px 2px rgba(0,0,0,.02)",
               }}>
-                <div style={{
-                  width: 22, height: 22, borderRadius: 6, background: "#f5f5f5",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  color: "#666", flexShrink: 0,
-                }}>
+                {/* Rayo — Nueva tarea */}
+                <div
+                  onClick={() => setTareaModalOpen(true)}
+                  title="Nueva tarea"
+                  style={{
+                    width: 22, height: 22, borderRadius: 6, background: "#f5f5f5",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "#666", flexShrink: 0, cursor: "pointer",
+                  }}
+                >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
                 </div>
-                <span style={{ fontSize: 12, color: "var(--cw-ink3)", fontFamily: "var(--cw-mono)", padding: "4px 8px", cursor: "pointer" }}>
-                  más ▾
-                </span>
+                <MasDropdown onSuggestionClick={(text) => { handleSend(text); }} />
               </div>
 
               {/* Text input row */}

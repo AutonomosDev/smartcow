@@ -1,17 +1,39 @@
 "use client";
 
-const CONTEXT_CHIPS = ["/feedlot", "/FT", "/vaquillas", "/partos", "/tratamientos", "/ventas"];
+import { useEffect, useState } from "react";
 
 const font = "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)";
+
+interface Predio {
+  id: number;
+  nombre: string;
+}
 
 interface ChatEmptyStateProps {
   nombrePredio: string | null | undefined;
   userName?: string | null;
   onSuggestionClick: (text: string) => void;
+  onPredioClick?: (predioId: number, nombre: string) => void;
 }
 
-export function ChatEmptyState({ nombrePredio, userName, onSuggestionClick }: ChatEmptyStateProps) {
+export function ChatEmptyState({ nombrePredio, userName, onSuggestionClick, onPredioClick }: ChatEmptyStateProps) {
   const firstName = userName?.split(" ")[0];
+  const [predios, setPredios] = useState<Predio[]>([]);
+
+  useEffect(() => {
+    fetch("/api/predios/mis-predios")
+      .then((r) => r.ok ? r.json() : [])
+      .then(setPredios)
+      .catch(() => {});
+  }, []);
+
+  const handleChipClick = (p: Predio) => {
+    if (onPredioClick) {
+      onPredioClick(p.id, p.nombre);
+    } else {
+      onSuggestionClick(`Muéstrame el resumen del predio ${p.nombre}`);
+    }
+  };
 
   return (
     <div style={{
@@ -40,35 +62,59 @@ export function ChatEmptyState({ nombrePredio, userName, onSuggestionClick }: Ch
       </p>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
-        {CONTEXT_CHIPS.map((chip) => (
-          <button
-            key={chip}
-            onClick={() => onSuggestionClick(chip)}
-            style={{
-              fontFamily: "var(--cw-mono)",
-              fontSize: 12,
-              fontWeight: 500,
-              background: "var(--cw-blue)",
-              color: "var(--cw-blue-fg)",
-              padding: "6px 14px",
-              borderRadius: 8,
-              border: "1px solid transparent",
-              cursor: "pointer",
-              letterSpacing: ".2px",
-              transition: "background .12s, border-color .12s",
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = "#dde8f3";
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(26,82,118,.18)";
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = "var(--cw-blue)";
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "transparent";
-            }}
-          >
-            {chip}
-          </button>
-        ))}
+        {predios.length > 0 ? (
+          predios.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => handleChipClick(p)}
+              style={{
+                fontFamily: "var(--cw-mono)",
+                fontSize: 12,
+                fontWeight: 500,
+                background: "var(--cw-blue)",
+                color: "var(--cw-blue-fg)",
+                padding: "6px 14px",
+                borderRadius: 8,
+                border: "1px solid transparent",
+                cursor: "pointer",
+                letterSpacing: ".2px",
+                transition: "background .12s, border-color .12s",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = "#dde8f3";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(26,82,118,.18)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = "var(--cw-blue)";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "transparent";
+              }}
+            >
+              {p.nombre}
+            </button>
+          ))
+        ) : (
+          // Fallback mientras carga
+          ["/feedlot", "/FT", "/vaquillas", "/partos", "/tratamientos", "/ventas"].map((chip) => (
+            <button
+              key={chip}
+              onClick={() => onSuggestionClick(chip)}
+              style={{
+                fontFamily: "var(--cw-mono)",
+                fontSize: 12,
+                fontWeight: 500,
+                background: "var(--cw-blue)",
+                color: "var(--cw-blue-fg)",
+                padding: "6px 14px",
+                borderRadius: 8,
+                border: "1px solid transparent",
+                cursor: "pointer",
+                letterSpacing: ".2px",
+              }}
+            >
+              {chip}
+            </button>
+          ))
+        )}
       </div>
     </div>
   );
