@@ -22,7 +22,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { FunctionDeclaration } from "@google/genai";
 import { db } from "@/src/db/client";
-import { animales, pesajes, partos } from "@/src/db/schema/index";
+import { animales, pesajes, partos, chatAttachments } from "@/src/db/schema/index";
 import { eq, and } from "drizzle-orm";
 import type { SmartCowSession } from "./auth";
 import type { PredioKpis, PesajePorLote } from "@/src/lib/queries/predio";
@@ -147,6 +147,42 @@ export const CATTLE_TOOLS: FunctionDeclaration[] = [
       required: ["predio_id", "madre_eid", "resultado"],
     },
   },
+  {
+    name: "consultar_archivo",
+    description:
+      "Consulta datos de un archivo CSV o XLSX que el usuario subió en esta sesión. Usa el attachment_id devuelto al cargar el archivo. Puedes filtrar por columna y limitar filas.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        attachment_id: {
+          type: Type.NUMBER,
+          description: "ID del archivo subido (devuelto al cargar)",
+        },
+        filtros: {
+          type: Type.OBJECT,
+          description: "Filtros opcionales: { columna: valor }. Solo equality filters.",
+        },
+        columnas: {
+          type: Type.ARRAY,
+          description: "Columnas a retornar. Si se omite retorna todas.",
+          items: { type: Type.STRING },
+        },
+        limite: {
+          type: Type.NUMBER,
+          description: "Máximo de filas a retornar (default 100, max 500)",
+        },
+        agregacion: {
+          type: Type.STRING,
+          description: "count | sum | avg | min | max sobre una columna numérica",
+        },
+        campo_agregacion: {
+          type: Type.STRING,
+          description: "Columna numérica para sum/avg/min/max",
+        },
+      },
+      required: ["attachment_id"],
+    },
+  },
 ];
 
 // ─────────────────────────────────────────────
@@ -207,6 +243,18 @@ export async function ejecutarTool(
           observaciones: toolInput["observaciones"] as string | undefined,
         },
         userId
+      );
+    }
+
+    case "consultar_archivo": {
+      return consultarArchivo(
+        Number(toolInput["attachment_id"]),
+        (toolInput["filtros"] as Record<string, unknown> | undefined) ?? {},
+        (toolInput["columnas"] as string[] | undefined) ?? [],
+        Math.min(Number(toolInput["limite"] ?? 100), 500),
+        toolInput["agregacion"] as string | undefined,
+        toolInput["campo_agregacion"] as string | undefined,
+        prediosPermitidos
       );
     }
 
@@ -302,6 +350,97 @@ async function registrarParto(predioId: number, datos: DatosRegistrarParto, usua
 }
 
 // ─────────────────────────────────────────────
+// CONSULTAR ARCHIVO (attachment CSV/XLSX)
+// ─────────────────────────────────────────────
+
+async function consultarArchivo(
+  attachmentId: number,
+  filtros: Record<string, unknown>,
+  columnas: string[],
+  limite: number,
+  agregacion: string | undefined,
+  campoAgregacion: string | undefined,
+  prediosPermitidos: number[]
+) {
+  if (!attachmentId || isNaN(attachmentId)) {
+    return { error: "attachment_id inválido" };
+  }
+
+  const rows = await db
+    .select()
+    .from(chatAttachments)
+    .where(eq(chatAttachments.id, attachmentId))
+    .limit(1);
+
+  if (!rows[0]) {
+    return { error: `Archivo ${attachmentId} no encontrado` };
+  }
+
+  const attachment = rows[0];
+
+  // Validar acceso al predio del archivo
+  if (prediosPermitidos.length > 0 && !prediosPermitidos.includes(attachment.predioId)) {
+    return { error: "Sin acceso a este archivo", code: "FORBIDDEN" };
+  }
+
+  const data = attachment.contenidoJson as Record<string, unknown>[];
+  if (!Array.isArray(data)) {
+    return { error: "Contenido del archivo no es un array" };
+  }
+
+  // Aplicar filtros equality
+  let filtered = data;
+  for (const [key, val] of Object.entries(filtros)) {
+    if (val !== undefined && val !== null) {
+      filtered = filtered.filter((row) => String(row[key]) === String(val));
+    }
+  }
+
+  // Proyección de columnas
+  if (columnas.length > 0) {
+    filtered = filtered.map((row) => {
+      const projected: Record<string, unknown> = {};
+      for (const col of columnas) {
+        projected[col] = row[col];
+      }
+      return projected;
+    });
+  }
+
+  // Agregación
+  if (agregacion) {
+    if (agregacion === "count") {
+      return { resultado: filtered.length, tipo: "count", filas_filtradas: filtered.length };
+    }
+    if (campoAgregacion) {
+      const numVals = filtered
+        .map((r) => Number(r[campoAgregacion]))
+        .filter((n) => !isNaN(n));
+      if (numVals.length === 0) {
+        return { resultado: null, tipo: agregacion, campo: campoAgregacion, nota: "sin valores numéricos" };
+      }
+      let resultado: number;
+      switch (agregacion) {
+        case "sum": resultado = numVals.reduce((a, b) => a + b, 0); break;
+        case "avg": resultado = numVals.reduce((a, b) => a + b, 0) / numVals.length; break;
+        case "min": resultado = Math.min(...numVals); break;
+        case "max": resultado = Math.max(...numVals); break;
+        default: resultado = 0;
+      }
+      return { resultado: Math.round(resultado * 1000) / 1000, tipo: agregacion, campo: campoAgregacion, n: numVals.length };
+    }
+  }
+
+  return {
+    archivo: attachment.filename,
+    columnas: attachment.columnas,
+    filas_totales: attachment.filasCount,
+    filas_filtradas: filtered.length,
+    datos: filtered.slice(0, limite),
+  };
+}
+
+// ─────────────────────────────────────────────
 // CLIENTE + SYSTEM PROMPT
 // ─────────────────────────────────────────────
 
@@ -309,6 +448,13 @@ async function registrarParto(predioId: number, datos: DatosRegistrarParto, usua
  * Construye el system prompt con contexto del predio y usuario autenticado.
  * Ticket: AUT-256 — acceso total a la DB via query_db, default 2026, pesajes prioritarios.
  */
+export interface AttachmentMeta {
+  id: number;
+  filename: string;
+  columnas: string[];
+  filasCount: number;
+}
+
 export function buildSystemPrompt(
   session: SmartCowSession,
   predioId: number,
@@ -317,6 +463,7 @@ export function buildSystemPrompt(
     prediosNombres: Map<number, string>;
     kpis: PredioKpis;
     ultimoPesajePorLote?: PesajePorLote[];
+    attachmentsMeta?: AttachmentMeta[];
   }
 ): string {
   const { nombre, rol, modulos, predios } = session.user;
@@ -348,6 +495,15 @@ export function buildSystemPrompt(
             return `  ${l.loteNombre}: ${l.pesoPromedioKg.toFixed(1)} kg (${l.fecha})${gdp}`;
           })
           .join("\n")
+      : "";
+
+  const attachmentsText =
+    ctx.attachmentsMeta && ctx.attachmentsMeta.length > 0
+      ? `\n\n== ARCHIVOS CARGADOS EN ESTA SESIÓN ==\n` +
+        ctx.attachmentsMeta
+          .map((a) => `- attachment_id ${a.id}: "${a.filename}" (${a.filasCount} filas, columnas: ${a.columnas.join(", ")})`)
+          .join("\n") +
+        `\n\nUsa \`consultar_archivo\` con el id correspondiente para acceder a estos datos.`
       : "";
 
   return `Eres el asistente ganadero de SmartCow, una plataforma de gestión de hatos bovinos.
@@ -415,7 +571,7 @@ Ejemplo de respuesta bien formada:
 > ]}
 > \`\`\`
 
-Usa siempre artifact si hay ≥3 filas de datos o si pidieron "informe", "resumen" o "tabla".`;
+Usa siempre artifact si hay ≥3 filas de datos o si pidieron "informe", "resumen" o "tabla".${attachmentsText}`;
 }
 
 /**

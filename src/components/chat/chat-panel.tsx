@@ -7,6 +7,7 @@ import { ArtifactPanel, type ArtifactData } from "@/src/components/chat/artifact
 import { ChatSidebar } from "@/src/components/chat/chat-sidebar";
 import { NuevaTareaModal } from "@/src/components/chat/nueva-tarea-modal";
 import { MasDropdown } from "@/src/components/chat/mas-dropdown";
+import { PromptInputBox } from "@/src/components/ui/ai-prompt-box";
 
 // ─── SSE types ────────────────────────────────────────────────────────────────
 
@@ -57,15 +58,13 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
   const [artWidth, setArtWidth] = useState(() => {
     try { return parseInt(localStorage.getItem("cw_art_w") ?? "") || 560; } catch { return 560; }
   });
-  const [inputVal, setInputVal] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasSentInitial = useRef(false);
   const messagesRef = useRef<ChatMessage[]>([]);
   const isLoadingRef = useRef(false);
-  const handleSendRef = useRef<((content: string) => void) | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const handleSendRef = useRef<((content: string, files?: File[], webSearch?: boolean) => void) | null>(null);
 
   const dragRef = useRef({ dragging: false, startX: 0, startW: 0 });
 
@@ -109,8 +108,51 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
 
   // ── handleSend ───────────────────────────────────────────────────────────────
 
-  const handleSend = useCallback(async (content: string) => {
-    if (!content.trim() || isLoadingRef.current) return;
+  const parseFile = useCallback(async (file: File): Promise<{ columnas: string[]; filas: Record<string, unknown>[] } | null> => {
+    try {
+      if (file.name.endsWith(".csv") || file.type === "text/csv") {
+        const Papa = (await import("papaparse")).default;
+        return new Promise((resolve) => {
+          Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (result) => {
+              const filas = result.data as Record<string, unknown>[];
+              const columnas = result.meta.fields ?? [];
+              resolve({ columnas, filas });
+            },
+            error: () => resolve(null),
+          });
+        });
+      }
+      if (file.name.match(/\.xlsx?$/i)) {
+        const ExcelJS = (await import("exceljs")).default;
+        const wb = new ExcelJS.Workbook();
+        const buf = await file.arrayBuffer();
+        await wb.xlsx.load(buf);
+        const ws = wb.worksheets[0];
+        if (!ws) return null;
+        const headerRow = ws.getRow(1).values as (string | undefined)[];
+        const columnas = (headerRow.slice(1) as string[]).filter(Boolean);
+        const filas: Record<string, unknown>[] = [];
+        ws.eachRow((row, rowNum) => {
+          if (rowNum === 1) return;
+          const obj: Record<string, unknown> = {};
+          (row.values as unknown[]).slice(1).forEach((cell, i) => {
+            if (columnas[i]) obj[columnas[i]] = cell;
+          });
+          filas.push(obj);
+        });
+        return { columnas, filas };
+      }
+    } catch {
+      // parsing failed
+    }
+    return null;
+  }, []);
+
+  const handleSend = useCallback(async (content: string, files?: File[], webSearch?: boolean) => {
+    if ((!content.trim() && (!files || files.length === 0)) || isLoadingRef.current) return;
 
     // Derive session title from first user message
     if (messagesRef.current.length === 0) {
@@ -118,7 +160,35 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
       setCurrentSessionTitle(titleText.length > 42 ? titleText.slice(0, 42) + "…" : titleText);
     }
 
-    const userMessage: ChatMessage = { role: "user", content };
+    // Upload files if present
+    const attachmentIds: number[] = [];
+    if (files && files.length > 0) {
+      for (const file of files) {
+        const parsed = await parseFile(file);
+        if (!parsed) continue;
+        try {
+          const res = await fetch("/api/chat/upload-data", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filename: file.name,
+              mimeType: file.type || "text/csv",
+              columnas: parsed.columnas,
+              filas: parsed.filas,
+              predio_id: predioId,
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json() as { id: number };
+            attachmentIds.push(data.id);
+          }
+        } catch {
+          // upload failed — continue without attachment
+        }
+      }
+    }
+
+    const userMessage: ChatMessage = { role: "user", content: content.trim() || `[Archivo adjunto: ${files?.map(f => f.name).join(", ")}]` };
     const updatedMessages = [...messagesRef.current, userMessage];
     setMessages(updatedMessages);
 
@@ -129,10 +199,17 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
     abortControllerRef.current = new AbortController();
 
     try {
+      const requestBody: Record<string, unknown> = {
+        messages: updatedMessages,
+        predio_id: predioId,
+      };
+      if (attachmentIds.length > 0) requestBody.attachment_ids = attachmentIds;
+      if (webSearch) requestBody.webSearch = webSearch;
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: updatedMessages, predio_id: predioId }),
+        body: JSON.stringify(requestBody),
         signal: abortControllerRef.current.signal,
       });
 
@@ -192,7 +269,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
     } finally {
       setIsLoading(false);
     }
-  }, [predioId]);
+  }, [predioId, parseFile]);
 
   handleSendRef.current = handleSend;
 
@@ -205,33 +282,6 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
 
   const handleStop = useCallback(() => { abortControllerRef.current?.abort(); }, []);
 
-  // ── Textarea auto-resize ─────────────────────────────────────────────────────
-
-  const onInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInputVal(e.target.value);
-    const ta = e.target;
-    ta.style.height = "auto";
-    ta.style.height = Math.min(ta.scrollHeight, 200) + "px";
-  };
-
-  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      if (inputVal.trim()) {
-        handleSend(inputVal);
-        setInputVal("");
-        if (textareaRef.current) { textareaRef.current.style.height = "auto"; }
-      }
-    }
-  };
-
-  const submitInput = () => {
-    if (inputVal.trim()) {
-      handleSend(inputVal);
-      setInputVal("");
-      if (textareaRef.current) { textareaRef.current.style.height = "auto"; }
-    }
-  };
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
@@ -382,55 +432,13 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
                 <MasDropdown onSuggestionClick={(text) => { handleSend(text); }} />
               </div>
 
-              {/* Text input row */}
-              <div style={{
-                background: "#fff", border: "1px solid #e0e0e0", borderRadius: 10,
-                padding: "10px 14px", display: "flex", alignItems: "flex-end",
-                gap: 10, boxShadow: "0 1px 2px rgba(0,0,0,.02)",
-              }}>
-                <textarea
-                  ref={textareaRef}
-                  value={inputVal}
-                  onChange={onInputChange}
-                  onKeyDown={onKeyDown}
-                  disabled={isLoading}
-                  placeholder="Type / for commands"
-                  rows={1}
-                  style={{
-                    flex: 1, border: "none", outline: "none", resize: "none",
-                    fontFamily: "var(--cw-mono)", fontSize: 13.5,
-                    color: "var(--cw-ink1)", background: "transparent",
-                    lineHeight: 1.5, minHeight: 22, maxHeight: 200,
-                    overflow: "hidden",
-                  }}
-                />
-                {isLoading ? (
-                  <div
-                    onClick={handleStop}
-                    title="Detener"
-                    style={{
-                      width: 14, height: 14, borderRadius: 3,
-                      border: "1.5px solid #c8c8c8", cursor: "pointer", flexShrink: 0,
-                    }}
-                  />
-                ) : (
-                  <button
-                    onClick={submitInput}
-                    disabled={!inputVal.trim()}
-                    style={{
-                      width: 26, height: 26, borderRadius: 6,
-                      background: inputVal.trim() ? "var(--cw-green)" : "#f0f0f0",
-                      border: "none", cursor: inputVal.trim() ? "pointer" : "default",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      flexShrink: 0, transition: "background .15s",
-                    }}
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={inputVal.trim() ? "#fff" : "#aaa"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12h14M13 6l6 6-6 6"/>
-                    </svg>
-                  </button>
-                )}
-              </div>
+              {/* Text input — PromptInputBox (paperclip + web search + mic) */}
+              <PromptInputBox
+                isLoading={isLoading}
+                onSend={(msg, files, webSearch) => handleSend(msg, files, webSearch)}
+                onStop={handleStop}
+                placeholder="Pregunta sobre tu hato..."
+              />
 
               {/* Footer row */}
               <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 6px 0", fontSize: 12.5, color: "#777" }}>

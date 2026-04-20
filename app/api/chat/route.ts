@@ -31,12 +31,13 @@ import {
   buildSystemPrompt,
   CATTLE_TOOLS,
   ejecutarTool,
+  type AttachmentMeta,
 } from "@/src/lib/claude";
 import { getNombrePredio, getPredioKpis, getPrediosNombres, getUltimoPesajePorLote } from "@/src/lib/queries/predio";
 import { AuthError } from "@/src/lib/with-auth";
 import { db } from "@/src/db/client";
-import { kbDocuments, type KbDocument } from "@/src/db/schema/index";
-import { eq } from "drizzle-orm";
+import { kbDocuments, chatAttachments, type KbDocument } from "@/src/db/schema/index";
+import { eq, inArray } from "drizzle-orm";
 
 // ⚠️ PROHIBIDO CAMBIAR ESTE MODELO SIN APROBACIÓN DE CÉSAR
 const OR_MODEL = "google/gemma-4-31b-it";
@@ -107,7 +108,8 @@ export async function POST(req: NextRequest) {
   let body: {
     messages: Array<{ role: "user" | "assistant"; content: string }>;
     predio_id: number;
-    reasoning_mode?: boolean;
+    attachment_ids?: number[];
+    webSearch?: boolean;
   };
   try {
     body = await req.json();
@@ -118,7 +120,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { messages, predio_id: predioId } = body;
+  const { messages, predio_id: predioId, attachment_ids: attachmentIds } = body;
 
   if (!predioId || typeof predioId !== "number") {
     return new Response(
@@ -177,18 +179,36 @@ export async function POST(req: NextRequest) {
 
       try {
         // Pre-fetch contexto real del predio
-        const [nombrePredio, prediosNombres, kpis, ultimoPesajePorLote] = await Promise.all([
+        const [nombrePredio, prediosNombres, kpis, ultimoPesajePorLote, rawAttachments] = await Promise.all([
           getNombrePredio(predioId),
           getPrediosNombres(session.user.predios),
           getPredioKpis(predioId),
           getUltimoPesajePorLote(predioId).catch(() => []),
+          attachmentIds && attachmentIds.length > 0
+            ? db
+                .select({
+                  id: chatAttachments.id,
+                  filename: chatAttachments.filename,
+                  columnas: chatAttachments.columnas,
+                  filasCount: chatAttachments.filasCount,
+                  predioId: chatAttachments.predioId,
+                })
+                .from(chatAttachments)
+                .where(inArray(chatAttachments.id, attachmentIds))
+            : Promise.resolve([]),
         ]);
+
+        // Filtrar attachments accesibles al usuario
+        const attachmentsMeta: AttachmentMeta[] = rawAttachments.filter((a) =>
+          tieneAccesoTotal || prediosPermitidos.includes(a.predioId)
+        );
 
         const systemPrompt = buildSystemPrompt(session, predioId, {
           nombrePredio: nombrePredio ?? `Predio ${predioId}`,
           prediosNombres,
           kpis,
           ultimoPesajePorLote,
+          attachmentsMeta: attachmentsMeta.length > 0 ? attachmentsMeta : undefined,
         });
 
         // Cargar documentos KB válidos — como texto en el system prompt
