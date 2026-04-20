@@ -1,6 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface SessionItem {
+  id: number;
+  titulo: string;
+}
+
+interface PredioGroup {
+  predio_id: number | null;
+  predio_nombre: string;
+  sesiones: SessionItem[];
+}
 
 // ─── Session dot SVG ────────────────────────────────────────────────────────
 
@@ -24,6 +38,7 @@ interface ChatSidebarProps {
   onClose?: () => void;
   userName?: string | null;
   nombrePredio?: string | null;
+  activeSessionId?: number | null;
   // legacy props used by non-chat pages — accepted but ignored
   orgName?: string | null;
   userEmail?: string | null;
@@ -37,9 +52,17 @@ interface ChatSidebarProps {
 
 // ─── Sidebar ────────────────────────────────────────────────────────────────
 
-export function ChatSidebar({ open = false, onClose, userName, nombrePredio, orgName }: ChatSidebarProps) {
-  // orgName fallback for non-chat pages that still pass it
-  const effectivePredio = nombrePredio ?? orgName;
+export function ChatSidebar({ open = false, onClose, userName, activeSessionId }: ChatSidebarProps) {
+  const [groups, setGroups] = useState<PredioGroup[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    fetch("/api/chat/sessions")
+      .then((r) => r.ok ? r.json() : [])
+      .then(setGroups)
+      .catch(() => {});
+  }, [open]);
+
   return (
     <>
       {/* Backdrop */}
@@ -83,7 +106,7 @@ export function ChatSidebar({ open = false, onClose, userName, nombrePredio, org
             </svg>
           </div>
           <div style={{ ...tabStyle, width: "auto", padding: "0 10px", gap: 5, fontFamily: "var(--cw-mono)", fontSize: 12, fontWeight: 500, background: "#f1f1f1", color: "#333" }}>
-            <span>&lt;/&gt;</span><span>Code</span>
+            <span>smartCow</span>
           </div>
         </div>
 
@@ -108,22 +131,25 @@ export function ChatSidebar({ open = false, onClose, userName, nombrePredio, org
           className="cw-scrollbar"
           style={{ flex: 1, overflowY: "auto", padding: "4px 8px 6px" }}
         >
-          <SbSection label={effectivePredio ?? "smartcow_prod"} />
-          <SbItem label="Nueva conversación" active />
-          <SbItem label="Importar Excels AgroApp" />
-          <SbItem label="Schema Drizzle — tratamientos" />
-          <SbItem label="Fix DIIO resolver bajas" />
-          <SbItem label="Revisar partos duplicados" />
-
-          <SbSection label="agroapp_scraper" />
-          <SbItem label="Puppeteer login flow" />
-          <SbItem label="Extraer Ventas_Historial" />
-
-          <SbSection label="fundos_chile" />
-          <SbItem label="Resolver predios Mediería" />
-          <SbItem label="Los Aromos — resumen semanal" />
-          <SbItem label="Plan vacunación Q2 2026" />
-          <SbItem label="Reporte movimientos abril" />
+          {groups.length > 0 ? (
+            groups.map((group) => (
+              <div key={group.predio_id ?? "global"}>
+                <SbSection label={group.predio_nombre} />
+                {group.sesiones.map((s) => (
+                  <SbItem
+                    key={s.id}
+                    label={s.titulo}
+                    active={s.id === activeSessionId}
+                  />
+                ))}
+              </div>
+            ))
+          ) : (
+            <>
+              <SbSection label="smartcow" />
+              <SbItem label="Nueva conversación" active />
+            </>
+          )}
         </div>
 
         {/* Footer */}

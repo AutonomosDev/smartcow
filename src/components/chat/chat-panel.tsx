@@ -258,22 +258,19 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
 
         {/* Right side */}
         <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center", paddingRight: 10 }}>
-          {!isArtifactOpen && activeArtifact && (
-            <div
-              onClick={() => setIsArtifactOpen(true)}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                padding: "4px 10px", borderRadius: 6,
-                background: "var(--cw-blue)", color: "var(--cw-blue-fg)",
-                fontFamily: "var(--cw-mono)", fontSize: 11.5, fontWeight: 500,
-                cursor: "pointer", border: "1px solid transparent",
-              }}
-              title="Reabrir Informe"
+          <TlBtn
+            title={activeArtifact ? (isArtifactOpen ? "Cerrar informe" : "Abrir informe") : "Sin informe activo"}
+            onClick={activeArtifact ? () => setIsArtifactOpen((o) => !o) : undefined}
+          >
+            <svg
+              width="15" height="15" viewBox="0 0 24 24"
+              fill="none" stroke={activeArtifact ? "#555" : "#ccc"}
+              strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/></svg>
-              <span>Informe</span>
-            </div>
-          )}
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </TlBtn>
           <TlBtn title="Buscar">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           </TlBtn>
@@ -411,18 +408,14 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
                 <span style={{ color: "#b98c2e", fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
                   SmartCow AI
                 </span>
-                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6, color: "#777" }}>
-                  <span style={{ fontFamily: "var(--cw-mono)", fontSize: 11.5 }}>gemma-4-31b</span>
-                  <span style={{ color: "#aaa" }}>·</span>
-                  <span style={{ fontFamily: "var(--cw-mono)", fontSize: 11.5 }}>OpenRouter</span>
-                  {isLoading && (
-                    <div style={{
-                      width: 12, height: 12, borderRadius: "50%",
-                      border: "1.5px solid #dde3f5", borderTopColor: "#4b7bec",
-                      animation: "cw-spin 1s linear infinite",
-                    }} />
-                  )}
-                </div>
+                {isLoading && (
+                  <div style={{
+                    width: 12, height: 12, borderRadius: "50%",
+                    border: "1.5px solid #dde3f5", borderTopColor: "#4b7bec",
+                    animation: "cw-spin 1s linear infinite",
+                    marginLeft: "auto",
+                  }} />
+                )}
               </div>
 
             </div>
