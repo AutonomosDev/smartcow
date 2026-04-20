@@ -32,7 +32,7 @@ import {
   CATTLE_TOOLS,
   ejecutarTool,
 } from "@/src/lib/claude";
-import { getNombrePredio, getPredioKpis, getPrediosNombres } from "@/src/lib/queries/predio";
+import { getNombrePredio, getPredioKpis, getPrediosNombres, getUltimoPesajePorLote } from "@/src/lib/queries/predio";
 import { AuthError } from "@/src/lib/with-auth";
 import { db } from "@/src/db/client";
 import { kbDocuments, type KbDocument } from "@/src/db/schema/index";
@@ -177,16 +177,18 @@ export async function POST(req: NextRequest) {
 
       try {
         // Pre-fetch contexto real del predio
-        const [nombrePredio, prediosNombres, kpis] = await Promise.all([
+        const [nombrePredio, prediosNombres, kpis, ultimoPesajePorLote] = await Promise.all([
           getNombrePredio(predioId),
           getPrediosNombres(session.user.predios),
           getPredioKpis(predioId),
+          getUltimoPesajePorLote(predioId).catch(() => []),
         ]);
 
         const systemPrompt = buildSystemPrompt(session, predioId, {
           nombrePredio: nombrePredio ?? `Predio ${predioId}`,
           prediosNombres,
           kpis,
+          ultimoPesajePorLote,
         });
 
         // Cargar documentos KB válidos — como texto en el system prompt

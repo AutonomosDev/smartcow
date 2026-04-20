@@ -29,6 +29,83 @@ import {
 import { eq, and, desc, isNull, inArray, sql, count } from "drizzle-orm";
 
 // ─────────────────────────────────────────────
+// PESAJES POR LOTE — contexto para chat LLM
+// ─────────────────────────────────────────────
+
+export interface PesajePorLote {
+  loteId: number;
+  loteNombre: string;
+  fecha: string;
+  pesoPromedioKg: number;
+  gdpKgDia: number | null;
+}
+
+/**
+ * Último pesaje promedio por lote activo del predio, con GDP calculado
+ * desde fecha_entrada del lote. Usado para enriquecer el system prompt del chat.
+ *
+ * Ticket: AUT-256
+ */
+export async function getUltimoPesajePorLote(predioId: number): Promise<PesajePorLote[]> {
+  const result = await db.execute(sql`
+    WITH lotes_activos AS (
+      SELECT l.id, l.nombre, l.fecha_entrada
+      FROM lotes l
+      WHERE l.predio_id = ${predioId} AND l.estado = 'activo'
+    ),
+    animales_en_lote AS (
+      SELECT la.lote_id, la.animal_id, la.peso_entrada_kg
+      FROM lote_animales la
+      JOIN lotes_activos lo ON la.lote_id = lo.id
+      WHERE la.fecha_salida IS NULL
+    ),
+    ultimos_pesajes AS (
+      SELECT
+        p.animal_id,
+        p.peso_kg,
+        p.fecha,
+        ROW_NUMBER() OVER (PARTITION BY p.animal_id ORDER BY p.fecha DESC) AS rn
+      FROM pesajes p
+      WHERE p.predio_id = ${predioId}
+    )
+    SELECT
+      al.lote_id,
+      lo.nombre AS lote_nombre,
+      MAX(up.fecha) AS ultimo_pesaje_fecha,
+      ROUND(AVG(up.peso_kg::numeric), 1) AS peso_promedio_kg,
+      ROUND(
+        (AVG(up.peso_kg::numeric) - AVG(COALESCE(al.peso_entrada_kg::numeric, up.peso_kg::numeric))) /
+        NULLIF(
+          EXTRACT(EPOCH FROM (CURRENT_DATE - lo.fecha_entrada::date)) / 86400,
+          0
+        ),
+        3
+      ) AS gdp_kg_dia
+    FROM animales_en_lote al
+    JOIN lotes_activos lo ON al.lote_id = lo.id
+    JOIN ultimos_pesajes up ON al.animal_id = up.animal_id AND up.rn = 1
+    GROUP BY al.lote_id, lo.nombre, lo.fecha_entrada
+    ORDER BY lo.nombre
+  `);
+
+  type Row = {
+    lote_id: number | string;
+    lote_nombre: string;
+    ultimo_pesaje_fecha: string;
+    peso_promedio_kg: string | number | null;
+    gdp_kg_dia: string | number | null;
+  };
+
+  return (result.rows as Row[]).map((r) => ({
+    loteId: Number(r.lote_id),
+    loteNombre: r.lote_nombre,
+    fecha: r.ultimo_pesaje_fecha,
+    pesoPromedioKg: r.peso_promedio_kg != null ? Number(r.peso_promedio_kg) : 0,
+    gdpKgDia: r.gdp_kg_dia != null ? Number(r.gdp_kg_dia) : null,
+  }));
+}
+
+// ─────────────────────────────────────────────
 // TIPOS PÚBLICOS
 // ─────────────────────────────────────────────
 
