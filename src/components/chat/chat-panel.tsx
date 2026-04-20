@@ -53,6 +53,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
   const [isArtifactOpen, setIsArtifactOpen] = useState(false);
   const [sbOpen, setSbOpen] = useState(true);
   const [tareaModalOpen, setTareaModalOpen] = useState(false);
+  const [currentSessionTitle, setCurrentSessionTitle] = useState<string>("Nueva conversación");
   const [artWidth, setArtWidth] = useState(() => {
     try { return parseInt(localStorage.getItem("cw_art_w") ?? "") || 560; } catch { return 560; }
   });
@@ -110,6 +111,12 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
 
   const handleSend = useCallback(async (content: string) => {
     if (!content.trim() || isLoadingRef.current) return;
+
+    // Derive session title from first user message
+    if (messagesRef.current.length === 0) {
+      const titleText = content.trim();
+      setCurrentSessionTitle(titleText.length > 42 ? titleText.slice(0, 42) + "…" : titleText);
+    }
 
     const userMessage: ChatMessage = { role: "user", content };
     const updatedMessages = [...messagesRef.current, userMessage];
@@ -239,29 +246,22 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
 
       <NuevaTareaModal open={tareaModalOpen} onClose={() => setTareaModalOpen(false)} />
 
-      {/* ── macOS Titlebar ── */}
+      {/* ── Titlebar ── */}
       <div style={{
-        height: 38, background: "#ffffff", borderBottom: "1px solid #ececec",
-        display: "flex", alignItems: "center", padding: "0 10px",
+        height: 48, background: "#ffffff", borderBottom: "1px solid #ececec",
+        display: "flex", alignItems: "center", padding: "0 12px",
         flexShrink: 0, position: "relative", userSelect: "none", gap: 10,
       }}>
-        {/* Traffic lights */}
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#ff5f57", border: ".5px solid #e0443e", display: "block" }} />
-          <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#febc2e", border: ".5px solid #dea123", display: "block" }} />
-          <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#28c840", border: ".5px solid #1aab29", display: "block" }} />
-        </div>
-
-        {/* Nav + hamburger */}
-        <div style={{ display: "flex", gap: 2, marginLeft: 4 }}>
+        {/* Nav + hamburger — no traffic lights */}
+        <div style={{ display: "flex", gap: 2 }}>
           <TlBtn title="Menú" onClick={() => setSbOpen((o) => !o)}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
           </TlBtn>
           <TlBtn>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
           </TlBtn>
           <TlBtn>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
           </TlBtn>
         </div>
 
@@ -269,16 +269,17 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
         <div style={{
           position: "absolute", left: "50%", top: "50%",
           transform: "translate(-50%,-50%)",
-          display: "flex", alignItems: "center", gap: 7,
-          fontSize: 12.5, color: "#333", fontWeight: 500,
+          display: "flex", alignItems: "center", gap: 10,
+          fontSize: 15, color: "#333", fontWeight: 500,
+          whiteSpace: "nowrap", maxWidth: "50%", overflow: "hidden",
         }}>
-          <span style={{ color: "#666", display: "flex" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z"/></svg>
+          <span style={{ color: "#666", display: "flex", flexShrink: 0 }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z"/></svg>
           </span>
-          <span>{nombrePredio ?? "smartcow"}</span>
-          <span style={{ color: "#999", margin: "0 2px" }}>/</span>
-          <span>Nueva conversación</span>
-          <span style={{ color: "#8a8a8a", marginLeft: 2 }}>▾</span>
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", flexShrink: 0 }}>{nombrePredio ?? "smartcow"}</span>
+          <span style={{ color: "#bbb", flexShrink: 0 }}>/</span>
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", color: "#555" }}>{currentSessionTitle}</span>
+          <span style={{ color: "#8a8a8a", flexShrink: 0 }}>▾</span>
         </div>
 
         {/* Right side */}
@@ -288,7 +289,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
             onClick={activeArtifact ? () => setIsArtifactOpen((o) => !o) : undefined}
           >
             <svg
-              width="15" height="15" viewBox="0 0 24 24"
+              width="19" height="19" viewBox="0 0 24 24"
               fill="none" stroke={activeArtifact ? "#555" : "#ccc"}
               strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
             >
@@ -297,7 +298,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
             </svg>
           </TlBtn>
           <TlBtn title="Buscar">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           </TlBtn>
         </div>
       </div>
