@@ -198,7 +198,116 @@ const artMarkdown: Components = {
   ),
 };
 
+// ─── Color helpers ────────────────────────────────────────────────────────────
+
+const COLOR_DOT: Record<string, string> = { ok: "#28c840", warn: "#febc2e", bad: "#ff5f57" };
+const COLOR_BG:  Record<string, string> = { ok: "#e6f4ea", warn: "#fef9e7", bad: "#fdecea" };
+const COLOR_FG:  Record<string, string> = { ok: "#1e6e34", warn: "#7a5b00", bad: "#9a1f1f" };
+const LEVEL_COLOR: Record<string, string> = { Info: "#4b7bec", Atención: "#febc2e", Urgente: "#ff5f57" };
+
+function StructuredTable({ data }: { data: { title?: string; rows?: Array<{ label: string; value: string; color?: string }> } }) {
+  return (
+    <div style={{ maxWidth: 640, margin: "0 auto" }}>
+      {data.title && <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 18, color: "#1a1a1a" }}>{data.title}</h2>}
+      <div style={{ background: "var(--cw-note, #f7f8fa)", border: ".5px solid var(--cw-note-bd, #e5e7eb)", borderRadius: 8, overflow: "hidden" }}>
+        {(data.rows ?? []).map((row, i) => (
+          <div key={i} style={{
+            display: "flex", alignItems: "center", padding: "10px 16px",
+            borderBottom: i < (data.rows?.length ?? 0) - 1 ? ".5px dashed #e5e7eb" : "none",
+            gap: 12,
+          }}>
+            {row.color && (
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: COLOR_DOT[row.color] ?? "#bbb", flexShrink: 0 }} />
+            )}
+            <span style={{ flex: 1, fontSize: 13, color: "#1a1a1a" }}>{row.label}</span>
+            {row.color ? (
+              <span style={{
+                fontSize: 12, fontWeight: 600, padding: "2px 10px", borderRadius: 12,
+                background: COLOR_BG[row.color] ?? "#f0f0f0",
+                color: COLOR_FG[row.color] ?? "#333",
+              }}>{row.value}</span>
+            ) : (
+              <span style={{ fontSize: 13, color: "#555", fontVariantNumeric: "tabular-nums" }}>{row.value}</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StructuredKpi({ data }: { data: { title?: string; kpis?: Array<{ val: string; lbl: string; color?: string }>; rows?: Array<{ label: string; value: string }> } }) {
+  return (
+    <div style={{ maxWidth: 640, margin: "0 auto" }}>
+      {data.title && <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 18, color: "#1a1a1a" }}>{data.title}</h2>}
+      {data.kpis && data.kpis.length > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))", gap: 12, marginBottom: 20 }}>
+          {data.kpis.map((kpi, i) => (
+            <div key={i} style={{
+              background: kpi.color ? (COLOR_BG[kpi.color] ?? "#f7f8fa") : "#f7f8fa",
+              border: `.5px solid ${kpi.color ? (COLOR_DOT[kpi.color] + "55") : "#e5e7eb"}`,
+              borderRadius: 10, padding: "14px 16px",
+            }}>
+              <div style={{ fontSize: 22, fontWeight: 700, color: kpi.color ? (COLOR_FG[kpi.color] ?? "#1a1a1a") : "#1a1a1a", letterSpacing: "-.5px" }}>{kpi.val}</div>
+              <div style={{ fontSize: 11, color: "#888", marginTop: 4, textTransform: "uppercase", letterSpacing: ".4px" }}>{kpi.lbl}</div>
+            </div>
+          ))}
+        </div>
+      )}
+      {data.rows && data.rows.length > 0 && (
+        <div style={{ background: "var(--cw-note, #f7f8fa)", border: ".5px solid #e5e7eb", borderRadius: 8, overflow: "hidden" }}>
+          {data.rows.map((row, i) => (
+            <div key={i} style={{
+              display: "flex", justifyContent: "space-between", padding: "9px 16px",
+              borderBottom: i < (data.rows?.length ?? 0) - 1 ? ".5px dashed #e5e7eb" : "none",
+            }}>
+              <span style={{ fontSize: 13, color: "#666" }}>{row.label}</span>
+              <span style={{ fontSize: 13, color: "#1a1a1a", fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>{row.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StructuredAlerts({ data }: { data: { title?: string; items?: Array<{ level: string; text: string }> } }) {
+  return (
+    <div style={{ maxWidth: 640, margin: "0 auto" }}>
+      {data.title && <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 18, color: "#1a1a1a" }}>{data.title}</h2>}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {(data.items ?? []).map((item, i) => (
+          <div key={i} style={{
+            display: "flex", alignItems: "flex-start", gap: 12,
+            background: "#f7f8fa", border: ".5px solid #e5e7eb", borderRadius: 8, padding: "12px 14px",
+          }}>
+            <span style={{
+              fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 20,
+              background: LEVEL_COLOR[item.level] ?? "#bbb", color: "#fff",
+              flexShrink: 0, letterSpacing: ".3px",
+            }}>{item.level.toUpperCase()}</span>
+            <span style={{ fontSize: 13, color: "#1a1a1a", lineHeight: 1.5 }}>{item.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ArtifactContent({ artifact }: { artifact: ArtifactData }) {
+  // Try to parse structured JSON from backend artifact_block events
+  if (artifact.kind && ["table", "kpi", "alerts"].includes(artifact.kind)) {
+    try {
+      const data = JSON.parse(artifact.content);
+      if (artifact.kind === "table")  return <StructuredTable data={data} />;
+      if (artifact.kind === "kpi")    return <StructuredKpi data={data} />;
+      if (artifact.kind === "alerts") return <StructuredAlerts data={data} />;
+    } catch {
+      // fall through to markdown if JSON is malformed
+    }
+  }
+
+  // Fallback: render as markdown (for legacy or plain-text artifacts)
   return (
     <div style={{ maxWidth: 640, margin: "0 auto" }}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={artMarkdown}>

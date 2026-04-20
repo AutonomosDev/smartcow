@@ -10,13 +10,26 @@ import { MasDropdown } from "@/src/components/chat/mas-dropdown";
 
 // ─── SSE types ────────────────────────────────────────────────────────────────
 
+interface ArtifactRow { label: string; value: string; color?: "ok" | "warn" | "bad" }
+interface ArtifactKpi  { val: string; lbl: string; color?: string }
+interface ArtifactItem { level: "Info" | "Atención" | "Urgente"; text: string }
+
+interface SSEArtifact {
+  type: "table" | "kpi" | "alerts";
+  title?: string;
+  rows?: ArtifactRow[];
+  kpis?: ArtifactKpi[];
+  items?: ArtifactItem[];
+}
+
 interface SSEEvent {
-  type: "text_delta" | "thinking_delta" | "tool_use" | "tool_result" | "done" | "error";
+  type: "text_delta" | "thinking_delta" | "tool_use" | "tool_result" | "done" | "error" | "artifact_block";
   delta?: string;
   tool?: string;
   input?: unknown;
   result?: unknown;
   message?: string;
+  artifact?: SSEArtifact;
 }
 
 const WRITE_TOOLS = new Set(["registrar_pesaje", "registrar_parto"]);
@@ -149,17 +162,24 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
                 // write tools don't generate artifact
               }
               break;
+            case "artifact_block":
+              if (event.artifact && typeof event.artifact === "object") {
+                setActiveArtifact({
+                  id: `art_${Date.now()}`,
+                  title: event.artifact.title ?? "Informe",
+                  content: JSON.stringify(event.artifact),
+                  kind: event.artifact.type,
+                });
+                setIsArtifactOpen(true);
+              }
+              break;
             case "error":
               throw new Error(event.message);
           }
         }
       }
 
-      // If the response is long enough and looks like a report, pin to artifact
-      if (accumulatedContent.length > 400) {
-        const title = accumulatedContent.split("\n")[0].replace(/^#+\s*/, "").trim() || "Informe";
-        setActiveArtifact({ id: Date.now().toString(), title, content: accumulatedContent });
-      }
+      // Artifact is set directly via artifact_block SSE event — no fallback heuristic
     } catch (err: unknown) {
       if (err instanceof Error && err.name !== "AbortError") console.error(err);
     } finally {
