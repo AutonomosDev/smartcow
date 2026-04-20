@@ -1,6 +1,6 @@
 # GitHub Actions — smartcow
 # Quality gates: typecheck + tests on PRs and pushes to main
-# Deployment: handled by Firebase App Hosting (auto-deploy on push)
+# Deployment: SSH + git pull + docker compose on Hostinger VPS (push to main only)
 
 name: CI
 
@@ -49,3 +49,42 @@ jobs:
 
       - name: Run tests
         run: npm test --if-present
+
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: [typecheck, test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    concurrency:
+      group: deploy-prod
+      cancel-in-progress: false
+    steps:
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy (git pull + rebuild + restart)
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" bash -s << 'EOF'
+            set -euo pipefail
+            cd /var/www/smartcow
+            echo "→ git pull"
+            git pull origin main
+            echo "→ docker build"
+            docker compose build app
+            echo "→ docker up"
+            docker compose up -d app
+            echo "→ health"
+            sleep 3
+            docker compose ps
+          EOF
+
+      - name: Smoke test
+        run: |
+          sleep 5
+          code=$(curl -sSo /dev/null -w "%{http_code}" https://smartcow.cl/login)
+          echo "smartcow.cl/login → $code"
+          [ "$code" = "200" ] || exit 1

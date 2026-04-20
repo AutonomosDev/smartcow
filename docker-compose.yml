@@ -19,6 +19,17 @@ services:
       - redis
     restart: always
 
+  migrate:
+    build:
+      context: .
+      target: migrate
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - db
+    profiles:
+      - migrate
+
   db:
     image: postgres:16-alpine
     environment:
