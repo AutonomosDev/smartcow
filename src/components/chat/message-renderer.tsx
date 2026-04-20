@@ -203,6 +203,23 @@ const markdownComponents: Components = {
   },
 };
 
+// ─── Artifact stripping ───────────────────────────────────────────────────────
+// El LLM emite bloques ```artifact\n{JSON}\n``` que el backend parsea y envía
+// como evento SSE artifact_block al panel derecho. Esos bloques NO deben aparecer
+// en el cuerpo del mensaje. Los removemos aquí.
+//
+// Durante streaming, si el bloque está abierto pero no cerrado, cortamos el
+// texto en el marcador de apertura — evita que el JSON parcial se vea.
+
+function stripArtifactBlocks(content: string): string {
+  // Paso 1: remover bloques ```artifact ... ``` completos
+  let cleaned = content.replace(/```artifact\s*\n[\s\S]*?\n```\s*/g, "");
+  // Paso 2: si hay un ```artifact abierto sin cerrar, cortar desde ahí
+  const openIdx = cleaned.indexOf("```artifact");
+  if (openIdx !== -1) cleaned = cleaned.slice(0, openIdx);
+  return cleaned.trimEnd();
+}
+
 // ─── MessageRenderer ──────────────────────────────────────────────────────────
 
 interface MessageRendererProps {
@@ -235,10 +252,12 @@ export function MessageRenderer({ message }: MessageRendererProps) {
   }
 
   // Assistant message — flat prose, no bubble/avatar
+  const visibleContent = stripArtifactBlocks(message.content);
+  if (!visibleContent) return null;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-        {message.content}
+        {visibleContent}
       </ReactMarkdown>
     </div>
   );
