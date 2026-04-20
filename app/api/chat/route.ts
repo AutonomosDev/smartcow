@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { messages, predio_id: predioId, attachment_ids: attachmentIds } = body;
+  const { messages, predio_id: predioId, attachment_ids: attachmentIds, webSearch = false } = body;
 
   if (!predioId || typeof predioId !== "number") {
     return new Response(
@@ -209,6 +209,7 @@ export async function POST(req: NextRequest) {
           kpis,
           ultimoPesajePorLote,
           attachmentsMeta: attachmentsMeta.length > 0 ? attachmentsMeta : undefined,
+          webSearch,
         });
 
         // Cargar documentos KB válidos — como texto en el system prompt
@@ -237,7 +238,11 @@ export async function POST(req: NextRequest) {
           })),
         ];
 
-        const tools = toOpenAITools(CATTLE_TOOLS);
+        // Exponer web_search solo si el usuario activó el toggle 🌐
+        const activeTools = webSearch
+          ? CATTLE_TOOLS
+          : CATTLE_TOOLS.filter((t) => t.name !== "web_search");
+        const tools = toOpenAITools(activeTools);
         let iteraciones = 0;
 
         while (iteraciones < MAX_TOOL_ITERATIONS) {

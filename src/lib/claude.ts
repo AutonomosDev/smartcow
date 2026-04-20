@@ -183,6 +183,25 @@ export const CATTLE_TOOLS: FunctionDeclaration[] = [
       required: ["attachment_id"],
     },
   },
+  {
+    name: "web_search",
+    description:
+      "Busca información en internet. SOLO usar cuando el usuario pide explícitamente datos externos (precios de mercado actuales, noticias, regulaciones, clima, etc). No usar para datos del predio — usa query_db para eso.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        query: {
+          type: Type.STRING,
+          description: "Búsqueda en lenguaje natural. Ser específico (incluir 'Chile', año actual si aplica).",
+        },
+        max_results: {
+          type: Type.NUMBER,
+          description: "Número de resultados (default 5, máx 10)",
+        },
+      },
+      required: ["query"],
+    },
+  },
 ];
 
 // ─────────────────────────────────────────────
@@ -255,6 +274,13 @@ export async function ejecutarTool(
         toolInput["agregacion"] as string | undefined,
         toolInput["campo_agregacion"] as string | undefined,
         prediosPermitidos
+      );
+    }
+
+    case "web_search": {
+      return buscarWeb(
+        String(toolInput["query"] ?? ""),
+        Number(toolInput["max_results"] ?? 5)
       );
     }
 
@@ -441,6 +467,46 @@ async function consultarArchivo(
 }
 
 // ─────────────────────────────────────────────
+// WEB SEARCH (Tavily)
+// ─────────────────────────────────────────────
+
+async function buscarWeb(query: string, maxResults: number) {
+  if (!query.trim()) return { error: "query vacía" };
+
+  const apiKey = process.env.TAVILY_API_KEY;
+  if (!apiKey) return { error: "Búsqueda web no disponible en este entorno" };
+
+  try {
+    const res = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        api_key: apiKey,
+        query: query.trim(),
+        search_depth: "basic",
+        include_answer: false,
+        max_results: Math.min(Math.max(1, maxResults), 10),
+        country: "chile",
+      }),
+    });
+
+    if (!res.ok) return { error: `Tavily error ${res.status}` };
+
+    const data = (await res.json()) as { results: { title: string; url: string; content: string; score: number }[] };
+    return {
+      resultados: data.results.map((r) => ({
+        titulo: r.title,
+        url: r.url,
+        fragmento: r.content,
+        relevancia: r.score,
+      })),
+    };
+  } catch (err) {
+    return { error: `Error al buscar: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
+// ─────────────────────────────────────────────
 // CLIENTE + SYSTEM PROMPT
 // ─────────────────────────────────────────────
 
@@ -464,6 +530,7 @@ export function buildSystemPrompt(
     kpis: PredioKpis;
     ultimoPesajePorLote?: PesajePorLote[];
     attachmentsMeta?: AttachmentMeta[];
+    webSearch?: boolean;
   }
 ): string {
   const { nombre, rol, modulos, predios } = session.user;
@@ -571,7 +638,7 @@ Ejemplo de respuesta bien formada:
 > ]}
 > \`\`\`
 
-Usa siempre artifact si hay ≥3 filas de datos o si pidieron "informe", "resumen" o "tabla".${attachmentsText}`;
+Usa siempre artifact si hay ≥3 filas de datos o si pidieron "informe", "resumen" o "tabla".${attachmentsText}${ctx.webSearch ? `\n\n== BÚSQUEDA WEB ACTIVA ==\nEl usuario activó búsqueda web. Puedes usar \`web_search\` cuando la pregunta requiera datos externos (precios actuales del ganado, noticias del sector, regulaciones SAG, clima, etc). NO uses web_search para datos del predio — usa query_db para eso.` : ""}`;
 }
 
 /**
