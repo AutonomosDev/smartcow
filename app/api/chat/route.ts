@@ -51,7 +51,7 @@ const ROL_RANK: Record<string, number> = {
   superadmin: 5,
 };
 
-const MAX_TOOL_ITERATIONS = 5;
+const MAX_TOOL_ITERATIONS = 8;
 
 function getOpenRouterClient(): OpenAI {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -121,10 +121,12 @@ export async function POST(req: NextRequest) {
   const { messages, predio_id: predioId } = body;
 
   if (!predioId || typeof predioId !== "number") {
-    return new Response(JSON.stringify({ error: "predio_id requerido" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: `predio_id requerido (recibido: ${typeof predioId}, valor: ${predioId})`,
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   if (!Array.isArray(messages) || messages.length === 0) {
@@ -226,6 +228,8 @@ export async function POST(req: NextRequest) {
             tool_choice: "auto",
             stream: true,
             max_tokens: 8192,
+            temperature: 0.3,
+            top_p: 0.9,
           });
 
           let accumulatedText = "";
@@ -300,13 +304,20 @@ export async function POST(req: NextRequest) {
 
             sendEvent({ type: "tool_use", tool: tc.name, input: args });
 
-            const result = await ejecutarTool(
+            let result = await ejecutarTool(
               tc.name,
               args,
               prediosPermitidos,
               Number(userId),
               rolRank
             );
+
+            if (result && typeof result === "object" && (result as Record<string, unknown>).code === "FORBIDDEN") {
+              const prediosNombresList = Array.from(prediosNombres.values());
+              result = {
+                mensaje: `Predio fuera de tu alcance. Accesibles: ${prediosNombresList.join(", ") || "ninguno"}.`,
+              };
+            }
 
             sendEvent({ type: "tool_result", tool: tc.name, result });
 

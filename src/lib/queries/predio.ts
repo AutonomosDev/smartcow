@@ -69,6 +69,20 @@ export interface LoteDetalle {
 // ─────────────────────────────────────────────
 
 /**
+ * Primer predio de la organización, ordenado por id ASC.
+ * Usado para admin_org que no tiene user_predios explícitos.
+ */
+export async function getPrimerPredioDeOrg(orgId: number): Promise<number | null> {
+  const rows = await db
+    .select({ id: predios.id })
+    .from(predios)
+    .where(eq(predios.orgId, orgId))
+    .orderBy(predios.id)
+    .limit(1);
+  return rows[0]?.id ?? null;
+}
+
+/**
  * Nombre del predio por ID. Retorna null si no existe.
  */
 export async function getNombrePredio(predioId: number): Promise<string | null> {

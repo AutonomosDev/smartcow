@@ -4,7 +4,7 @@
 
 import { auth } from "@/src/lib/auth";
 import { redirect } from "next/navigation";
-import { getNombrePredio } from "@/src/lib/queries/predio";
+import { getNombrePredio, getPrimerPredioDeOrg } from "@/src/lib/queries/predio";
 import { ChatPageClient } from "./chat-page-client";
 
 export const metadata = {
@@ -22,7 +22,14 @@ export default async function ChatPage({
     redirect("/login");
   }
 
-  const predioId = session.user.predios[0] ?? 0;
+  const prediosUsuario = session.user.predios;
+  const predioId =
+    prediosUsuario.length > 0
+      ? prediosUsuario[0]
+      : await getPrimerPredioDeOrg(session.user.orgId);
+
+  if (!predioId) redirect("/dashboard");
+
   const params = await searchParams;
   const initialMessage = params.q;
   const nombrePredio = await getNombrePredio(predioId);
