@@ -17,7 +17,7 @@ interface SlashCommand {
 interface ChatEmptyStateProps {
   nombrePredio: string | null | undefined;
   userName?: string | null;
-  onSuggestionClick: (text: string) => void;
+  onSuggestionClick: (text: string, folderLabel?: string) => void;
   onPredioClick?: (predioId: number, nombre: string) => void;
 }
 
@@ -110,7 +110,7 @@ export function ChatEmptyState({ userName, onSuggestionClick }: ChatEmptyStatePr
           <SlashChip
             key={cmd.id}
             comando={cmd.comando}
-            onClick={() => onSuggestionClick(cmd.promptTemplate)}
+            onClick={() => onSuggestionClick(cmd.promptTemplate, cmd.label)}
           />
         ))}
       </div>

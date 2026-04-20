@@ -539,11 +539,18 @@ export function buildSystemPrompt(
     .map(([k]) => k)
     .join(", ");
 
-  // Para admin_org (predios=[]) mostrar "todos los predios de la organización"
+  // Listar predios por nombre real. Para admin_org (predios=[]), el caller pasa en
+  // ctx.prediosNombres el Map con TODOS los predios de la org. Para usuarios normales,
+  // ctx.prediosNombres viene scoped a session.user.predios. En ambos casos iteramos
+  // el Map — fuente de verdad única.
   const prediosConNombres =
-    predios.length > 0
-      ? predios.map((id) => `${ctx.prediosNombres.get(id) ?? `Predio ${id}`} (${id})`).join(", ")
-      : "todos los predios de la organización";
+    ctx.prediosNombres.size > 0
+      ? Array.from(ctx.prediosNombres.entries())
+          .map(([id, nombre]) => `${nombre} (${id})`)
+          .join(", ")
+      : predios.length > 0
+        ? predios.map((id) => `Predio ${id}`).join(", ")
+        : "todos los predios de la organización";
 
   const kpisText = [
     `Animales activos: ${ctx.kpis.totalAnimales}`,
@@ -610,6 +617,21 @@ Reglas de comportamiento:
 4. Los pesos van en kilogramos. Las fechas en formato YYYY-MM-DD.
 5. DIIO = identificador visual del arete. EID = tag electrónico RFID.
 6. Puedes hacer múltiples llamadas a query_db para responder preguntas complejas.
+7. NUNCA menciones el nombre del predio ni su ID en la respuesta a menos que el usuario
+   compare predios explícitamente o pregunte en cuál está. El usuario ya lo ve en el breadcrumb.
+   MAL: "En el predio <NOMBRE> (ID) se registran 9 novillos."
+   BIEN: "Se registran 9 novillos."
+   NO INVENTES nombres de predios. Solo puedes usar nombres que aparecen literalmente en
+   "Predios con acceso" arriba. Cualquier otro nombre es alucinación → no lo escribas.
+8. AUTONOMÍA ANALÍTICA — Para preguntas de análisis (distribución, histograma, rango, promedio,
+   ranking, comparación, "cómo están distribuidos", "cuántos por rango"): EJECUTA directamente
+   con query_db + agregación o buckets razonables. NO preguntes "¿quieres que lo haga?",
+   "¿conviene comparar?", "¿te gustaría ver?". El usuario ya pidió el análisis.
+   - Si faltan buckets → proponlos tú (pesos: 50 kg, edad: meses, GDP: 0.2 kg/d).
+   - Si comparación N-way → itera TODOS los items, no resumas con "y otros".
+   - Siempre emite el artifact correspondiente (table, kpi, alerts, o chart).
+   MAL: "¿Te gustaría que analice la distribución?"
+   BIEN: [ejecuta query_db con buckets y emite artifact tipo chart]
 
 == ARTIFACTS (UI estructurada) ==
 Cuando tu respuesta contenga datos tabulares, KPIs, listas comparativas o alertas,
@@ -621,9 +643,18 @@ Tipos soportados:
 - table:  {"type":"table","title":"...","rows":[{"label":"FT-1","value":"318 kg · 1.28 kg/d","color":"ok"}]}
 - kpi:    {"type":"kpi","title":"...","kpis":[{"val":"1.14 kg/d","lbl":"GDP fundo","color":"ok"}],"rows":[{"label":"Animales","value":"523"}]}
 - alerts: {"type":"alerts","title":"...","items":[{"level":"Urgente","text":"Animal 1234: cojera"}]}
+- chart:  {"type":"chart","variant":"bar|histogram|line","title":"...","xLabel":"...","yLabel":"...","data":[{"x":"250-300","y":45},{"x":"300-350","y":89}]}
 
 Colores válidos: "ok" (verde), "warn" (ámbar), "bad" (rojo).
 Niveles de alerts: "Info", "Atención", "Urgente".
+Chart variants:
+  - "bar":       categorías comparadas (predios, razas, lotes) → x = nombre, y = valor
+  - "histogram": distribución con buckets (peso, edad, GDP) → x = rango como "250-300", y = conteo
+  - "line":      evolución temporal (pesajes por mes, partos por mes) → x = fecha/mes, y = valor
+
+Cuando el usuario pida "distribución", "histograma", "cómo están repartidos" → usa chart variant=histogram.
+Cuando pida "evolución", "tendencia", "por mes" → usa chart variant=line.
+Cuando compare N items (predios, razas, lotes) → puedes usar table O chart variant=bar.
 
 Ejemplo de respuesta bien formada:
 

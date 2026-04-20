@@ -55,6 +55,9 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
   const [sbOpen, setSbOpen] = useState(true);
   const [tareaModalOpen, setTareaModalOpen] = useState(false);
   const [currentSessionTitle, setCurrentSessionTitle] = useState<string>("Nueva conversación");
+  const [activeFolder, setActiveFolder] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [artWidth, setArtWidth] = useState(() => {
     try { return parseInt(localStorage.getItem("cw_art_w") ?? "") || 560; } catch { return 560; }
   });
@@ -298,7 +301,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
 
       {/* ── Titlebar ── */}
       <div style={{
-        height: 48, background: "#ffffff", borderBottom: "1px solid #ececec",
+        height: 48, background: "#ffffff",
         display: "flex", alignItems: "center", padding: "0 12px",
         flexShrink: 0, position: "relative", userSelect: "none", gap: 10,
       }}>
@@ -326,7 +329,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
           <span style={{ color: "#666", display: "flex", flexShrink: 0 }}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z"/></svg>
           </span>
-          <span style={{ overflow: "hidden", textOverflow: "ellipsis", flexShrink: 0 }}>{nombrePredio ?? "smartcow"}</span>
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", flexShrink: 0 }}>{activeFolder ?? "smartcow"}</span>
           <span style={{ color: "#bbb", flexShrink: 0 }}>/</span>
           <span style={{ overflow: "hidden", textOverflow: "ellipsis", color: "#555" }}>{currentSessionTitle}</span>
           <span style={{ color: "#8a8a8a", flexShrink: 0 }}>▾</span>
@@ -335,19 +338,42 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
         {/* Right side */}
         <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center", paddingRight: 10 }}>
           <TlBtn
-            title={activeArtifact ? (isArtifactOpen ? "Cerrar informe" : "Abrir informe") : "Sin informe activo"}
-            onClick={activeArtifact ? () => setIsArtifactOpen((o) => !o) : undefined}
+            title="Nuevo chat"
+            onClick={() => {
+              setMessages([]);
+              setCurrentSessionTitle("Nueva conversación");
+              setActiveFolder(null);
+              setActiveArtifact(null);
+              setIsArtifactOpen(false);
+              setSearchOpen(false);
+              setSearchQuery("");
+              hasSentInitial.current = false;
+            }}
+          >
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+            </svg>
+          </TlBtn>
+          <TlBtn
+            title={isArtifactOpen ? "Cerrar informe" : "Abrir informe"}
+            onClick={() => setIsArtifactOpen((o) => !o)}
+            active={isArtifactOpen}
           >
             <svg
               width="19" height="19" viewBox="0 0 24 24"
-              fill="none" stroke={activeArtifact ? "#555" : "#ccc"}
+              fill="none" stroke="currentColor"
               strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
             >
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
             </svg>
           </TlBtn>
-          <TlBtn title="Buscar">
+          <TlBtn
+            title={searchOpen ? "Cerrar búsqueda" : "Buscar en la conversación"}
+            onClick={() => { setSearchOpen((o) => !o); if (searchOpen) setSearchQuery(""); }}
+            active={searchOpen}
+          >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           </TlBtn>
         </div>
@@ -364,8 +390,41 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
       {/* ── Body split ── */}
       <div style={{ flex: 1, display: "flex", minHeight: 0, background: "#fff" }}>
 
-        {/* Left pane — chat */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, background: "#fff" }}>
+        {/* Left pane — chat (siempre blanco, el crema del padre solo rodea el artifact derecho) */}
+        <div style={{
+          flex: 1, display: "flex", flexDirection: "column",
+          minWidth: 0, background: "#fff",
+        }}>
+
+          {/* Search bar (toggle) */}
+          {searchOpen && (
+            <div style={{
+              borderBottom: "1px solid #ececec", background: "#fafafa",
+              padding: "8px 28px", display: "flex", alignItems: "center", gap: 8,
+            }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <input
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar en la conversación..."
+                style={{
+                  flex: 1, border: "none", outline: "none", background: "transparent",
+                  fontSize: 13.5, color: "#333",
+                  fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+                }}
+              />
+              {searchQuery && (
+                <span style={{ fontSize: 11.5, color: "#888" }}>
+                  {messages.filter(m => m.content.toLowerCase().includes(searchQuery.toLowerCase())).length} coincidencias
+                </span>
+              )}
+              <span
+                onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
+                style={{ cursor: "pointer", color: "#888", fontSize: 18, lineHeight: 1, padding: "0 4px" }}
+              >×</span>
+            </div>
+          )}
 
           {/* Messages scroll */}
           <div
@@ -378,13 +437,22 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
                   <ChatEmptyState
                     nombrePredio={nombrePredio}
                     userName={userName}
-                    onSuggestionClick={(text) => handleSend(text)}
+                    onSuggestionClick={(text, folderLabel) => {
+                      if (folderLabel) setActiveFolder(folderLabel);
+                      handleSend(text);
+                    }}
                   />
                 </div>
               ) : (
-                messages.map((msg, idx) => (
-                  <MessageRenderer key={idx} message={msg} />
-                ))
+                messages.map((msg, idx) => {
+                  const hidden = searchOpen && searchQuery.trim() !== "" &&
+                    !msg.content.toLowerCase().includes(searchQuery.toLowerCase());
+                  return (
+                    <div key={idx} style={{ opacity: hidden ? 0.2 : 1, transition: "opacity .15s" }}>
+                      <MessageRenderer message={msg} />
+                    </div>
+                  );
+                })
               )}
 
               {isLoading && (
@@ -442,48 +510,46 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
 
               {/* Footer row */}
               <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 6px 0", fontSize: 12.5, color: "#777" }}>
-                <span style={{ color: "#b98c2e", fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
-                  SmartCow AI
-                </span>
                 {isLoading && (
                   <div style={{
                     width: 12, height: 12, borderRadius: "50%",
                     border: "1.5px solid #dde3f5", borderTopColor: "#4b7bec",
                     animation: "cw-spin 1s linear infinite",
-                    marginLeft: "auto",
                   }} />
                 )}
+                <span style={{
+                  marginLeft: "auto",
+                  color: "#b98c2e", fontWeight: 500, cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: 5,
+                }}>
+                  smartCow AI
+                </span>
               </div>
 
             </div>
           </div>
         </div>
 
-        {/* Drag divider */}
+        {/* Drag divider (handle invisible, sigue funcional) */}
         {isArtifactOpen && (
           <div
             onMouseDown={onDragStart}
             title="Arrastrar para redimensionar"
             style={{
               width: 10, flexShrink: 0, cursor: "col-resize",
-              position: "relative", background: "transparent", zIndex: 2,
+              background: "transparent", zIndex: 2,
             }}
-          >
-            <div style={{
-              position: "absolute", left: "50%", top: 0, bottom: 0,
-              width: 1, background: "#ececec", transform: "translateX(-.5px)",
-            }} />
-          </div>
+          />
         )}
 
-        {/* Right pane — artifact */}
+        {/* Right pane — artifact (efecto cuaderno: tarjeta con margin + radius + box-shadow envolvente) */}
         {isArtifactOpen && (
           <div style={{
             width: artWidth, background: "#fff", display: "flex",
             flexDirection: "column", flexShrink: 0,
-            borderTopLeftRadius: 10, borderTopRightRadius: 10,
-            marginTop: 6,
-            boxShadow: "-1px 0 0 rgba(0,0,0,.05), -6px -2px 18px rgba(0,0,0,.07)",
+            margin: "10px 10px 10px 0",
+            borderRadius: 14,
+            boxShadow: "0 0 0 .5px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08)",
             overflow: "hidden", position: "relative",
           }}>
             <ArtifactPanel
@@ -499,15 +565,21 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
 
 // ─── Titlebar button ─────────────────────────────────────────────────────────
 
-function TlBtn({ children, title, onClick }: { children: React.ReactNode; title?: string; onClick?: () => void }) {
+function TlBtn({ children, title, onClick, active }: { children: React.ReactNode; title?: string; onClick?: () => void; active?: boolean }) {
+  const [hover, setHover] = useState(false);
   return (
     <div
       title={title}
       onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       style={{
-        width: 22, height: 22,
+        width: 26, height: 26,
         display: "flex", alignItems: "center", justifyContent: "center",
-        color: "#b0b0b0", cursor: "pointer", borderRadius: 4,
+        color: active ? "#333" : hover ? "#555" : "#b0b0b0",
+        background: active ? "#f0f0f0" : hover ? "#f7f7f7" : "transparent",
+        cursor: "pointer", borderRadius: 6,
+        transition: "background .12s, color .12s",
       }}
     >
       {children}

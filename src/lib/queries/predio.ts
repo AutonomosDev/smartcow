@@ -185,6 +185,31 @@ export async function getPrediosNombres(predioIds: number[]): Promise<Map<number
 }
 
 /**
+ * Todos los predios de la organización como Map<id, nombre>.
+ * Usado para admin_org / superadmin que ven todo el scope de la org.
+ */
+export async function getTodosPrediosDeOrg(orgId: number): Promise<Map<number, string>> {
+  const rows = await db
+    .select({ id: predios.id, nombre: predios.nombre })
+    .from(predios)
+    .where(eq(predios.orgId, orgId))
+    .orderBy(predios.id);
+  return new Map(rows.map((r) => [r.id, r.nombre]));
+}
+
+/**
+ * IDs de todos los predios de la organización.
+ */
+export async function getPredioIdsDeOrg(orgId: number): Promise<number[]> {
+  const rows = await db
+    .select({ id: predios.id })
+    .from(predios)
+    .where(eq(predios.orgId, orgId))
+    .orderBy(predios.id);
+  return rows.map((r) => r.id);
+}
+
+/**
  * KPIs del predio para el dashboard/home:
  * - Lotes activos (estado = 'activo')
  * - Total animales activos

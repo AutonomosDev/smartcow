@@ -1,14 +1,13 @@
 /**
  * app/api/chat/route.ts — Endpoint SSE del chat ganadero.
- * Ticket: AUT-176
+ * Tickets: AUT-261 (Anthropic SDK), AUT-262 (router), AUT-263 (tracking), AUT-264 (budget)
  *
- * Cliente: OpenAI SDK apuntando a OpenRouter.
- * Modelo: google/gemma-4-31b-it (PROHIBIDO cambiar sin aprobación de César — AUT-176).
- * Tools declaradas en src/lib/claude.ts (formato Google AI SDK),
- * convertidas a formato OpenAI function calling por toOpenAITools().
+ * Proveedor: Anthropic SDK (@anthropic-ai/sdk). Modelos aprobados: ver llm-routing-and-budget.yaml.
+ * Tools declaradas en src/lib/claude.ts (formato Google AI SDK FunctionDeclaration),
+ * convertidas a formato Anthropic tool por toAnthropicTools().
  *
  * POST /api/chat
- * Body: { messages: {role, content}[], predio_id: number, reasoning_mode?: boolean }
+ * Body: { messages: {role, content}[], predio_id: number, attachment_ids?: number[], webSearch?: boolean }
  * Response: text/event-stream (SSE)
  *
  * Eventos SSE:
@@ -17,15 +16,10 @@
  *   data: { type: "tool_result", tool: string, result: unknown }
  *   data: { type: "done" }
  *   data: { type: "error", message: string }
- *
- * Seguridad:
- *   - withAuth() en cada request
- *   - predioId validado contra predios del usuario
- *   - No PII en logs
  */
 
 import { NextRequest } from "next/server";
-import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import { withAuth, withAuthBearer } from "@/src/lib/with-auth";
 import {
   buildSystemPrompt,
@@ -33,14 +27,13 @@ import {
   ejecutarTool,
   type AttachmentMeta,
 } from "@/src/lib/claude";
-import { getNombrePredio, getPredioKpis, getPrediosNombres, getUltimoPesajePorLote } from "@/src/lib/queries/predio";
+import { getNombrePredio, getPredioKpis, getPrediosNombres, getUltimoPesajePorLote, getTodosPrediosDeOrg, getPredioIdsDeOrg } from "@/src/lib/queries/predio";
 import { AuthError } from "@/src/lib/with-auth";
 import { db } from "@/src/db/client";
 import { kbDocuments, chatAttachments, type KbDocument } from "@/src/db/schema/index";
 import { eq, inArray } from "drizzle-orm";
-
-// ⚠️ PROHIBIDO CAMBIAR ESTE MODELO SIN APROBACIÓN DE CÉSAR
-const OR_MODEL = "google/gemma-4-31b-it";
+import { pickModel, type TierName } from "@/src/lib/router";
+import { checkBudget, writeChatUsage } from "@/src/lib/budget";
 
 // Jerarquía de roles
 const ROL_RANK: Record<string, number> = {
@@ -54,34 +47,26 @@ const ROL_RANK: Record<string, number> = {
 
 const MAX_TOOL_ITERATIONS = 8;
 
-function getOpenRouterClient(): OpenAI {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) throw new Error("OPENROUTER_API_KEY no configurada");
-  return new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
-    apiKey,
-    defaultHeaders: {
-      "HTTP-Referer": "https://smartcow.cl",
-      "X-Title": "SmartCow",
-    },
-  });
+function getAnthropicClient(): Anthropic {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY no configurada");
+  return new Anthropic({ apiKey });
 }
 
-// Convertir CATTLE_TOOLS (formato Google) al formato OpenAI function calling
-function toOpenAITools(cattleTools: typeof CATTLE_TOOLS): OpenAI.Chat.ChatCompletionTool[] {
+// Convertir CATTLE_TOOLS (formato Google FunctionDeclaration) al formato Anthropic tool
+function toAnthropicTools(cattleTools: typeof CATTLE_TOOLS): Anthropic.Tool[] {
   return cattleTools
     .filter((t) => t.name && t.description)
     .map((t) => ({
-      type: "function" as const,
-      function: {
-        name: t.name as string,
-        description: t.description as string,
-        parameters: t.parameters as Record<string, unknown>,
-      },
+      name: t.name as string,
+      description: t.description as string,
+      input_schema: (t.parameters ?? { type: "object", properties: {} }) as Anthropic.Tool["input_schema"],
     }));
 }
 
 export async function POST(req: NextRequest) {
+  const startMs = Date.now();
+
   // 1. Autenticación — Bearer (mobile) o cookie (web)
   let session;
   try {
@@ -139,7 +124,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 3. Validar acceso al predio
-  const { rol, predios, id: userId } = session.user;
+  const { rol, predios, id: userId, orgId } = session.user;
   const tieneAccesoTotal = rol === "superadmin" || rol === "admin_org";
 
   if (!tieneAccesoTotal && !predios.includes(predioId)) {
@@ -149,18 +134,24 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  const prediosDelScope = tieneAccesoTotal ? await getPredioIdsDeOrg(orgId) : predios;
   const prediosPermitidos = tieneAccesoTotal ? [] : predios;
   const rolRank = ROL_RANK[rol] ?? 0;
 
-  // 4. Inicializar cliente OpenRouter
-  let client: OpenAI;
-  try {
-    client = getOpenRouterClient();
-  } catch {
-    return new Response(JSON.stringify({ error: "Servicio no disponible" }), {
-      status: 503,
-      headers: { "Content-Type": "application/json" },
-    });
+  // 4. Routing + Budget (AUT-262, AUT-264)
+  const lastMessage = messages[messages.length - 1]?.content ?? "";
+  const { modelId, tier } = pickModel({
+    lastMessage,
+    webSearchActive: webSearch,
+    prediosEnScope: prediosDelScope.length,
+  });
+
+  const budgetCheck = await checkBudget(orgId, tier);
+  if (!budgetCheck.ok) {
+    return new Response(
+      JSON.stringify({ error: budgetCheck.message, code: "BUDGET_EXCEEDED" }),
+      { status: 402, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   // 5. Construir SSE stream
@@ -177,11 +168,19 @@ export async function POST(req: NextRequest) {
         controller.close();
       }
 
+      let tokensIn = 0;
+      let tokensOut = 0;
+      let toolCallsCount = 0;
+      let hadArtifact = false;
+      let trackingError: string | null = null;
+
       try {
         // Pre-fetch contexto real del predio
         const [nombrePredio, prediosNombres, kpis, ultimoPesajePorLote, rawAttachments] = await Promise.all([
           getNombrePredio(predioId),
-          getPrediosNombres(session.user.predios),
+          tieneAccesoTotal
+            ? getTodosPrediosDeOrg(orgId)
+            : getPrediosNombres(session.user.predios),
           getPredioKpis(predioId),
           getUltimoPesajePorLote(predioId).catch(() => []),
           attachmentIds && attachmentIds.length > 0
@@ -198,7 +197,6 @@ export async function POST(req: NextRequest) {
             : Promise.resolve([]),
         ]);
 
-        // Filtrar attachments accesibles al usuario
         const attachmentsMeta: AttachmentMeta[] = rawAttachments.filter((a) =>
           tieneAccesoTotal || prediosPermitidos.includes(a.predioId)
         );
@@ -212,15 +210,11 @@ export async function POST(req: NextRequest) {
           webSearch,
         });
 
-        // Cargar documentos KB válidos — como texto en el system prompt
-        // (OpenRouter no soporta Google Files API fileData)
+        // Cargar documentos KB válidos
         let kbContext = "";
         try {
           const now = new Date();
-          const kbFiles: KbDocument[] = await db
-            .select()
-            .from(kbDocuments)
-            .where(eq(kbDocuments.predioId, predioId));
+          const kbFiles: KbDocument[] = await db.select().from(kbDocuments).where(eq(kbDocuments.predioId, predioId));
           const validKbFiles = kbFiles.filter((f) => f.expiresAt > now);
           if (validKbFiles.length > 0) {
             kbContext = `\n\n[BASE DE CONOCIMIENTO — ${validKbFiles.length} documento(s) disponibles: ${validKbFiles.map((f) => f.nombre).join(", ")}]`;
@@ -229,115 +223,119 @@ export async function POST(req: NextRequest) {
           // kb_documents tabla no disponible — continuar sin KB
         }
 
-        // Construir historial en formato OpenAI
-        const chatMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-          { role: "system", content: systemPrompt + kbContext },
-          ...messages.map((m) => ({
-            role: m.role as "user" | "assistant",
-            content: m.content,
-          })),
-        ];
+        // Construir historial en formato Anthropic
+        const chatMessages: Anthropic.MessageParam[] = messages.map((m) => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+        }));
 
-        // Exponer web_search solo si el usuario activó el toggle 🌐
+        // Tools activas según toggle webSearch
         const activeTools = webSearch
           ? CATTLE_TOOLS
           : CATTLE_TOOLS.filter((t) => t.name !== "web_search");
-        const tools = toOpenAITools(activeTools);
+        const anthropicTools = toAnthropicTools(activeTools);
+
+        const client = getAnthropicClient();
         let iteraciones = 0;
+
+        // Historial acumulativo para multi-turn con tool use
+        const runMessages: Anthropic.MessageParam[] = [...chatMessages];
 
         while (iteraciones < MAX_TOOL_ITERATIONS) {
           iteraciones++;
 
-          const response = await client.chat.completions.create({
-            model: OR_MODEL,
-            messages: chatMessages,
-            tools,
-            tool_choice: "auto",
-            stream: true,
+          const response = await client.messages.create({
+            model: modelId,
             max_tokens: 8192,
-            temperature: 0.3,
-            top_p: 0.9,
+            system: systemPrompt + kbContext,
+            messages: runMessages,
+            tools: anthropicTools,
+            tool_choice: { type: "auto" },
+            stream: true,
           });
 
           let accumulatedText = "";
-          const toolCallsMap: Map<number, { id: string; name: string; args: string }> = new Map();
+          const toolUseBlocks: Array<{ id: string; name: string; input: string }> = [];
+          let currentToolId = "";
+          let currentToolName = "";
+          let currentToolInput = "";
 
-          for await (const chunk of response) {
-            const delta = chunk.choices[0]?.delta;
-            if (!delta) continue;
-
-            // Stream texto
-            if (delta.content) {
-              accumulatedText += delta.content;
-              sendEvent({ type: "text_delta", delta: delta.content });
-            }
-
-            // Acumular tool calls (llegan en fragmentos)
-            if (delta.tool_calls) {
-              for (const tc of delta.tool_calls) {
-                const idx = tc.index;
-                if (!toolCallsMap.has(idx)) {
-                  toolCallsMap.set(idx, { id: tc.id ?? "", name: tc.function?.name ?? "", args: "" });
-                }
-                const existing = toolCallsMap.get(idx)!;
-                if (tc.id) existing.id = tc.id;
-                if (tc.function?.name) existing.name = tc.function.name;
-                if (tc.function?.arguments) existing.args += tc.function.arguments;
+          for await (const event of response) {
+            if (event.type === "message_start") {
+              tokensIn += event.message.usage?.input_tokens ?? 0;
+            } else if (event.type === "message_delta") {
+              tokensOut += event.usage?.output_tokens ?? 0;
+            } else if (event.type === "content_block_start") {
+              if (event.content_block.type === "tool_use") {
+                currentToolId = event.content_block.id;
+                currentToolName = event.content_block.name;
+                currentToolInput = "";
+              }
+            } else if (event.type === "content_block_delta") {
+              if (event.delta.type === "text_delta") {
+                accumulatedText += event.delta.text;
+                sendEvent({ type: "text_delta", delta: event.delta.text });
+              } else if (event.delta.type === "input_json_delta") {
+                currentToolInput += event.delta.partial_json;
+              }
+            } else if (event.type === "content_block_stop") {
+              if (currentToolId) {
+                toolUseBlocks.push({
+                  id: currentToolId,
+                  name: currentToolName,
+                  input: currentToolInput,
+                });
+                currentToolId = "";
+                currentToolName = "";
+                currentToolInput = "";
               }
             }
           }
 
-          const toolCalls = Array.from(toolCallsMap.values());
-
           // Sin tool calls → respuesta final
-          if (toolCalls.length === 0) {
-            // Parsear bloques ```artifact\n{...}\n``` del texto acumulado
+          if (toolUseBlocks.length === 0) {
+            // Parsear bloques ```artifact del texto acumulado
             const artifactRe = /```artifact\s*\n([\s\S]*?)\n```/g;
             let match: RegExpExecArray | null;
             while ((match = artifactRe.exec(accumulatedText)) !== null) {
               try {
                 const parsed = JSON.parse(match[1].trim());
                 if (parsed && typeof parsed === "object" && parsed.type) {
+                  hadArtifact = true;
                   sendEvent({ type: "artifact_block", artifact: parsed });
                 }
               } catch {
-                // JSON malformado — ignorar silenciosamente
+                // JSON malformado — ignorar
               }
             }
             sendEvent({ type: "done" });
             controller.close();
-            return;
+            break;
           }
 
-          // Agregar turno del asistente con tool calls al historial
-          chatMessages.push({
-            role: "assistant",
-            content: accumulatedText || null,
-            tool_calls: toolCalls.map((tc) => ({
-              id: tc.id,
-              type: "function" as const,
-              function: { name: tc.name, arguments: tc.args },
-            })),
-          });
+          // Agregar turno del asistente al historial
+          const assistantContent: Array<Anthropic.Messages.TextBlockParam | Anthropic.Messages.ToolUseBlockParam> = [];
+          if (accumulatedText) {
+            assistantContent.push({ type: "text", text: accumulatedText });
+          }
+          for (const tb of toolUseBlocks) {
+            let parsedInput: Record<string, unknown> = {};
+            try { parsedInput = JSON.parse(tb.input || "{}"); } catch { parsedInput = {}; }
+            assistantContent.push({ type: "tool_use", id: tb.id, name: tb.name, input: parsedInput });
+          }
+          runMessages.push({ role: "assistant", content: assistantContent });
 
-          // Ejecutar tools y agregar resultados
-          for (const tc of toolCalls) {
+          // Ejecutar tools y construir tool_result turn
+          const toolResultContent: Anthropic.ToolResultBlockParam[] = [];
+
+          for (const tb of toolUseBlocks) {
+            toolCallsCount++;
             let args: Record<string, unknown> = {};
-            try {
-              args = JSON.parse(tc.args);
-            } catch {
-              args = {};
-            }
+            try { args = JSON.parse(tb.input || "{}"); } catch { args = {}; }
 
-            sendEvent({ type: "tool_use", tool: tc.name, input: args });
+            sendEvent({ type: "tool_use", tool: tb.name, input: args });
 
-            let result = await ejecutarTool(
-              tc.name,
-              args,
-              prediosPermitidos,
-              Number(userId),
-              rolRank
-            );
+            let result = await ejecutarTool(tb.name, args, prediosPermitidos, Number(userId), rolRank);
 
             if (result && typeof result === "object" && (result as Record<string, unknown>).code === "FORBIDDEN") {
               const prediosNombresList = Array.from(prediosNombres.values());
@@ -346,22 +344,48 @@ export async function POST(req: NextRequest) {
               };
             }
 
-            sendEvent({ type: "tool_result", tool: tc.name, result });
+            sendEvent({ type: "tool_result", tool: tb.name, result });
 
-            chatMessages.push({
-              role: "tool",
-              tool_call_id: tc.id,
+            toolResultContent.push({
+              type: "tool_result",
+              tool_use_id: tb.id,
               content: JSON.stringify(result),
             });
           }
+
+          runMessages.push({ role: "user", content: toolResultContent });
         }
 
-        sendEvent({ type: "done" });
-        controller.close();
+        // Si salimos por MAX_TOOL_ITERATIONS sin break
+        if (iteraciones >= MAX_TOOL_ITERATIONS) {
+          sendEvent({ type: "done" });
+          controller.close();
+        }
       } catch (err) {
         const msg = err instanceof Error ? err.message : JSON.stringify(err);
         console.error("[chat] error en stream:", msg);
+        trackingError = msg;
         sendError("Error procesando la consulta");
+      } finally {
+        // Tracking (AUT-263) — ANTES de cerrar stream, no bloquea respuesta
+        const latencyMs = Date.now() - startMs;
+        try {
+          await writeChatUsage({
+            orgId,
+            userId: Number(userId),
+            predioId,
+            modelId,
+            tier,
+            tokensIn,
+            tokensOut,
+            toolCalls: toolCallsCount,
+            hadArtifact,
+            latencyMs,
+            error: trackingError,
+          });
+        } catch (trackErr) {
+          console.warn("[chat] tracking write failed:", trackErr instanceof Error ? trackErr.message : trackErr);
+        }
       }
     },
   });

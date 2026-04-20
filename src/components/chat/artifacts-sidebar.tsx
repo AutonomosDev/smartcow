@@ -4,6 +4,10 @@ import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
+import {
+  BarChart, Bar, LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from "recharts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -62,8 +66,12 @@ export function ArtifactPanel({ artifact, onHide }: ArtifactPanelProps) {
       <div style={{
         height: 38, display: "flex", alignItems: "center",
         padding: "0 14px 0 22px", gap: 10, borderBottom: 0, flexShrink: 0,
+        fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
       }}>
-        <span style={{ fontSize: 13, color: "var(--cw-ink2)", fontWeight: 400 }}>
+        <span style={{
+          fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+          fontSize: 13, color: "#555", fontWeight: 400,
+        }}>
           {artifact?.kind ?? "Informe"}
         </span>
         <div style={{ marginLeft: "auto", display: "flex", gap: 2, alignItems: "center" }}>
@@ -88,7 +96,7 @@ export function ArtifactPanel({ artifact, onHide }: ArtifactPanelProps) {
         fontSize: 12.5, color: "#6a6a6a", gap: 6, alignItems: "center", flexShrink: 0,
       }}>
         <span style={{ color: "#9a9a9a" }}><IcoInfo /></span>
-        Select any text to leave a comment for SmartCow
+        Selecciona texto para dejar un comentario a SmartCow
       </div>
 
       {/* Scroll area */}
@@ -131,37 +139,68 @@ export function ArtifactPanel({ artifact, onHide }: ArtifactPanelProps) {
 
 // ─── Artifact content renderer ────────────────────────────────────────────────
 
+// Paleta mobile (DM Sans, forest #1e3a2f, #e8e5df, #f0ede8, etc.)
+// Constantes PALETTE/DM declaradas abajo — inline strings para evitar orden de declaración.
+
 const artMarkdown: Components = {
   h1: ({ children }) => (
-    <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-.3px", margin: "0 0 28px", color: "#1a1a1a", lineHeight: 1.3 }}>{children}</h1>
+    <h1 style={{
+      fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+      fontSize: 22, fontWeight: 600, letterSpacing: "-.3px",
+      margin: "0 0 20px", color: "#1a1a1a", lineHeight: 1.3,
+    }}>{children}</h1>
   ),
   h2: ({ children }) => (
-    <h2 style={{ fontSize: 18, fontWeight: 700, margin: "26px 0 10px", color: "#1a1a1a", letterSpacing: "-.2px" }}>{children}</h2>
+    <h2 style={{
+      fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+      fontSize: 17, fontWeight: 600, margin: "20px 0 10px",
+      color: "#1a1a1a", letterSpacing: "-.2px",
+    }}>{children}</h2>
   ),
   h3: ({ children }) => (
-    <h3 style={{ fontSize: 15, fontWeight: 600, margin: "18px 0 8px", color: "#1a1a1a" }}>{children}</h3>
+    <h3 style={{
+      fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+      fontSize: 14, fontWeight: 600, margin: "16px 0 8px", color: "#1a1a1a",
+    }}>{children}</h3>
   ),
   p: ({ children }) => (
-    <p style={{ fontSize: 14, lineHeight: 1.6, color: "#1a1a1a", margin: "0 0 12px" }}>{children}</p>
+    <p style={{
+      fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+      fontSize: 13, lineHeight: 1.55, color: "#1a1a1a", margin: "0 0 12px",
+    }}>{children}</p>
   ),
   strong: ({ children }) => (
     <strong style={{ fontWeight: 600, color: "#1a1a1a" }}>{children}</strong>
   ),
+  em: ({ children }) => (
+    <em style={{ fontStyle: "normal", color: "#555" }}>{children}</em>
+  ),
   ul: ({ children }) => (
-    <ul style={{ fontSize: 14, lineHeight: 1.65, color: "#1a1a1a", margin: "0 0 14px", paddingLeft: 22 }}>{children}</ul>
+    <ul style={{
+      fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+      fontSize: 13, lineHeight: 1.6, color: "#1a1a1a",
+      margin: "0 0 14px", paddingLeft: 22,
+    }}>{children}</ul>
   ),
   ol: ({ children }) => (
-    <ol style={{ fontSize: 14, lineHeight: 1.65, color: "#1a1a1a", margin: "0 0 14px", paddingLeft: 22 }}>{children}</ol>
+    <ol style={{
+      fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+      fontSize: 13, lineHeight: 1.6, color: "#1a1a1a",
+      margin: "0 0 14px", paddingLeft: 22,
+    }}>{children}</ol>
   ),
-  li: ({ children }) => <li style={{ marginBottom: 6 }}>{children}</li>,
+  li: ({ children }) => <li style={{ marginBottom: 5 }}>{children}</li>,
   table: ({ children }) => (
     <div style={{
-      background: "var(--cw-note)", border: ".5px solid var(--cw-note-bd)",
-      borderRadius: 8, padding: "14px 16px", margin: "14px 0",
+      background: "#fff",
+      border: ".5px solid #e8e5df",
+      borderRadius: 12, padding: "14px 16px", margin: "14px 0",
     }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--cw-mono)", fontSize: 11.5 }}>
-        {children}
-      </table>
+      <table style={{
+        width: "100%", borderCollapse: "collapse",
+        fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+        fontSize: 13,
+      }}>{children}</table>
     </div>
   ),
   thead: ({ children }) => <thead>{children}</thead>,
@@ -169,139 +208,275 @@ const artMarkdown: Components = {
   tr: ({ children }) => <tr>{children}</tr>,
   th: ({ children }) => (
     <th style={{
+      fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
       textAlign: "left", padding: "0 12px 8px 0",
-      color: "var(--cw-ink3)", fontWeight: 500, fontSize: 10,
-      letterSpacing: ".3px", textTransform: "uppercase",
-      borderBottom: ".5px dashed var(--cw-note-bd)",
+      color: "#888", fontWeight: 500, fontSize: 11,
+      letterSpacing: ".2px",
+      borderBottom: ".5px solid #f0ede8",
     }}>{children}</th>
   ),
   td: ({ children }) => (
     <td style={{
+      fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
       textAlign: "left", padding: "6px 12px 6px 0",
-      color: "var(--cw-ink1)", fontSize: 11.5,
-      borderBottom: ".5px dashed var(--cw-note-bd)",
+      color: "#1a1a1a", fontSize: 13, fontWeight: 400,
+      borderBottom: ".5px solid #f0ede8",
     }}>{children}</td>
   ),
   code: ({ className, children }) => {
     if (className) {
       return (
-        <pre style={{ background: "var(--cw-cream)", borderRadius: 6, padding: "10px 14px", overflowX: "auto", margin: "8px 0", fontFamily: "var(--cw-mono)", fontSize: 12.5, color: "var(--cw-ink1)" }}>
+        <pre style={{
+          background: "#f7f6f3", borderRadius: 8, padding: "12px 14px",
+          overflowX: "auto", margin: "10px 0",
+          fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+          fontSize: 12.5, color: "#1a1a1a",
+          border: ".5px solid #e8e5df",
+        }}>
           <code>{children}</code>
         </pre>
       );
     }
-    return <code style={{ fontFamily: "var(--cw-mono)", fontSize: ".88em", background: "var(--cw-cream)", color: "var(--cw-ink1)", padding: "1px 6px", borderRadius: 4 }}>{children}</code>;
+    return (
+      <code style={{
+        fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+        fontSize: ".9em", background: "#f7f6f3", color: "#1a1a1a",
+        padding: "1px 6px", borderRadius: 4,
+      }}>{children}</code>
+    );
   },
-  hr: () => <hr style={{ border: 0, borderTop: "1px solid var(--cw-note-bd)", margin: "20px 0" }} />,
+  hr: () => <hr style={{ border: 0, borderTop: ".5px solid #e8e5df", margin: "20px 0" }} />,
   blockquote: ({ children }) => (
-    <blockquote style={{ borderLeft: "2px solid var(--cw-leaf)", paddingLeft: 14, color: "var(--cw-ink2)", margin: "10px 0", fontStyle: "italic" }}>{children}</blockquote>
+    <blockquote style={{
+      fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+      borderLeft: "2px solid #1e3a2f",
+      paddingLeft: 14, color: "#555", margin: "10px 0",
+      fontSize: 13, lineHeight: 1.55,
+    }}>{children}</blockquote>
   ),
 };
 
-// ─── Color helpers ────────────────────────────────────────────────────────────
+// ─── Paleta artifact (alineada con mobile ArtifactRenderer) ─────────────────
+// Fuente canónica de paleta — si cambia, actualizar también apps/mobile/src/components/generative/ArtifactRenderer.tsx
 
-const COLOR_DOT: Record<string, string> = { ok: "#28c840", warn: "#febc2e", bad: "#ff5f57" };
-const COLOR_BG:  Record<string, string> = { ok: "#e6f4ea", warn: "#fef9e7", bad: "#fdecea" };
-const COLOR_FG:  Record<string, string> = { ok: "#1e6e34", warn: "#7a5b00", bad: "#9a1f1f" };
-const LEVEL_COLOR: Record<string, string> = { Info: "#4b7bec", Atención: "#febc2e", Urgente: "#ff5f57" };
+const DM = "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)";
+
+const PALETTE = {
+  forest:   "#1e3a2f",   // header, acento positivo
+  ink:      "#1a1a1a",   // texto principal
+  ink2:     "#555",      // texto secundario
+  ink3:     "#888",      // labels
+  ink4:     "#bbb",      // micro-labels
+  card:     "#fff",
+  cardBd:   "#e8e5df",
+  divider:  "#f0ede8",
+  warnFg:   "#e74c3c",   // rojo/warn fuerte
+  orangeFg: "#f39c12",   // naranja/atención
+  alert: {
+    Urgente:  { bg: "#fde8e8", color: "#c0392b" },
+    Atención: { bg: "#fdf0e6", color: "#9b5e1a" },
+    Info:     { bg: "#e6f0f8", color: "#1a5276" },
+  },
+} as const;
+
+const ROW_COLOR: Record<string, string> = {
+  ok:     PALETTE.forest,
+  warn:   PALETTE.warnFg,
+  bad:    PALETTE.warnFg,
+  orange: PALETTE.orangeFg,
+};
+
+function ArtCard({ title, children }: { title?: string; children: React.ReactNode }) {
+  return (
+    <div style={{
+      background: PALETTE.card,
+      border: `.5px solid ${PALETTE.cardBd}`,
+      borderRadius: 12,
+      overflow: "hidden",
+      maxWidth: 640,
+      margin: "0 auto",
+      fontFamily: DM,
+    }}>
+      {title && (
+        <div style={{
+          background: PALETTE.forest,
+          padding: "10px 16px",
+          display: "flex", alignItems: "center", gap: 8,
+        }}>
+          <span style={{
+            fontFamily: DM,
+            fontSize: 13, fontWeight: 600,
+            color: "#fff", letterSpacing: ".1px",
+          }}>{title}</span>
+        </div>
+      )}
+      <div style={{ padding: 16 }}>{children}</div>
+    </div>
+  );
+}
 
 function StructuredTable({ data }: { data: { title?: string; rows?: Array<{ label: string; value: string; color?: string }> } }) {
+  const rows = data.rows ?? [];
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto" }}>
-      {data.title && <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 18, color: "#1a1a1a" }}>{data.title}</h2>}
-      <div style={{ background: "var(--cw-note, #f7f8fa)", border: ".5px solid var(--cw-note-bd, #e5e7eb)", borderRadius: 8, overflow: "hidden" }}>
-        {(data.rows ?? []).map((row, i) => (
-          <div key={i} style={{
-            display: "flex", alignItems: "center", padding: "10px 16px",
-            borderBottom: i < (data.rows?.length ?? 0) - 1 ? ".5px dashed #e5e7eb" : "none",
-            gap: 12,
+    <ArtCard title={data.title}>
+      {rows.map((row, i) => (
+        <div key={i}>
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "6px 0", gap: 12,
           }}>
-            {row.color && (
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: COLOR_DOT[row.color] ?? "#bbb", flexShrink: 0 }} />
-            )}
-            <span style={{ flex: 1, fontSize: 13, color: "#1a1a1a" }}>{row.label}</span>
-            {row.color ? (
-              <span style={{
-                fontSize: 12, fontWeight: 600, padding: "2px 10px", borderRadius: 12,
-                background: COLOR_BG[row.color] ?? "#f0f0f0",
-                color: COLOR_FG[row.color] ?? "#333",
-              }}>{row.value}</span>
-            ) : (
-              <span style={{ fontSize: 13, color: "#555", fontVariantNumeric: "tabular-nums" }}>{row.value}</span>
-            )}
+            <span style={{ fontFamily: DM, fontSize: 13, fontWeight: 400, color: PALETTE.ink3 }}>{row.label}</span>
+            <span style={{
+              fontFamily: DM, fontSize: 13, fontWeight: 600,
+              color: row.color ? (ROW_COLOR[row.color] ?? PALETTE.ink) : PALETTE.ink,
+              fontVariantNumeric: "tabular-nums",
+            }}>{row.value}</span>
           </div>
-        ))}
-      </div>
-    </div>
+          {i < rows.length - 1 && (
+            <div style={{ height: ".5px", background: PALETTE.divider, margin: "2px 0" }} />
+          )}
+        </div>
+      ))}
+    </ArtCard>
   );
 }
 
 function StructuredKpi({ data }: { data: { title?: string; kpis?: Array<{ val: string; lbl: string; color?: string }>; rows?: Array<{ label: string; value: string }> } }) {
+  const kpis = data.kpis ?? [];
+  const rows = data.rows ?? [];
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto" }}>
-      {data.title && <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 18, color: "#1a1a1a" }}>{data.title}</h2>}
-      {data.kpis && data.kpis.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(140px,1fr))", gap: 12, marginBottom: 20 }}>
-          {data.kpis.map((kpi, i) => (
-            <div key={i} style={{
-              background: kpi.color ? (COLOR_BG[kpi.color] ?? "#f7f8fa") : "#f7f8fa",
-              border: `.5px solid ${kpi.color ? (COLOR_DOT[kpi.color] + "55") : "#e5e7eb"}`,
-              borderRadius: 10, padding: "14px 16px",
-            }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: kpi.color ? (COLOR_FG[kpi.color] ?? "#1a1a1a") : "#1a1a1a", letterSpacing: "-.5px" }}>{kpi.val}</div>
-              <div style={{ fontSize: 11, color: "#888", marginTop: 4, textTransform: "uppercase", letterSpacing: ".4px" }}>{kpi.lbl}</div>
+    <ArtCard title={data.title}>
+      {kpis.length > 0 && (
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${Math.min(kpis.length, 4)}, 1fr)`,
+          gap: 12,
+          marginBottom: rows.length > 0 ? 16 : 0,
+        }}>
+          {kpis.map((kpi, i) => (
+            <div key={i} style={{ textAlign: "center" }}>
+              <div style={{
+                fontFamily: DM, fontSize: 24, fontWeight: 600,
+                color: kpi.color === "ok" ? PALETTE.forest : PALETTE.ink,
+                letterSpacing: "-.3px",
+                fontVariantNumeric: "tabular-nums",
+              }}>{kpi.val}</div>
+              <div style={{
+                fontFamily: DM, fontSize: 11, fontWeight: 400,
+                color: PALETTE.ink4, marginTop: 4,
+              }}>{kpi.lbl}</div>
             </div>
           ))}
         </div>
       )}
-      {data.rows && data.rows.length > 0 && (
-        <div style={{ background: "var(--cw-note, #f7f8fa)", border: ".5px solid #e5e7eb", borderRadius: 8, overflow: "hidden" }}>
-          {data.rows.map((row, i) => (
-            <div key={i} style={{
-              display: "flex", justifyContent: "space-between", padding: "9px 16px",
-              borderBottom: i < (data.rows?.length ?? 0) - 1 ? ".5px dashed #e5e7eb" : "none",
-            }}>
-              <span style={{ fontSize: 13, color: "#666" }}>{row.label}</span>
-              <span style={{ fontSize: 13, color: "#1a1a1a", fontWeight: 500, fontVariantNumeric: "tabular-nums" }}>{row.value}</span>
-            </div>
-          ))}
-        </div>
+      {rows.length > 0 && kpis.length > 0 && (
+        <div style={{ height: ".5px", background: PALETTE.divider, margin: "4px 0 12px" }} />
       )}
-    </div>
+      {rows.map((row, i) => (
+        <div key={i}>
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "6px 0",
+          }}>
+            <span style={{ fontFamily: DM, fontSize: 13, fontWeight: 400, color: PALETTE.ink3 }}>{row.label}</span>
+            <span style={{
+              fontFamily: DM, fontSize: 13, fontWeight: 600, color: PALETTE.ink,
+              fontVariantNumeric: "tabular-nums",
+            }}>{row.value}</span>
+          </div>
+          {i < rows.length - 1 && (
+            <div style={{ height: ".5px", background: PALETTE.divider, margin: "2px 0" }} />
+          )}
+        </div>
+      ))}
+    </ArtCard>
   );
 }
 
 function StructuredAlerts({ data }: { data: { title?: string; items?: Array<{ level: string; text: string }> } }) {
+  const items = data.items ?? [];
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto" }}>
-      {data.title && <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 18, color: "#1a1a1a" }}>{data.title}</h2>}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {(data.items ?? []).map((item, i) => (
-          <div key={i} style={{
-            display: "flex", alignItems: "flex-start", gap: 12,
-            background: "#f7f8fa", border: ".5px solid #e5e7eb", borderRadius: 8, padding: "12px 14px",
-          }}>
-            <span style={{
-              fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 20,
-              background: LEVEL_COLOR[item.level] ?? "#bbb", color: "#fff",
-              flexShrink: 0, letterSpacing: ".3px",
-            }}>{item.level.toUpperCase()}</span>
-            <span style={{ fontSize: 13, color: "#1a1a1a", lineHeight: 1.5 }}>{item.text}</span>
+    <ArtCard title={data.title}>
+      {items.map((item, i) => {
+        const st = PALETTE.alert[item.level as keyof typeof PALETTE.alert] ?? PALETTE.alert.Info;
+        return (
+          <div key={i}>
+            {i > 0 && <div style={{ height: ".5px", background: PALETTE.divider, margin: "8px 0" }} />}
+            <div style={{
+              display: "flex", alignItems: "flex-start", gap: 10,
+              padding: "4px 0",
+            }}>
+              <span style={{
+                fontFamily: DM, fontSize: 10, fontWeight: 600,
+                padding: "3px 10px", borderRadius: 20,
+                background: st.bg, color: st.color,
+                letterSpacing: ".2px",
+                flexShrink: 0, marginTop: 1,
+              }}>{item.level}</span>
+              <span style={{
+                fontFamily: DM, fontSize: 13, fontWeight: 400,
+                color: PALETTE.ink2, lineHeight: 1.5, flex: 1,
+              }}>{item.text}</span>
+            </div>
           </div>
-        ))}
+        );
+      })}
+    </ArtCard>
+  );
+}
+
+function StructuredChart({ data }: { data: { title?: string; variant?: "bar" | "histogram" | "line"; xLabel?: string; yLabel?: string; data?: Array<{ x: string | number; y: number }> } }) {
+  const variant = data.variant ?? "bar";
+  const rows = (data.data ?? []).map((d) => ({ x: String(d.x), y: Number(d.y) || 0 }));
+
+  const axisStyle = { fill: PALETTE.ink3, fontSize: 11, fontFamily: DM } as const;
+  const gridColor = PALETTE.divider;
+  const barColor = PALETTE.forest;
+
+  const renderChart = () => {
+    if (variant === "line") {
+      return (
+        <LineChart data={rows} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
+          <CartesianGrid stroke={gridColor} strokeDasharray="2 4" vertical={false} />
+          <XAxis dataKey="x" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridColor }} label={data.xLabel ? { value: data.xLabel, position: "insideBottom", offset: -2, style: { fill: PALETTE.ink3, fontSize: 10, fontFamily: DM } } : undefined} />
+          <YAxis tick={axisStyle} tickLine={false} axisLine={{ stroke: gridColor }} label={data.yLabel ? { value: data.yLabel, angle: -90, position: "insideLeft", style: { fill: PALETTE.ink3, fontSize: 10, fontFamily: DM, textAnchor: "middle" } } : undefined} />
+          <Tooltip contentStyle={{ fontFamily: DM, fontSize: 12, borderRadius: 8, border: `.5px solid ${PALETTE.cardBd}`, boxShadow: "0 2px 8px rgba(0,0,0,.08)" }} cursor={{ stroke: gridColor }} />
+          <Line type="monotone" dataKey="y" stroke={barColor} strokeWidth={2} dot={{ fill: barColor, r: 3 }} activeDot={{ r: 5 }} />
+        </LineChart>
+      );
+    }
+    // bar & histogram — mismo renderer, histogram solo difiere semánticamente
+    return (
+      <BarChart data={rows} margin={{ top: 8, right: 12, left: 0, bottom: 4 }} barCategoryGap={variant === "histogram" ? "4%" : "20%"}>
+        <CartesianGrid stroke={gridColor} strokeDasharray="2 4" vertical={false} />
+        <XAxis dataKey="x" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridColor }} label={data.xLabel ? { value: data.xLabel, position: "insideBottom", offset: -2, style: { fill: PALETTE.ink3, fontSize: 10, fontFamily: DM } } : undefined} />
+        <YAxis tick={axisStyle} tickLine={false} axisLine={{ stroke: gridColor }} label={data.yLabel ? { value: data.yLabel, angle: -90, position: "insideLeft", style: { fill: PALETTE.ink3, fontSize: 10, fontFamily: DM, textAnchor: "middle" } } : undefined} />
+        <Tooltip contentStyle={{ fontFamily: DM, fontSize: 12, borderRadius: 8, border: `.5px solid ${PALETTE.cardBd}`, boxShadow: "0 2px 8px rgba(0,0,0,.08)" }} cursor={{ fill: PALETTE.divider }} />
+        <Bar dataKey="y" fill={barColor} radius={[4, 4, 0, 0]} />
+      </BarChart>
+    );
+  };
+
+  return (
+    <ArtCard title={data.title}>
+      <div style={{ width: "100%", height: 260, fontFamily: DM }}>
+        <ResponsiveContainer width="100%" height="100%">
+          {renderChart()}
+        </ResponsiveContainer>
       </div>
-    </div>
+    </ArtCard>
   );
 }
 
 function ArtifactContent({ artifact }: { artifact: ArtifactData }) {
   // Try to parse structured JSON from backend artifact_block events
-  if (artifact.kind && ["table", "kpi", "alerts"].includes(artifact.kind)) {
+  if (artifact.kind && ["table", "kpi", "alerts", "chart"].includes(artifact.kind)) {
     try {
       const data = JSON.parse(artifact.content);
       if (artifact.kind === "table")  return <StructuredTable data={data} />;
       if (artifact.kind === "kpi")    return <StructuredKpi data={data} />;
       if (artifact.kind === "alerts") return <StructuredAlerts data={data} />;
+      if (artifact.kind === "chart")  return <StructuredChart data={data} />;
     } catch {
       // fall through to markdown if JSON is malformed
     }
@@ -319,11 +494,26 @@ function ArtifactContent({ artifact }: { artifact: ArtifactData }) {
 
 function ArtifactEmpty() {
   return (
-    <div style={{ maxWidth: 640, margin: "60px auto 0", textAlign: "center", color: "var(--cw-ink3)" }}>
-      <div style={{ width: 40, height: 40, borderRadius: 8, background: "var(--cw-note)", border: ".5px solid var(--cw-note-bd)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+    <div style={{
+      maxWidth: 640, margin: "60px auto 0", textAlign: "center",
+      fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+      color: "#888",
+    }}>
+      <div style={{
+        width: 44, height: 44, borderRadius: 10,
+        background: "#fff", border: ".5px solid #e8e5df",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        margin: "0 auto 16px",
+        color: "#1e3a2f",
+      }}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M10 13h4M10 17h4"/></svg>
       </div>
-      <p style={{ fontSize: 13, margin: 0 }}>Pide un informe o reporte para verlo aquí</p>
+      <p style={{
+        fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+        fontSize: 13, fontWeight: 400, margin: 0, color: "#888",
+      }}>
+        Pide un informe o reporte para verlo aquí
+      </p>
     </div>
   );
 }

@@ -1,0 +1,370 @@
+# SmartCow — LLM Routing & Budget
+# Constitución operacional del LLM del chat ganadero.
+# Fuente de verdad para decisiones de modelo, ruteo, costos y límites.
+# Cualquier cambio a este archivo requiere aprobación explícita de Cesar.
+
+meta:
+  version: 1.0.0
+  created: 2026-04-20
+  owner: cesar
+  status: draft            # draft | active | frozen
+  authority: |
+    Este archivo OVERRIDE cualquier decisión ad-hoc en código.
+    Si code/prompt contradice este YAML → el código está mal, se corrige.
+    Pre-flight de todo sprint que toque el chat: leer este archivo primero.
+
+# ─────────────────────────────────────────────────────────────────────
+# PRINCIPIOS
+# ─────────────────────────────────────────────────────────────────────
+
+principles:
+  - Un solo proveedor — Anthropic. No OpenRouter, no Gemma, no mezcla.
+  - Default calidad alta. Downgrade por heurística de costo/latencia.
+  - Budget por org, no por user. User no conoce el cap.
+  - Tracking ANTES que enforcement. No bloquear sin datos históricos.
+  - Upgrade manual, downgrade automático. Nunca al revés.
+  - Toda llamada al LLM se loguea. Sin excepción.
+
+# ─────────────────────────────────────────────────────────────────────
+# MODELOS APROBADOS
+# Solo estos 3 IDs pueden aparecer en app/api/chat/route.ts
+# Cualquier otro nombre = violación. Corregir inmediato.
+# ─────────────────────────────────────────────────────────────────────
+
+models:
+  light:
+    id: claude-haiku-4-5
+    tier: light
+    cost_per_mtok_in: 0.25
+    cost_per_mtok_out: 1.25
+    target_p50_latency_ms: 800
+    use_cases:
+      - saludos y confirmaciones
+      - preguntas de 1 paso sin cálculo
+      - lectura directa del snapshot
+
+  standard:
+    id: claude-sonnet-4-5
+    tier: standard
+    cost_per_mtok_in: 3.00
+    cost_per_mtok_out: 15.00
+    target_p50_latency_ms: 2500
+    use_cases:
+      - análisis con tool use
+      - generación de artifacts (table, kpi, alerts, chart)
+      - reportes y comparaciones de hasta 3 predios
+      - GDP por lote, distribuciones, rankings
+
+  heavy:
+    id: claude-opus-4-5
+    tier: heavy
+    cost_per_mtok_in: 15.00
+    cost_per_mtok_out: 75.00
+    target_p50_latency_ms: 6000
+    use_cases:
+      - comparación cross-predio (>3 predios)
+      - análisis histórico multi-año
+      - razonamiento multi-step con >5 tool calls
+      - diagnóstico complejo (causas de baja GDP, etc.)
+
+forbidden_models:
+  # Si estos IDs aparecen en código → bug crítico, rollback.
+  - google/gemma-4-31b-it      # legacy, migrado out
+  - google/gemma-*              # prohibido genérico
+  - openai/*                    # no OpenAI
+  - meta/*                      # no Meta
+  - mistral/*                   # no Mistral
+  - gpt-*                       # no GPT
+
+# ─────────────────────────────────────────────────────────────────────
+# ROUTING — HEURÍSTICA PRE-LLM (0 costo)
+# Orden de evaluación: stop en primer match
+# ─────────────────────────────────────────────────────────────────────
+
+routing:
+  default: standard
+
+  rules:
+    - match: upgrade_explicit
+      when:
+        - user_toggle: web_search_active   # web_search ya implica complejidad
+      tier: standard
+      reason: web_search requiere tool use complejo
+
+    - match: heavy_triggers
+      when_any:
+        - regex: "(?i)(compara.*todos|histórico completo|últimos \\d+ años|desde 20[12]\\d)"
+        - context.predios_en_scope_gt: 3
+        - context.tool_calls_previstos_gt: 5
+      tier: heavy
+      reason: multi-predio o histórico extenso
+
+    - match: light_triggers
+      when_any:
+        - msg_length_lt: 30
+        - regex: "^(hola|gracias|ok|sí|si|no|dale|perfecto|listo|bien|gracias)"
+        - context.messages_en_sesion_eq: 0          # primer turno corto
+      tier: light
+      reason: mensaje trivial o saludo
+
+    - match: fallback
+      when: always
+      tier: standard
+      reason: default calidad alta
+
+  mix_esperado:
+    # Validar con data real mes tras mes. Si mix real >2× del esperado
+    # en tier heavy → revisar heurística.
+    light:    30%
+    standard: 65%
+    heavy:    5%
+
+  # Cuándo FORZAR tier manualmente (override en route.ts):
+  overrides:
+    admin_debug: false        # solo para debug, no en prod
+    user_selector: false      # user NO elige modelo
+
+# ─────────────────────────────────────────────────────────────────────
+# BUDGET — POR ORGANIZACIÓN
+# Caps mensuales (mes calendario, UTC).
+# ─────────────────────────────────────────────────────────────────────
+
+budget:
+  plans:
+    free:
+      cap_usd_month: 5
+      tiers_enabled: [light]
+      soft_alert_at: 0.70       # email warn a 70%
+      hard_block_at: 1.00
+      reset: monthly_utc
+
+    pro:
+      cap_usd_month: 50
+      tiers_enabled: [light, standard]
+      soft_alert_at: 0.80
+      hard_block_at: 1.00
+      reset: monthly_utc
+
+    enterprise:
+      cap_usd_month: 500
+      tiers_enabled: [light, standard, heavy]
+      soft_alert_at: 0.85
+      hard_block_at: 1.00       # puede negociarse a 1.25 con Cesar
+      reset: monthly_utc
+
+  default_plan_new_org: pro
+
+  # Comportamiento cuando se alcanza el cap:
+  on_soft_alert:
+    - enviar email a admin_org
+    - flag en UI (chip amarillo "80% de cuota usada")
+  on_hard_block:
+    - return 402 Payment Required
+    - mensaje user: "Cuota del mes agotada. Contacta al admin."
+    - NO degradar silenciosamente a tier menor (confunde)
+
+# ─────────────────────────────────────────────────────────────────────
+# TRACKING — OBLIGATORIO
+# Sin esto no hay budget. Este es el paso 1 de la implementación.
+# ─────────────────────────────────────────────────────────────────────
+
+tracking:
+  table: chat_usage
+  schema:
+    - id:           bigserial primary key
+    - created_at:   timestamptz default now()
+    - org_id:       integer not null references organizaciones(id)
+    - user_id:      integer not null references users(id)
+    - session_id:   text                            # para agrupar turnos
+    - predio_id:    integer                         # contexto de la query
+    - model_id:     text not null                   # ej: claude-sonnet-4-5
+    - tier:         text not null                   # light|standard|heavy
+    - tokens_in:    integer not null
+    - tokens_out:   integer not null
+    - cost_usd:     numeric(10,6) not null
+    - tool_calls:   integer default 0
+    - had_artifact: boolean default false
+    - latency_ms:   integer
+    - error:        text                            # null si ok
+  indexes:
+    - (org_id, created_at)
+    - (user_id, created_at)
+    - (model_id, created_at)
+  retention: 365 days       # purge después de 1 año
+  write_when: |
+    Al final de cada request en /api/chat/route.ts,
+    ANTES de cerrar el stream SSE.
+    Si falla el write de tracking → log error pero no romper respuesta.
+
+  cost_calculation: |
+    cost_usd = (tokens_in * cost_per_mtok_in + tokens_out * cost_per_mtok_out) / 1_000_000
+
+# ─────────────────────────────────────────────────────────────────────
+# MONITORING — MÉTRICAS A VIGILAR
+# ─────────────────────────────────────────────────────────────────────
+
+monitoring:
+  daily_metrics:
+    - tokens_totales_por_tier
+    - costo_usd_por_org
+    - latencia_p50_p95_por_tier
+    - errores_por_modelo
+    - mix_de_tiers_vs_esperado
+    - artifact_emission_rate   # % de requests que emiten artifact
+
+  red_flags:
+    - mix_tier_heavy_gt: 15%            # esperado 5%, alarma si 3×
+    - costo_org_mtd_over_cap_pct: 90    # alerta antes de bloqueo
+    - latencia_p95_standard_ms_gt: 6000  # target 2500, alarma 2.4×
+    - error_rate_gt: 5%
+    - alucinacion_nombre_predio: any    # tolerancia CERO
+
+  alerting_channel:
+    - email a cesar@autonomos.dev para red_flags
+    - log estructurado (level=warn) en Sentry si está conectado
+
+# ─────────────────────────────────────────────────────────────────────
+# ENFORCEMENT — QUÉ DEBE VERIFICAR EL CÓDIGO
+# ─────────────────────────────────────────────────────────────────────
+
+enforcement:
+  pre_llm_checks:
+    - order: 1
+      check: org_plan_exists
+      on_fail: 500 "Plan no configurado"
+    - order: 2
+      check: tier_allowed_for_plan
+      on_fail: degrade_to_highest_allowed_tier    # ej: pro pidiendo heavy → downgrade a standard
+    - order: 3
+      check: budget_not_exceeded
+      on_fail: 402 "Cuota del mes agotada"
+    - order: 4
+      check: model_id_in_approved_list
+      on_fail: 500 "Modelo no aprobado — ver llm-routing-and-budget.yaml"
+
+  post_llm_checks:
+    - order: 1
+      check: write_usage_row
+      on_fail: log_warn_continue
+    - order: 2
+      check: artifact_schema_valid
+      on_fail: log_warn_continue    # LLM puede emitir JSON inválido ocasional
+
+# ─────────────────────────────────────────────────────────────────────
+# ROADMAP DE IMPLEMENTACIÓN
+# Cada sprint = ticket independiente en Linear (AUT-*).
+# ─────────────────────────────────────────────────────────────────────
+
+implementation_sprints:
+  S1:
+    ticket: TBD                    # crear cuando Cesar apruebe
+    titulo: Migración OpenRouter → Anthropic SDK
+    esfuerzo_h: 2
+    files:
+      - app/api/chat/route.ts
+      - src/lib/claude.ts
+      - .env (ANTHROPIC_API_KEY)
+    criterio_done: |
+      Chat ganadero funciona con claude-sonnet-4-5 default.
+      Streaming SSE, tool use, artifacts siguen OK.
+      Typecheck verde.
+    entrega_target: HOY
+
+  S2:
+    ticket: TBD
+    titulo: Router pickModel()
+    esfuerzo_h: 1
+    depende_de: S1
+    files:
+      - src/lib/router.ts (nuevo)
+      - app/api/chat/route.ts
+    criterio_done: |
+      3 tiers funcionando. Heurística activa.
+      Logging del tier elegido por request.
+
+  S3:
+    ticket: TBD
+    titulo: Tabla chat_usage + tracking
+    esfuerzo_h: 2
+    depende_de: S1
+    files:
+      - src/db/schema/chat-usage.ts (nuevo)
+      - migration 0012_chat_usage.sql
+      - app/api/chat/route.ts
+    criterio_done: |
+      Cada request graba una fila en chat_usage.
+      Query SELECT SUM(cost_usd) FROM chat_usage GROUP BY org_id funciona.
+
+  S4:
+    ticket: TBD
+    titulo: Budget enforcement
+    esfuerzo_h: 1
+    depende_de: S3
+    files:
+      - src/lib/budget.ts (nuevo)
+      - src/db/schema/organizaciones.ts (+ plan, usage_cap_usd)
+      - app/api/chat/route.ts
+    criterio_done: |
+      getUsageMTD(orgId) retorna costo acumulado.
+      Si excede cap → 402 ANTES de llamar Anthropic.
+
+  S5_optional:
+    ticket: TBD
+    titulo: Dashboard /admin/usage
+    esfuerzo_h: 4
+    depende_de: S3
+    criterio_done: |
+      Tabla con tokens/costo por org, por mes, por modelo.
+      Descarga CSV.
+
+# ─────────────────────────────────────────────────────────────────────
+# REGLAS DE COMPORTAMIENTO DEL LLM
+# (Complementa el system prompt, no lo reemplaza)
+# ─────────────────────────────────────────────────────────────────────
+
+llm_rules:
+  hallucination_guards:
+    - |
+      NUNCA inventar nombres de predio. Solo usar nombres que aparecen
+      literalmente en el bloque "Predios con acceso" del system prompt.
+    - |
+      NUNCA inventar counts ni agregaciones. Si no hay data en el
+      snapshot ni respuesta de query_db → decir "no disponible".
+    - |
+      NUNCA copiar ejemplos del system prompt como datos reales.
+      (lección: "Medieria Frival" era un ejemplo, Gemma lo parroteaba)
+
+  analytic_autonomy:
+    - Para preguntas de análisis → EJECUTAR, no preguntar.
+    - Proponer buckets razonables si el user no los da.
+    - Iterar TODOS los items en comparaciones N-way, no resumir con "y otros".
+
+  artifact_policy:
+    - Emitir artifact cuando hay ≥3 filas de datos O el user pide informe/tabla/gráfico.
+    - Preferir chart sobre table para distribuciones y evolución temporal.
+
+# ─────────────────────────────────────────────────────────────────────
+# FROZEN — NO TOCAR SIN APROBACIÓN EXPLÍCITA DE CESAR
+# ─────────────────────────────────────────────────────────────────────
+
+frozen_zones:
+  - path: models[*].id
+    reason: Cambiar modelo afecta costos, latencia y calidad. Decisión producto.
+  - path: budget.plans[*].cap_usd_month
+    reason: Límites comerciales. Decisión producto.
+  - path: routing.rules
+    reason: Cambiar routing afecta mix de costos. Revisar métricas antes.
+  - path: forbidden_models
+    reason: Proveedor único = Anthropic. Garantía de calidad.
+
+# ─────────────────────────────────────────────────────────────────────
+# PROCEDIMIENTO DE CAMBIO
+# ─────────────────────────────────────────────────────────────────────
+
+change_procedure: |
+  1. Abrir ticket en Linear (Team: Autonomos Dev) describiendo el cambio.
+  2. PR modificando este YAML + código afectado en el mismo commit.
+  3. Comentario en Linear con evidencia (métricas, data de monitoring).
+  4. Aprobación de Cesar explícita (comment "aprobado" + assign to merge).
+  5. Merge + deploy + monitoring 48h.
+  6. Si red_flags aparecen → rollback automático del commit.
