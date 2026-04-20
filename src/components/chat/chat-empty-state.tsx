@@ -56,23 +56,22 @@ export function ChatEmptyState({ userName, onSuggestionClick }: ChatEmptyStatePr
       margin: "0 auto",
     }}>
 
-      {/* Hero image — vaca protagonista */}
+      {/* Hero — vaca robótica protagonista */}
       <div style={{
-        width: "100%", maxWidth: 420,
-        marginBottom: 24,
-        borderRadius: 16,
-        overflow: "hidden",
-        boxShadow: "0 2px 18px rgba(0,0,0,.10)",
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        marginBottom: 20,
         flexShrink: 0,
       }}>
         <img
-          src="/hero_cows.jpg"
-          alt="SmartCow — hato ganadero"
+          src="/cow_robot.png"
+          alt="SmartCow — vaca robótica"
           style={{
-            width: "100%",
-            height: 200,
-            objectFit: "cover",
-            objectPosition: "center 40%",
+            width: 320,
+            height: 320,
+            maxWidth: "80vw",
+            objectFit: "contain",
             display: "block",
           }}
         />
