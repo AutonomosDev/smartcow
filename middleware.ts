@@ -17,6 +17,15 @@ export default function middleware(req: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon");
 
+  // Si el usuario llega a /login con sesión activa → redirigir a /dashboard
+  if (pathname === "/login") {
+    const sessionCookie = req.cookies.get("__session");
+    if (sessionCookie) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+    return NextResponse.next();
+  }
+
   if (isPublic) return NextResponse.next();
 
   if (process.env.NODE_ENV === "development") return NextResponse.next();
