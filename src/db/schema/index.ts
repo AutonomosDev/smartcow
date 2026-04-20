@@ -27,3 +27,6 @@ export * from "./traslados";
 
 // Chat
 export * from "./conversaciones";
+export * from "./chat_sessions";
+export * from "./slash_commands";
+export * from "./user_tasks";

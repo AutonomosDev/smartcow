@@ -71,6 +71,13 @@
       "when": 1745280000000,
       "tag": "0009_agroapp_events",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1745107200000,
+      "tag": "0010_chat_sessions_slash_commands_user_tasks",
+      "breakpoints": true
     }
   ]
 }
