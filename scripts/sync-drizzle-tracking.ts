@@ -68,8 +68,10 @@ async function main() {
       const hash = hashFile(tag);
       const res = await pool.query(
         `INSERT INTO drizzle.__drizzle_migrations (hash, created_at)
-         VALUES ($1, $2)
-         ON CONFLICT (hash) DO NOTHING
+         SELECT $1, $2
+         WHERE NOT EXISTS (
+           SELECT 1 FROM drizzle.__drizzle_migrations WHERE hash = $1
+         )
          RETURNING id`,
         [hash, when]
       );
