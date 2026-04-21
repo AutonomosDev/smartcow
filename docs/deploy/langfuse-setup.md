@@ -1,6 +1,23 @@
-# Langfuse Self-Hosted — Setup en VPS (AUT-272)
+# Langfuse v3 Self-Hosted — Setup en VPS (AUT-278)
 
-Pasos para Cesar al hacer deploy del servicio Langfuse en Hostinger VPS (2.24.204.73).
+Stack distribuido: langfuse-web + langfuse-worker + clickhouse + minio + redis-langfuse.
+VPS: 2.24.204.73 (smartcow-vps). Ref oficial: https://github.com/langfuse/langfuse/blob/main/docker-compose.yml
+
+## Arquitectura v3
+
+```
+langfuse-web    → UI/API (puerto interno 3000, nginx proxy)
+langfuse-worker → procesamiento async de eventos
+clickhouse      → backend de traces/analítica
+minio           → event sourcing + media (S3-compatible)
+redis-langfuse  → queue + cache (dedicado, con password)
+db (postgres)   → metadata (DB langfuse separada de smartcow)
+```
+
+> v2 era monolítico (`langfuse/langfuse:3` = web only).
+> v3 requiere worker separado y ClickHouse + MinIO obligatorios.
+
+---
 
 ## Pre-requisitos
 
@@ -12,7 +29,7 @@ Pasos para Cesar al hacer deploy del servicio Langfuse en Hostinger VPS (2.24.20
 
 ## 1. DNS (GoDaddy)
 
-Crear A record en GoDaddy:
+Crear A record:
 
 ```
 Nombre: langfuse
@@ -21,7 +38,7 @@ Valor:  2.24.204.73
 TTL:    600
 ```
 
-Verificar propagación: `dig langfuse.smartcow.cl +short`
+Verificar: `dig langfuse.smartcow.cl +short`
 
 ---
 
@@ -35,42 +52,86 @@ docker compose exec db psql -U smartcow -c "CREATE DATABASE langfuse;"
 
 ---
 
-## 3. Agregar env vars al VPS .env
-
-Editar `/var/www/smartcow/.env` y agregar al final:
+## 3. Generar secrets y agregar env vars al VPS .env
 
 ```bash
-# Langfuse — service config
-LANGFUSE_DATABASE_URL=postgresql://smartcow:TU_POSTGRES_PASSWORD@db:5432/langfuse
-LANGFUSE_NEXTAUTH_SECRET=$(openssl rand -base64 32)
-LANGFUSE_SALT=$(openssl rand -base64 32)
-LANGFUSE_NEXTAUTH_URL=https://langfuse.smartcow.cl
+ssh smartcow-vps
+cd /var/www/smartcow
 ```
 
-Generar los valores con `openssl rand -base64 32` para cada secret.
+Agregar al final de `/var/www/smartcow/.env`:
+
+```bash
+# ── Langfuse v3 — service config ──────────────────────────────
+LANGFUSE_DATABASE_URL=postgresql://smartcow:TU_POSTGRES_PASSWORD@db:5432/langfuse
+LANGFUSE_NEXTAUTH_URL=https://langfuse.smartcow.cl
+LANGFUSE_NEXTAUTH_SECRET=$(openssl rand -base64 32)
+LANGFUSE_SALT=$(openssl rand -base64 32)
+LANGFUSE_ENCRYPTION_KEY=$(openssl rand -hex 32)
+
+# ── ClickHouse ─────────────────────────────────────────────────
+CLICKHOUSE_USER=clickhouse
+CLICKHOUSE_PASSWORD=$(openssl rand -base64 20)
+CLICKHOUSE_URL=http://clickhouse:8123
+CLICKHOUSE_MIGRATION_URL=clickhouse://clickhouse:9000
+CLICKHOUSE_CLUSTER_ENABLED=false
+
+# ── MinIO (S3-compatible) ──────────────────────────────────────
+MINIO_ROOT_USER=minio
+MINIO_ROOT_PASSWORD=$(openssl rand -base64 20)
+LANGFUSE_S3_EVENT_UPLOAD_BUCKET=langfuse
+LANGFUSE_S3_EVENT_UPLOAD_REGION=us-east-1
+LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID=minio
+LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY=MISMO_QUE_MINIO_ROOT_PASSWORD
+LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT=http://minio:9000
+LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE=true
+LANGFUSE_S3_MEDIA_UPLOAD_BUCKET=langfuse
+LANGFUSE_S3_MEDIA_UPLOAD_REGION=us-east-1
+LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID=minio
+LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY=MISMO_QUE_MINIO_ROOT_PASSWORD
+LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT=http://minio:9000
+LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE=true
+
+# ── Redis dedicado Langfuse ─────────────────────────────────────
+LANGFUSE_REDIS_AUTH=$(openssl rand -base64 20)
+```
+
+> Nota: `LANGFUSE_S3_*_SECRET_ACCESS_KEY` debe ser igual a `MINIO_ROOT_PASSWORD`.
+> Ejecutar cada `$(openssl rand ...)` por separado y pegar el valor literal.
 
 ---
 
-## 4. Levantar el servicio Langfuse
+## 4. Deploy — levantar stack Langfuse v3
 
 ```bash
-docker compose up -d langfuse
+ssh smartcow-vps
+cd /var/www/smartcow
+
+# Traer imagen nuevas
+docker compose pull langfuse-web langfuse-worker clickhouse minio redis-langfuse
+
+# Levantar en orden (depends_on se encarga del orden real)
+docker compose up -d clickhouse minio redis-langfuse
+# Esperar ~15s que clickhouse y minio pasen healthcheck
+docker compose up -d langfuse-web langfuse-worker
 ```
 
-Verificar que arrancó:
+Verificar healthchecks:
 
 ```bash
-docker compose ps langfuse
-docker compose logs langfuse --tail=50
+docker compose ps
+docker compose logs langfuse-web --tail=50
+docker compose logs langfuse-worker --tail=50
+docker compose logs clickhouse --tail=20
 ```
 
-Langfuse corre sus propias migrations al iniciar. Esperar ~60s hasta que el healthcheck pase.
+Langfuse-web corre sus propias migrations al iniciar. Esperar ~90s hasta que el healthcheck pase (`/api/public/health`).
 
 ---
 
 ## 5. Configurar nginx como reverse proxy
 
-El VPS usa nginx (no Caddy). Agregar un server block al `nginx.conf`:
+El VPS usa nginx en docker compose. Actualizar `nginx.conf` para apuntar a `langfuse-web:3000`:
 
 ```nginx
 server {
@@ -81,7 +142,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/smartcow.cl/privkey.pem;
 
     location / {
-        proxy_pass http://langfuse:3000;
+        proxy_pass http://langfuse-web:3000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -96,14 +157,14 @@ server {
 }
 ```
 
-Luego recargar nginx:
+Recargar nginx:
 
 ```bash
 docker compose exec nginx nginx -s reload
 ```
 
 > Si el certificado SSL es wildcard `*.smartcow.cl`, ya cubre `langfuse.smartcow.cl`.
-> Si no, obtener cert con: `certbot certonly --nginx -d langfuse.smartcow.cl`
+> Si no: `certbot certonly --nginx -d langfuse.smartcow.cl`
 
 ---
 
@@ -111,7 +172,7 @@ docker compose exec nginx nginx -s reload
 
 Abrir `https://langfuse.smartcow.cl` en el browser.
 
-Crear cuenta admin (primer usuario = admin automáticamente):
+Primer usuario creado = admin automáticamente:
 - Email: cesar@autonomos.dev
 - Password: elegir uno seguro
 
@@ -127,12 +188,11 @@ En `https://langfuse.smartcow.cl`:
 
 ## 8. Agregar keys a la app en VPS .env
 
-Agregar en `/var/www/smartcow/.env`:
-
 ```bash
+# En /var/www/smartcow/.env — ya debería existir de AUT-272, solo actualizar valores:
 LANGFUSE_SECRET_KEY=sk-lf-...
 LANGFUSE_PUBLIC_KEY=pk-lf-...
-LANGFUSE_HOST=http://langfuse:3000
+LANGFUSE_HOST=http://langfuse-web:3000
 ```
 
 ---
@@ -155,16 +215,37 @@ docker compose restart app
 
 ## Troubleshooting
 
-**Langfuse no arranca:**
-```bash
-docker compose logs langfuse --tail=100
-```
-Causas comunes: `langfuse` DB no existe, env vars faltantes.
+**`Error: CLICKHOUSE_URL is not configured`**
+- Verificar que `CLICKHOUSE_URL` está en `/var/www/smartcow/.env`
+- `docker compose exec langfuse-web env | grep CLICKHOUSE`
 
-**Traces no llegan:**
-- Verificar `LANGFUSE_SECRET_KEY` y `LANGFUSE_PUBLIC_KEY` en app .env
-- Verificar `LANGFUSE_HOST=http://langfuse:3000` (red interna docker)
+**Langfuse-web no arranca:**
+```bash
+docker compose logs langfuse-web --tail=100
+```
+Causas comunes: ClickHouse no disponible aún (esperar healthcheck), DB `langfuse` no existe, secrets vacíos.
+
+**Langfuse-worker no procesa eventos:**
+```bash
+docker compose logs langfuse-worker --tail=100
+```
+Causa común: Redis auth incorrecta (`LANGFUSE_REDIS_AUTH` no coincide con el `--requirepass` del contenedor).
+
+**MinIO bucket error:**
+```bash
+docker compose logs minio --tail=30
+```
+El entrypoint crea `/data/langfuse` automáticamente. Si falla, entrar al contenedor y crear manualmente.
+
+**Traces no llegan desde la app:**
+- Verificar `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_HOST=http://langfuse-web:3000` en app .env
 - `docker compose logs app | grep langfuse`
 
-**DB connection error en Langfuse:**
-- Verificar `LANGFUSE_DATABASE_URL` usa `@db:5432` (nombre del servicio docker, no localhost)
+**Migración desde v2 (monolítico):**
+Si había un contenedor `langfuse` corriendo (v2), hacer:
+```bash
+docker compose stop langfuse  # si aún existe
+docker compose rm langfuse
+docker compose up -d langfuse-web langfuse-worker clickhouse minio redis-langfuse
+```
+La DB postgres ya tiene los datos de v2. ClickHouse empezará vacío (traces históricos no migran — es esperado).
