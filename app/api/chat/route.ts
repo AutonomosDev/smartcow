@@ -25,6 +25,7 @@ import {
   buildSystemPrompt,
   CATTLE_TOOLS,
   ejecutarTool,
+  getUserMemoryForPrompt,
   type AttachmentMeta,
 } from "@/src/lib/claude";
 import { getNombrePredio, getPredioKpis, getPrediosNombres, getUltimoPesajePorLote, getTodosPrediosDeOrg, getPredioIdsDeOrg } from "@/src/lib/queries/predio";
@@ -264,8 +265,8 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        // Pre-fetch contexto real del predio
-        const [nombrePredio, prediosNombres, kpis, ultimoPesajePorLote, rawAttachments] = await Promise.all([
+        // Pre-fetch contexto real del predio + memoria persistente del usuario (AUT-270)
+        const [nombrePredio, prediosNombres, kpis, ultimoPesajePorLote, rawAttachments, userMemoryRows] = await Promise.all([
           getNombrePredio(predioId),
           tieneAccesoTotal
             ? getTodosPrediosDeOrg(orgId)
@@ -284,6 +285,7 @@ export async function POST(req: NextRequest) {
                 .from(chatAttachments)
                 .where(inArray(chatAttachments.id, attachmentIds))
             : Promise.resolve([]),
+          getUserMemoryForPrompt(Number(userId)).catch(() => []),
         ]);
 
         const attachmentsMeta: AttachmentMeta[] = rawAttachments.filter((a) =>
@@ -297,6 +299,7 @@ export async function POST(req: NextRequest) {
           ultimoPesajePorLote,
           attachmentsMeta: attachmentsMeta.length > 0 ? attachmentsMeta : undefined,
           webSearch,
+          userMemory: userMemoryRows.length > 0 ? userMemoryRows : undefined,
         });
 
         // Cargar documentos KB válidos

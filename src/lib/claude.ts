@@ -23,7 +23,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { FunctionDeclaration } from "@google/genai";
 import { db } from "@/src/db/client";
-import { animales, pesajes, partos, chatAttachments } from "@/src/db/schema/index";
+import { animales, pesajes, partos, chatAttachments, userMemory } from "@/src/db/schema/index";
 import { eq, and, sql } from "drizzle-orm";
 import type { SmartCowSession } from "./auth";
 import type { PredioKpis, PesajePorLote } from "@/src/lib/queries/predio";
@@ -212,6 +212,65 @@ export const CATTLE_TOOLS: FunctionDeclaration[] = [
     },
   },
   {
+    name: "memory_write",
+    description:
+      "Guarda una preferencia persistente del usuario (upsert). Úsalo cuando el usuario exprese una preferencia, meta o dato personal persistente (ej: 'mi nombre es JP', 'prefiero ver feedlot primero', 'siempre mostrar GDP en kg/d'). NO uses para datos transaccionales (pesajes, ventas, partos) — esos viven en la DB.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        key: {
+          type: Type.STRING,
+          description:
+            "Clave en snake_case (letras minúsculas, números, guion_bajo). Ej: preferencia_predio, estilo_respuesta, nombre_usuario. Max 100 chars.",
+        },
+        value: {
+          type: Type.STRING,
+          description: "Valor a guardar. Texto libre. Max 200 chars.",
+        },
+      },
+      required: ["key", "value"],
+    },
+  },
+  {
+    name: "memory_read",
+    description:
+      "Lee una preferencia persistente del usuario por clave. Devuelve el valor string o null si no existe.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        key: {
+          type: Type.STRING,
+          description: "Clave a leer (snake_case).",
+        },
+      },
+      required: ["key"],
+    },
+  },
+  {
+    name: "memory_list",
+    description:
+      "Lista todas las preferencias persistentes del usuario. Devuelve array de {key, value, updated_at}. Normalmente NO necesitas llamarlo — el bloque 'MEMORIA DEL USUARIO' del system prompt ya las incluye al inicio de cada turno.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {},
+    },
+  },
+  {
+    name: "memory_delete",
+    description:
+      "Elimina una preferencia persistente del usuario por clave. Úsalo cuando el usuario pida olvidar o actualizar algo (ej: 'olvida que prefiero feedlot').",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        key: {
+          type: Type.STRING,
+          description: "Clave a eliminar (snake_case).",
+        },
+      },
+      required: ["key"],
+    },
+  },
+  {
     name: "web_search",
     description:
       "Busca información en internet. SOLO usar cuando el usuario pide explícitamente datos externos (precios de mercado actuales, noticias, regulaciones, clima, etc). No usar para datos del predio — usa query_db para eso.",
@@ -318,6 +377,26 @@ export async function ejecutarTool(
         String(toolInput["fecha_referencia"] ?? ""),
         toolInput["feria"] as string | undefined
       );
+    }
+
+    case "memory_write": {
+      return memoryWrite(
+        userId,
+        String(toolInput["key"] ?? ""),
+        String(toolInput["value"] ?? "")
+      );
+    }
+
+    case "memory_read": {
+      return memoryRead(userId, String(toolInput["key"] ?? ""));
+    }
+
+    case "memory_list": {
+      return memoryList(userId);
+    }
+
+    case "memory_delete": {
+      return memoryDelete(userId, String(toolInput["key"] ?? ""));
     }
 
     default:
@@ -685,6 +764,7 @@ export function buildSystemPrompt(
     ultimoPesajePorLote?: PesajePorLote[];
     attachmentsMeta?: AttachmentMeta[];
     webSearch?: boolean;
+    userMemory?: Array<{ key: string; value: string }>;
   }
 ): string {
   const { nombre, rol, modulos, predios } = session.user;
@@ -732,6 +812,13 @@ export function buildSystemPrompt(
           .map((a) => `- attachment_id ${a.id}: "${a.filename}" (${a.filasCount} filas, columnas: ${a.columnas.join(", ")})`)
           .join("\n") +
         `\n\nUsa \`consultar_archivo\` con el id correspondiente para acceder a estos datos.`
+      : "";
+
+  const memoryText =
+    ctx.userMemory && ctx.userMemory.length > 0
+      ? `\n\n== MEMORIA DEL USUARIO (persistente) ==\n` +
+        ctx.userMemory.map((m) => `- ${m.key}: ${m.value}`).join("\n") +
+        `\n\nAplica estas preferencias cuando sean relevantes. Para olvidar/actualizar usa memory_delete / memory_write.`
       : "";
 
   return `Eres el asistente ganadero de SmartCow, una plataforma de gestión de hatos bovinos.
@@ -823,7 +910,109 @@ Ejemplo de respuesta bien formada:
 > ]}
 > \`\`\`
 
-Usa siempre artifact si hay ≥3 filas de datos o si pidieron "informe", "resumen" o "tabla".${attachmentsText}${ctx.webSearch ? `\n\n== BÚSQUEDA WEB ACTIVA ==\nEl usuario activó búsqueda web. Puedes usar \`web_search\` cuando la pregunta requiera datos externos (precios actuales del ganado, noticias del sector, regulaciones SAG, clima, etc). NO uses web_search para datos del predio — usa query_db para eso.` : ""}`;
+Usa siempre artifact si hay ≥3 filas de datos o si pidieron "informe", "resumen" o "tabla".
+
+== MEMORIA DEL USUARIO (tool memory_write) ==
+Cuando el usuario exprese una preferencia, meta o dato personal persistente
+(ej: "siempre quiero ver feedlot primero", "mi nombre es JP", "prefiero GDP en kg/d",
+"recuerda que el target de GDP es 1.2"), llama a memory_write(key, value) con
+key en snake_case (preferencia_predio, nombre_usuario, target_gdp, etc) y value ≤200 chars.
+NO memorices datos transaccionales (pesajes concretos, ventas, partos) — esos viven en la DB.
+Para olvidar o actualizar usa memory_delete / memory_write sobre la misma key.
+No confirmes con prosa larga — responde breve ("listo, lo recordaré") y sigue.${memoryText}${attachmentsText}${ctx.webSearch ? `\n\n== BÚSQUEDA WEB ACTIVA ==\nEl usuario activó búsqueda web. Puedes usar \`web_search\` cuando la pregunta requiera datos externos (precios actuales del ganado, noticias del sector, regulaciones SAG, clima, etc). NO uses web_search para datos del predio — usa query_db para eso.` : ""}`;
+}
+
+// ─────────────────────────────────────────────
+// USER MEMORY (AUT-270 — Claude Memory Tool nativa)
+// ─────────────────────────────────────────────
+
+const MEMORY_KEY_RE = /^[a-z0-9_]{1,100}$/;
+const MEMORY_VALUE_MAX = 200;
+
+function validarMemoryKey(key: string): string | null {
+  if (!key) return "key requerida";
+  if (!MEMORY_KEY_RE.test(key)) {
+    return "key inválida: usa snake_case (a-z, 0-9, _) máx 100 chars";
+  }
+  return null;
+}
+
+async function memoryWrite(userId: number, key: string, value: string) {
+  const errKey = validarMemoryKey(key);
+  if (errKey) return { error: errKey };
+  if (!value) return { error: "value requerida" };
+  if (value.length > MEMORY_VALUE_MAX) {
+    return { error: `value excede ${MEMORY_VALUE_MAX} chars (recibido: ${value.length})` };
+  }
+
+  await db
+    .insert(userMemory)
+    .values({ userId, key, value })
+    .onConflictDoUpdate({
+      target: [userMemory.userId, userMemory.key],
+      set: { value, updatedAt: new Date() },
+    });
+
+  return { ok: true, key, value };
+}
+
+async function memoryRead(userId: number, key: string) {
+  const errKey = validarMemoryKey(key);
+  if (errKey) return { error: errKey };
+
+  const rows = await db
+    .select({ value: userMemory.value, updatedAt: userMemory.updatedAt })
+    .from(userMemory)
+    .where(and(eq(userMemory.userId, userId), eq(userMemory.key, key)))
+    .limit(1);
+
+  if (!rows[0]) return { key, value: null };
+  return { key, value: rows[0].value, updated_at: rows[0].updatedAt };
+}
+
+async function memoryList(userId: number) {
+  const rows = await db
+    .select({
+      key: userMemory.key,
+      value: userMemory.value,
+      updatedAt: userMemory.updatedAt,
+    })
+    .from(userMemory)
+    .where(eq(userMemory.userId, userId));
+
+  return {
+    items: rows.map((r) => ({
+      key: r.key,
+      value: r.value,
+      updated_at: r.updatedAt,
+    })),
+  };
+}
+
+async function memoryDelete(userId: number, key: string) {
+  const errKey = validarMemoryKey(key);
+  if (errKey) return { error: errKey };
+
+  const deleted = await db
+    .delete(userMemory)
+    .where(and(eq(userMemory.userId, userId), eq(userMemory.key, key)))
+    .returning({ id: userMemory.id });
+
+  return { ok: true, key, deleted: deleted.length };
+}
+
+/**
+ * Lee todas las memorias de un usuario para inyección al system prompt.
+ * Uso en app/api/chat/route.ts — antes de llamar Anthropic.
+ */
+export async function getUserMemoryForPrompt(
+  userId: number
+): Promise<Array<{ key: string; value: string }>> {
+  const rows = await db
+    .select({ key: userMemory.key, value: userMemory.value })
+    .from(userMemory)
+    .where(eq(userMemory.userId, userId));
+  return rows;
 }
 
 /**

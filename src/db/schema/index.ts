@@ -36,3 +36,4 @@ export * from "./chat_usage";
 export * from "./chat-cache";
 export * from "./slash_commands";
 export * from "./user_tasks";
+export * from "./user-memory";
