@@ -33,13 +33,16 @@
 - Roles validos en DB enum: `admin`, `operador`, `veterinario`, `viewer`, `admin_fundo`, `admin_org`, `superadmin` — `src/db/schema/users.ts:5` y `src/lib/with-auth.ts:15-21`
 
 **Asistente ganadero (chat)**
-- Modelo: `google/gemma-4-31b-it` via OpenRouter (`OPENROUTER_API_KEY`) — PROHIBIDO CAMBIAR SIN APROBACION DE CESAR
-- Endpoint: `app/api/chat/route.ts` — SSE streaming, OpenAI-compatible SDK apuntando a OpenRouter
-- Tools de lectura (9): `query_animales`, `query_pesajes`, `query_partos`, `query_indices_reproductivos`, `query_toros`, `query_historial_animal`, `query_feedlot`, y 2 aliases adicionales — ver `src/lib/claude.ts`
+- Modelo: `claude-sonnet-4-6` via Anthropic SDK directo — PROHIBIDO CAMBIAR SIN APROBACION DE CESAR (migrado desde Gemma-4-31b/OpenRouter el 2026-04-20, AUT-261)
+- Endpoint: `app/api/chat/route.ts` — SSE streaming nativo Anthropic
+- Tool principal de lectura: `query_db` (generico, consulta cualquier tabla por nombre + filtros)
 - Tools de escritura (2): `registrar_pesaje`, `registrar_parto`
-- Schema de tools: definido con Google AI SDK (@google/genai), convertido a formato OpenAI function calling por `toOpenAITools()` en `src/lib/claude.ts`
+- Schema de tools: declarado en formato Google AI SDK (`CATTLE_TOOLS` en `src/lib/claude.ts`), convertido a Anthropic por `toAnthropicTools()` en route.ts
 - `ejecutarTool()` en `src/lib/claude.ts` valida `predio_id` contra `prediosPermitidos` del usuario
 - Tools de escritura requieren `rolRank >= 1` (operador)
+- Routing: `pickModel()` en `src/lib/router.ts` elige tier light/standard/heavy segun heuristica
+- Budget: `checkBudget()` / `highestAllowedTier()` en `src/lib/budget.ts`
+- Observabilidad: `src/lib/langfuse.ts` — Langfuse traces por request
 - EID = tag electronico RFID | DIIO = identificador visual del arete — no intercambiar
 - Pesos en kg | Fechas en YYYY-MM-DD
 - Componentes chat: `src/components/chat/chat-panel.tsx`, `chat-sidebar.tsx`, `message-renderer.tsx`
@@ -82,10 +85,16 @@
 - `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` en env: residuo de Firebase Admin — ya no se usan
 
 **Env vars relevantes**
-- `DATABASE_URL` -> PostgreSQL connection string (ubicacion a confirmar con Cesar)
+- `DATABASE_URL` -> PostgreSQL connection string
 - `NEXTAUTH_SECRET` / `AUTH_SECRET` -> Secreto JWT para NextAuth + mobile tokens
-- `GOOGLE_API_KEY` -> Google AI SDK (Gemini, para tool declarations en claude.ts)
-- `OPENROUTER_API_KEY` -> OpenRouter (modelo gemma-4-31b-it, chat principal)
+- `ANTHROPIC_API_KEY` -> Anthropic SDK (chat ganadero, modelo claude-sonnet-4-6)
+- `GOOGLE_API_KEY` -> Google AI SDK (solo para declarar CATTLE_TOOLS, no para inferencia)
+- `TAVILY_API_KEY` -> Web search (Tavily, 100 req/mes tier gratis)
+- `REDIS_URL` -> Rate limiting (redis://localhost:6379)
+- `LANGFUSE_SECRET_KEY` / `LANGFUSE_PUBLIC_KEY` -> Observabilidad LLM
+- `NEXT_PUBLIC_MAPBOX_TOKEN` -> Mapas frontend
+- `AGROAPP_USER` / `AGROAPP_PASSWORD` -> API externa AgroApp
+- `OPENROUTER_API_KEY` -> LEGACY — ya no se usa (ver AUT-261)
 
 **AgroApp**
 - API externa: `http://agroapp.cl:8080/AgroAppWebV18/`
