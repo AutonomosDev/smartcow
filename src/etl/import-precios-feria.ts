@@ -27,7 +27,7 @@
  * UPSERT: idempotente (INSERT WHERE NOT EXISTS por fuente+feria+categoria+peso_rango+fecha).
  */
 
-import { db } from "@/src/db/client";
+import { db } from "../db/client";
 import { sql } from "drizzle-orm";
 import ExcelJS from "exceljs";
 
