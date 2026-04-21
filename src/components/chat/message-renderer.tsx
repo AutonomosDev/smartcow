@@ -14,8 +14,64 @@ export interface ChatMessage {
 
 // ─── Markdown components — spec prose styles ──────────────────────────────────
 
+// ─── Hint line detection ──────────────────────────────────────────────────────
+// Detecta líneas tipo "💡 /novillos" o "💡 /feedlot" para renderizarlas
+// con estilo discreto (opacity 0.6, text-sm, mono en el /comando).
+
+function extractTextContent(node: React.ReactNode): string {
+  if (typeof node === "string") return node;
+  if (typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(extractTextContent).join("");
+  if (React.isValidElement(node) && node.props) {
+    const props = node.props as { children?: React.ReactNode };
+    return extractTextContent(props.children);
+  }
+  return "";
+}
+
+function isHintLine(children: React.ReactNode): boolean {
+  const text = extractTextContent(children).trim();
+  // Coincide con "💡 /comando" — puede tener texto extra después del comando
+  return /^💡\s+\/\S/.test(text);
+}
+
+// Renderiza la línea 💡 separando el texto antes del /comando y el /comando mismo.
+// Ejemplo: "💡 /novillos" → <span>💡 </span><span class=mono>/novillos</span>
+function HintLine({ children }: { children: React.ReactNode }) {
+  const text = extractTextContent(children).trim();
+  // Dividir en parte pre-comando y /comando
+  const match = text.match(/^(💡\s+)(\/\S+)(.*)$/);
+  if (!match) {
+    // Fallback: render completo con estilo discreto
+    return (
+      <p style={{
+        fontSize: 12, lineHeight: 1.4, margin: 0, opacity: 0.6,
+        fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+        color: "var(--cw-ink2, var(--cw-ink1))",
+      }}>
+        {children}
+      </p>
+    );
+  }
+  const [, prefix, command, suffix] = match;
+  return (
+    <p style={{
+      fontSize: 12, lineHeight: 1.4, margin: 0, opacity: 0.6,
+      fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
+      color: "var(--cw-ink2, var(--cw-ink1))",
+    }}>
+      <span>{prefix}</span>
+      <span style={{ fontFamily: "var(--cw-mono)", fontSize: 11.5 }}>{command}</span>
+      {suffix && <span>{suffix}</span>}
+    </p>
+  );
+}
+
 const markdownComponents: Components = {
   p({ children }) {
+    if (isHintLine(children)) {
+      return <HintLine>{children}</HintLine>;
+    }
     return (
       <p style={{
         fontSize: 14, lineHeight: 1.55, color: "var(--cw-ink1)",
