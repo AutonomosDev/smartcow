@@ -32,8 +32,9 @@ import { AuthError } from "@/src/lib/with-auth";
 import { db } from "@/src/db/client";
 import { kbDocuments, chatAttachments, type KbDocument } from "@/src/db/schema/index";
 import { eq, inArray } from "drizzle-orm";
-import { pickModel, type TierName } from "@/src/lib/router";
-import { checkBudget, writeChatUsage } from "@/src/lib/budget";
+import { pickModel, MODELS, type TierName } from "@/src/lib/router";
+import { checkBudget, writeChatUsage, canUseTier, highestAllowedTier } from "@/src/lib/budget";
+import { tryCache, writeCache } from "@/src/lib/cache";
 
 // Jerarquía de roles
 const ROL_RANK: Record<string, number> = {
@@ -138,22 +139,79 @@ export async function POST(req: NextRequest) {
   const prediosPermitidos = tieneAccesoTotal ? [] : predios;
   const rolRank = ROL_RANK[rol] ?? 0;
 
-  // 4. Routing + Budget (AUT-262, AUT-264)
   const lastMessage = messages[messages.length - 1]?.content ?? "";
+
+  // 4. Query cache (AUT-265) — ANTES de budget/router
+  // Bypass con header X-Cache-Bypass: 1. Skip si webSearch activo.
+  const cacheBypass = req.headers.get("x-cache-bypass") === "1";
+  const cacheEligible = !cacheBypass && !webSearch && lastMessage.length > 0;
+  const cachedHit = cacheEligible
+    ? await tryCache(predioId, Number(userId), lastMessage)
+    : null;
+
+  if (cachedHit) {
+    console.log(`[cache] HIT predio=${predioId} hits=${cachedHit.hits}`);
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const send = (data: Record<string, unknown>) => {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+        };
+        send({ type: "text_delta", delta: cachedHit.response });
+        if (cachedHit.artifact) {
+          send({ type: "artifact_block", artifact: cachedHit.artifact });
+        }
+        send({
+          type: "done",
+          cached: true,
+          cachedAt: cachedHit.cachedAt.toISOString(),
+          modelUsed: cachedHit.modelUsed,
+        });
+        controller.close();
+      },
+    });
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    });
+  }
+
+  // 5. Routing + Budget (AUT-262, AUT-264)
   const picked = pickModel({
     lastMessage,
     webSearchActive: webSearch,
     prediosEnScope: prediosDelScope.length,
   });
-  const { modelId, tier, reason: pickReason } = picked;
+  let { modelId, tier } = picked;
+  const { reason: pickReason } = picked;
   console.log(`[router] tier=${tier} model=${modelId} reason=${pickReason}`);
 
-  const budgetCheck = await checkBudget(orgId, tier);
-  if (!budgetCheck.ok) {
+  // Budget hard-block (402 antes de llamar Anthropic)
+  const budgetStatus = await checkBudget(orgId, tier);
+  if (!budgetStatus.ok) {
     return new Response(
-      JSON.stringify({ error: budgetCheck.message, code: "BUDGET_EXCEEDED" }),
+      JSON.stringify({
+        error: "Budget mensual alcanzado",
+        spent: budgetStatus.spent,
+        cap: budgetStatus.cap,
+        plan: budgetStatus.plan,
+        code: "BUDGET_EXCEEDED",
+      }),
       { status: 402, headers: { "Content-Type": "application/json" } }
     );
+  }
+
+  // Tier downgrade si plan no lo permite (AUT-264 enforcement.order=2)
+  let downgradeInfo: { from: TierName; to: TierName; reason: string } | null = null;
+  if (!canUseTier(budgetStatus.plan, tier)) {
+    const target = highestAllowedTier(budgetStatus.plan);
+    downgradeInfo = { from: tier, to: target, reason: `plan=${budgetStatus.plan}` };
+    tier = target;
+    modelId = MODELS[target].modelId;
+    console.log(`[budget] tier_downgraded from=${downgradeInfo.from} to=${downgradeInfo.to} reason=${downgradeInfo.reason}`);
   }
 
   // 5. Construir SSE stream
@@ -177,9 +235,33 @@ export async function POST(req: NextRequest) {
       let toolCallsCount = 0;
       let hadArtifact = false;
       let trackingError: string | null = null;
+      // Para writeCache (AUT-265) — sólo se llena en respuesta final exitosa
+      let finalResponse: string | null = null;
+      let finalArtifact: unknown | null = null;
+      let hadWrite = false;
 
       // Emitir selección de modelo ANTES del primer text_delta (AUT-262)
       sendEvent({ type: "model_selected", tier, modelId, reason: pickReason });
+
+      // Downgrade de tier por plan (AUT-264) — emitir después de model_selected
+      if (downgradeInfo) {
+        sendEvent({
+          type: "tier_downgraded",
+          from: downgradeInfo.from,
+          to: downgradeInfo.to,
+          reason: downgradeInfo.reason,
+        });
+      }
+
+      // Soft alert de budget al 85% (AUT-264)
+      if (budgetStatus.warn) {
+        sendEvent({
+          type: "budget_warn",
+          spent: budgetStatus.spent,
+          cap: budgetStatus.cap,
+          percent: budgetStatus.percent,
+        });
+      }
 
       try {
         // Pre-fetch contexto real del predio
@@ -312,6 +394,8 @@ export async function POST(req: NextRequest) {
 
           // Sin tool calls → respuesta final
           if (toolUseBlocks.length === 0) {
+            // Guardar texto final para writeCache (AUT-265)
+            finalResponse = accumulatedText;
             // Parsear bloques ```artifact del texto acumulado
             const artifactRe = /```artifact\s*\n([\s\S]*?)\n```/g;
             let match: RegExpExecArray | null;
@@ -320,6 +404,7 @@ export async function POST(req: NextRequest) {
                 const parsed = JSON.parse(match[1].trim());
                 if (parsed && typeof parsed === "object" && parsed.type) {
                   hadArtifact = true;
+                  if (finalArtifact === null) finalArtifact = parsed;
                   sendEvent({ type: "artifact_block", artifact: parsed });
                 }
               } catch {
@@ -348,6 +433,9 @@ export async function POST(req: NextRequest) {
 
           for (const tb of toolUseBlocks) {
             toolCallsCount++;
+            if (tb.name === "registrar_pesaje" || tb.name === "registrar_parto") {
+              hadWrite = true;
+            }
             let args: Record<string, unknown> = {};
             try { args = JSON.parse(tb.input || "{}"); } catch { args = {}; }
 
@@ -405,6 +493,30 @@ export async function POST(req: NextRequest) {
           });
         } catch (trackErr) {
           console.warn("[chat] tracking write failed:", trackErr instanceof Error ? trackErr.message : trackErr);
+        }
+
+        // Query cache write (AUT-265) — sólo si hubo respuesta final exitosa,
+        // no fue bypass, no hay webSearch, no tool de escritura, no error.
+        if (
+          !cacheBypass &&
+          !webSearch &&
+          !hadWrite &&
+          !trackingError &&
+          finalResponse
+        ) {
+          try {
+            await writeCache(
+              predioId,
+              Number(userId),
+              lastMessage,
+              finalResponse,
+              finalArtifact,
+              modelId,
+              tokensIn + tokensOut,
+            );
+          } catch (cacheErr) {
+            console.warn("[cache] writeCache failed:", cacheErr instanceof Error ? cacheErr.message : cacheErr);
+          }
         }
       }
     },

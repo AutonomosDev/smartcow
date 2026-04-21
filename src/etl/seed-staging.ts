@@ -46,7 +46,7 @@ async function main() {
     .values({
       nombre: "Predio Demo Staging",
       rut: "76.000.000-0",
-      plan: "basic",
+      plan: "pro",
       modulos: { feedlot: true, crianza: true },
     })
     .returning();
