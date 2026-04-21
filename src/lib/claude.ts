@@ -28,6 +28,7 @@ import { eq, and } from "drizzle-orm";
 import type { SmartCowSession } from "./auth";
 import type { PredioKpis, PesajePorLote } from "@/src/lib/queries/predio";
 import { ejecutarQueryDB, type QueryDBParams, SCHEMA_TEXTO } from "@/src/lib/queries/query-db";
+import { invalidatePredio } from "@/src/lib/cache";
 
 // ─────────────────────────────────────────────
 // TIPOS INTERNOS
@@ -321,6 +322,11 @@ async function registrarPesaje(predioId: number, datos: DatosRegistrarPesaje, us
     })
     .returning({ id: pesajes.id });
 
+  // Invalidar query cache del predio (AUT-265)
+  await invalidatePredio(predioId).catch((err) =>
+    console.warn("[cache] invalidatePredio (pesaje) failed:", err instanceof Error ? err.message : err)
+  );
+
   return {
     ok: true,
     pesaje_id: inserted[0]?.id,
@@ -365,6 +371,11 @@ async function registrarParto(predioId: number, datos: DatosRegistrarParto, usua
       usuarioId,
     })
     .returning({ id: partos.id });
+
+  // Invalidar query cache del predio (AUT-265)
+  await invalidatePredio(predioId).catch((err) =>
+    console.warn("[cache] invalidatePredio (parto) failed:", err instanceof Error ? err.message : err)
+  );
 
   return {
     ok: true,

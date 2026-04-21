@@ -30,5 +30,6 @@ export * from "./conversaciones";
 export * from "./chat_sessions";
 export * from "./chat_attachments";
 export * from "./chat_usage";
+export * from "./chat-cache";
 export * from "./slash_commands";
 export * from "./user_tasks";
