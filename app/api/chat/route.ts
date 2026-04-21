@@ -140,11 +140,13 @@ export async function POST(req: NextRequest) {
 
   // 4. Routing + Budget (AUT-262, AUT-264)
   const lastMessage = messages[messages.length - 1]?.content ?? "";
-  const { modelId, tier } = pickModel({
+  const picked = pickModel({
     lastMessage,
     webSearchActive: webSearch,
     prediosEnScope: prediosDelScope.length,
   });
+  const { modelId, tier, reason: pickReason } = picked;
+  console.log(`[router] tier=${tier} model=${modelId} reason=${pickReason}`);
 
   const budgetCheck = await checkBudget(orgId, tier);
   if (!budgetCheck.ok) {
@@ -173,6 +175,9 @@ export async function POST(req: NextRequest) {
       let toolCallsCount = 0;
       let hadArtifact = false;
       let trackingError: string | null = null;
+
+      // Emitir selección de modelo ANTES del primer text_delta (AUT-262)
+      sendEvent({ type: "model_selected", tier, modelId, reason: pickReason });
 
       try {
         // Pre-fetch contexto real del predio

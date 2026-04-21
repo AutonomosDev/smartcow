@@ -13,6 +13,8 @@ export interface ModelConfig {
   tier: TierName;
   costPerMtokIn: number;
   costPerMtokOut: number;
+  cacheWritePerMtok: number;
+  cacheReadPerMtok: number;
 }
 
 // Precios: .claude/references/config/llm-routing-and-budget.yaml § models
@@ -22,18 +24,24 @@ export const MODELS: Record<TierName, ModelConfig> = {
     tier: "light",
     costPerMtokIn: 1.00,
     costPerMtokOut: 5.00,
+    cacheWritePerMtok: 1.25,
+    cacheReadPerMtok: 0.10,
   },
   standard: {
     modelId: "claude-sonnet-4-6",
     tier: "standard",
     costPerMtokIn: 3.00,
     costPerMtokOut: 15.00,
+    cacheWritePerMtok: 3.75,
+    cacheReadPerMtok: 0.30,
   },
   heavy: {
     modelId: "claude-opus-4-7",
     tier: "heavy",
     costPerMtokIn: 5.00,
     costPerMtokOut: 25.00,
+    cacheWritePerMtok: 6.25,
+    cacheReadPerMtok: 0.50,
   },
 };
 
@@ -44,10 +52,20 @@ interface PickModelInput {
   toolCallsPrevistos?: number;
 }
 
+export interface PickedModel {
+  tier: TierName;
+  modelId: string;
+  reason: string;
+  costPerMtokIn: number;
+  costPerMtokOut: number;
+  cacheWritePerMtok: number;
+  cacheReadPerMtok: number;
+}
+
 const HEAVY_REGEX = /(compara.*todos|histórico completo|últimos \d+ años|desde 20[12]\d)/i;
 const LIGHT_REGEX = /^(hola|gracias|ok|sí|si|no|dale|perfecto|listo|bien)/i;
 
-export function pickModel(input: PickModelInput): ModelConfig {
+export function pickModel(input: PickModelInput): PickedModel {
   const { lastMessage, webSearchActive = false, prediosEnScope = 1, toolCallsPrevistos = 0 } = input;
   const msgLen = lastMessage.trim().length;
 
@@ -59,9 +77,9 @@ export function pickModel(input: PickModelInput): ModelConfig {
       prediosEnScope > 3 ||
       toolCallsPrevistos > 5
     ) {
-      return MODELS.heavy;
+      return { ...MODELS.heavy, reason: "web_search + multi-predio/histórico" };
     }
-    return MODELS.standard;
+    return { ...MODELS.standard, reason: "web_search activo" };
   }
 
   // heavy_triggers
@@ -70,7 +88,7 @@ export function pickModel(input: PickModelInput): ModelConfig {
     prediosEnScope > 3 ||
     toolCallsPrevistos > 5
   ) {
-    return MODELS.heavy;
+    return { ...MODELS.heavy, reason: "multi-predio/histórico" };
   }
 
   // light_triggers
@@ -78,17 +96,29 @@ export function pickModel(input: PickModelInput): ModelConfig {
     msgLen < 30 ||
     LIGHT_REGEX.test(lastMessage.trim())
   ) {
-    return MODELS.light;
+    return { ...MODELS.light, reason: "saludo/short" };
   }
 
   // fallback
-  return MODELS.standard;
+  return { ...MODELS.standard, reason: "default" };
 }
 
 /**
  * Calcula el costo estimado en USD dado el tier y los tokens usados.
+ * Incluye cache read/write pricing (AUT-263) — prompt caching activo en route.ts.
  */
-export function calcCostUsd(tier: TierName, tokensIn: number, tokensOut: number): number {
+export function calcCostUsd(
+  tier: TierName,
+  tokensIn: number,
+  tokensOut: number,
+  cacheReadTokens: number = 0,
+  cacheWriteTokens: number = 0,
+): number {
   const cfg = MODELS[tier];
-  return (tokensIn * cfg.costPerMtokIn + tokensOut * cfg.costPerMtokOut) / 1_000_000;
+  return (
+    tokensIn * cfg.costPerMtokIn +
+    tokensOut * cfg.costPerMtokOut +
+    cacheReadTokens * cfg.cacheReadPerMtok +
+    cacheWriteTokens * cfg.cacheWritePerMtok
+  ) / 1_000_000;
 }
