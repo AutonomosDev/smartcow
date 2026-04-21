@@ -30,6 +30,8 @@ export const chatUsage = pgTable("chat_usage", {
   tier: text("tier").notNull(),
   tokensIn: integer("tokens_in").notNull(),
   tokensOut: integer("tokens_out").notNull(),
+  cacheReadTokens: integer("cache_read_tokens").default(0).notNull(),
+  cacheWriteTokens: integer("cache_write_tokens").default(0).notNull(),
   costUsd: numeric("cost_usd", { precision: 10, scale: 6 }).notNull(),
   toolCalls: integer("tool_calls").default(0),
   hadArtifact: boolean("had_artifact").default(false),

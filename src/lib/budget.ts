@@ -120,6 +120,8 @@ export interface WriteChatUsageParams {
   tier: TierName;
   tokensIn: number;
   tokensOut: number;
+  cacheReadTokens?: number;
+  cacheWriteTokens?: number;
   toolCalls: number;
   hadArtifact: boolean;
   latencyMs: number;
@@ -132,7 +134,15 @@ export interface WriteChatUsageParams {
  * Si falla → log warn, no interrumpe la respuesta (caller maneja el catch).
  */
 export async function writeChatUsage(params: WriteChatUsageParams): Promise<void> {
-  const costUsd = calcCostUsd(params.tier, params.tokensIn, params.tokensOut);
+  const cacheReadTokens = params.cacheReadTokens ?? 0;
+  const cacheWriteTokens = params.cacheWriteTokens ?? 0;
+  const costUsd = calcCostUsd(
+    params.tier,
+    params.tokensIn,
+    params.tokensOut,
+    cacheReadTokens,
+    cacheWriteTokens,
+  );
 
   await db.insert(chatUsage).values({
     orgId: params.orgId,
@@ -143,6 +153,8 @@ export async function writeChatUsage(params: WriteChatUsageParams): Promise<void
     tier: params.tier,
     tokensIn: params.tokensIn,
     tokensOut: params.tokensOut,
+    cacheReadTokens,
+    cacheWriteTokens,
     costUsd: String(costUsd),
     toolCalls: params.toolCalls,
     hadArtifact: params.hadArtifact,

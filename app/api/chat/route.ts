@@ -172,6 +172,8 @@ export async function POST(req: NextRequest) {
 
       let tokensIn = 0;
       let tokensOut = 0;
+      let cacheReadTokens = 0;
+      let cacheWriteTokens = 0;
       let toolCallsCount = 0;
       let hadArtifact = false;
       let trackingError: string | null = null;
@@ -275,7 +277,10 @@ export async function POST(req: NextRequest) {
 
           for await (const event of response) {
             if (event.type === "message_start") {
-              tokensIn += event.message.usage?.input_tokens ?? 0;
+              const usage = event.message.usage;
+              tokensIn += usage?.input_tokens ?? 0;
+              cacheReadTokens += usage?.cache_read_input_tokens ?? 0;
+              cacheWriteTokens += usage?.cache_creation_input_tokens ?? 0;
             } else if (event.type === "message_delta") {
               tokensOut += event.usage?.output_tokens ?? 0;
             } else if (event.type === "content_block_start") {
@@ -391,6 +396,8 @@ export async function POST(req: NextRequest) {
             tier,
             tokensIn,
             tokensOut,
+            cacheReadTokens,
+            cacheWriteTokens,
             toolCalls: toolCallsCount,
             hadArtifact,
             latencyMs,
