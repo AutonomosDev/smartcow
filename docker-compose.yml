@@ -81,6 +81,7 @@ services:
       minio:
         condition: service_healthy
     environment: &langfuse-env
+      HOSTNAME: "0.0.0.0" # Next.js standalone: bind a todas las interfaces (healthcheck localhost)
       DATABASE_URL: ${LANGFUSE_DATABASE_URL:-postgresql://smartcow:postgres@db:5432/langfuse}
       NEXTAUTH_URL: ${LANGFUSE_NEXTAUTH_URL:-https://langfuse.smartcow.cl}
       NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:-changeme} # CHANGEME
