@@ -76,7 +76,7 @@
   - Si __drizzle_migrations desincronizado: `docker compose exec -T app npx tsx scripts/sync-drizzle-tracking.ts`
 - DB: PostgreSQL en VPS local (docker compose postgres service), .env en /var/www/smartcow/.env
 - Secrets: en /var/www/smartcow/.env del VPS — NO commitear al repo. Backup antes de cualquier rsync.
-- Staging: no existe aun — hoy solo existe prod (Hostinger VPS) y local
+- Staging: infra lista en `docker-compose.staging.yml` (AUT-286). App en puerto 3001, db-staging en 5433. Activación requiere pasos manuales: DNS `staging.smartcow.cl` → VPS + `certbot --nginx` + descomentar bloque en `nginx.conf` + `bash scripts/sync-staging-from-prod.sh` (seed anonimizado desde prod).
 - `apphosting.yaml` en el repo: RESIDUO LEGACY — otro agente lo elimina
 
 **LEGACY GCP (residual — no usar)**
