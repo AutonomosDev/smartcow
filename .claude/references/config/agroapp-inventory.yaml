@@ -1,0 +1,210 @@
+# agroapp-inventory.yaml — AUT-285
+# Estado real del gap AgroApp ↔ SmartCow DB.
+# Actualizado: 2026-04-21 (post AUT-283 ETL run en prod).
+#
+# Uso: respuesta única a "¿qué tenemos de AgroApp y qué falta?"
+# Fuente: src/agroapp/modules.ts + src/etl/*.ts + queries directas a prod.
+
+meta:
+  generated_at: "2026-04-21"
+  generated_by: "AUT-285"
+  prod_snapshot_date: "2026-04-21"
+  agroapp_api_base: "http://agroapp.cl:8080/AgroAppWebV18"
+  etl_entrypoints:
+    - src/etl/import-agroapp-excel.ts
+    - src/etl/import-ventas-detalle.ts
+    - src/etl/import-precios-feria.ts
+
+# ─────────────────────────────────────────────────────────────
+# MÓDULOS AGROAPP (feature flags en src/agroapp/modules.ts)
+# ─────────────────────────────────────────────────────────────
+modulos_agroapp:
+
+  - modulo: ganado_actual
+    env_flag: AGROAPP_MODULE_GANADO_ACTUAL
+    tabla_smartcow: animales
+    etl: src/etl/import-agroapp-excel.ts ganado docs/export_agroapp/GanadoActual_*.xlsx
+    estado: importado
+    rows_prod: 7404
+    rango: "—"  # sin fecha, snapshot actual
+    breakdown:
+      novillo: 3058
+      vaca: 1711
+      ternero: 1138
+      ternera: 988
+      vaquilla: 501
+      toro: 8
+    gap_reportado_jp: |
+      Solo 8 toros. JP reporta que deberían haber más (sementales históricos).
+      Posible causa: el export AgroApp filtra solo animales vivos actuales;
+      los toros vendidos/bajas no aparecen. Requiere export "histórico" de AgroApp.
+
+  - modulo: pesajes
+    env_flag: AGROAPP_MODULE_PESAJES
+    tabla_smartcow: pesajes
+    etl: src/etl/import-agroapp-excel.ts pesajes docs/export_agroapp/Pesajes_Historial_*.xlsx
+    estado: importado
+    rows_prod: 10545
+    rango: "2018-06-12 → 2026-04-08"
+    gap_reportado_jp: null
+
+  - modulo: partos
+    env_flag: AGROAPP_MODULE_PARTOS
+    tabla_smartcow: partos
+    etl: src/etl/import-agroapp-excel.ts partos docs/export_agroapp/Partos_Historial_*.xlsx
+    estado: importado
+    rows_prod: 5522
+    rango: "2018-07-02 → 2026-02-01"
+    gap_reportado_jp: null
+
+  - modulo: inseminaciones
+    env_flag: AGROAPP_MODULE_INSEMINACIONES
+    tabla_smartcow: inseminaciones
+    etl: src/etl/import-agroapp-excel.ts inseminaciones docs/export_agroapp/Inseminaciones_Historial_*.xlsx
+    estado: importado
+    rows_prod: 4822
+    rango: "2017-10-10 → 2053-04-17"  # hay fechas futuras (programadas)
+    notas: |
+      70 filas sin animal match (DIIO no existe en tabla animales).
+      8 errores de inserción.
+      306 toros/semen en catálogo, 0 inseminadores registrados.
+    gap_reportado_jp: null
+
+  - modulo: ecografias
+    env_flag: AGROAPP_MODULE_ECOGRAFIAS
+    tabla_smartcow: ecografias
+    etl: src/etl/import-agroapp-excel.ts ecografias docs/export_agroapp/Ecografias_Historial_*.xlsx
+    estado: importado
+    rows_prod: 2732
+    rango: "2018-09-27 → 2026-04-07"
+    gap_reportado_jp: null
+
+# ─────────────────────────────────────────────────────────────
+# MÓDULOS SIN FEATURE FLAG (no en src/agroapp/modules.ts pero tienen ETL)
+# ─────────────────────────────────────────────────────────────
+modulos_adicionales:
+
+  - modulo: tratamientos
+    tabla_smartcow: tratamientos
+    etl: src/etl/import-agroapp-excel.ts tratamientos docs/export_agroapp/Tratamientos_Historial_*.xlsx
+    estado: importado
+    rows_prod: 32727
+    rango: "2020-01-30 → 2026-04-16"
+    notas: |
+      42,045 filas sin animal match (DIIO histórico no presente en tabla animales).
+      5 errores. Gap típico: tratamientos a animales vendidos/baja antes de import inicial.
+    gap_reportado_jp: null
+
+  - modulo: areteos
+    tabla_smartcow: areteos
+    etl: src/etl/import-agroapp-excel.ts areteos docs/export_agroapp/Areteos_Historial_*.xlsx
+    estado: importado
+    rows_prod: 1384
+    rango: "2018-07-12 → 2026-03-13"
+    gap_reportado_jp: null
+
+  - modulo: bajas
+    tabla_smartcow: animales (estado='baja')
+    etl: src/etl/import-agroapp-excel.ts bajas docs/export_agroapp/Bajas_Historial_*.xlsx
+    estado: importado_indirecto
+    rows_prod: 1429  # animales con estado='baja'
+    tabla_bajas_vacia: true  # by design — el script no inserta en tabla `bajas`
+    rango: "2018+ (inferido por fechas de baja)"
+    notas: |
+      El script marca animales.estado='baja' en vez de insertar en tabla `bajas`.
+      La tabla `bajas` existe pero está sin uso (posible tech debt).
+    gap_reportado_jp: null
+
+  - modulo: ventas
+    tabla_smartcow: ventas
+    etl: src/etl/import-ventas-detalle.ts  # requiere AgroApp API
+    estado: bloqueado
+    rows_prod: 0
+    rango: null
+    blocker: |
+      AGROAPP_PASSWORD no está en prod /var/www/smartcow/.env
+      import-ventas-detalle.ts fetcha detalle por rampa desde API con auth básica.
+      El Excel de export (Ventas_Historial_*.xlsx) tiene 846 ventas agregadas
+      pero sin DIIO por rampa → import-agroapp-excel.ts hace early-exit.
+    gap_reportado_jp: |
+      "Faltan ventas" — confirmado. Hoy tabla `ventas` está vacía.
+      Fix: setear AGROAPP_PASSWORD y correr import-ventas-detalle.ts.
+      Output esperado: ~15-20k animales vendidos (846 ventas × ~20 animales/rampa).
+    siguiente: AUT-XXX (setear credenciales + correr ETL)
+
+  - modulo: traslados
+    tabla_smartcow: traslados
+    etl: null  # sin ETL implementado
+    estado: no_implementado
+    rows_prod: 0
+    rango: null
+    blocker: |
+      import-agroapp-excel.ts tiene early-exit explícito:
+      "Traslados son agregados por lote (sin DIIO) — no importar en tabla traslados"
+      El Excel exportado (Traslados_Historial_*.xlsx) tiene agregados por lote;
+      la tabla `traslados` espera un row por animal (con animal_id).
+    gap_reportado_jp: null
+    siguiente: |
+      Decisión producto: (a) escribir ETL que mapee lotes a animales individuales,
+      (b) cambiar schema de `traslados` a agregado por lote, o (c) dejar vacío.
+
+# ─────────────────────────────────────────────────────────────
+# CATÁLOGOS (maestros, típicamente poblados vía migrations o seed)
+# ─────────────────────────────────────────────────────────────
+catalogos:
+
+  - tabla: tipo_ganado
+    rows_prod: 6
+    estado: ok
+
+  - tabla: razas
+    rows_prod: 11
+    estado: ok
+
+  - tabla: semen
+    rows_prod: 306
+    estado: ok
+
+  - tabla: inseminadores
+    rows_prod: 0
+    estado: vacio
+    notas: |
+      306 toros pero 0 inseminadores. El Excel de inseminaciones trae columna
+      "Inseminador" pero no hay seed. Bajo impacto: solo afecta reportería.
+
+  - tabla: lotes
+    rows_prod: 0
+    estado: vacio
+    notas: |
+      Los lotes se manejan actualmente via UI / chat. No hay import desde AgroApp.
+
+  - tabla: potreros
+    rows_prod: 0
+    estado: vacio
+    notas: Mismo caso que `lotes`.
+
+# ─────────────────────────────────────────────────────────────
+# FUENTES NO-AGROAPP
+# ─────────────────────────────────────────────────────────────
+otras_fuentes:
+
+  - fuente: ODEPA (Boletín AFECH)
+    url: https://www.odepa.gob.cl/contenidos-rubro/boletines-del-rubro/boletin-semanal-de-precios-asoc-gremial-de-ferias-ganaderas
+    tabla_smartcow: precios_feria
+    etl: src/etl/import-precios-feria.ts --historico [--max=N]
+    estado: importado
+    rows_prod: 14196
+    rango: "2024-02-27 → 2026-03-31"
+    boletines_disponibles: 293
+    boletines_procesados: 100  # --max=100 en run inicial; pendiente backfill completo
+    siguiente: Considerar re-run sin --max para backfill total (193 boletines restantes).
+
+# ─────────────────────────────────────────────────────────────
+# RESUMEN EJECUTIVO
+# ─────────────────────────────────────────────────────────────
+resumen:
+  tablas_con_data: 9   # animales, pesajes, partos, tratamientos, inseminaciones, ecografias, areteos, precios_feria, animales(baja)
+  tablas_vacias_esperadas: 5  # bajas, lotes, potreros, inseminadores, usuarios_externos
+  tablas_vacias_blocker: 2    # ventas (creds), traslados (schema/etl decision)
+  total_rows_dominio: 82361   # sum(pesajes+partos+tratamientos+inseminaciones+ecografias+areteos+animales+precios_feria)
+  historico_cubierto: "2017-10 → 2026-04"  # ~8.5 años
