@@ -513,6 +513,114 @@ async function consultarArchivo(
 }
 
 // ─────────────────────────────────────────────
+// COMPARAR PRECIO FERIA (AUT-267)
+// ─────────────────────────────────────────────
+
+/**
+ * Compara el precio actual de una categoría contra un precio histórico.
+ * Usa la tabla precios_feria (ODEPA/Tattersall) para obtener valores reales.
+ */
+async function compararPrecioFeria(
+  categoria: string,
+  fechaReferencia: string,
+  feria?: string
+): Promise<unknown> {
+  const cat = categoria.trim().toLowerCase();
+  if (!/^(novillo_gordo|vaca_gorda|vaquilla|ternero|toro)$/.test(cat)) {
+    return {
+      error: `Categoría inválida: ${categoria}. Usa: novillo_gordo, vaca_gorda, vaquilla, ternero, toro`,
+    };
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaReferencia)) {
+    return { error: `fecha_referencia inválida: ${fechaReferencia}. Usa YYYY-MM-DD.` };
+  }
+  const feriaFiltro = feria?.trim().toLowerCase() || null;
+
+  // precio "hoy" = promedio ponderado de los precios más recientes (últimos 14 días)
+  // precio "referencia" = promedio de ±7 días alrededor de fechaReferencia
+  const filtroFeria = feriaFiltro ? `AND feria = '${feriaFiltro.replace(/'/g, "''")}'` : "";
+
+  const queryHoy = `
+    SELECT AVG(precio_kg_clp) AS precio_prom, MAX(fecha) AS fecha_max, COUNT(*) AS n
+    FROM precios_feria
+    WHERE categoria = '${cat}'
+      ${filtroFeria}
+      AND fecha >= (SELECT COALESCE(MAX(fecha), CURRENT_DATE) FROM precios_feria WHERE categoria = '${cat}') - INTERVAL '14 days'
+  `;
+
+  const queryRef = `
+    SELECT AVG(precio_kg_clp) AS precio_prom, COUNT(*) AS n
+    FROM precios_feria
+    WHERE categoria = '${cat}'
+      ${filtroFeria}
+      AND fecha BETWEEN ('${fechaReferencia}'::date - INTERVAL '7 days')
+                    AND ('${fechaReferencia}'::date + INTERVAL '7 days')
+  `;
+
+  try {
+    const [resHoy, resRef] = await Promise.all([
+      db.execute(sql.raw(queryHoy)),
+      db.execute(sql.raw(queryRef)),
+    ]);
+
+    const rowHoy = resHoy.rows[0] as
+      | { precio_prom: string | null; fecha_max: string | null; n: string | number }
+      | undefined;
+    const rowRef = resRef.rows[0] as
+      | { precio_prom: string | null; n: string | number }
+      | undefined;
+
+    const precioHoy = rowHoy?.precio_prom != null ? Number(rowHoy.precio_prom) : null;
+    const precioRef = rowRef?.precio_prom != null ? Number(rowRef.precio_prom) : null;
+    const fechaHoy = rowHoy?.fecha_max ?? null;
+    const nHoy = Number(rowHoy?.n ?? 0);
+    const nRef = Number(rowRef?.n ?? 0);
+
+    if (precioHoy == null || precioRef == null || nHoy === 0 || nRef === 0) {
+      return {
+        error: "Sin datos suficientes para la comparación",
+        categoria: cat,
+        feria: feriaFiltro,
+        fecha_referencia: fechaReferencia,
+        n_hoy: nHoy,
+        n_referencia: nRef,
+        sugerencia: "Ejecuta npm run etl:precios-feria para poblar la tabla precios_feria.",
+      };
+    }
+
+    const variacionClp = Math.round(precioHoy - precioRef);
+    const variacionPct = ((precioHoy - precioRef) / precioRef) * 100;
+
+    const dias =
+      fechaHoy != null
+        ? Math.round(
+            (new Date(fechaHoy).getTime() - new Date(fechaReferencia).getTime()) / 86400000
+          )
+        : null;
+
+    return {
+      categoria: cat,
+      feria: feriaFiltro ?? "todas",
+      precio_hoy: Math.round(precioHoy),
+      precio_referencia: Math.round(precioRef),
+      variacion_clp: variacionClp,
+      variacion_pct: Math.round(variacionPct * 10) / 10,
+      dias,
+      fecha_hoy: fechaHoy,
+      fecha_referencia: fechaReferencia,
+      moneda: "CLP",
+      n_hoy: nHoy,
+      n_referencia: nRef,
+      fuente: "precios_feria (ODEPA/Tattersall)",
+    };
+  } catch (err) {
+    return {
+      error: `Error consultando precios_feria: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+}
+
+// ─────────────────────────────────────────────
 // WEB SEARCH (Tavily)
 // ─────────────────────────────────────────────
 

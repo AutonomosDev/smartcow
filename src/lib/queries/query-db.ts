@@ -133,6 +133,15 @@ const TABLA_CONFIG: Record<string, TablaConfig> = {
     ]),
     hasPredioId: true,
   },
+  precios_feria: {
+    columnas: new Set([
+      "id", "fuente", "feria", "categoria", "peso_rango",
+      "fecha", "precio_kg_clp", "precio_cabeza_clp", "moneda",
+      "url_fuente", "created_at",
+    ]),
+    hasPredioId: false,
+    fechaCol: "fecha",
+  },
 };
 
 const DEFAULT_YEAR_FILTER = "2026-01-01";
@@ -333,4 +342,6 @@ export const SCHEMA_TEXTO = `Tablas disponibles via query_db:
   movimientos_potrero — id, predio_id, animal_id, potrero_id, fecha_entrada, fecha_salida
   ventas             — id, predio_id, animal_id, fecha, peso_kg, peso_estimado, destino
   tratamientos       — id, predio_id, animal_id, fecha, hora_registro, diagnostico, medicamentos, observaciones
-  medieros           — id, predio_id, org_id, nombre, rut, porcentaje_part, activo`;
+  medieros           — id, predio_id, org_id, nombre, rut, porcentaje_part, activo
+  precios_feria      — id, fuente, feria, categoria, peso_rango, fecha, precio_kg_clp, precio_cabeza_clp, moneda, url_fuente
+                       (mercado externo — ODEPA/Tattersall; sin predio_id; usar para comparaciones históricas de precio)`;

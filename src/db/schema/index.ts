@@ -25,6 +25,9 @@ export * from "./ventas";
 export * from "./tratamientos";
 export * from "./traslados";
 
+// Datos de mercado externo
+export * from "./precios-feria";
+
 // Chat
 export * from "./conversaciones";
 export * from "./chat_sessions";
