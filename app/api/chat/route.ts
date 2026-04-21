@@ -36,6 +36,7 @@ import { eq, inArray } from "drizzle-orm";
 import { pickModel, MODELS, type TierName } from "@/src/lib/router";
 import { checkBudget, writeChatUsage, canUseTier, highestAllowedTier } from "@/src/lib/budget";
 import { tryCache, writeCache } from "@/src/lib/cache";
+import { checkRateLimit, rateLimitHeaders } from "@/src/lib/rate-limit";
 
 // Jerarquía de roles
 const ROL_RANK: Record<string, number> = {
@@ -136,6 +137,24 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // 3.5 Rate limit (AUT-274) — 20 req/min por usuario. Después de auth, antes de cache/budget/router.
+  const rl = checkRateLimit(userId, 20, 60_000);
+  if (!rl.allowed) {
+    console.warn(`[rate-limit] 429 userId=${userId} path=/api/chat resetIn=${rl.resetIn}ms`);
+    return new Response(
+      JSON.stringify({ error: "Rate limit", resetIn: rl.resetIn, code: "RATE_LIMITED" }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": String(Math.ceil(rl.resetIn / 1000)),
+          ...rateLimitHeaders(rl),
+        },
+      }
+    );
+  }
+  const rlHeaders = rateLimitHeaders(rl);
+
   const prediosDelScope = tieneAccesoTotal ? await getPredioIdsDeOrg(orgId) : predios;
   const prediosPermitidos = tieneAccesoTotal ? [] : predios;
   const rolRank = ROL_RANK[rol] ?? 0;
@@ -176,6 +195,7 @@ export async function POST(req: NextRequest) {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
+        ...rlHeaders,
       },
     });
   }
@@ -444,7 +464,16 @@ export async function POST(req: NextRequest) {
 
             sendEvent({ type: "tool_use", tool: tb.name, input: args });
 
-            let result = await ejecutarTool(tb.name, args, prediosPermitidos, Number(userId), rolRank);
+            // AUT-275 — capturamos errores "naturales" (ej. tabla sistema bloqueada
+            // en query-db.ts) y los convertimos en tool_result natural para que
+            // el LLM los reciba como texto, no como 500.
+            let result: unknown;
+            try {
+              result = await ejecutarTool(tb.name, args, prediosPermitidos, Number(userId), rolRank);
+            } catch (toolErr) {
+              const msg = toolErr instanceof Error ? toolErr.message : String(toolErr);
+              result = { error: msg };
+            }
 
             if (result && typeof result === "object" && (result as Record<string, unknown>).code === "FORBIDDEN") {
               const prediosNombresList = Array.from(prediosNombres.values());
@@ -530,6 +559,7 @@ export async function POST(req: NextRequest) {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
       Connection: "keep-alive",
+      ...rlHeaders,
     },
   });
 }
