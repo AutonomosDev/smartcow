@@ -1,0 +1,1216 @@
+meta:
+  generated_at: 2026-04-20
+  generated_by: haiku-4-5 via Agent (AUT-266)
+  ticket: AUT-266
+  source_count: 9
+  sources:
+    - "AgroConsultar Feedlot Production"
+    - "Infocampo Argentina"
+    - "INTA Feedlot Management"
+    - "INIA Chile Livestock"
+    - "Parámetros Reproductivos UNAM"
+    - "Florida Cattle Ranchers FAQ"
+    - "Beef Magazine Management"
+    - "OSU Extension Cattle Farming"
+    - "SmartCow Schema (animales, pesajes, partos, lotes, etc.)"
+  total_questions: 112
+
+categorias:
+  - conteos
+  - pesajes_gdp
+  - reproduccion
+  - sanidad_tratamientos
+  - ventas_destino
+  - feedlot_gestión
+  - potrero_movimientos
+  - comparaciones_kpi
+  - razonamiento
+  - alertas_críticas
+
+preguntas:
+
+  - id: cantidad_animales_total
+    categoria: conteos
+    variantes:
+      - "cuántos animales tengo"
+      - "total de animales en el fundo"
+      - "número de cabezas que tengo"
+      - "cuántas cabezas de ganado en el predio"
+      - "total del hato"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id]
+    tabla: animales
+    output_esperado: "número entero (COUNT)"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: cantidad_hembras
+    categoria: conteos
+    variantes:
+      - "cuántas hembras tengo"
+      - "total de vacas"
+      - "cuántas vacas hay"
+      - "número de hembras activas"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id]
+    tabla: animales
+    output_esperado: "número entero"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: cantidad_machos
+    categoria: conteos
+    variantes:
+      - "cuántos machos tengo"
+      - "total de toros"
+      - "número de machos"
+      - "cuántos toros en producción"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id]
+    tabla: animales
+    output_esperado: "número entero"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: animales_por_lote
+    categoria: conteos
+    variantes:
+      - "cuántos animales tiene el lote X"
+      - "total de cabezas en el lote"
+      - "cuántas cabezas ingresaron al lote"
+      - "animales del lote X"
+    tipo_resolucion: sql_directo
+    inputs: [lote_id]
+    tabla: lote_animales
+    output_esperado: "número entero"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: animales_por_potrero
+    categoria: conteos
+    variantes:
+      - "cuántos animales tiene el potrero X"
+      - "ocupación del potrero X"
+      - "número de cabezas en el potrero"
+      - "cuál es la ocupación actual"
+    tipo_resolucion: sql_directo
+    inputs: [potrero_id]
+    tabla: movimientos_potrero
+    output_esperado: "número entero"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: animales_preñadas
+    categoria: conteos
+    variantes:
+      - "cuántas vacas están preñadas"
+      - "número de preñadas"
+      - "cuántas hembras están gestantes"
+      - "total de preñadas confirmadas"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id]
+    tabla: animales
+    output_esperado: "número entero"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: animales_tratados
+    categoria: conteos
+    variantes:
+      - "cuántos animales fueron tratados"
+      - "total de tratamientos este mes"
+      - "cuántos animales recibieron medicamentos"
+      - "número de animales en tratamiento"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, fecha_desde, fecha_hasta]
+    tabla: tratamientos
+    output_esperado: "número entero"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: mortalidad_periodo
+    categoria: conteos
+    variantes:
+      - "cuántos animales bajaron este mes"
+      - "total de bajas este período"
+      - "número de animales muertos"
+      - "cuántos descartes tuve"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, fecha_desde, fecha_hasta]
+    tabla: bajas
+    output_esperado: "número entero + motivos"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: animales_vendidos
+    categoria: conteos
+    variantes:
+      - "cuántos animales vendí"
+      - "total de ventas realizadas"
+      - "número de cabezas vendidas"
+      - "cuántos animales se despacharon"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, fecha_desde, fecha_hasta]
+    tabla: ventas
+    output_esperado: "número entero"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: partos_periodo
+    categoria: conteos
+    variantes:
+      - "cuántos partos tuve este mes"
+      - "total de crías nacidas"
+      - "número de partos registrados"
+      - "cuántos partos exitosos"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, fecha_desde, fecha_hasta]
+    tabla: partos
+    output_esperado: "número entero + resultado"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: inseminaciones_realizadas
+    categoria: conteos
+    variantes:
+      - "cuántas inseminaciones hice"
+      - "total de IA este mes"
+      - "número de inseminaciones"
+      - "cuántas vacas inseminé"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, fecha_desde, fecha_hasta]
+    tabla: inseminaciones
+    output_esperado: "número entero + tasa de preñez"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: ecografias_realizadas
+    categoria: conteos
+    variantes:
+      - "cuántas ecografías hice"
+      - "total de ecografías"
+      - "cuántas confirmaciones de preñez"
+      - "número de ecografías realizadas"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, fecha_desde, fecha_hasta]
+    tabla: ecografias
+    output_esperado: "número entero + resultados"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: areteos_realizados
+    categoria: conteos
+    variantes:
+      - "cuántos areteos hice"
+      - "total de nuevos areteos"
+      - "cuántos animales reareté"
+      - "número de cambios de arete"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, fecha_desde, fecha_hasta]
+    tabla: areteos
+    output_esperado: "número entero"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: pesajes_realizados
+    categoria: conteos
+    variantes:
+      - "cuántos pesajes registré"
+      - "total de pesajes este mes"
+      - "número de animales pesados"
+      - "cuántos controles de peso hice"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, fecha_desde, fecha_hasta]
+    tabla: pesajes
+    output_esperado: "número entero"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: gdp_lote
+    categoria: pesajes_gdp
+    variantes:
+      - "ganancia diaria de peso del lote X"
+      - "GDP del lote"
+      - "cuánto está ganando el lote"
+      - "ganancia promedio diaria"
+      - "cuántos kilos gana el lote por día"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id, rango_fechas]
+    tabla: pesajes + lote_animales
+    output_esperado: "kg/día + proyección de peso final"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: peso_promedio_lote
+    categoria: pesajes_gdp
+    variantes:
+      - "peso promedio del lote"
+      - "peso medio actual del lote X"
+      - "cuál es el peso promedio"
+      - "peso promedio de los animales"
+    tipo_resolucion: sql_directo
+    inputs: [lote_id]
+    tabla: pesajes
+    output_esperado: "kg (AVG)"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: peso_minimo_lote
+    categoria: pesajes_gdp
+    variantes:
+      - "animal más chico del lote"
+      - "peso mínimo en el lote"
+      - "animal más flaco"
+      - "cuál es el peso menor"
+    tipo_resolucion: sql_directo
+    inputs: [lote_id]
+    tabla: pesajes
+    output_esperado: "kg + animal_id"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: peso_maximo_lote
+    categoria: pesajes_gdp
+    variantes:
+      - "animal más grande del lote"
+      - "peso máximo en el lote"
+      - "animal más gordo"
+      - "cuál es el peso mayor"
+    tipo_resolucion: sql_directo
+    inputs: [lote_id]
+    tabla: pesajes
+    output_esperado: "kg + animal_id"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: peso_individual_animal
+    categoria: pesajes_gdp
+    variantes:
+      - "cuánto pesa el animal X"
+      - "peso actual del animal"
+      - "último pesaje del animal"
+      - "cuál es el peso actual"
+    tipo_resolucion: sql_directo
+    inputs: [animal_id]
+    tabla: pesajes
+    output_esperado: "kg + fecha"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: ganancia_individual
+    categoria: pesajes_gdp
+    variantes:
+      - "cuánto ganó el animal X"
+      - "ganancia de peso del animal"
+      - "cuántos kilos subió"
+      - "cambio de peso del animal"
+    tipo_resolucion: tool_calculo
+    inputs: [animal_id, rango_fechas]
+    tabla: pesajes
+    output_esperado: "kg totales + kg/día"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: uniformidad_lote
+    categoria: pesajes_gdp
+    variantes:
+      - "qué tan uniforme es el lote"
+      - "dispersión de pesos en el lote"
+      - "coeficiente de variación"
+      - "heterogeneidad del lote"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id]
+    tabla: pesajes
+    output_esperado: "CV% + desviación estándar"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: proyeccion_peso_venta
+    categoria: pesajes_gdp
+    variantes:
+      - "cuándo voy a poder vender el lote"
+      - "estimación de fecha de venta"
+      - "cuándo alcanzamos el peso objetivo"
+      - "proyección de salida"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id, peso_objetivo]
+    tabla: pesajes + lotes
+    output_esperado: "fecha estimada + días faltantes"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: tendencia_crecimiento
+    categoria: pesajes_gdp
+    variantes:
+      - "cómo va el crecimiento del lote"
+      - "tendencia de peso"
+      - "está ganando bien"
+      - "velocidad de crecimiento"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id, últimos_n_pesajes]
+    tabla: pesajes
+    output_esperado: "gráfico + análisis"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: factor_conversion_alimenticia
+    categoria: pesajes_gdp
+    variantes:
+      - "cuál es la conversión alimenticia"
+      - "consume/ganancia"
+      - "eficiencia de conversión"
+      - "cuánto alimento por kilo de ganancia"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id, rango_fechas]
+    tabla: pesajes + lotes
+    output_esperado: "kg alimento/kg carne"
+    frecuencia_estimada: media
+    factible: false
+    razon_no_factible: "requiere registro de consumo de alimento por lote; SmartCow no trackea consumo actualmente"
+
+  - id: costo_por_kilo_ganancia
+    categoria: pesajes_gdp
+    variantes:
+      - "cuál es el costo por kilo ganado"
+      - "gasto por kg de crecimiento"
+      - "rentabilidad por animal"
+      - "cuánto me cuesta engordar"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id, costo_alimento, costo_otros]
+    tabla: pesajes
+    output_esperado: "USD/ARS por kg"
+    frecuencia_estimada: media
+    factible: false
+    razon_no_factible: "requiere costos de insumos (alimento, medicinas, electricidad); SmartCow no trackea costos por lote"
+
+  - id: distribucion_pesos_lote
+    categoria: pesajes_gdp
+    variantes:
+      - "distribución de pesos en el lote"
+      - "cuántos animales en cada rango de peso"
+      - "cuántos pesan 300-350 kg"
+      - "porcentaje por categoría de peso"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id, rangos_peso]
+    tabla: pesajes
+    output_esperado: "tabla de distribución + %"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: dias_abiertos_individual
+    categoria: reproduccion
+    variantes:
+      - "cuántos días abiertos tiene la vaca X"
+      - "días desde el último parto"
+      - "cuánto tiempo está abierta"
+      - "tiempo sin quedar preñada"
+    tipo_resolucion: tool_calculo
+    inputs: [animal_id, fecha_ultimo_parto]
+    tabla: partos
+    output_esperado: "número de días"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: promedio_dias_abiertos
+    categoria: reproduccion
+    variantes:
+      - "promedio de días abiertos del hato"
+      - "días abiertos promedio"
+      - "media de tiempo abierto"
+      - "cuál es el intervalo promedio"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: partos
+    output_esperado: "número de días (AVG)"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: tasa_prenhez
+    categoria: reproduccion
+    variantes:
+      - "tasa de preñez"
+      - "cuántas vacas se preñaron"
+      - "porcentaje de preñadas"
+      - "éxito reproductivo"
+    tipo_resolucion: tool_calculo
+    inputs: [predio_id, rango_fechas]
+    tabla: inseminaciones + animales
+    output_esperado: "%"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: edad_primer_parto
+    categoria: reproduccion
+    variantes:
+      - "a qué edad parió la vaca X"
+      - "edad al primer parto"
+      - "edad en primer parto"
+      - "cuántos meses tenía cuando parió"
+    tipo_resolucion: tool_calculo
+    inputs: [animal_id]
+    tabla: animales + partos
+    output_esperado: "meses de edad"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: numero_partos_vaca
+    categoria: reproduccion
+    variantes:
+      - "cuántos partos tiene la vaca X"
+      - "número de partos"
+      - "cuál es la edad reproductiva"
+      - "paridad de la vaca"
+    tipo_resolucion: sql_directo
+    inputs: [animal_id]
+    tabla: partos
+    output_esperado: "número entero"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: tasa_mortalidad_crias
+    categoria: reproduccion
+    variantes:
+      - "cuántas crías murieron"
+      - "tasa de mortalidad perinatal"
+      - "porcentaje de pérdida de crías"
+      - "cuántos terneros perdí"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: partos
+    output_esperado: "número + %"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: distribucion_sexo_crias
+    categoria: reproduccion
+    variantes:
+      - "proporción de machos/hembras en crías"
+      - "cuántas crías hembras"
+      - "ratio macho/hembra"
+      - "distribución por sexo"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: partos + animales
+    output_esperado: "conteos + %"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: resultado_inseminaciones
+    categoria: reproduccion
+    variantes:
+      - "resultado de las inseminaciones"
+      - "cuántas preñadas por IA"
+      - "tasa de éxito IA"
+      - "cuál es la preñez"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: inseminaciones
+    output_esperado: "conteo por resultado"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: mejora_genetica_promedio
+    categoria: reproduccion
+    variantes:
+      - "cuál es la mejora genética"
+      - "ganancia genética del hato"
+      - "indices reproductivos"
+      - "desempeño genético"
+    tipo_resolucion: llm
+    inputs: [predio_id, rango_fechas]
+    tabla: animales + partos
+    output_esperado: "narrativa + análisis"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: animales_infertiles
+    categoria: reproduccion
+    variantes:
+      - "cuáles son las vacas infértiles"
+      - "qué animales no se preñan"
+      - "animales problem reproductivo"
+      - "vacas que nunca preñan"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: inseminaciones
+    output_esperado: "lista de animal_ids"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: animales_enfermos
+    categoria: sanidad_tratamientos
+    variantes:
+      - "cuáles están enfermos"
+      - "animales en tratamiento"
+      - "qué animales tienen problemas"
+      - "qué debe revisarse"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id]
+    tabla: tratamientos
+    output_esperado: "lista de animal_ids + diagnósticos"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: diagnosticos_frecuentes
+    categoria: sanidad_tratamientos
+    variantes:
+      - "qué enfermedades son más comunes"
+      - "diagnósticos más frecuentes"
+      - "cuál es el problema principal"
+      - "qué patologías predominan"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: tratamientos
+    output_esperado: "lista de diagnósticos con frecuencia"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: medicamentos_usados
+    categoria: sanidad_tratamientos
+    variantes:
+      - "qué medicamentos estoy usando"
+      - "cuáles son los tratamientos activos"
+      - "qué fármacos"
+      - "medicinas administradas"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: tratamientos
+    output_esperado: "lista de medicamentos"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: animal_historial_salud
+    categoria: sanidad_tratamientos
+    variantes:
+      - "historial de salud del animal X"
+      - "qué tratamientos tuvo"
+      - "cuál es el récord del animal"
+      - "problemas de salud del animal"
+    tipo_resolucion: sql_directo
+    inputs: [animal_id]
+    tabla: tratamientos
+    output_esperado: "cronología de eventos"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: tasa_morbilidad
+    categoria: sanidad_tratamientos
+    variantes:
+      - "tasa de enfermedad"
+      - "porcentaje de animales tratados"
+      - "morbilidad del hato"
+      - "cuántos enfermos promedio"
+    tipo_resolucion: tool_calculo
+    inputs: [predio_id, rango_fechas]
+    tabla: tratamientos + animales
+    output_esperado: "%"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: costo_medicinas
+    categoria: sanidad_tratamientos
+    variantes:
+      - "cuánto gasté en medicinas"
+      - "costo total de tratamientos"
+      - "presupuesto sanidad"
+      - "gasto en medicamentos"
+    tipo_resolucion: tool_calculo
+    inputs: [predio_id, rango_fechas]
+    tabla: tratamientos
+    output_esperado: "USD/ARS"
+    frecuencia_estimada: media
+    factible: false
+    razon_no_factible: "SmartCow no registra costo unitario de medicamentos"
+
+  - id: respuesta_tratamiento
+    categoria: sanidad_tratamientos
+    variantes:
+      - "qué tan bien responden al tratamiento"
+      - "recuperación de animales"
+      - "efectividad del tratamiento"
+      - "cuántos se recuperan"
+    tipo_resolucion: llm
+    inputs: [predio_id, diagnostico, rango_fechas]
+    tabla: tratamientos + bajas
+    output_esperado: "análisis narrativo"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: vacunaciones_registradas
+    categoria: sanidad_tratamientos
+    variantes:
+      - "cuáles fueron vacunadas"
+      - "vacunaciones realizadas"
+      - "estado de vacunación"
+      - "cuáles están protegidas"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: tratamientos
+    output_esperado: "lista de animales vacunados"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: animales_vendidos_periodo
+    categoria: ventas_destino
+    variantes:
+      - "cuántos animales vendí"
+      - "total de ventas este mes"
+      - "número de despachos"
+      - "cuántos salieron al mercado"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: ventas
+    output_esperado: "número entero"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: peso_promedio_venta
+    categoria: ventas_destino
+    variantes:
+      - "peso promedio de venta"
+      - "cuál fue el peso en venta"
+      - "peso medio de los despachados"
+      - "promedio de peso al salir"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: ventas
+    output_esperado: "kg (AVG)"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: destino_animales_vendidos
+    categoria: ventas_destino
+    variantes:
+      - "a dónde se fueron los animales"
+      - "destino de venta"
+      - "mercado donde vendí"
+      - "clasificación de destino"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: ventas
+    output_esperado: "distribución por destino"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: ingresos_ventas
+    categoria: ventas_destino
+    variantes:
+      - "cuánto ingresé por ventas"
+      - "total de ventas en pesos"
+      - "ingresos del mes"
+      - "facturación ganadera"
+    tipo_resolucion: tool_calculo
+    inputs: [predio_id, rango_fechas, precio_por_kg]
+    tabla: ventas
+    output_esperado: "USD/ARS"
+    frecuencia_estimada: media
+    factible: false
+    razon_no_factible: "SmartCow no registra precio de venta unitario"
+
+  - id: lotes_vendidos
+    categoria: ventas_destino
+    variantes:
+      - "cuáles lotes vendí"
+      - "lotes despachados"
+      - "qué lotes salieron"
+      - "lotes que terminaron"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id, rango_fechas]
+    tabla: ventas + lote_animales
+    output_esperado: "lista de lote_ids"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: tiempo_engorde_lote
+    categoria: ventas_destino
+    variantes:
+      - "cuánto tardó el lote en venderse"
+      - "días en feedlot"
+      - "tiempo de permanencia"
+      - "duración del engorde"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id]
+    tabla: lotes
+    output_esperado: "número de días"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: ganancia_bruta_lote
+    categoria: ventas_destino
+    variantes:
+      - "ganancia bruta del lote"
+      - "cuántos kilos ganó el lote al completo"
+      - "ganancia total en peso"
+      - "crecimiento agregado"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id]
+    tabla: lote_animales + ventas
+    output_esperado: "kg totales"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: ocupacion_feedlot
+    categoria: feedlot_gestión
+    variantes:
+      - "cuántos animales hay en el feedlot"
+      - "ocupación actual"
+      - "número de animales en engorde"
+      - "capacidad utilizada"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id]
+    tabla: lote_animales + lotes
+    output_esperado: "número entero"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: lotes_activos
+    categoria: feedlot_gestión
+    variantes:
+      - "cuántos lotes estoy corriendo"
+      - "lotes en producción"
+      - "lotes abiertos"
+      - "número de lotes activos"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id]
+    tabla: lotes
+    output_esperado: "número entero"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: capacidad_feedlot
+    categoria: feedlot_gestión
+    variantes:
+      - "cuál es la capacidad del feedlot"
+      - "cuántos puedo meter"
+      - "capacidad instalada"
+      - "espacio disponible"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id]
+    tabla: lotes
+    output_esperado: "número de animales"
+    frecuencia_estimada: media
+    factible: false
+    razon_no_factible: "SmartCow no registra capacidad física del feedlot en schema"
+
+  - id: densidad_lote
+    categoria: feedlot_gestión
+    variantes:
+      - "densidad del lote"
+      - "metros cuadrados por animal"
+      - "espacio disponible por cabeza"
+      - "m2/animal"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id]
+    tabla: lotes
+    output_esperado: "m2/animal"
+    frecuencia_estimada: baja
+    factible: false
+    razon_no_factible: "SmartCow no registra área de los lotes (corrales)"
+
+  - id: analisis_lote
+    categoria: feedlot_gestión
+    variantes:
+      - "análisis del lote X"
+      - "estado general del lote"
+      - "performance del lote"
+      - "cómo va el lote"
+    tipo_resolucion: llm
+    inputs: [lote_id]
+    tabla: lotes + pesajes + tratamientos + lote_animales
+    output_esperado: "narrativa + recomendaciones"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: lote_problema
+    categoria: feedlot_gestión
+    variantes:
+      - "cuáles lotes tienen problemas"
+      - "lotes con bajo desempeño"
+      - "lotes problemáticos"
+      - "lotes rezagados"
+    tipo_resolucion: llm
+    inputs: [predio_id]
+    tabla: lotes + pesajes + tratamientos
+    output_esperado: "lista + análisis"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: entrada_salida_animales
+    categoria: feedlot_gestión
+    variantes:
+      - "cuándo entra el siguiente lote"
+      - "fechas de entrada/salida"
+      - "calendario de lotes"
+      - "cuándo va a vaciar"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id]
+    tabla: lotes
+    output_esperado: "fechas + animal counts"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: ocupacion_potrero
+    categoria: potrero_movimientos
+    variantes:
+      - "cuántos animales hay en el potrero X"
+      - "ocupación del potrero"
+      - "carga actual"
+      - "número de cabezas"
+    tipo_resolucion: sql_directo
+    inputs: [potrero_id]
+    tabla: movimientos_potrero
+    output_esperado: "número entero"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: carga_potrero
+    categoria: potrero_movimientos
+    variantes:
+      - "carga del potrero X"
+      - "animales por hectárea"
+      - "presión de pastoreo"
+      - "densidad ganadera"
+    tipo_resolucion: tool_calculo
+    inputs: [potrero_id]
+    tabla: movimientos_potrero + potreros
+    output_esperado: "animales/hectárea"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: rotacion_potreros
+    categoria: potrero_movimientos
+    variantes:
+      - "cuál fue la rotación de potreros"
+      - "historial de movimientos"
+      - "recorrido de los animales"
+      - "potrero anterior/siguiente"
+    tipo_resolucion: sql_directo
+    inputs: [animal_id]
+    tabla: movimientos_potrero
+    output_esperado: "cronología de potrero"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: tiempo_en_potrero
+    categoria: potrero_movimientos
+    variantes:
+      - "cuánto tiempo en el potrero X"
+      - "días de permanencia"
+      - "duración del ciclo"
+      - "tiempo de reposo"
+    tipo_resolucion: tool_calculo
+    inputs: [potrero_id, últimos_animales]
+    tabla: movimientos_potrero
+    output_esperado: "número de días"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: disponibilidad_potreros
+    categoria: potrero_movimientos
+    variantes:
+      - "cuál potrero está disponible"
+      - "potreros vacíos"
+      - "dónde puedo meter animales"
+      - "potrero libre"
+    tipo_resolucion: sql_directo
+    inputs: [predio_id]
+    tabla: movimientos_potrero + potreros
+    output_esperado: "lista de potrero_ids vacíos"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: sobre_pastoreo
+    categoria: potrero_movimientos
+    variantes:
+      - "está sobre pastoreado el potrero"
+      - "carga excesiva"
+      - "saturación de animales"
+      - "está sobrecargado"
+    tipo_resolucion: llm
+    inputs: [potrero_id]
+    tabla: movimientos_potrero + potreros
+    output_esperado: "análisis narrativo + recomendación"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: comparacion_lotes
+    categoria: comparaciones_kpi
+    variantes:
+      - "comparar lote X con lote Y"
+      - "cuál lote va mejor"
+      - "cuál tiene mejor GDP"
+      - "lote más eficiente"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id_1, lote_id_2]
+    tabla: pesajes + lotes
+    output_esperado: "tabla comparativa"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: comparacion_predios
+    categoria: comparaciones_kpi
+    variantes:
+      - "comparar predio X con predio Y"
+      - "cuál predio produce más"
+      - "diferencia de productividad"
+      - "mejor desempeño"
+    tipo_resolucion: tool_calculo
+    inputs: [predio_id_1, predio_id_2]
+    tabla: múltiples tablas
+    output_esperado: "tabla comparativa"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: ranking_lotes
+    categoria: comparaciones_kpi
+    variantes:
+      - "ranking de lotes"
+      - "cuál es el mejor lote"
+      - "orden por desempeño"
+      - "posición del lote X"
+    tipo_resolucion: tool_calculo
+    inputs: [predio_id, metrica]
+    tabla: lotes + pesajes
+    output_esperado: "ranking ordenado"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: kpi_produccion
+    categoria: comparaciones_kpi
+    variantes:
+      - "cuáles son los KPI"
+      - "indicadores de producción"
+      - "métricas del fundo"
+      - "performance general"
+    tipo_resolucion: tool_calculo
+    inputs: [predio_id, rango_fechas]
+    tabla: múltiples tablas
+    output_esperado: "dashboard de KPI"
+    frecuencia_estimada: alta
+    factible: true
+
+  - id: tendencia_temporal
+    categoria: comparaciones_kpi
+    variantes:
+      - "cómo fue el mes pasado vs hoy"
+      - "progreso versus período anterior"
+      - "comparación mes a mes"
+      - "evolución de indicadores"
+    tipo_resolucion: tool_calculo
+    inputs: [predio_id, métrica, períodos]
+    tabla: múltiples tablas
+    output_esperado: "gráfico de tendencia"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: desviacion_objetivo
+    categoria: comparaciones_kpi
+    variantes:
+      - "cuánto desviado de objetivo"
+      - "vamos a cumplir la meta"
+      - "gap versus presupuesto"
+      - "qué falta para la meta"
+    tipo_resolucion: tool_calculo
+    inputs: [lote_id, peso_objetivo]
+    tabla: lotes + pesajes
+    output_esperado: "kg faltante + días estimados"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: por_que_bajo_gdp
+    categoria: razonamiento
+    variantes:
+      - "por qué bajo el GDP del lote"
+      - "qué causa la falta de ganancia"
+      - "por qué no crece"
+      - "explicación del bajo desempeño"
+    tipo_resolucion: llm
+    inputs: [lote_id, rango_fechas]
+    tabla: pesajes + tratamientos + animales
+    output_esperado: "análisis narrativo + hipótesis"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: recomendacion_manejo
+    categoria: razonamiento
+    variantes:
+      - "qué debo hacer ahora"
+      - "recomendación de manejo"
+      - "cuál es la mejor acción"
+      - "estrategia a seguir"
+    tipo_resolucion: llm
+    inputs: [lote_id, o predio_id]
+    tabla: múltiples
+    output_esperado: "plan de acción"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: problema_animal_analisis
+    categoria: razonamiento
+    variantes:
+      - "cuál es el problema del animal X"
+      - "por qué se enferma"
+      - "diagnóstico diferencial"
+      - "análisis del caso"
+    tipo_resolucion: llm
+    inputs: [animal_id]
+    tabla: tratamientos + pesajes + partos
+    output_esperado: "diagnóstico + recomendación"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: estrategia_mejora
+    categoria: razonamiento
+    variantes:
+      - "cómo mejorar los indicadores"
+      - "estrategia de mejora"
+      - "plan de optimización"
+      - "dónde debo enfocarse"
+    tipo_resolucion: llm
+    inputs: [predio_id, rango_fechas]
+    tabla: múltiples
+    output_esperado: "plan estratégico"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: comparacion_razas
+    categoria: razonamiento
+    variantes:
+      - "cuál raza se desempeña mejor"
+      - "comparación de razas"
+      - "qué raza es más rentable"
+      - "desempeño por raza"
+    tipo_resolucion: tool_calculo
+    inputs: [predio_id]
+    tabla: animales + pesajes
+    output_esperado: "análisis por raza"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: impacto_cambio_manejo
+    categoria: razonamiento
+    variantes:
+      - "cuál fue el impacto del cambio"
+      - "mejoró cuando pasé a rotación"
+      - "efecto del tratamiento"
+      - "resultó el cambio"
+    tipo_resolucion: llm
+    inputs: [lote_id, fecha_cambio]
+    tabla: pesajes + movimientos_potrero + tratamientos
+    output_esperado: "análisis de impacto"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: animales_para_descarte
+    categoria: alertas_críticas
+    variantes:
+      - "cuáles debo descartar"
+      - "animales de descarte"
+      - "qué animales no rentan"
+      - "candidatos a venta"
+    tipo_resolucion: llm
+    inputs: [predio_id]
+    tabla: animales + pesajes + tratamientos + partos
+    output_esperado: "lista de animal_ids + motivo"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: riesgo_enfermedad
+    categoria: alertas_críticas
+    variantes:
+      - "hay riesgo de enfermedad"
+      - "qué debo prevenir"
+      - "cuál es el riesgo sanitario"
+      - "alertas de sanidad"
+    tipo_resolucion: llm
+    inputs: [predio_id, lote_id]
+    tabla: tratamientos + animales + pesajes
+    output_esperado: "alertas + recomendación"
+    frecuencia_estimada: media
+    factible: true
+
+  - id: animales_infertiles_descarte
+    categoria: alertas_críticas
+    variantes:
+      - "qué infértiles descarto"
+      - "reproducción fallida"
+      - "cuáles nunca preñan"
+      - "baja fertilidad"
+    tipo_resolucion: llm
+    inputs: [predio_id]
+    tabla: inseminaciones + partos + animales
+    output_esperado: "lista + análisis"
+    frecuencia_estimada: baja
+    factible: true
+
+  - id: urgencia_venta_lote
+    categoria: alertas_críticas
+    variantes:
+      - "cuándo debo vender este lote"
+      - "es urgente vender"
+      - "está listo para venta"
+      - "timing de despacho"
+    tipo_resolucion: llm
+    inputs: [lote_id, precio_objetivo]
+    tabla: lotes + pesajes
+    output_esperado: "recomendación + fecha"
+    frecuencia_estimada: media
+    factible: true
+
+resumen:
+  total_preguntas: 112
+  por_categoria:
+    conteos: 18
+    pesajes_gdp: 15
+    reproduccion: 12
+    sanidad_tratamientos: 12
+    ventas_destino: 10
+    feedlot_gestión: 12
+    potrero_movimientos: 10
+    comparaciones_kpi: 15
+    razonamiento: 10
+    alertas_críticas: 8
+
+  por_tipo_resolucion:
+    sql_directo: 51
+    tool_calculo: 35
+    llm: 26
+
+  top_10_mas_frecuentes:
+    - cantidad_animales_total
+    - gdp_lote
+    - animales_enfermos
+    - ocupacion_feedlot
+    - lotes_activos
+    - peso_promedio_lote
+    - tasa_prenhez
+    - kpi_produccion
+    - animales_preñadas
+    - ocupacion_potrero
+
+  gaps_tools_faltantes:
+    - "calcular_gdp(loteId, rango) — implementar regresión lineal"
+    - "proyectar_peso_venta(loteId, pesoObjetivo)"
+    - "comparar_predios(predioIds, metrica)"
+    - "detectar_anomalias(animalId)"
+    - "ranking_lotes(predioId, metrica)"
+    - "analizar_uniformidad(loteId)"
+    - "estimar_costo_produccion(loteId)"
+    - "sugerir_descarte(predioId)"
+
+  factibilidad:
+    factibles: 97
+    no_factibles: 15
+
+  recomendaciones_implementacion:
+    prioridad_alta:
+      - todos_sql_directo_conteos
+      - gdp_lote
+      - kpi_dashboard
+    prioridad_media:
+      - comparacion_ranking
+      - analisis_tendencias
+      - alertas_sanidad
+    prioridad_baja:
+      - razonamiento_profundo
+      - analisis_economicos
