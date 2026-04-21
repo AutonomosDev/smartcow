@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Reglas criticas
 
-**MODELO AI PROHIBIDO CAMBIAR** — El chat ganadero usa `google/gemma-4-31b-it` via OpenRouter. PROHIBIDO cambiarlo sin aprobacion explicita de Cesar. Esta regla tiene prioridad sobre cualquier otra.
+**MODELO AI PROHIBIDO CAMBIAR** — El chat ganadero usa `claude-sonnet-4-6` via Anthropic SDK directo. PROHIBIDO cambiarlo sin aprobacion explicita de Cesar. Referencia operacional: `.claude/references/config/llm-routing-and-budget.yaml`. Migrado desde Gemma-4-31b/OpenRouter el 2026-04-20 (AUT-261). Esta regla tiene prioridad sobre cualquier otra.
 
 **EL CODIGO MANDA** — El codigo en el repo es la fuente de verdad. Linear, docs y memoria son referencia secundaria. Leer el codigo primero; si la respuesta esta en el repo, no preguntar.
 
@@ -38,7 +38,7 @@ Monorepo con web (Next.js) en raiz y mobile (Expo) en `apps/mobile/`.
 - React 19, TypeScript strict, output `standalone`
 - PostgreSQL + Drizzle ORM (`src/db/`) — NUNCA raw queries con `pg`
 - NextAuth v5 (JWT strategy, cookie `__session`, 8h) — `auth.config.ts`
-- OpenRouter API (modelo `google/gemma-4-31b-it`) — chat ganadero SSE
+- Anthropic SDK (`@anthropic-ai/sdk`, modelo `claude-sonnet-4-6`) — chat ganadero SSE con prompt caching
 - TailwindCSS v4, Radix UI, Recharts, Framer Motion
 - Produccion: Hostinger VPS (ver `.claude/CLAUDE.md`)
 
@@ -56,7 +56,7 @@ Monorepo con web (Next.js) en raiz y mobile (Expo) en `apps/mobile/`.
 app/                        — App Router pages
   login/page.tsx            — Login (FROZEN — solo logica auth interna)
   (protected)/              — Rutas autenticadas (dashboard, chat, animales, etc.)
-  api/chat/route.ts         — Chat SSE endpoint (OpenRouter + tool use)
+  api/chat/route.ts         — Chat SSE endpoint (Anthropic SDK + tool use)
   api/auth/                 — NextAuth handlers
   api/mobile/auth/refresh/  — Token refresh para app mobile
 auth.config.ts              — NextAuth v5: Credentials + Google SSO
@@ -95,7 +95,7 @@ packages/                   — Shared packages
 
 1. Client POST `/api/chat` con messages + predio_id
 2. `withAuth()`/`withAuthBearer()` valida sesion y acceso al predio
-3. OpenRouter (gemma-4-31b-it) procesa con CATTLE_TOOLS
+3. Anthropic (claude-sonnet-4-6) procesa con CATTLE_TOOLS
 4. Schema de tools definido con Google AI SDK (@google/genai), convertido a formato OpenAI function calling por `toOpenAITools()` en `src/lib/claude.ts`
 5. `ejecutarTool()` ejecuta tools contra la DB via Drizzle
 6. Respuesta SSE: text_delta, tool_use, tool_result, done

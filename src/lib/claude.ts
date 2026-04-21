@@ -1,10 +1,11 @@
 /**
  * claude.ts — Declaración de CATTLE_TOOLS del chat ganadero en formato Google AI SDK
  * (@google/genai — FunctionDeclaration, Type).
- * Ticket: AUT-176 / AUT-256
+ * Tickets: AUT-176 / AUT-256 / AUT-261
  *
- * Runtime: OpenRouter (modelo google/gemma-4-31b-it) — ver app/api/chat/route.ts.
- * Conversión a formato OpenAI function calling por toOpenAITools() en route.ts.
+ * Runtime: Anthropic SDK directo (@anthropic-ai/sdk). Modelo default claude-sonnet-4-6.
+ * Ver app/api/chat/route.ts y .claude/references/config/llm-routing-and-budget.yaml.
+ * Conversión a formato Anthropic tool por toAnthropicTools() en route.ts.
  *
  * Tool de lectura (1):
  *   query_db  — Consulta genérica a cualquier tabla del schema SmartCow

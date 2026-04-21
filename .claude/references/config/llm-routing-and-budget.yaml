@@ -32,11 +32,17 @@ principles:
 # ─────────────────────────────────────────────────────────────────────
 
 models:
+  # Precios verificados en claude.com/pricing — 2026-04-20
+  # Cualquier divergencia vs estos valores = YAML desactualizado.
+  # Actualizar este bloque es OBLIGATORIO si Anthropic cambia precios.
+
   light:
     id: claude-haiku-4-5
     tier: light
-    cost_per_mtok_in: 0.25
-    cost_per_mtok_out: 1.25
+    cost_per_mtok_in: 1.00
+    cost_per_mtok_out: 5.00
+    cache_write_per_mtok: 1.25
+    cache_read_per_mtok: 0.10
     target_p50_latency_ms: 800
     use_cases:
       - saludos y confirmaciones
@@ -44,10 +50,12 @@ models:
       - lectura directa del snapshot
 
   standard:
-    id: claude-sonnet-4-5
+    id: claude-sonnet-4-6
     tier: standard
     cost_per_mtok_in: 3.00
     cost_per_mtok_out: 15.00
+    cache_write_per_mtok: 3.75
+    cache_read_per_mtok: 0.30
     target_p50_latency_ms: 2500
     use_cases:
       - análisis con tool use
@@ -56,16 +64,48 @@ models:
       - GDP por lote, distribuciones, rankings
 
   heavy:
-    id: claude-opus-4-5
+    id: claude-opus-4-7
     tier: heavy
-    cost_per_mtok_in: 15.00
-    cost_per_mtok_out: 75.00
+    cost_per_mtok_in: 5.00
+    cost_per_mtok_out: 25.00
+    cache_write_per_mtok: 6.25
+    cache_read_per_mtok: 0.50
     target_p50_latency_ms: 6000
     use_cases:
       - comparación cross-predio (>3 predios)
       - análisis histórico multi-año
       - razonamiento multi-step con >5 tool calls
       - diagnóstico complejo (causas de baja GDP, etc.)
+
+# ─────────────────────────────────────────────────────────────────────
+# PROMPT CACHING — Anthropic native
+# Reduce 90% el costo del system prompt en queries repetidas
+# TTL: 5 minutos (ephemeral). Primera write = 1.25× input normal.
+# ─────────────────────────────────────────────────────────────────────
+
+prompt_caching:
+  enabled: true
+  strategy: system_prompt
+  # Se marca cache_control: {type: "ephemeral"} en el bloque system.
+  # Anthropic lo mantiene en RAM por 5 min desde última lectura.
+  # Queries del mismo user dentro de 5 min pagan cache_read_per_mtok
+  # en vez de cost_per_mtok_in — ahorro de 90%.
+
+  apply_to:
+    - system_prompt           # bloque grande con schema + reglas + predios
+    - tools_definitions       # schema de CATTLE_TOOLS (también estable)
+
+  do_not_cache:
+    - messages[].content      # cambia por request
+    - user_query              # cambia por request
+
+  expected_savings_pct: 85    # en prompt caching solamente
+                              # (no en query caching — eso es AUT-265)
+
+  monitoring:
+    - cache_hit_rate_target: 0.80   # 80% de requests deberían hit cache
+    - si_cache_hit_rate_lt: 0.50
+      action: investigar — TTL muy corto o tráfico muy disperso
 
 forbidden_models:
   # Si estos IDs aparecen en código → bug crítico, rollback.

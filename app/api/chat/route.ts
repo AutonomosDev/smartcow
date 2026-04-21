@@ -244,10 +244,18 @@ export async function POST(req: NextRequest) {
         while (iteraciones < MAX_TOOL_ITERATIONS) {
           iteraciones++;
 
+          // Prompt caching ephemeral sobre system prompt (TTL 5min, ahorro ~90%)
+          // Ref: .claude/references/config/llm-routing-and-budget.yaml § prompt_caching
           const response = await client.messages.create({
             model: modelId,
             max_tokens: 8192,
-            system: systemPrompt + kbContext,
+            system: [
+              {
+                type: "text",
+                text: systemPrompt + kbContext,
+                cache_control: { type: "ephemeral" },
+              },
+            ],
             messages: runMessages,
             tools: anthropicTools,
             tool_choice: { type: "auto" },

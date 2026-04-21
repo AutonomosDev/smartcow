@@ -15,24 +15,25 @@ export interface ModelConfig {
   costPerMtokOut: number;
 }
 
+// Precios: .claude/references/config/llm-routing-and-budget.yaml § models
 export const MODELS: Record<TierName, ModelConfig> = {
   light: {
     modelId: "claude-haiku-4-5",
     tier: "light",
-    costPerMtokIn: 0.25,
-    costPerMtokOut: 1.25,
+    costPerMtokIn: 1.00,
+    costPerMtokOut: 5.00,
   },
   standard: {
-    modelId: "claude-sonnet-4-5",
+    modelId: "claude-sonnet-4-6",
     tier: "standard",
     costPerMtokIn: 3.00,
     costPerMtokOut: 15.00,
   },
   heavy: {
-    modelId: "claude-opus-4-5",
+    modelId: "claude-opus-4-7",
     tier: "heavy",
-    costPerMtokIn: 15.00,
-    costPerMtokOut: 75.00,
+    costPerMtokIn: 5.00,
+    costPerMtokOut: 25.00,
   },
 };
 
