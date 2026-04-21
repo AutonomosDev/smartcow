@@ -66,6 +66,13 @@ const HEAVY_REGEX = /(compara.*todos|histórico completo|últimos \d+ años|desd
 const LIGHT_REGEX = /^(hola|gracias|ok|sí|si|no|dale|perfecto|listo|bien)/i;
 
 export function pickModel(input: PickModelInput): PickedModel {
+  // Override temporal via env — usado mientras se testea infra.
+  // Valores: light | standard | heavy. Prioridad sobre toda heurística.
+  const forced = process.env.CHAT_FORCE_TIER as TierName | undefined;
+  if (forced && forced in MODELS) {
+    return { ...MODELS[forced], reason: `forced via CHAT_FORCE_TIER=${forced}` };
+  }
+
   const { lastMessage, webSearchActive = false, prediosEnScope = 1, toolCallsPrevistos = 0 } = input;
   const msgLen = lastMessage.trim().length;
 

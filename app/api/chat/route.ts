@@ -58,14 +58,30 @@ function getAnthropicClient(): Anthropic {
   return new Anthropic({ apiKey });
 }
 
-// Convertir CATTLE_TOOLS (formato Google FunctionDeclaration) al formato Anthropic tool
+// Convertir CATTLE_TOOLS (formato Google FunctionDeclaration) al formato Anthropic tool.
+// Google SDK emite Type.OBJECT="OBJECT" (uppercase) — Anthropic exige JSON Schema lowercase
+// ("object", "string", etc.). Normalizamos recursivamente todos los `type` strings.
+function normalizeSchemaTypes(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(normalizeSchemaTypes);
+  if (node && typeof node === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(node as Record<string, unknown>)) {
+      out[k] = k === "type" && typeof v === "string" ? v.toLowerCase() : normalizeSchemaTypes(v);
+    }
+    return out;
+  }
+  return node;
+}
+
 function toAnthropicTools(cattleTools: typeof CATTLE_TOOLS): Anthropic.Tool[] {
   return cattleTools
     .filter((t) => t.name && t.description)
     .map((t) => ({
       name: t.name as string,
       description: t.description as string,
-      input_schema: (t.parameters ?? { type: "object", properties: {} }) as Anthropic.Tool["input_schema"],
+      input_schema: normalizeSchemaTypes(
+        t.parameters ?? { type: "object", properties: {} },
+      ) as Anthropic.Tool["input_schema"],
     }));
 }
 
