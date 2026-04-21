@@ -135,11 +135,18 @@ packages/                   — Shared packages
 - `withAuth({ rolMinimo, modulo, predioId })` para server actions
 - Tools de escritura (registrar_pesaje, registrar_parto) requieren rol >= operador
 
-### AgroApp — estado de migracion
+### AgroApp — estado de migracion (actualizado 2026-04-21, AUT-283)
 - API externa: `http://agroapp.cl:8080/AgroAppWebV18/`
 - Integracion en `src/agroapp/`, ETL en `src/etl/`
-- Importadas: ventas, tratamientos, traslados — `src/etl/import-agroapp-full.ts`
-- Pendientes: pesajes, partos, inseminaciones, ecografias, animales, catalogos, areteos, bajas
+- **Importadas en prod**: animales (7,404), pesajes (10,545), partos (5,522), tratamientos (32,727), inseminaciones (4,822), ecografias (2,732), areteos (1,384), bajas (1,429 via `animales.estado='baja'`), catalogos
+- **Pendientes**:
+  - `ventas` — requiere `AGROAPP_PASSWORD` en prod `.env` para `src/etl/import-ventas-detalle.ts`
+  - `traslados` — no hay ETL (agregados por lote sin DIIO; `import-agroapp-excel.ts` tiene early-exit explicito)
+- ETLs activos:
+  - `src/etl/import-agroapp-excel.ts <tipo> <file.xlsx>` — bajas, partos, inseminaciones, pesajes, ganado, areteos, tratamientos
+  - `src/etl/import-ventas-detalle.ts` — ventas via API AgroApp (requiere credenciales)
+  - `src/etl/import-precios-feria.ts` — ODEPA precios_feria (14,196 rows, boletines AFECH)
+- **Auditoría drift prod vs repo**: `DATABASE_URL=... npx tsx scripts/audit-schema-sync.ts`
 
 ## Linear
 - Team: Autonomos Dev — ID: `b0184c23-f78a-4035-bd78-74b75481292c`

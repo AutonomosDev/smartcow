@@ -30,6 +30,23 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      # AUT-284 — Drift check: si el schema TS diverge de las migrations
+      # SQL, drizzle-kit generate produce un nuevo archivo. Si lo produce en
+      # CI → el dev olvidó correr generate → PR rojo.
+      - name: Migration drift check
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_CI || 'postgres://user:pass@localhost:5432/ci' }}
+        run: |
+          npx drizzle-kit generate --name=ci_drift_check || true
+          if [ -n "$(git status --porcelain src/db/migrations/ src/db/migrations/meta/)" ]; then
+            echo "❌ Schema drift detectado — src/db/schema/*.ts diverge de migrations/*.sql"
+            echo "   Corre: npx drizzle-kit generate --name=<descripción>"
+            git status --porcelain src/db/migrations/ src/db/migrations/meta/
+            git diff src/db/migrations/ src/db/migrations/meta/ | head -200
+            exit 1
+          fi
+          echo "✓ Schema TS === migrations SQL"
+
   test:
     name: Tests
     runs-on: ubuntu-latest
