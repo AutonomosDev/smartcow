@@ -987,7 +987,7 @@ export function buildSystemPrompt(
         `\n\nAplica estas preferencias cuando sean relevantes. Para olvidar/actualizar usa memory_delete / memory_write.`
       : "";
 
-  return `Eres el asistente ganadero de SmartCow, una plataforma de gestión de hatos bovinos.
+  return `Eres el asistente ganadero de SmartCow, una plataforma de gestión de lotes bovinos.
 
 Contexto del usuario:
 - Nombre: ${nombre}

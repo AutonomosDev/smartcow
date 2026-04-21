@@ -561,7 +561,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
                 isLoading={isLoading}
                 onSend={(msg, files, webSearch) => handleSend(msg, files, webSearch)}
                 onStop={handleStop}
-                placeholder="Pregunta sobre tu hato..."
+                placeholder="Pregunta sobre tu lote..."
               />
 
               {/* Footer row */}

@@ -105,7 +105,7 @@ export function ChatEmptyState({ userName, onSuggestionClick, onQuickCommand }: 
         margin: "0 0 24px",
         fontWeight: 400,
       }}>
-        Pregunta sobre tu hato, pesajes, lotes o finanzas
+        Pregunta sobre tu lote, pesajes o finanzas
       </p>
 
       {/* Slash command chips */}
