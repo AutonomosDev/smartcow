@@ -12,8 +12,12 @@ services:
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - AUTH_TRUST_HOST=${AUTH_TRUST_HOST:-true}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - TAVILY_API_KEY=${TAVILY_API_KEY}
+      - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
+      - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
+      - LANGFUSE_HOST=${LANGFUSE_HOST:-http://langfuse:3000}
       - NODE_ENV=production
     depends_on:
       - db
@@ -47,6 +51,28 @@ services:
       - redis_data:/data
     restart: always
 
+  langfuse:
+    image: langfuse/langfuse:3
+    depends_on:
+      db:
+        condition: service_started
+    environment:
+      - DATABASE_URL=${LANGFUSE_DATABASE_URL}
+      - NEXTAUTH_SECRET=${LANGFUSE_NEXTAUTH_SECRET}
+      - SALT=${LANGFUSE_SALT}
+      - NEXTAUTH_URL=${LANGFUSE_NEXTAUTH_URL:-https://langfuse.smartcow.cl}
+      - TELEMETRY_ENABLED=false
+      - LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=false
+    volumes:
+      - langfuse_data:/app/uploads
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/public/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
   nginx:
     image: nginx:alpine
     ports:
@@ -62,3 +88,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  langfuse_data:

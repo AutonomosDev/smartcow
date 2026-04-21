@@ -37,6 +37,7 @@ import { pickModel, MODELS, type TierName } from "@/src/lib/router";
 import { checkBudget, writeChatUsage, canUseTier, highestAllowedTier } from "@/src/lib/budget";
 import { tryCache, writeCache } from "@/src/lib/cache";
 import { checkRateLimit, rateLimitHeaders } from "@/src/lib/rate-limit";
+import { langfuse } from "@/src/lib/langfuse";
 
 // Jerarquía de roles
 const ROL_RANK: Record<string, number> = {
@@ -238,6 +239,17 @@ export async function POST(req: NextRequest) {
   // 5. Construir SSE stream
   const encoder = new TextEncoder();
 
+  // Langfuse trace — 1 trace por request (AUT-272)
+  const traceId = `${userId}-${startMs}`;
+  const trace = langfuse?.trace({
+    id: traceId,
+    name: "chat.turn",
+    userId: String(userId),
+    metadata: { orgId, predioId, tier, modelId },
+    tags: [`predio:${predioId}`, `model:${modelId}`, `tier:${tier}`],
+    input: lastMessage,
+  }) ?? null;
+
   const stream = new ReadableStream({
     async start(controller) {
       function sendEvent(data: Record<string, unknown>) {
@@ -283,6 +295,22 @@ export async function POST(req: NextRequest) {
           percent: budgetStatus.percent,
         });
       }
+
+      // Span: pickModel (AUT-272)
+      trace?.span({
+        name: "pickModel",
+        input: { lastMessage: lastMessage.slice(0, 200), webSearchActive: webSearch },
+        output: { tier, modelId, reason: pickReason },
+        metadata: { downgrade: downgradeInfo },
+      });
+
+      // Span: cache_lookup (AUT-272)
+      trace?.span({
+        name: "cache_lookup",
+        input: { predioId, userId, bypass: cacheBypass, webSearch },
+        output: { hit: false },
+        metadata: { eligible: cacheEligible },
+      });
 
       try {
         // Pre-fetch contexto real del predio + memoria persistente del usuario (AUT-270)
@@ -358,6 +386,7 @@ export async function POST(req: NextRequest) {
 
           // Prompt caching ephemeral sobre system prompt (TTL 5min, ahorro ~90%)
           // Ref: .claude/references/config/llm-routing-and-budget.yaml § prompt_caching
+          const anthropicSpanStart = Date.now();
           const response = await client.messages.create({
             model: modelId,
             max_tokens: 8192,
@@ -415,6 +444,21 @@ export async function POST(req: NextRequest) {
             }
           }
 
+          // Span: anthropic_call (AUT-272)
+          trace?.span({
+            name: "anthropic_call",
+            input: { model: modelId, iteration: iteraciones, messagesCount: runMessages.length },
+            output: { toolsRequested: toolUseBlocks.length, textLength: accumulatedText.length },
+            metadata: {
+              tokensIn,
+              tokensOut,
+              cacheReadTokens,
+              cacheWriteTokens,
+              latencyMs: Date.now() - anthropicSpanStart,
+              cached: cacheReadTokens > 0,
+            },
+          });
+
           // Sin tool calls → respuesta final
           if (toolUseBlocks.length === 0) {
             // Guardar texto final para writeCache (AUT-265)
@@ -467,6 +511,7 @@ export async function POST(req: NextRequest) {
             // AUT-275 — capturamos errores "naturales" (ej. tabla sistema bloqueada
             // en query-db.ts) y los convertimos en tool_result natural para que
             // el LLM los reciba como texto, no como 500.
+            const toolSpanStart = Date.now();
             let result: unknown;
             try {
               result = await ejecutarTool(tb.name, args, prediosPermitidos, Number(userId), rolRank);
@@ -481,6 +526,14 @@ export async function POST(req: NextRequest) {
                 mensaje: `Predio fuera de tu alcance. Accesibles: ${prediosNombresList.join(", ") || "ninguno"}.`,
               };
             }
+
+            // Span: tool_call (AUT-272) — 1 span por tool ejecutada
+            trace?.span({
+              name: `tool:${tb.name}`,
+              input: args,
+              output: result as Record<string, unknown>,
+              metadata: { latencyMs: Date.now() - toolSpanStart, toolId: tb.id },
+            });
 
             sendEvent({ type: "tool_result", tool: tb.name, result });
 
@@ -507,6 +560,23 @@ export async function POST(req: NextRequest) {
       } finally {
         // Tracking (AUT-263) — ANTES de cerrar stream, no bloquea respuesta
         const latencyMs = Date.now() - startMs;
+
+        // Span: sse_emit (AUT-272) — cierre del turno
+        trace?.span({
+          name: "sse_emit",
+          input: { toolCallsCount, hadArtifact, hadWrite },
+          output: { finalResponseLength: finalResponse?.length ?? 0, error: trackingError },
+          metadata: { latencyMs, tokensIn, tokensOut, cacheReadTokens, cacheWriteTokens },
+        });
+
+        // Cerrar trace Langfuse con output final
+        if (trace) {
+          trace.update({
+            output: finalResponse?.slice(0, 500) ?? trackingError ?? "",
+            metadata: { latencyMs, tokensIn, tokensOut, toolCallsCount, tier, modelId, cached: cacheReadTokens > 0 },
+          });
+        }
+
         try {
           await writeChatUsage({
             orgId,
@@ -549,6 +619,13 @@ export async function POST(req: NextRequest) {
           } catch (cacheErr) {
             console.warn("[cache] writeCache failed:", cacheErr instanceof Error ? cacheErr.message : cacheErr);
           }
+        }
+
+        // Langfuse flush (AUT-272) — enviar todos los eventos al servidor Langfuse
+        try {
+          await langfuse?.flushAsync();
+        } catch (lfErr) {
+          console.warn("[langfuse] flush failed:", lfErr instanceof Error ? lfErr.message : lfErr);
         }
       }
     },
