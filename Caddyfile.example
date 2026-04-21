@@ -1,0 +1,10 @@
+# Caddyfile.example — AUT-272
+# Configuración de referencia para Caddy reverse proxy → Langfuse.
+# NOTA: El VPS actual usa nginx (docker-compose nginx service).
+# Si en el futuro se migra a Caddy, copiar este bloque al Caddyfile del VPS.
+#
+# Uso con nginx actual: ver docs/deploy/langfuse-setup.md § nginx.
+
+langfuse.smartcow.cl {
+  reverse_proxy langfuse:3000
+}
