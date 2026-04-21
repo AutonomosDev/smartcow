@@ -276,6 +276,58 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
 
   handleSendRef.current = handleSend;
 
+  // AUT-268 — Atajo SQL directo sin LLM. Renderiza respuesta + artifact.
+  const handleQuickCommand = useCallback(async (command: string, label: string) => {
+    if (isLoadingRef.current) return;
+    setCurrentSessionTitle(label);
+
+    const userMessage: ChatMessage = { role: "user", content: `/${command}` };
+    const assistantMessage: ChatMessage = { role: "assistant", content: "" };
+    setMessages([...messagesRef.current, userMessage, assistantMessage]);
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/chat/quick-query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command, predioId }),
+      });
+      if (!res.ok) throw new Error(`quick-query ${res.status}`);
+      const result = await res.json() as {
+        label: string;
+        data: unknown;
+        artifact: { type: "table" | "kpi" | "alerts"; title?: string } | null;
+        latencyMs: number;
+      };
+
+      const text = `Respuesta directa — ${result.label} (${result.latencyMs}ms, sin LLM)`;
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role !== "assistant") return prev;
+        return [...prev.slice(0, -1), { ...last, content: text }];
+      });
+
+      if (result.artifact) {
+        setActiveArtifact({
+          id: `art_${Date.now()}`,
+          title: result.artifact.title ?? result.label,
+          content: JSON.stringify(result.artifact),
+          kind: result.artifact.type,
+        });
+        setIsArtifactOpen(true);
+      }
+    } catch (err) {
+      console.error("[quick-query]", err);
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role !== "assistant") return prev;
+        return [...prev.slice(0, -1), { ...last, content: "Error ejecutando comando rápido." }];
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [predioId]);
+
   useEffect(() => {
     if (initialMessage && !hasSentInitial.current) {
       hasSentInitial.current = true;
@@ -440,6 +492,10 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
                     onSuggestionClick={(text, folderLabel) => {
                       if (folderLabel) setActiveFolder(folderLabel);
                       handleSend(text);
+                    }}
+                    onQuickCommand={(command, label) => {
+                      setActiveFolder(label);
+                      handleQuickCommand(command, label);
                     }}
                   />
                 </div>

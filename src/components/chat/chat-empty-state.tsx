@@ -18,10 +18,17 @@ interface ChatEmptyStateProps {
   nombrePredio: string | null | undefined;
   userName?: string | null;
   onSuggestionClick: (text: string, folderLabel?: string) => void;
+  onQuickCommand?: (command: string, label: string) => void;
   onPredioClick?: (predioId: number, nombre: string) => void;
 }
 
-export function ChatEmptyState({ userName, onSuggestionClick }: ChatEmptyStateProps) {
+// AUT-268 — Comandos resueltos por SQL directo sin LLM (endpoint /api/chat/quick-query)
+const QUICK_COMMANDS = new Set([
+  "animales", "enfermos", "feedlot", "lotes", "pesajes",
+  "partos", "bajas", "ventas", "tratamientos", "preñez",
+]);
+
+export function ChatEmptyState({ userName, onSuggestionClick, onQuickCommand }: ChatEmptyStateProps) {
   const firstName = userName?.split(" ")[0];
   const [cmds, setCmds] = useState<SlashCommand[]>([]);
 
@@ -32,14 +39,16 @@ export function ChatEmptyState({ userName, onSuggestionClick }: ChatEmptyStatePr
       .catch(() => {});
   }, []);
 
-  // Fallback chips while loading
+  // Fallback chips while loading — priorizan los 10 top del catálogo AUT-266 via quick-query
   const chips: SlashCommand[] = cmds.length > 0 ? cmds : [
-    { id: 1, comando: "/feedlot",    label: "Feedlot",    modulo: "feedlot", promptTemplate: "Focus en feedlot: últimos pesajes, GDP por lote, días en engorde.", orden: 1 },
-    { id: 2, comando: "/medieriaFT", label: "Medieria FT", modulo: "feedlot", promptTemplate: "Focus en mediería Frigo Temuco: inventario, pesajes, GDP.", orden: 2 },
-    { id: 3, comando: "/novillos",   label: "Novillos",   modulo: null,      promptTemplate: "Focus en novillos: conteo, pesajes, GDP.", orden: 4 },
-    { id: 4, comando: "/partos",     label: "Partos",     modulo: "crianza", promptTemplate: "Últimos partos del predio 2026: fecha, resultado, tasa.", orden: 5 },
-    { id: 5, comando: "/pesajes",    label: "Pesajes",    modulo: null,      promptTemplate: "Últimos pesajes del predio con GDP por lote.", orden: 6 },
-    { id: 6, comando: "/ventas",     label: "Ventas",     modulo: null,      promptTemplate: "Ventas 2026: total, peso promedio, destino.", orden: 8 },
+    { id: 1, comando: "/animales",    label: "Animales",    modulo: null,      promptTemplate: "", orden: 1 },
+    { id: 2, comando: "/feedlot",     label: "Feedlot",     modulo: "feedlot", promptTemplate: "", orden: 2 },
+    { id: 3, comando: "/lotes",       label: "Lotes",       modulo: null,      promptTemplate: "", orden: 3 },
+    { id: 4, comando: "/pesajes",     label: "Pesajes",     modulo: null,      promptTemplate: "", orden: 4 },
+    { id: 5, comando: "/partos",      label: "Partos",      modulo: "crianza", promptTemplate: "", orden: 5 },
+    { id: 6, comando: "/ventas",      label: "Ventas",      modulo: null,      promptTemplate: "", orden: 6 },
+    { id: 7, comando: "/enfermos",    label: "Enfermos",    modulo: null,      promptTemplate: "", orden: 7 },
+    { id: 8, comando: "/preñez",      label: "Preñez",      modulo: "crianza", promptTemplate: "", orden: 8 },
   ];
 
   return (
@@ -106,13 +115,23 @@ export function ChatEmptyState({ userName, onSuggestionClick }: ChatEmptyStatePr
         gap: 8,
         justifyContent: "center",
       }}>
-        {chips.map((cmd) => (
-          <SlashChip
-            key={cmd.id}
-            comando={cmd.comando}
-            onClick={() => onSuggestionClick(cmd.promptTemplate, cmd.label)}
-          />
-        ))}
+        {chips.map((cmd) => {
+          const bare = cmd.comando.replace(/^\//, "");
+          const isQuick = QUICK_COMMANDS.has(bare);
+          return (
+            <SlashChip
+              key={cmd.id}
+              comando={cmd.comando}
+              onClick={() => {
+                if (isQuick && onQuickCommand) {
+                  onQuickCommand(bare, cmd.label);
+                } else {
+                  onSuggestionClick(cmd.promptTemplate, cmd.label);
+                }
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );

@@ -24,7 +24,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import type { FunctionDeclaration } from "@google/genai";
 import { db } from "@/src/db/client";
 import { animales, pesajes, partos, chatAttachments } from "@/src/db/schema/index";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import type { SmartCowSession } from "./auth";
 import type { PredioKpis, PesajePorLote } from "@/src/lib/queries/predio";
 import { ejecutarQueryDB, type QueryDBParams, SCHEMA_TEXTO } from "@/src/lib/queries/query-db";
@@ -186,6 +186,32 @@ export const CATTLE_TOOLS: FunctionDeclaration[] = [
     },
   },
   {
+    name: "comparar_precio_feria",
+    description:
+      "Compara el precio actual de una categoría de ganado en feria contra un precio histórico (ej: hace un año). Devuelve precio_hoy, precio_referencia, variación en % y en CLP. Fuente: tabla precios_feria (ODEPA/Tattersall). Usa esto en vez de inventar precios.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        categoria: {
+          type: Type.STRING,
+          description:
+            "Categoría: novillo_gordo | vaca_gorda | vaquilla | ternero | toro",
+        },
+        fecha_referencia: {
+          type: Type.STRING,
+          description:
+            "Fecha de referencia YYYY-MM-DD (ej: hace 1 año). Compara contra la fecha más reciente disponible.",
+        },
+        feria: {
+          type: Type.STRING,
+          description:
+            "Opcional: feria específica (osorno | temuco | los_angeles | puerto_montt | talca). Si se omite, promedia todas.",
+        },
+      },
+      required: ["categoria", "fecha_referencia"],
+    },
+  },
+  {
     name: "web_search",
     description:
       "Busca información en internet. SOLO usar cuando el usuario pide explícitamente datos externos (precios de mercado actuales, noticias, regulaciones, clima, etc). No usar para datos del predio — usa query_db para eso.",
@@ -283,6 +309,14 @@ export async function ejecutarTool(
       return buscarWeb(
         String(toolInput["query"] ?? ""),
         Number(toolInput["max_results"] ?? 5)
+      );
+    }
+
+    case "comparar_precio_feria": {
+      return compararPrecioFeria(
+        String(toolInput["categoria"] ?? ""),
+        String(toolInput["fecha_referencia"] ?? ""),
+        toolInput["feria"] as string | undefined
       );
     }
 
