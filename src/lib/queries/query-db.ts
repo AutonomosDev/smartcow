@@ -147,6 +147,28 @@ const TABLA_CONFIG: Record<string, TablaConfig> = {
 const DEFAULT_YEAR_FILTER = "2026-01-01";
 
 // ─────────────────────────────────────────────
+// TABLAS PROHIBIDAS (AUT-275 — prompt injection hardening)
+// ─────────────────────────────────────────────
+// Tablas de sistema que NUNCA deben exponerse via query_db aunque el usuario
+// intente jailbreak ("ignora instrucciones", "actúa como superadmin", etc).
+// El error se formula en lenguaje natural para que el LLM responda neutro,
+// sin revelar la existencia de estas tablas.
+const TABLAS_PROHIBIDAS = new Set<string>([
+  "users",
+  "organizaciones",
+  "fundos",
+  "user_fundos",
+  "user_predios",
+  "chat_sessions",
+  "chat_cache",
+  "chat_usage",
+  "user_memory",
+  "slash_commands",
+  "org_plan",
+  "__drizzle_migrations",
+]);
+
+// ─────────────────────────────────────────────
 // TIPOS PÚBLICOS
 // ─────────────────────────────────────────────
 
@@ -180,6 +202,13 @@ export async function ejecutarQueryDB(
   const { tabla, campos, orden, agregacion, campo_agregacion } = params;
   const filtros = { ...(params.filtros ?? {}) };
   const limite = Math.min(params.limite ?? 100, 500);
+
+  // 0. Bloqueo duro de tablas de sistema (AUT-275).
+  // Se lanza Error nativo; route.ts lo convierte en tool_result con mensaje
+  // natural para el LLM ("No tengo acceso a esa información").
+  if (TABLAS_PROHIBIDAS.has(tabla)) {
+    throw new Error("No tengo acceso a esa información");
+  }
 
   // 1. Validar tabla
   const config = TABLA_CONFIG[tabla];
