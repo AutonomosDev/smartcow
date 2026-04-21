@@ -647,3 +647,197 @@ export async function detectarAnomalias(
     },
   };
 }
+
+// ─────────────────────────────────────────────
+// ENRICHERS — Envuelven cada tool con narrativa_sugerida + artifact prefabricado
+// Ticket: AUT-269
+// ─────────────────────────────────────────────
+
+export interface EnrichedResult {
+  data: unknown;
+  narrativa_sugerida: string;
+  artifact: {
+    component: string;
+    data: unknown;
+    title: string;
+  } | null;
+}
+
+/**
+ * Enriquece calcular_gdp con narrativa y artifact ChartBar o ChartKpi.
+ */
+export function enrichGdp(result: CalcularGdpResult, label?: string): EnrichedResult {
+  const scope = label ?? result.scope;
+  if (result.error || result.gdp === null) {
+    return {
+      data: result,
+      narrativa_sugerida: result.error ?? "Sin datos de pesaje suficientes.",
+      artifact: null,
+    };
+  }
+  const gdpStr = result.gdp.toFixed(3);
+  const tendenciaEmoji = result.tendencia === "up" ? "↑" : result.tendencia === "down" ? "↓" : "→";
+  const narrativa = `GDP ${scope}: ${gdpStr} kg/d ${tendenciaEmoji}${result.nAnimales > 1 ? `, ${result.nAnimales} animales` : ""}`;
+  return {
+    data: result,
+    narrativa_sugerida: narrativa,
+    artifact: {
+      component: "ChartKpi",
+      title: `GDP — ${scope}`,
+      data: {
+        kpis: [
+          { val: `${gdpStr} kg/d`, lbl: "GDP promedio", color: result.tendencia === "up" ? "ok" : result.tendencia === "down" ? "bad" : "warn" },
+        ],
+        rows: [
+          { label: "Peso inicial prom.", value: result.pesoInicial !== null ? `${result.pesoInicial} kg` : "—" },
+          { label: "Peso final prom.", value: result.pesoFinal !== null ? `${result.pesoFinal} kg` : "—" },
+          { label: "Días medidos", value: String(result.dias) },
+          { label: "Animales", value: String(result.nAnimales) },
+        ],
+      },
+    },
+  };
+}
+
+/**
+ * Enriquece proyectar_peso_venta con narrativa y artifact ChartKpi.
+ */
+export function enrichProyeccion(result: ProyectarPesoResult, loteId: number): EnrichedResult {
+  if (result.error || result.diasEstimados === null) {
+    return {
+      data: result,
+      narrativa_sugerida: result.error ?? "No se puede proyectar con los datos disponibles.",
+      artifact: null,
+    };
+  }
+  const narrativa = `Lote ${loteId}: ${result.diasEstimados} días para ${result.pesoObjetivo} kg (GDP ${result.gdpActual?.toFixed(3)} kg/d)`;
+  return {
+    data: result,
+    narrativa_sugerida: narrativa,
+    artifact: {
+      component: "ChartKpi",
+      title: `Proyección peso venta — Lote ${loteId}`,
+      data: {
+        kpis: [
+          { val: `${result.diasEstimados}d`, lbl: "Días estimados", color: result.probabilidadOk >= 0.7 ? "ok" : "warn" },
+          { val: result.fechaEstimada ?? "—", lbl: "Fecha estimada", color: "ok" },
+        ],
+        rows: [
+          { label: "Peso actual", value: `${result.pesoActual} kg` },
+          { label: "Peso objetivo", value: `${result.pesoObjetivo} kg` },
+          { label: "GDP actual", value: `${result.gdpActual?.toFixed(3)} kg/d` },
+          { label: "Probabilidad", value: `${Math.round(result.probabilidadOk * 100)}%` },
+        ],
+      },
+    },
+  };
+}
+
+/**
+ * Enriquece comparar_predios con narrativa y artifact ChartBar.
+ */
+export function enrichComparacionPredios(result: CompararPrediosResult): EnrichedResult {
+  if (result.error || result.filas.length === 0) {
+    return {
+      data: result,
+      narrativa_sugerida: result.error ?? "Sin datos para comparar predios.",
+      artifact: null,
+    };
+  }
+  const top = result.filas[0];
+  const unidad = result.metrica === "gdp" ? "kg/d" : result.metrica === "preñez" ? "%" : result.metrica === "peso_prom" ? "kg" : "";
+  const narrativa = `Mejor predio: ${top.nombre} (${top.valor?.toFixed(1) ?? "—"} ${unidad})`;
+  return {
+    data: result,
+    narrativa_sugerida: narrativa,
+    artifact: {
+      component: "ChartBar",
+      title: `Comparación predios — ${result.metrica}`,
+      data: result.filas.map((f) => ({ x: f.nombre, y: f.valor ?? 0 })),
+    },
+  };
+}
+
+/**
+ * Enriquece ranking_lotes con narrativa y artifact ChartTable o ChartBar.
+ */
+export function enrichRankingLotes(result: RankingLotesResult): EnrichedResult {
+  if (result.error || result.filas.length === 0) {
+    return {
+      data: result,
+      narrativa_sugerida: result.error ?? "Sin lotes para rankear.",
+      artifact: null,
+    };
+  }
+  const top = result.filas[0];
+  const unidad = result.metrica === "gdp" ? "kg/d" : result.metrica === "peso_prom" ? "kg" : "animales";
+  const narrativa = `Top: ${top.nombre} con ${top.valor?.toFixed(result.metrica === "nAnimales" ? 0 : 3) ?? "—"} ${unidad}`;
+  return {
+    data: result,
+    narrativa_sugerida: narrativa,
+    artifact: {
+      component: "ChartTable",
+      title: `Ranking lotes — ${result.metrica}`,
+      data: {
+        columns: [
+          { key: "rank", label: "#" },
+          { key: "nombre", label: "Lote" },
+          { key: "valorStr", label: unidad === "animales" ? "Animales" : unidad === "kg/d" ? "GDP (kg/d)" : "Peso prom. (kg)" },
+        ],
+        rows: result.filas.map((f) => ({
+          rank: String(f.rank),
+          nombre: f.nombre,
+          valorStr: f.valor !== null ? f.valor.toFixed(result.metrica === "nAnimales" ? 0 : 3) : "—",
+        })),
+      },
+    },
+  };
+}
+
+/**
+ * Enriquece detectar_anomalias con narrativa y artifact ChartTable o alerts.
+ */
+export function enrichAnomalias(result: DetectarAnomaliasResult): EnrichedResult {
+  if (result.error || result.items.length === 0) {
+    const narrativa = result.error ?? `Sin anomalías detectadas (avg: ${result.contexto.avg} kg, n=${result.contexto.n})`;
+    return {
+      data: result,
+      narrativa_sugerida: narrativa,
+      artifact: result.items.length === 0 ? {
+        component: "ChartKpi",
+        title: "Anomalías de peso",
+        data: {
+          kpis: [{ val: "0", lbl: "Anomalías detectadas", color: "ok" }],
+          rows: [
+            { label: "Peso promedio", value: `${result.contexto.avg} kg` },
+            { label: "Animales analizados", value: String(result.contexto.n) },
+          ],
+        },
+      } : null,
+    };
+  }
+  const altas = result.items.filter((i) => i.severidad === "alta").length;
+  const narrativa = `${result.items.length} anomalías detectadas${altas > 0 ? `, ${altas} alta severidad` : ""}. Avg lote: ${result.contexto.avg} kg`;
+  return {
+    data: result,
+    narrativa_sugerida: narrativa,
+    artifact: {
+      component: "ChartTable",
+      title: "Anomalías de peso detectadas",
+      data: {
+        columns: [
+          { key: "diio", label: "DIIO" },
+          { key: "tipo", label: "Tipo" },
+          { key: "valorStr", label: "Peso (kg)" },
+          { key: "severidad", label: "Severidad" },
+        ],
+        rows: result.items.map((it) => ({
+          diio: it.diio,
+          tipo: it.tipo === "peso_alto" ? "Alto" : "Bajo",
+          valorStr: String(it.valor),
+          severidad: it.severidad,
+        })),
+      },
+    },
+  };
+}

@@ -43,6 +43,11 @@ preguntas:
     output_esperado: "número entero (COUNT)"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Animales activos'}]"
+      narrativa_max_palabras: 8
+      ejemplo_narrativa: "523 animales activos en el predio"
 
   - id: cantidad_hembras
     categoria: conteos
@@ -57,6 +62,11 @@ preguntas:
     output_esperado: "número entero"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Hembras activas'}]"
+      narrativa_max_palabras: 8
+      ejemplo_narrativa: "342 hembras activas"
 
   - id: cantidad_machos
     categoria: conteos
@@ -71,6 +81,11 @@ preguntas:
     output_esperado: "número entero"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Machos activos'}]"
+      narrativa_max_palabras: 6
+      ejemplo_narrativa: "181 machos activos"
 
   - id: animales_por_lote
     categoria: conteos
@@ -85,6 +100,11 @@ preguntas:
     output_esperado: "número entero"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Animales en lote'}]"
+      narrativa_max_palabras: 8
+      ejemplo_narrativa: "Lote FT-3: 78 animales activos"
 
   - id: animales_por_potrero
     categoria: conteos
@@ -99,6 +119,11 @@ preguntas:
     output_esperado: "número entero"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Animales en potrero'}]"
+      narrativa_max_palabras: 8
+      ejemplo_narrativa: "Potrero Norte: 45 animales"
 
   - id: animales_preñadas
     categoria: conteos
@@ -113,6 +138,11 @@ preguntas:
     output_esperado: "número entero"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Preñadas confirmadas'}]"
+      narrativa_max_palabras: 8
+      ejemplo_narrativa: "198 vacas preñadas confirmadas"
 
   - id: animales_tratados
     categoria: conteos
@@ -127,6 +157,11 @@ preguntas:
     output_esperado: "número entero"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Animales tratados'}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "12 animales tratados este mes"
 
   - id: mortalidad_periodo
     categoria: conteos
@@ -141,6 +176,11 @@ preguntas:
     output_esperado: "número entero + motivos"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartTable
+      data_shape: "columns:[motivo,cantidad]; rows:[{motivo:string, cantidad:number}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "3 bajas: 2 enfermedades, 1 accidente"
 
   - id: animales_vendidos
     categoria: conteos
@@ -155,6 +195,11 @@ preguntas:
     output_esperado: "número entero"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Animales vendidos'}]"
+      narrativa_max_palabras: 8
+      ejemplo_narrativa: "34 animales vendidos este período"
 
   - id: partos_periodo
     categoria: conteos
@@ -169,6 +214,11 @@ preguntas:
     output_esperado: "número entero + resultado"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartTable
+      data_shape: "columns:[resultado,cantidad]; rows:[{resultado:string, cantidad:number}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "47 partos: 44 vivos, 2 muertos, 1 aborto"
 
   - id: inseminaciones_realizadas
     categoria: conteos
@@ -183,6 +233,11 @@ preguntas:
     output_esperado: "número entero + tasa de preñez"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val:number,lbl:'IA realizadas'},{val:'68%',lbl:'Tasa preñez'}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "28 inseminaciones, 68% de preñez confirmada"
 
   - id: ecografias_realizadas
     categoria: conteos
@@ -225,6 +280,11 @@ preguntas:
     output_esperado: "número entero"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Pesajes registrados'}]"
+      narrativa_max_palabras: 8
+      ejemplo_narrativa: "156 pesajes registrados este mes"
 
   - id: gdp_lote
     categoria: pesajes_gdp
@@ -240,6 +300,11 @@ preguntas:
     output_esperado: "kg/día + proyección de peso final"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val:'X.XXX kg/d',lbl:'GDP',color:ok|warn|bad}], rows:[peso_inicial,peso_final,dias,animales]"
+      narrativa_max_palabras: 12
+      ejemplo_narrativa: "Lote FT-3: 0.94 kg/d en 45 días, 78 animales"
 
   - id: peso_promedio_lote
     categoria: pesajes_gdp
@@ -254,6 +319,11 @@ preguntas:
     output_esperado: "kg (AVG)"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: 'NNN kg', lbl: 'Peso promedio'}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "Peso promedio lote: 342 kg"
 
   - id: peso_minimo_lote
     categoria: pesajes_gdp
@@ -268,6 +338,11 @@ preguntas:
     output_esperado: "kg + animal_id"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: 'NNN kg', lbl: 'Peso mínimo'}], rows:[{label:'Animal',value:diio}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "Animal más chico: 210 kg (DIIO 1234)"
 
   - id: peso_maximo_lote
     categoria: pesajes_gdp
@@ -282,6 +357,11 @@ preguntas:
     output_esperado: "kg + animal_id"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: 'NNN kg', lbl: 'Peso máximo'}], rows:[{label:'Animal',value:diio}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "Animal más pesado: 510 kg (DIIO 5678)"
 
   - id: peso_individual_animal
     categoria: pesajes_gdp
@@ -296,6 +376,11 @@ preguntas:
     output_esperado: "kg + fecha"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val:'NNN kg',lbl:'Peso actual'}], rows:[{label:'Fecha',value:date}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "Animal 1234: 342 kg (2026-04-10)"
 
   - id: ganancia_individual
     categoria: pesajes_gdp
@@ -338,6 +423,11 @@ preguntas:
     output_esperado: "fecha estimada + días faltantes"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val:'NNd',lbl:'Días estimados'},{val:'YYYY-MM-DD',lbl:'Fecha estimada'}]"
+      narrativa_max_palabras: 15
+      ejemplo_narrativa: "Lote FT-3: 48 días para 480 kg (GDP 0.940 kg/d)"
 
   - id: tendencia_crecimiento
     categoria: pesajes_gdp
@@ -352,6 +442,11 @@ preguntas:
     output_esperado: "gráfico + análisis"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartLine
+      data_shape: "[{x: fecha, y: peso_promedio_kg}]"
+      narrativa_max_palabras: 12
+      ejemplo_narrativa: "Crecimiento constante: +0.94 kg/d en últimos 45 días"
 
   - id: factor_conversion_alimenticia
     categoria: pesajes_gdp
@@ -396,6 +491,11 @@ preguntas:
     output_esperado: "tabla de distribución + %"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartBar
+      data_shape: "[{x: 'NNN-MMM kg', y: conteo_animales}]"
+      narrativa_max_palabras: 12
+      ejemplo_narrativa: "Mayoría entre 300-350 kg (42 animales)"
 
   - id: dias_abiertos_individual
     categoria: reproduccion
@@ -438,6 +538,11 @@ preguntas:
     output_esperado: "%"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val:'NN%',lbl:'Tasa preñez',color:ok|warn|bad}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "Tasa de preñez: 68% (28/41 inseminadas)"
 
   - id: edad_primer_parto
     categoria: reproduccion
@@ -550,6 +655,11 @@ preguntas:
     output_esperado: "lista de animal_ids + diagnósticos"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartTable
+      data_shape: "columns:[diio,diagnostico,fecha]; rows:[{diio:string, diagnostico:string, fecha:date}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "5 animales en tratamiento activo"
 
   - id: diagnosticos_frecuentes
     categoria: sanidad_tratamientos
@@ -564,6 +674,11 @@ preguntas:
     output_esperado: "lista de diagnósticos con frecuencia"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartBar
+      data_shape: "[{x: diagnostico, y: frecuencia}]"
+      narrativa_max_palabras: 12
+      ejemplo_narrativa: "Diagnóstico más frecuente: diarrea (8 casos)"
 
   - id: medicamentos_usados
     categoria: sanidad_tratamientos
@@ -691,6 +806,11 @@ preguntas:
     output_esperado: "distribución por destino"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartDonut
+      data_shape: "[{label: destino, value: cantidad}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "34 ventas: 20 matadero, 14 remate"
 
   - id: ingresos_ventas
     categoria: ventas_destino
@@ -762,6 +882,11 @@ preguntas:
     output_esperado: "número entero"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Animales en feedlot'}]"
+      narrativa_max_palabras: 8
+      ejemplo_narrativa: "523 animales en feedlot activo"
 
   - id: lotes_activos
     categoria: feedlot_gestión
@@ -776,6 +901,11 @@ preguntas:
     output_esperado: "número entero"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Lotes activos'}]"
+      narrativa_max_palabras: 6
+      ejemplo_narrativa: "7 lotes en producción"
 
   - id: capacidad_feedlot
     categoria: feedlot_gestión
@@ -862,6 +992,11 @@ preguntas:
     output_esperado: "número entero"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val: number, lbl: 'Animales en potrero'}]"
+      narrativa_max_palabras: 8
+      ejemplo_narrativa: "Potrero Norte: 45 animales (2.1/ha)"
 
   - id: carga_potrero
     categoria: potrero_movimientos
@@ -876,6 +1011,11 @@ preguntas:
     output_esperado: "animales/hectárea"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[{val:'X.X/ha',lbl:'Carga animal'}]"
+      narrativa_max_palabras: 10
+      ejemplo_narrativa: "Carga: 2.1 animales/ha (dentro de capacidad)"
 
   - id: rotacion_potreros
     categoria: potrero_movimientos
@@ -946,6 +1086,11 @@ preguntas:
     output_esperado: "tabla comparativa"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartTable
+      data_shape: "columns:[lote,gdp,peso_prom,animales]; rows:[...]"
+      narrativa_max_palabras: 12
+      ejemplo_narrativa: "FT-1 vs FT-2: FT-1 lidera con 1.28 kg/d"
 
   - id: comparacion_predios
     categoria: comparaciones_kpi
@@ -974,6 +1119,11 @@ preguntas:
     output_esperado: "ranking ordenado"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartTable
+      data_shape: "columns:[rank,lote,valor]; rows:[{rank:number, lote:string, valor:number}]"
+      narrativa_max_palabras: 12
+      ejemplo_narrativa: "Top: FT-1 con 1.28 kg/d, 4 lotes rankeados"
 
   - id: kpi_produccion
     categoria: comparaciones_kpi
@@ -988,6 +1138,11 @@ preguntas:
     output_esperado: "dashboard de KPI"
     frecuencia_estimada: alta
     factible: true
+    artifact_template:
+      component: ChartKpi
+      data_shape: "kpis:[gdp,peso_prom,prenhez,bajas], rows:[animales,lotes,pesajes]"
+      narrativa_max_palabras: 15
+      ejemplo_narrativa: "GDP 0.94 kg/d, preñez 68%, 523 animales activos"
 
   - id: tendencia_temporal
     categoria: comparaciones_kpi
@@ -1002,6 +1157,11 @@ preguntas:
     output_esperado: "gráfico de tendencia"
     frecuencia_estimada: media
     factible: true
+    artifact_template:
+      component: ChartLine
+      data_shape: "[{x: mes, y: valor_metrica}]"
+      narrativa_max_palabras: 12
+      ejemplo_narrativa: "GDP subió de 0.8 a 0.94 kg/d en 3 meses"
 
   - id: desviacion_objetivo
     categoria: comparaciones_kpi

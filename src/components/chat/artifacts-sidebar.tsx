@@ -4,10 +4,7 @@ import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
-import {
-  BarChart, Bar, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from "recharts";
+import { ChartBar, ChartLine } from "@/src/components/charts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -429,41 +426,13 @@ function StructuredChart({ data }: { data: { title?: string; variant?: "bar" | "
   const variant = data.variant ?? "bar";
   const rows = (data.data ?? []).map((d) => ({ x: String(d.x), y: Number(d.y) || 0 }));
 
-  const axisStyle = { fill: PALETTE.ink3, fontSize: 11, fontFamily: DM } as const;
-  const gridColor = PALETTE.divider;
-  const barColor = PALETTE.forest;
-
-  const renderChart = () => {
-    if (variant === "line") {
-      return (
-        <LineChart data={rows} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
-          <CartesianGrid stroke={gridColor} strokeDasharray="2 4" vertical={false} />
-          <XAxis dataKey="x" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridColor }} label={data.xLabel ? { value: data.xLabel, position: "insideBottom", offset: -2, style: { fill: PALETTE.ink3, fontSize: 10, fontFamily: DM } } : undefined} />
-          <YAxis tick={axisStyle} tickLine={false} axisLine={{ stroke: gridColor }} label={data.yLabel ? { value: data.yLabel, angle: -90, position: "insideLeft", style: { fill: PALETTE.ink3, fontSize: 10, fontFamily: DM, textAnchor: "middle" } } : undefined} />
-          <Tooltip contentStyle={{ fontFamily: DM, fontSize: 12, borderRadius: 8, border: `.5px solid ${PALETTE.cardBd}`, boxShadow: "0 2px 8px rgba(0,0,0,.08)" }} cursor={{ stroke: gridColor }} />
-          <Line type="monotone" dataKey="y" stroke={barColor} strokeWidth={2} dot={{ fill: barColor, r: 3 }} activeDot={{ r: 5 }} />
-        </LineChart>
-      );
-    }
-    // bar & histogram — mismo renderer, histogram solo difiere semánticamente
-    return (
-      <BarChart data={rows} margin={{ top: 8, right: 12, left: 0, bottom: 4 }} barCategoryGap={variant === "histogram" ? "4%" : "20%"}>
-        <CartesianGrid stroke={gridColor} strokeDasharray="2 4" vertical={false} />
-        <XAxis dataKey="x" tick={axisStyle} tickLine={false} axisLine={{ stroke: gridColor }} label={data.xLabel ? { value: data.xLabel, position: "insideBottom", offset: -2, style: { fill: PALETTE.ink3, fontSize: 10, fontFamily: DM } } : undefined} />
-        <YAxis tick={axisStyle} tickLine={false} axisLine={{ stroke: gridColor }} label={data.yLabel ? { value: data.yLabel, angle: -90, position: "insideLeft", style: { fill: PALETTE.ink3, fontSize: 10, fontFamily: DM, textAnchor: "middle" } } : undefined} />
-        <Tooltip contentStyle={{ fontFamily: DM, fontSize: 12, borderRadius: 8, border: `.5px solid ${PALETTE.cardBd}`, boxShadow: "0 2px 8px rgba(0,0,0,.08)" }} cursor={{ fill: PALETTE.divider }} />
-        <Bar dataKey="y" fill={barColor} radius={[4, 4, 0, 0]} />
-      </BarChart>
-    );
-  };
-
   return (
     <ArtCard title={data.title}>
-      <div style={{ width: "100%", height: 260, fontFamily: DM }}>
-        <ResponsiveContainer width="100%" height="100%">
-          {renderChart()}
-        </ResponsiveContainer>
-      </div>
+      {variant === "line" ? (
+        <ChartLine data={rows} xLabel={data.xLabel} yLabel={data.yLabel} height={260} />
+      ) : (
+        <ChartBar data={rows} xLabel={data.xLabel} yLabel={data.yLabel} height={260} />
+      )}
     </ArtCard>
   );
 }

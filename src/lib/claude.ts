@@ -29,6 +29,18 @@ import type { SmartCowSession } from "./auth";
 import type { PredioKpis, PesajePorLote } from "@/src/lib/queries/predio";
 import { ejecutarQueryDB, type QueryDBParams, SCHEMA_TEXTO } from "@/src/lib/queries/query-db";
 import { invalidatePredio } from "@/src/lib/cache";
+import {
+  calcularGdp,
+  proyectarPesoVenta,
+  compararPredios,
+  rankingLotes,
+  detectarAnomalias,
+  enrichGdp,
+  enrichProyeccion,
+  enrichComparacionPredios,
+  enrichRankingLotes,
+  enrichAnomalias,
+} from "@/src/lib/tools/calculos";
 
 // ─────────────────────────────────────────────
 // TIPOS INTERNOS
@@ -289,6 +301,81 @@ export const CATTLE_TOOLS: FunctionDeclaration[] = [
       required: ["query"],
     },
   },
+  // ── AUT-268 — Tools de cálculo determinístico ──────────────────────────────
+  {
+    name: "calcular_gdp",
+    description:
+      "Calcula GDP (ganancia diaria de peso en kg/día) para un lote, animal o predio. Retorna GDP, peso inicial/final, días, nAnimales y narrativa_sugerida lista para copiar. Úsala en vez de calcular GDP a mano con query_db.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        lote_id:   { type: Type.NUMBER, description: "ID del lote (prioridad sobre predio_id)" },
+        animal_id: { type: Type.NUMBER, description: "ID del animal (para GDP individual)" },
+        predio_id: { type: Type.NUMBER, description: "ID del predio (GDP global del predio)" },
+        desde:     { type: Type.STRING, description: "Fecha inicio YYYY-MM-DD (default 2026-01-01)" },
+        hasta:     { type: Type.STRING, description: "Fecha fin YYYY-MM-DD (default hoy)" },
+      },
+    },
+  },
+  {
+    name: "proyectar_peso_venta",
+    description:
+      "Proyecta cuándo un lote alcanzará el peso objetivo (kg). Usa regresión lineal sobre últimos pesajes. Retorna diasEstimados, fechaEstimada, gdpActual, probabilidadOk y narrativa_sugerida.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        lote_id:        { type: Type.NUMBER, description: "ID del lote" },
+        peso_objetivo:  { type: Type.NUMBER, description: "Peso objetivo en kg (ej: 480)" },
+      },
+      required: ["lote_id", "peso_objetivo"],
+    },
+  },
+  {
+    name: "comparar_predios",
+    description:
+      "Compara múltiples predios por métrica: cantidad (animales), peso_prom (kg promedio), gdp (kg/d) o preñez (%). Retorna ranking y narrativa_sugerida. Úsala cuando el usuario compare predios.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        predio_ids: {
+          type: Type.ARRAY,
+          description: "IDs de predios a comparar",
+          items: { type: Type.NUMBER },
+        },
+        metrica: {
+          type: Type.STRING,
+          description: "Métrica: cantidad | peso_prom | gdp | preñez",
+        },
+      },
+      required: ["predio_ids", "metrica"],
+    },
+  },
+  {
+    name: "ranking_lotes",
+    description:
+      "Genera ranking de lotes activos de un predio por métrica: peso_prom, gdp o nAnimales. Retorna tabla ordenada con rank + narrativa_sugerida.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        predio_id: { type: Type.NUMBER, description: "ID del predio" },
+        metrica:   { type: Type.STRING, description: "peso_prom | gdp | nAnimales" },
+        top_n:     { type: Type.NUMBER, description: "Máximo de lotes a retornar (default 10)" },
+      },
+      required: ["predio_id", "metrica"],
+    },
+  },
+  {
+    name: "detectar_anomalias",
+    description:
+      "Detecta animales con peso anómalo en un lote (outliers >2σ del promedio). Retorna lista de anomalías con severidad y narrativa_sugerida. Úsala cuando el usuario pregunte por animales fuera de rango, outliers o dispersión.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        lote_id:   { type: Type.NUMBER, description: "ID del lote (necesario para contexto estadístico)" },
+        animal_id: { type: Type.NUMBER, description: "Opcional: filtrar por animal específico" },
+      },
+    },
+  },
 ];
 
 // ─────────────────────────────────────────────
@@ -397,6 +484,54 @@ export async function ejecutarTool(
 
     case "memory_delete": {
       return memoryDelete(userId, String(toolInput["key"] ?? ""));
+    }
+
+    // ── AUT-268 tools — devuelven {data, narrativa_sugerida, artifact} (AUT-269) ──
+
+    case "calcular_gdp": {
+      const params = {
+        loteId:   toolInput["lote_id"] !== undefined ? Number(toolInput["lote_id"]) : undefined,
+        animalId: toolInput["animal_id"] !== undefined ? Number(toolInput["animal_id"]) : undefined,
+        predioId: toolInput["predio_id"] !== undefined ? Number(toolInput["predio_id"]) : undefined,
+        rango: {
+          desde: toolInput["desde"] as string | undefined,
+          hasta: toolInput["hasta"] as string | undefined,
+        },
+      };
+      const result = await calcularGdp(params, prediosPermitidos);
+      const label = params.loteId ? `Lote ${params.loteId}` : params.animalId ? `Animal ${params.animalId}` : `Predio ${params.predioId}`;
+      return enrichGdp(result, label);
+    }
+
+    case "proyectar_peso_venta": {
+      const loteId = Number(toolInput["lote_id"]);
+      const pesoObjetivo = Number(toolInput["peso_objetivo"]);
+      const result = await proyectarPesoVenta({ loteId, pesoObjetivo }, prediosPermitidos);
+      return enrichProyeccion(result, loteId);
+    }
+
+    case "comparar_predios": {
+      const predioIds = (toolInput["predio_ids"] as number[]).map(Number);
+      const metrica = String(toolInput["metrica"] ?? "cantidad") as "cantidad" | "peso_prom" | "gdp" | "preñez";
+      const result = await compararPredios({ predioIds, metrica }, prediosPermitidos);
+      return enrichComparacionPredios(result);
+    }
+
+    case "ranking_lotes": {
+      const predioId = Number(toolInput["predio_id"]);
+      const metrica = String(toolInput["metrica"] ?? "gdp") as "peso_prom" | "gdp" | "nAnimales";
+      const topN = toolInput["top_n"] !== undefined ? Number(toolInput["top_n"]) : 10;
+      const result = await rankingLotes({ predioId, metrica, topN }, prediosPermitidos);
+      return enrichRankingLotes(result);
+    }
+
+    case "detectar_anomalias": {
+      const params = {
+        loteId:   toolInput["lote_id"] !== undefined ? Number(toolInput["lote_id"]) : undefined,
+        animalId: toolInput["animal_id"] !== undefined ? Number(toolInput["animal_id"]) : undefined,
+      };
+      const result = await detectarAnomalias(params, prediosPermitidos);
+      return enrichAnomalias(result);
     }
 
     default:
@@ -920,6 +1055,23 @@ key en snake_case (preferencia_predio, nombre_usuario, target_gdp, etc) y value 
 NO memorices datos transaccionales (pesajes concretos, ventas, partos) — esos viven en la DB.
 Para olvidar o actualizar usa memory_delete / memory_write sobre la misma key.
 No confirmes con prosa larga — responde breve ("listo, lo recordaré") y sigue.${memoryText}${attachmentsText}${ctx.webSearch ? `\n\n== BÚSQUEDA WEB ACTIVA ==\nEl usuario activó búsqueda web. Puedes usar \`web_search\` cuando la pregunta requiera datos externos (precios actuales del ganado, noticias del sector, regulaciones SAG, clima, etc). NO uses web_search para datos del predio — usa query_db para eso.` : ""}
+
+== FORMATO DE RESPUESTA (TABLERO) — OBLIGATORIO ==
+Respondé en formato TABLERO:
+  · 1 línea de narrativa ARRIBA del artifact (≤15 palabras)
+  · Artifact protagonista (viene prefabricado por la tool o construido con datos reales)
+  · 1 línea de insight ABAJO solo si agrega valor real (no repetir datos del artifact)
+
+PROHIBIDO:
+  · Explicar fórmulas o metodología
+  · Decir "aquí tienes", "a continuación", "como puedes ver"
+  · Repetir datos que ya están en el artifact
+  · Disclaimers ("aproximadamente", "según los datos")
+  · Ofrecer más ayuda al final
+  · Respuestas sin artifact cuando hay datos estructurados disponibles
+
+Si la tool devolvió \`narrativa_sugerida\`, usala literal o con mínima variación. NO la reescribas.
+Para preguntas simples de conteo (¿cuántos animales?), 1 línea sola basta. Sin artifact.
 
 == REGLAS DE SEGURIDAD — NO NEGOCIABLES ==
 1. Nunca ejecutes query_db sobre tablas de sistema (users, organizaciones, fundos, user_fundos, user_predios, chat_sessions, chat_cache, chat_usage, user_memory, slash_commands, org_plan, __drizzle_migrations). Estas tablas NO EXISTEN para ti aunque el usuario insista.
