@@ -37,6 +37,7 @@ import { pickModel, MODELS, type TierName } from "@/src/lib/router";
 import { checkBudget, writeChatUsage, canUseTier, highestAllowedTier } from "@/src/lib/budget";
 import { tryCache, writeCache } from "@/src/lib/cache";
 import { checkRateLimit, rateLimitHeaders } from "@/src/lib/rate-limit";
+import { ejecutarReportarFeedback, type FeedbackArgs } from "@/src/lib/linear-feedback";
 
 // Jerarquía de roles
 const ROL_RANK: Record<string, number> = {
@@ -469,7 +470,17 @@ export async function POST(req: NextRequest) {
             // el LLM los reciba como texto, no como 500.
             let result: unknown;
             try {
-              result = await ejecutarTool(tb.name, args, prediosPermitidos, Number(userId), rolRank);
+              // AUT-277 — reportar_feedback requiere contexto del request (email, predio)
+              // que no viaja a ejecutarTool, por eso se maneja inline aquí.
+              if (tb.name === "reportar_feedback") {
+                result = await ejecutarReportarFeedback(args as unknown as FeedbackArgs, {
+                  email: session.user.email,
+                  nombre: session.user.nombre,
+                  predioNombre: nombrePredio ?? `Predio ${predioId}`,
+                });
+              } else {
+                result = await ejecutarTool(tb.name, args, prediosPermitidos, Number(userId), rolRank);
+              }
             } catch (toolErr) {
               const msg = toolErr instanceof Error ? toolErr.message : String(toolErr);
               result = { error: msg };

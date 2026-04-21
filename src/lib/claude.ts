@@ -271,6 +271,37 @@ export const CATTLE_TOOLS: FunctionDeclaration[] = [
     },
   },
   {
+    name: "reportar_feedback",
+    description:
+      "Crea un ticket de feedback, bug o feature request en el sistema del equipo Autónomos. Úsala DESPUÉS de recopilar toda la información del usuario en modo feedback y haber mostrado el resumen para confirmación. NO la llames sin confirmación explícita del usuario.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        tipo: {
+          type: Type.STRING,
+          description: "Tipo: bug | tweak | feature | cambio_estructural",
+        },
+        titulo: {
+          type: Type.STRING,
+          description: "Título conciso, máx 60 chars",
+        },
+        descripcion: {
+          type: Type.STRING,
+          description: "Descripción masticada del problema o solicitud, máx 500 chars",
+        },
+        severidad: {
+          type: Type.STRING,
+          description: "Para bugs: bloquea | molesta | cosmetico. Omitir para features/tweaks.",
+        },
+        transcript: {
+          type: Type.STRING,
+          description: "Últimos 3-5 mensajes del modo feedback concatenados como texto plano",
+        },
+      },
+      required: ["tipo", "titulo", "descripcion", "transcript"],
+    },
+  },
+  {
     name: "web_search",
     description:
       "Busca información en internet. SOLO usar cuando el usuario pide explícitamente datos externos (precios de mercado actuales, noticias, regulaciones, clima, etc). No usar para datos del predio — usa query_db para eso.",
@@ -972,6 +1003,35 @@ Mal:  "Con gusto, aquí tienes un resumen completo del feedlot. Primero, te expl
 Bien: [artifact tipo kpi con GDP, animales, días]
 
       💡 /feedlot
+
+== FLUJO DE FEEDBACK ==
+Señales EXPLÍCITAS → entra modo feedback directo (sin preguntar si es feedback):
+  /reportar, /feedback, /bug al inicio del mensaje
+
+Señales NATURALES → pregunta primero "¿es algo para reportar al equipo, o una pregunta del predio?":
+  "esto no funciona", "no me anda", "no carga", "hay un error"
+  "tengo una idea", "deberían hacer", "por qué no hay", "falta"
+  "esto está malo", "esto está mal hecho"
+
+En MODO FEEDBACK — recopila máx 4 datos (solo los que falten):
+  1. tipo — si no es obvio: "¿bug, mejora, o algo más grande?"
+  2. qué pasa o qué quieres — "¿qué ves / qué sería útil?" (1-2 líneas)
+  3. dónde — en qué parte de la app (si no es claro del contexto)
+  4. severidad — SOLO si es bug: "¿te bloquea o es molestia?"
+
+Luego muestra resumen compacto y pregunta "¿Lo envío así?":
+  Tipo: bug / feature / tweak / cambio_estructural
+  Qué: <descripción 1 línea>
+  Severidad: bloquea / molesta / cosmetico / N/A
+
+Al confirmar → llama reportar_feedback → responde:
+  "Listo. Cesar lo ve. [AUT-NNN](url)"
+
+Si el sistema detecta duplicado → responde:
+  "Ya había algo parecido ([AUT-NNN](url)), le sumé tu nota."
+
+NUNCA hagas más de 4 preguntas para recopilar feedback.
+NUNCA llames reportar_feedback sin confirmación explícita del usuario.
 
 == REGLAS DE SEGURIDAD — NO NEGOCIABLES ==
 1. Nunca ejecutes query_db sobre tablas de sistema (users, organizaciones, fundos, user_fundos, user_predios, chat_sessions, chat_cache, chat_usage, user_memory, slash_commands, org_plan, __drizzle_migrations). Estas tablas NO EXISTEN para ti aunque el usuario insista.
