@@ -1,10 +1,16 @@
 /**
  * app/api/cron/import-precios-feria/route.ts
- * Endpoint cron para refrescar precios_feria (AUT-267).
+ * Endpoint cron para refrescar precios_feria (AUT-271 / AUT-267).
+ *
+ * Fuente: ODEPA Boletín semanal AFECH (XLSX). Se publica lunes/martes.
+ * Frecuencia recomendada: miércoles 09:00 UTC (06:00 CLT) — garantiza
+ * que el boletín ya esté publicado antes de importarlo.
  *
  * Protegido con header X-Cron-Secret (comparar contra CRON_SECRET env var).
- * Cron externo (Hostinger VPS crontab, domingos 09:00 UTC = 06:00 CLT):
- *   0 9 * * 0 curl -H "X-Cron-Secret: $SECRET" https://smartcow.cl/api/cron/import-precios-feria
+ * Cron externo (Hostinger VPS crontab):
+ *   0 9 * * 3 curl -X POST -H "X-Cron-Secret: $SECRET" https://smartcow.cl/api/cron/import-precios-feria
+ *
+ * Incremental por defecto: trae boletines con fecha >= (MAX(fecha) - 14d).
  */
 
 import { NextResponse } from "next/server";
@@ -31,6 +37,7 @@ export async function POST(req: Request) {
     const odepa = await importOdepa();
     const tattersall = await importTattersall();
     const total = odepa + tattersall;
+    console.log(`[cron:precios-feria] importadas odepa=${odepa} tattersall=${tattersall}`);
 
     return NextResponse.json({
       ok: true,
