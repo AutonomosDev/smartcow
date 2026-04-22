@@ -1,0 +1,139 @@
+row_num,fundo_u_origen,obs_raw_flat,rx_diio,rx_rut,rx_pesos_kg,rx_pesos_pv,rx_guia,rx_precio_dollar,rx_precio_texto,rx_precio_kg,rx_precio_unitario,rx_cantidad_animal,rx_fecha_dd_mm_yyyy,rx_fecha_texto,rx_patente_auto,rx_camion_prefix,rx_carro_prefix,rx_kw_compra,rx_kw_venta,rx_kw_traslado,rx_kw_tratamiento,rx_nombre_propio,rx_url,rx_porcentaje,obs_lines_joined
+5,San Pedro,18 vaquillas secas de San Pedro a engorda Feedlot,,,,,,,,,,18 vaquillas,,,,,,,,,,San Pedro,,,18 vaquillas secas de San Pedro a engorda Feedlot
+17,Recría FT,140 novillos de recría FT a Temuco Ft,,,,,,,,,,140 novillos,,,,,,,,,,,,,140 novillos de recría FT a Temuco Ft
+18,Aguas Buenas,146 vaquillas de aguas buenas destino Feedlot,,,,,,,,,,146 vaquillas,,,,,,,,,,,,,146 vaquillas de aguas buenas destino Feedlot
+19,Arriendo Santa Isabel,traslado vaquillas vacias 146,,,,,,,,,,,,,,,,,,traslado,,,,,traslado vaquillas vacias 146
+22,Arriendo Santa Isabel,"traslado de 2 vaquillas que no se genero físicamente, solo por el programa",,,,,,,,,,2 vaquillas,,,,,,,,traslado,,,,,"traslado de 2 vaquillas que no se genero físicamente, solo por el programa"
+23,Arriendo Santa Isabel,32 vaquillas de Santa Isabel destino Feedlot,,,,,,,,,,32 vaquillas,,,,,,,,,,Santa Isabel,,,32 vaquillas de Santa Isabel destino Feedlot
+24,Arriendo las quebradas,10 novillos de arriendo las quebradas con destino Feedlot,,,,,,,,,,10 novillos,,,,,,,,,,,,,10 novillos de arriendo las quebradas con destino Feedlot
+25,Arriendo Santa Isabel,110 vaquillas de Santa Isabel con destino Feedlot,,,,,,,,,,110 vaquillas,,,,,,,,,,Santa Isabel,,,110 vaquillas de Santa Isabel con destino Feedlot
+26,Arriendo las quebradas,traslado de 116 terneros al feedlot desde Regina,,,,,,,,,,116 terneros,,,,,,,,traslado,,,,,traslado de 116 terneros al feedlot desde Regina
+29,San Pedro,2 vaquillas de San Pedro a Feedlot,,,,,,,,,,2 vaquillas,,,,,,,,,,San Pedro,,,2 vaquillas de San Pedro a Feedlot
+30,Recría Feedlot,2 vaquillas más 1 ternero de recria a Feedlot,,,,,,,,,,2 vaquillas | 1 ternero,,,,,,,,,,,,,2 vaquillas más 1 ternero de recria a Feedlot
+31,feedlot,1 torete de feedlot a recria,,,,,,,,,,,,,,,,,,,,,,,1 torete de feedlot a recria
+32,Recría Feedlot,1 torete de recria a Feedlot,,,,,,,,,,,,,,,,,,,,,,,1 torete de recria a Feedlot
+33,Recría Feedlot,2 vaquillas a sta Isabel,,,,,,,,,,2 vaquillas,,,,,,,,,,,,,2 vaquillas a sta Isabel
+34,Recría Feedlot,77 novillos a Engorda,,,,,,,,,,77 novillos,,,,,,,,,,,,,77 novillos a Engorda
+35,Recría Feedlot,4 machos a las quebradas,,,,,,,,,,,,,,,,,,,,,,,4 machos a las quebradas
+36,Recría Feedlot,76 Hembras a Santa Isabel,,,,,,,,,,,,,,,,,,,,Santa Isabel,,,76 Hembras a Santa Isabel
+38,Recría Feedlot,191 vaquillas a Santa Isabel,,,,,,,,,,191 vaquillas,,,,,,,,,,Santa Isabel,,,191 vaquillas a Santa Isabel
+39,Recría Feedlot,157 vaquillas a sta Isabel,,,,,,,,,,157 vaquillas,,,,,,,,,,,,,157 vaquillas a sta Isabel
+40,Recría Feedlot,machos,,,,,,,,,,,,,,,,,,,,,,,machos
+41,Recría Feedlot,82 novillos de recria a feedlot,,,,,,,,,,82 novillos,,,,,,,,,,,,,82 novillos de recria a feedlot
+45,Recría Feedlot,100 vaquillas a Engorda,,,,,,,,,,100 vaquillas,,,,,,,,,,,,,100 vaquillas a Engorda
+46,San Pedro,vaquillas flaca,,,,,,,,,,,,,,,,,,,,,,,vaquillas flaca
+47,San Pedro,4 vaquillas de San Pedro a feedlot,,,,,,,,,,4 vaquillas,,,,,,,,,,San Pedro,,,4 vaquillas de San Pedro a feedlot
+48,Recría Feedlot,94 Hembras a Engorda,,,,,,,,,,,,,,,,,,,,,,,94 Hembras a Engorda
+49,feedlot,2 vaquillas secas chicas,,,,,,,,,,2 vaquillas,,,,,,,,,,,,,2 vaquillas secas chicas
+50,Recría Feedlot,91 novillos a engorda,,,,,,,,,,91 novillos,,,,,,,,,,,,,91 novillos a engorda
+51,Arriendo Santa Isabel,traslado de vaquillas a Feedlot,,,,,,,,,,,,,,,,,,traslado,,,,,traslado de vaquillas a Feedlot
+52,Arriendo Santa Isabel,traslado de 286 vaquillas Preñadas + 1 vaquilla Vacia + 1 cría total 288,,,,,,,,,,286 vaquillas | 1 vaquilla,,,,,,,,traslado,,,,,traslado de 286 vaquillas Preñadas + 1 vaquilla Vacia + 1 cría total 288
+53,Arriendo las quebradas,traslado Recria a Feedlot,,,,,,,,,,,,,,,,,,traslado,,,,,traslado Recria a Feedlot
+54,San Pedro,1 ternero,,,,,,,,,,1 ternero,,,,,,,,,,,,,1 ternero
+56,San Pedro,4 terneros charros,,,,,,,,,,4 terneros,,,,,,,,,,,,,4 terneros charros
+57,San Pedro,3 vacas vacias 1 ternero,,,,,,,,,,3 vacas | 1 ternero,,,,,,,,,,,,,3 vacas vacias ‖ 1 ternero
+58,San Pedro,ternero cambio de diio,,,,,,,,,,,,,,,,,,,,,,,ternero cambio de diio
+64,San Pedro,ternero,,,,,,,,,,,,,,,,,,,,,,,ternero
+66,San Pedro,150 terneros destete a las quebradas,,,,,,,,,,150 terneros,,,,,,,,,,,,,150 terneros destete a las quebradas
+67,San Pedro,traslado 106 terneros de San Pedro a recría feedlot encerrados 1 de marzo 26437205 DIIO no existe desparasitados dectomax 4cc vacuna Clostribac 2cc,26437205,,,,,,,,,106 terneros,,1 de marzo,,,,,,traslado,,San Pedro,,,traslado 106 terneros de San Pedro a recría  feedlot encerrados 1 de marzo 26437205 DIIO no existe ‖ desparasitados dectomax 4cc ‖ vacuna Clostribac 2cc
+68,Arriendo Santa Isabel,traslado 5 toretes,,,,,,,,,,,,,,,,,,traslado,,,,,traslado 5 toretes
+69,Arriendo Santa Isabel,traslado 51 vaquillas vacias desde sta isabel a feedlot...,,,,,,,,,,51 vaquillas,,,,,,,,traslado,,,,,traslado 51 vaquillas vacias desde sta isabel a feedlot...
+70,San Pedro,traslado 54 terneros destetado desde san pedro a las quebradas,,,,,,,,,,54 terneros,,,,,,,,traslado,,,,,traslado  54 terneros destetado desde san pedro a las quebradas
+71,Arriendo Santa Isabel,traslado 55 vaquillas vacias desde sta isabel a feedlot,,,,,,,,,,55 vaquillas,,,,,,,,traslado,,,,,traslado 55 vaquillas vacias desde sta isabel a feedlot
+72,San Pedro,traslado 75 terneros a las quebradas,,,,,,,,,,75 terneros,,,,,,,,traslado,,,,,traslado 75 terneros  a las quebradas
+73,Arriendo las quebradas,58 novillos de arriendo las quebradas con destino Feedlot,,,,,,,,,,58 novillos,,,,,,,,,,,,,58 novillos de arriendo las quebradas con destino Feedlot
+74,Aguas Buenas,116 novillos de aguas buenas con destino Feedlot,,,,,,,,,,116 novillos,,,,,,,,,,,,,116 novillos de aguas buenas con destino Feedlot
+75,Arriendo las quebradas,116 novillos de arriendo las quebradas con destino Feedlot,,,,,,,,,,116 novillos,,,,,,,,,,,,,116 novillos de arriendo las quebradas con destino Feedlot
+76,San Pedro,75 terneros traslado a las quebradas kg18.650,,,,,,,,,,75 terneros,,,,,,,,traslado,,,,,75 terneros  traslado a las quebradas  kg18.650
+77,San Pedro,traslado 75 terneros a las quebradas kg 14880,,,,,,,,,,75 terneros,,,,,,,,traslado,,,,,traslado 75 terneros a las quebradas kg 14880
+78,San Pedro,76 terneros destetados a las quebradas kg 14.820,,,,,,,,,,76 terneros,,,,,,,,,,,,,76 terneros destetados a las quebradas kg 14.820
+79,feedlot,vacas vacias 38 para venta en san pedro,,,,,,,,,,,,,,,,,venta,,,,,,vacas vacias 38 para venta en san pedro
+80,San Pedro,vacas vacias 38,,,,,,,,,,,,,,,,,,,,,,,vacas vacias 38
+81,Arriendo las quebradas,49 novillos a engorda.. feedlot los lagos,,,,,,,,,,49 novillos,,,,,,,,,,,,,49 novillos a engorda.. feedlot los lagos
+82,Arriendo las quebradas,53 novillos de las Quebradas con destino Feedlot,,,,,,,,,,53 novillos,,,,,,,,,,,,,53 novillos de las Quebradas con destino Feedlot
+83,Arriendo Santa Isabel,56 vaquillas de Santa Isabel con destino Feedlot,,,,,,,,,,56 vaquillas,,,,,,,,,,Santa Isabel,,,56 vaquillas de Santa Isabel con destino Feedlot
+85,Arriendo las quebradas,5 novillos de las Quebradas con destino Santa Isabel,,,,,,,,,,5 novillos,,,,,,,,,,Santa Isabel,,,5 novillos de las Quebradas con destino Santa Isabel
+86,Arriendo las quebradas,20 toretes de las Quebradas con destino San Pedro,,,,,,,,,,,,,,,,,,,,San Pedro,,,20 toretes de las Quebradas con destino San Pedro
+87,Arriendo las quebradas,31 novillos de las Quebradas destino Feedlot,,,,,,,,,,31 novillos,,,,,,,,,,,,,31 novillos de las Quebradas destino Feedlot
+89,feedlot,1 torete,,,,,,,,,,,,,,,,,,,,,,,1 torete
+90,feedlot,traslado de 6 vacas desecho preñadas a san pedro,,,,,,,,,,6 vacas,,,,,,,,traslado,,,,,traslado de 6 vacas desecho preñadas a san pedro
+91,feedlot,49 terneros a las Quebradas (camión 2),,,,,,,,,,49 terneros,,,,camión 2,,,,,,,,,49 terneros a las Quebradas (camión 2)
+92,feedlot,47 novillos a Las Quebradas (camión 1),,,,,,,,,,47 novillos,,,,camión 1,,,,,,Las Quebradas,,,47 novillos a Las Quebradas (camión 1)
+93,feedlot,60 vaquillas a Santa Isabel (camión 3),,,,,,,,,,60 vaquillas,,,,camión 3,,,,,,Santa Isabel,,,60 vaquillas a Santa Isabel (camión 3)
+94,feedlot,60 vaquillas a Santa Isabel (camión 2),,,,,,,,,,60 vaquillas,,,,camión 2,,,,,,Santa Isabel,,,60 vaquillas a Santa Isabel (camión 2)
+95,feedlot,60 vaquillas a Santa Isabel (camión 1),,,,,,,,,,60 vaquillas,,,,camión 1,,,,,,Santa Isabel,,,60 vaquillas a Santa Isabel (camión 1)
+97,San Pedro,22 vacas traslado San Pedro a feedlot,,,,,,,,,,22 vacas,,,,,,,,traslado,,San Pedro,,,22 vacas traslado San Pedro a feedlot
+98,feedlot,novillo arrancado,,,,,,,,,,,,,,,,,,,,,,,novillo arrancado
+100,San Pedro,2 vacas secas,,,,,,,,,,2 vacas,,,,,,,,,,,,,2 vacas secas
+101,San Pedro,33 animales vacíos de palpación,,,,,,,,,,,,,,,,,,,,,,,33 animales vacíos de palpación
+102,San Pedro,2 terneras crianza a recría feedlot,,,,,,,,,,2 terneras,,,,,,,,,,,,,2 terneras crianza a recría feedlot
+103,San Pedro,vacas vacias palpación,,,,,,,,,,,,,,,,,,,,,,,vacas vacias palpación
+105,Arriendo las quebradas,6cc Solution 2cc RB-51,,,,,,,,,,,,,RB-51,,,,,,,,,,6cc Solution ‖ 2cc RB-51
+107,Aguas Buenas,traslado terneros,,,,,,,,,,,,,,,,,,traslado,,,,,traslado terneros
+108,Aguas Buenas,traslado terneros hacia sta Isabel...,,,,,,,,,,,,,,,,,,traslado,,,,,traslado terneros hacia sta Isabel...
+109,San Pedro,traslado desde San Pedro a las quebradas 202 terneros machos promedio 210 kl,,,,,,,,,,202 terneros,,,,,,,,traslado,,San Pedro,,,traslado desde San Pedro a las quebradas 202 terneros machos promedio 210 kl
+110,feedlot,venta 130 novillos a Mollendo,,,,,,,,,,130 novillos,,,,,,,venta,,,,,,venta 130 novillos a Mollendo
+111,San Pedro,destete terneros desde san pedro hacia las quebradas,,,,,,,,,,,,,,,,,,,,,,,destete terneros desde san pedro hacia las quebradas
+112,San Pedro,destete terneros a las quebradas,,,,,,,,,,,,,,,,,,,,,,,destete terneros a las quebradas
+113,San Pedro,traslado terneros destetado desde San Pedro hacia Sta Isabel,,,,,,,,,,,,,,,,,,traslado,,San Pedro | Sta Isabel,,,traslado terneros destetado desde San Pedro hacia Sta Isabel
+114,San Pedro,traslado terneros destetado desde San Pedro hacia Sta Isabel...,,,,,,,,,,,,,,,,,,traslado,,San Pedro | Sta Isabel,,,traslado terneros destetado desde San Pedro hacia Sta Isabel...
+116,Arriendo Santa Isabel,traslado 263 animales de Sta Isabel a Feedlot,,,,,,,,,,,,,,,,,,traslado,,Sta Isabel,,,traslado 263 animales de Sta Isabel a Feedlot
+117,Arriendo las quebradas,traslado 349 animales de las Quebradas al feedlot,,,,,,,,,,,,,,,,,,traslado,,,,,traslado 349 animales de las Quebradas al feedlot
+118,Arriendo Santa Isabel,55 animales al feedlot + Diio 22619295,22619295,,,,,,,,,,,,,,,,,,,,,,55 animales al feedlot + Diio 22619295
+123,Aguas Buenas,55 terneros a las quebradas,,,,,,,,,,55 terneros,,,,,,,,,,,,,55 terneros a las quebradas
+124,Aguas Buenas,34 terneros a Sta isabel,,,,,,,,,,34 terneros,,,,,,,,,,,,,34 terneros a Sta isabel
+125,San Pedro,16 vaquillas a Sta isabel,,,,,,,,,,16 vaquillas,,,,,,,,,,,,,16 vaquillas a Sta isabel
+127,Arriendo Santa Isabel,18 toretes a feedlot,,,,,,,,,,,,,,,,,,,,,,,18 toretes a feedlot
+128,Arriendo las quebradas,7 Toretes a feedlot,,,,,,,,,,,,,,,,,,,,,,,7 Toretes a feedlot
+129,Arriendo Santa Isabel,110 machos a Las quebradas (forraje),,,,,,,,,,,,,,,,,,,,,,,110 machos a Las quebradas (forraje)
+130,San Pedro,2 vacas abortadas,,,,,,,,,,2 vacas,,,,,,,,,,,,,2 vacas abortadas
+131,San Pedro,traslado de vacas y vaquillas Vacías al feedlot.,,,,,,,,,,,,,,,,,,traslado,,,,,traslado de vacas y vaquillas Vacías al feedlot.
+132,San Pedro,146 terneras a Sta isabel,,,,,,,,,,146 terneras,,,,,,,,,,,,,146 terneras a Sta isabel
+133,San Pedro,5 vacas secas,,,,,,,,,,5 vacas,,,,,,,,,,,,,5 vacas secas
+134,San Pedro,vacias,,,,,,,,,,,,,,,,,,,,,,,vacias
+135,San Pedro,"traslado 266 terneros con guías de despacho 2288, 2289, 2290 y 2291",,,,,,,,,,266 terneros,,,,,,,despacho,traslado,,,,,"traslado 266 terneros con guías de despacho 2288, 2289, 2290 y 2291"
+136,San Pedro,"Traslado de 319 terneros a las quebradas con Guías de despacho 2292, 2293, 2294 y 2295",,,,,,,,,,319 terneros,,,,,,,despacho,Traslado,,,,,"Traslado de 319 terneros a las quebradas con Guías de despacho 2292, 2293, 2294 y 2295"
+139,Arriendo las quebradas,traslado de 6 toretes a San pedro,,,,,,,,,,,,,,,,,,traslado,,,,,traslado de 6 toretes a San pedro
+140,Arriendo Santa Isabel,traslado de 207 animales a feedlot,,,,,,,,,,,,,,,,,,traslado,,,,,traslado de 207 animales a feedlot
+141,Arriendo las quebradas,96 novillos a feedlot,,,,,,,,,,96 novillos,,,,,,,,,,,,,96 novillos a feedlot
+142,Arriendo Santa Isabel,"traslado de 141 cabezas desde sta isabel a feedlot Guias de Despacho N 2279, 2280, 2281",,,,,,,,,,,,,,,,,Despacho,traslado,,,,,"traslado de 141 cabezas desde sta isabel a feedlot Guias de Despacho N 2279, 2280, 2281"
+143,Arriendo las quebradas,"traslado desde fundo las quebradas a Feedlot. guias 2276, 2277, 2278",,,,,,,,,,,,,,,,,,traslado,,,,,"traslado desde fundo las quebradas a Feedlot. guias 2276, 2277, 2278"
+144,Aguas Buenas,38 vaquillas a feedlot,,,,,,,,,,38 vaquillas,,,,,,,,,,,,,38 vaquillas a feedlot
+145,San Pedro,38 vaquillas sin encaste a Feedlot,,,,,,,,,,38 vaquillas,,,,,,,,,,,,,38 vaquillas sin encaste a Feedlot
+148,feedlot,1 ternero,,,,,,,,,,1 ternero,,,,,,,,,,,,,1 ternero
+150,San Pedro,17 vacas vacias,,,,,,,,,,17 vacas,,,,,,,,,,,,,17 vacas vacias
+151,San Pedro,traslado hembras más 1 macho castrado,,,,,,,,,,,,,,,,,,traslado,,,,,traslado hembras más 1 macho castrado
+153,San Pedro,traslado machos destetado,,,,,,,,,,,,,,,,,,traslado,,,,,traslado machos destetado
+155,San Pedro,74 terneros a sta isabel,,,,,,,,,,74 terneros,,,,,,,,,,,,,74 terneros a sta isabel
+156,San Pedro,machos destetados,,,,,,,,,,,,,,,,,,,,,,,machos destetados
+157,San Pedro,vaquillas vacias,,,,,,,,,,,,,,,,,,,,,,,vaquillas vacias
+158,Arriendo Santa Isabel,traslado mix recria a engorda feedlot,,,,,,,,,,,,,,,,,,traslado,,,,,traslado mix recria a engorda feedlot
+159,Arriendo las quebradas,252 animales a feedlot,,,,,,,,,,,,,,,,,,,,,,,252 animales a feedlot
+160,Arriendo las quebradas,traslado vaquillas preñadas 38,,,,,,,,,,,,,,,,,,traslado,,,,,traslado vaquillas preñadas  38
+161,Arriendo Santa Isabel,115 novillos,,,,,,,,,,115 novillos,,,,,,,,,,,,,115 novillos
+163,Arriendo las quebradas,"49 vaqs a feedlot kgs totales: 19.324 promedio: 394,3",,,,,,,,,,,,,,,,,,,,,,,"49 vaqs a feedlot ‖ kgs totales: 19.324 ‖ promedio: 394,3"
+164,Medieria Chacaipulli,142 novillos,,,,,,,,,,142 novillos,,,,,,,,,,,,,142 novillos
+168,Arriendo Santa Isabel,40 terneros,,,,,,,,,,40 terneros,,,,,,,,,,,,,40 terneros
+169,San Pedro,traslado de vaquilla,,,,,,,,,,,,,,,,,,traslado,,,,,traslado de vaquilla
+171,feedlot,"141 novillos con 40.879 kgs bruto y promedio de 289,9 cada uno.",,,40.879 kgs,,,,,,,141 novillos,,,,,,,,,,,,,"141 novillos con 40.879 kgs bruto y promedio de 289,9 cada uno."
+172,Arriendo las quebradas,100 machos angus recria,,,,,,,,,,,,,,,,,,,,,,,100 machos angus recria
+173,San Pedro,terneros y vacas para feddlot,,,,,,,,,,,,,,,,,,,,,,,terneros y vacas para feddlot
+176,San Pedro,70 terneros,,,,,,,,,,70 terneros,,,,,,,,,,,,,70 terneros
+178,San Pedro,machos traslado 230kg pv,,,230kg,230kg pv,,,,,,,,,,,,,,traslado,,,,,machos traslado 230kg pv
+179,San Pedro,traslado de machos,,,,,,,,,,,,,,,,,,traslado,,,,,traslado de machos
+180,feedlot,vaquilla encaste,,,,,,,,,,,,,,,,,,,,,,,vaquilla encaste
+181,San Pedro,engorda,,,,,,,,,,,,,,,,,,,,,,,engorda
+184,Aguas Buenas,80 vaquillas,,,,,,,,,,80 vaquillas,,,,,,,,,,,,,80 vaquillas
+185,feedlot,toretes,,,,,,,,,,,,,,,,,,,,,,,toretes
+186,feedlot,vacas compradas,,,,,,,,,,,,,,,,compra,,,,,,,vacas compradas
+187,feedlot,1 novillo charro,,,,,,,,,,1 novillo,,,,,,,,,,,,,1 novillo charro
+188,San Pedro,destete 4 y 5,,,,,,,,,,,,,,,,,,,,,,,destete 4 y 5
+189,San Pedro,vacías,,,,,,,,,,,,,,,,,,,,,,,vacías
+190,San Pedro,lote 1 destete,,,,,,,,,,,,,,,,,,,,,,,lote 1 destete
+193,San Pedro,vaquilla vacia,,,,,,,,,,,,,,,,,,,,,,,vaquilla vacia
+194,San Pedro,3 vaqs abortadas,,,,,,,,,,,,,,,,,,,,,,,3 vaqs abortadas
+195,San Pedro,100 novillos,,,,,,,,,,100 novillos,,,,,,,,,,,,,100 novillos
+196,San Pedro,AJUSTE DE BASE DE DATOS,,,,,,,,,,,,,,,,,,,,,,,AJUSTE DE BASE DE DATOS
+197,San Pedro,85 vqs con un promedio de 429 kgs y un total de 36526 kgs bruto.,,,429 kgs | 36526 kgs,,,,,,,,,,,,,,,,,,,,85 vqs con un promedio de 429 kgs y un total de 36526 kgs bruto.
+198,feedlot,toretes,,,,,,,,,,,,,,,,,,,,,,,toretes
+199,San Pedro,100 vaquillas con un promedio de 289 kgs y total kgs de 28926,,,289 kgs,,,,,,,100 vaquillas,,,,,,,,,,,,,100 vaquillas con un promedio de 289 kgs y total kgs de 28926
