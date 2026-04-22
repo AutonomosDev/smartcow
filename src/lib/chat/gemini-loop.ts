@@ -11,6 +11,7 @@
  */
 
 import type { Content, FunctionCall, GenerateContentResponse } from "@google/genai";
+import type { LangfuseTraceClient } from "langfuse";
 import { getGoogleAIClient, CATTLE_TOOLS, ejecutarTool } from "@/src/lib/claude";
 import { MODELS } from "@/src/lib/router";
 import type { SmartCowSession } from "@/src/lib/auth";
@@ -25,6 +26,7 @@ export interface GeminiLoopInput {
   rolRank: number;
   webSearch: boolean;
   sendEvent: (data: Record<string, unknown>) => void;
+  trace?: LangfuseTraceClient | null;
 }
 
 export interface GeminiLoopResult {
@@ -71,7 +73,7 @@ function extractArtifacts(text: string): unknown[] {
 }
 
 export async function runGeminiLoop(input: GeminiLoopInput): Promise<GeminiLoopResult> {
-  const { session, systemPrompt, messages, prediosPermitidos, rolRank, webSearch, sendEvent } = input;
+  const { session, systemPrompt, messages, prediosPermitidos, rolRank, webSearch, sendEvent, trace } = input;
 
   const ai = getGoogleAIClient();
 
@@ -96,6 +98,7 @@ export async function runGeminiLoop(input: GeminiLoopInput): Promise<GeminiLoopR
   while (iteraciones < MAX_TOOL_ITERATIONS) {
     iteraciones++;
 
+    const iterStart = Date.now();
     const stream = await ai.models.generateContentStream({
       model: GEMINI_TRIAL_MODEL,
       contents: runContents,
@@ -133,10 +136,38 @@ export async function runGeminiLoop(input: GeminiLoopInput): Promise<GeminiLoopR
 
     // Acumular tokens del último chunk (Gemini emite usageMetadata en el chunk final).
     const usage = lastChunk?.usageMetadata;
-    if (usage) {
-      tokensIn += usage.promptTokenCount ?? 0;
-      tokensOut += usage.candidatesTokenCount ?? 0;
-    }
+    const iterTokensIn = usage?.promptTokenCount ?? 0;
+    const iterTokensOut = usage?.candidatesTokenCount ?? 0;
+    const iterCachedTokens = usage?.cachedContentTokenCount ?? 0;
+    tokensIn += iterTokensIn;
+    tokensOut += iterTokensOut;
+
+    // Generation: gemini_call (AUT-291) — 1 por iteración, paridad con Anthropic.
+    // Langfuse no tiene pricing table para gemini-3.1-flash-lite-preview;
+    // costos se calculan en writeChatUsage via MODELS.trial pricing.
+    trace?.generation({
+      name: "gemini_call",
+      model: GEMINI_TRIAL_MODEL,
+      input: runContents.slice(-3),
+      output: accumulatedText || functionCalls.map((fc) => ({ type: "function_call", name: fc.name })),
+      usage: {
+        input: iterTokensIn,
+        output: iterTokensOut,
+        unit: "TOKENS",
+      },
+      usageDetails: {
+        input: iterTokensIn,
+        output: iterTokensOut,
+        cache_read_input_tokens: iterCachedTokens,
+      },
+      metadata: {
+        provider: "google",
+        iteration: iteraciones,
+        latencyMs: Date.now() - iterStart,
+        cached: iterCachedTokens > 0,
+        toolsRequested: functionCalls.length,
+      },
+    });
 
     // Sin function calls → respuesta final
     if (functionCalls.length === 0) {
@@ -171,6 +202,7 @@ export async function runGeminiLoop(input: GeminiLoopInput): Promise<GeminiLoopR
 
       sendEvent({ type: "tool_use", tool: name, input: args });
 
+      const toolSpanStart = Date.now();
       let result: unknown;
       try {
         result = await ejecutarTool(name, args, prediosPermitidos, Number(session.user.id), rolRank);
@@ -182,6 +214,14 @@ export async function runGeminiLoop(input: GeminiLoopInput): Promise<GeminiLoopR
       if (result && typeof result === "object" && (result as Record<string, unknown>).code === "FORBIDDEN") {
         result = { mensaje: "Predio fuera de tu alcance." };
       }
+
+      // Span: tool:<name> (AUT-291) — paridad con path Anthropic.
+      trace?.span({
+        name: `tool:${name}`,
+        input: args,
+        output: result as Record<string, unknown>,
+        metadata: { latencyMs: Date.now() - toolSpanStart, provider: "google" },
+      });
 
       sendEvent({ type: "tool_result", tool: name, result });
 

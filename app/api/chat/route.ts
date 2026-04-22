@@ -500,8 +500,8 @@ export async function POST(req: NextRequest) {
         }
 
         // AUT-290 — Branch Gemini (trial org 99). Misma SSE emission, distinto loop.
+        // AUT-291 — Trace/spans Langfuse se emiten dentro del loop (paridad Anthropic).
         if (provider === "google") {
-          const geminiStart = Date.now();
           const result = await runGeminiLoop({
             session,
             systemPrompt: systemPrompt + kbContext,
@@ -510,6 +510,7 @@ export async function POST(req: NextRequest) {
             rolRank,
             webSearch,
             sendEvent,
+            trace,
           });
 
           tokensIn += result.tokensIn;
@@ -519,31 +520,6 @@ export async function POST(req: NextRequest) {
           hadWrite = result.hadWrite;
           finalResponse = result.finalResponse;
           finalArtifact = result.finalArtifact;
-
-          // Generation Langfuse — costo manual via usageDetails (AUT-272).
-          // Langfuse no tiene pricing table para gemini-3.1-flash-lite-preview,
-          // por eso aportamos costDetails calculados con MODELS.trial.
-          trace?.generation({
-            name: "gemini_call",
-            model: modelId,
-            input: messages.slice(-1),
-            output: finalResponse.slice(0, 500),
-            usage: {
-              input: result.tokensIn,
-              output: result.tokensOut,
-              unit: "TOKENS",
-            },
-            usageDetails: {
-              input: result.tokensIn,
-              output: result.tokensOut,
-            },
-            metadata: {
-              provider: "google",
-              iterations: result.iteraciones,
-              latencyMs: Date.now() - geminiStart,
-              toolsCalled: result.toolCallsCount,
-            },
-          });
 
           controller.close();
           return;
