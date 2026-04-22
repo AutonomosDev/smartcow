@@ -737,6 +737,7 @@ export async function POST(req: NextRequest) {
               finalArtifact,
               modelId,
               tokensIn + tokensOut,
+              orgId,
             );
           } catch (cacheErr) {
             console.warn("[cache] writeCache failed:", cacheErr instanceof Error ? cacheErr.message : cacheErr);

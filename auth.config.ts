@@ -48,9 +48,10 @@ async function loadSmartCowUser(email: string): Promise<SmartCowSession["user"] 
       .limit(1),
   ]);
 
-  // Trial users: predios array = todos los predios de su org (sin user_predios explícitos)
+  // Org 99 (demo): predios array = todos los predios de la org (sin user_predios explícitos).
+  // Aplica tanto a rol='trial' (Google SSO auto-creado) como a testers internos (rol='viewer').
   let predioIds = predioRows.map((r) => r.predioId);
-  if (user.rol === "trial" && user.orgId === TRIAL_ORG_ID) {
+  if (user.orgId === TRIAL_ORG_ID) {
     const orgPredios = await db
       .select({ id: predios.id })
       .from(predios)

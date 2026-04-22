@@ -42,7 +42,13 @@ export function cacheKey(predioId: number | null, normalized: string): string {
     .digest("hex");
 }
 
-export function ttlMinutesForQuestion(normalized: string): number {
+// Org demo (AUT-289): datos clonados estáticos, refresh nocturno 00:00 CLT.
+// TTL = 24h (se invalida junto con el seed --refresh).
+export const TRIAL_ORG_ID_FOR_CACHE = 99;
+const TRIAL_TTL_MIN = 24 * 60;
+
+export function ttlMinutesForQuestion(normalized: string, orgId?: number): number {
+  if (orgId === TRIAL_ORG_ID_FOR_CACHE) return TRIAL_TTL_MIN;
   if (/(cuánto|cuanto|cuánta|cuanta|cuántos|cuantos|total|count|suma)/.test(normalized)) return 15;
   if (/(listar|todos los|mis |listá|lista)/.test(normalized)) return 60;
   if (/(gdp|distribución|distribucion|compar|promedio|ranking|histograma)/.test(normalized)) return 30;
@@ -104,13 +110,14 @@ export async function writeCache(
   response: string,
   artifact: unknown | null,
   modelUsed: string,
-  tokensEstimate: number
+  tokensEstimate: number,
+  orgId?: number
 ): Promise<void> {
   try {
     const normalized = normalizeQuestion(question);
     if (!normalized || !response) return;
     const hash = cacheKey(predioId, normalized);
-    const ttlMin = ttlMinutesForQuestion(normalized);
+    const ttlMin = ttlMinutesForQuestion(normalized, orgId);
     const expiresAt = new Date(Date.now() + ttlMin * 60_000);
 
     await db.insert(chatCache).values({
