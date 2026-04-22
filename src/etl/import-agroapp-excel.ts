@@ -22,6 +22,7 @@ import {
   traslados,
   inseminaciones,
   semen,
+  users,
 } from "../db/schema";
 import { tipoGanado, razas, inseminadores } from "../db/schema/catalogos";
 import { eq, sql } from "drizzle-orm";
@@ -275,52 +276,166 @@ async function importVentas(filePath: string) {
   console.log(`Silenciar warnings:`, { errors, predioMap: predioMap.size });
 }
 
+/**
+ * importPesajes — Rescata todos los pesajes del xlsx Pesajes_Historial.
+ *
+ * AUT-297 (W2): versión v2.
+ *
+ * Cambios vs v1:
+ *  - crea animales on-demand si el DIIO no está en `animales` (estado='baja').
+ *    83% de DIIOs del xlsx histórico son animales ya vendidos que nunca se
+ *    registraron en la tabla porque el import de Ganado Actual solo trae vivos.
+ *  - mapea edad_meses, observaciones, creado_por (resolver usuario_id por nombre).
+ *  - detecta "PESAJE DESDE VENTA" en obs → dispositivo='agroapp_venta'.
+ *  - post-proceso: marca el primer pesaje por animal como es_peso_llegada=true.
+ */
 async function importPesajes(filePath: string) {
   const rows = await loadSheet(filePath);
   console.log(`Rows en Excel: ${rows.length.toLocaleString()}`);
   const predioMap = await getPredioMap();
   const animalMap = await getAnimalMap();
 
-  let ok = 0, noAnimal = 0, errors = 0;
+  // Catálogos para crear animales on-demand
+  const tgRows = await db.select({ id: tipoGanado.id, nombre: tipoGanado.nombre }).from(tipoGanado);
+  const tgMap = new Map(tgRows.map((r) => [r.nombre.toLowerCase().trim(), r.id]));
+  const SEXO_MAP: Record<string, "M" | "H"> = {
+    novillo: "M", ternero: "M", toro: "M",
+    vaca: "H", vaquilla: "H", ternera: "H",
+  };
+
+  // Users para resolver "Creado por" → usuario_id (match best-effort por nombre)
+  const userRows = await db.select({ id: users.id, nombre: users.nombre }).from(users);
+  const userMap = new Map<string, number>();
+  for (const u of userRows) {
+    const k = (u.nombre ?? "").toLowerCase().trim();
+    if (k) userMap.set(k, u.id);
+  }
+
+  let ok = 0, noFecha = 0, noPeso = 0, noDiio = 0, errorsInsert = 0;
+  let animalesCreados = 0, tgFaltantes = 0;
+  let pesajesVenta = 0;
   let i = 0;
+  const predioPorAnimalFromFile = new Map<number, number>(); // animalId → predioId inferido del xlsx
+
   for (const r of rows) {
     i++;
-    const diio = String(r["Diio"] ?? "").replace(/\.0$/, "");
+    const diio = String(r["Diio"] ?? "").replace(/\.0$/, "").trim();
     const fundoNombre = cleanStr(r["Fundo"]);
     const fecha = toDateStr(r["Fecha creado"]);
     const peso = r["Peso"];
-    if (!fecha || !diio || peso == null) { errors++; continue; }
+    const tipoNombre = cleanStr(r["Tipo ganado"])?.toLowerCase() ?? "";
+    const edadRaw = r["Edad (meses)"];
+    const edadMeses =
+      typeof edadRaw === "number" ? edadRaw : edadRaw != null ? parseFloat(String(edadRaw)) : null;
+    const obsRaw = cleanStr(r["Observaciones"], 2000);
+    const creadoPor = cleanStr(r["Creado por"]);
 
-    const animal = animalMap.get(diio);
-    if (!animal) { noAnimal++; continue; }
+    if (!diio) { noDiio++; continue; }
+    if (!fecha) { noFecha++; continue; }
+    if (peso == null || peso === "") { noPeso++; continue; }
 
+    // Resolver predio
     const predioId = fundoNombre
-      ? (await ensurePredio(predioMap, fundoNombre)) ?? animal.predioId
-      : animal.predioId;
+      ? await ensurePredio(predioMap, fundoNombre)
+      : null;
+
+    // Resolver o crear animal
+    let animal = animalMap.get(diio);
+    if (!animal) {
+      if (!predioId) { errorsInsert++; continue; }
+      const tgId = tgMap.get(tipoNombre);
+      if (!tgId) {
+        tgFaltantes++;
+        if (tgFaltantes <= 5) console.error(`  tipo_ganado desconocido: "${tipoNombre}" diio=${diio}`);
+        continue;
+      }
+      const sexo: "M" | "H" = SEXO_MAP[tipoNombre] ?? "M";
+      try {
+        const ins = await db
+          .insert(animales)
+          .values({
+            predioId,
+            diio,
+            tipoGanadoId: tgId,
+            sexo,
+            estado: "baja", // animal no está en GanadoActual → ya no está vivo
+          })
+          .returning({ id: animales.id, predioId: animales.predioId });
+        if (ins[0]) {
+          animal = { id: ins[0].id, predioId: ins[0].predioId };
+          animalMap.set(diio, animal);
+          animalesCreados++;
+        } else {
+          errorsInsert++;
+          continue;
+        }
+      } catch (err) {
+        errorsInsert++;
+        if (errorsInsert <= 5) console.error(`  ERR crear animal diio=${diio}:`, (err as Error).message);
+        continue;
+      }
+    }
+
+    const predioFinal = predioId ?? animal.predioId;
+    predioPorAnimalFromFile.set(animal.id, predioFinal);
+
+    // Detectar marcador "PESAJE DESDE VENTA"
+    const esPesajeVenta = obsRaw ? /pesaje\s*desde\s*venta/i.test(obsRaw) : false;
+    const dispositivo = esPesajeVenta ? "agroapp_venta" : "agroapp";
+    if (esPesajeVenta) pesajesVenta++;
+
+    const usuarioId = creadoPor ? userMap.get(creadoPor.toLowerCase().trim()) ?? null : null;
 
     try {
       await db
         .insert(pesajes)
         .values({
-          predioId,
+          predioId: predioFinal,
           animalId: animal.id,
           fecha,
           pesoKg: String(peso),
+          dispositivo,
+          edadMeses: edadMeses != null && Number.isFinite(edadMeses) ? String(edadMeses) : null,
+          observaciones: obsRaw,
+          usuarioId,
         })
         .onConflictDoNothing();
       ok++;
     } catch (err) {
-      errors++;
-      if (errors <= 5) console.error(`  ERR diio=${diio}:`, (err as Error).message);
+      errorsInsert++;
+      if (errorsInsert <= 5) console.error(`  ERR insert pesaje diio=${diio}:`, (err as Error).message);
     }
 
     if (i % LOG_EVERY === 0) {
-      console.log(`  ${i}/${rows.length} | ok:${ok} noAnimal:${noAnimal} err:${errors}`);
+      console.log(
+        `  ${i}/${rows.length} | ok:${ok} creados:${animalesCreados} pesaje_venta:${pesajesVenta} tg_faltante:${tgFaltantes} err:${errorsInsert}`
+      );
     }
   }
 
   console.log(`\n=== PESAJES DONE ===`);
-  console.log(`Inserted: ${ok} | Sin animal: ${noAnimal} | Errores: ${errors}`);
+  console.log(`Insertados: ${ok}`);
+  console.log(`Animales creados on-demand: ${animalesCreados}`);
+  console.log(`Pesajes desde venta: ${pesajesVenta}`);
+  console.log(`Skip — sin DIIO: ${noDiio}  sin fecha: ${noFecha}  sin peso: ${noPeso}`);
+  console.log(`Skip — tipo_ganado desconocido: ${tgFaltantes}`);
+  console.log(`Errores insert: ${errorsInsert}`);
+
+  // Post-proceso: marcar el primer pesaje de cada animal como es_peso_llegada
+  console.log(`\n[post] Marcando es_peso_llegada (primer pesaje por animal)...`);
+  const marked = await db.execute(sql`
+    WITH primeros AS (
+      SELECT DISTINCT ON (animal_id) id
+      FROM pesajes
+      ORDER BY animal_id, fecha ASC, id ASC
+    )
+    UPDATE pesajes
+       SET es_peso_llegada = TRUE
+      FROM primeros
+     WHERE pesajes.id = primeros.id
+       AND pesajes.es_peso_llegada = FALSE
+  `);
+  console.log(`  Marcados: ${(marked as unknown as { rowCount?: number }).rowCount ?? "?"}`);
 }
 
 async function importGanado(filePath: string) {
