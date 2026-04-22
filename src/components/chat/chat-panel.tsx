@@ -51,6 +51,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeArtifact, setActiveArtifact] = useState<ArtifactData | null>(null);
+  const [turnArtifacts, setTurnArtifacts] = useState<ArtifactData[]>([]);
   const [isArtifactOpen, setIsArtifactOpen] = useState(false);
   const [sbOpen, setSbOpen] = useState(true);
   const [tareaModalOpen, setTareaModalOpen] = useState(false);
@@ -194,6 +195,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
     const userMessage: ChatMessage = { role: "user", content: content.trim() || `[Archivo adjunto: ${files?.map(f => f.name).join(", ")}]` };
     const updatedMessages = [...messagesRef.current, userMessage];
     setMessages(updatedMessages);
+    setTurnArtifacts([]);
 
     const assistantMessage: ChatMessage = { role: "assistant", content: "" };
     setMessages([...updatedMessages, assistantMessage]);
@@ -251,12 +253,14 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
               break;
             case "artifact_block":
               if (event.artifact && typeof event.artifact === "object") {
-                setActiveArtifact({
-                  id: `art_${Date.now()}`,
+                const art: ArtifactData = {
+                  id: `art_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
                   title: event.artifact.title ?? "Informe",
                   content: JSON.stringify(event.artifact),
                   kind: event.artifact.type,
-                });
+                };
+                setActiveArtifact(art);
+                setTurnArtifacts((prev) => [...prev, art]);
                 setIsArtifactOpen(true);
               }
               break;
@@ -610,6 +614,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
           }}>
             <ArtifactPanel
               artifact={activeArtifact}
+              artifacts={turnArtifacts}
               onHide={() => setIsArtifactOpen(false)}
             />
           </div>

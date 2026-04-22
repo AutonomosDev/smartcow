@@ -17,6 +17,7 @@ export interface ArtifactData {
 
 interface ArtifactPanelProps {
   artifact: ArtifactData | null;
+  artifacts?: ArtifactData[];
   onHide: () => void;
 }
 
@@ -40,7 +41,8 @@ function IcoInfo() {
 
 // ─── Artifact Panel ───────────────────────────────────────────────────────────
 
-export function ArtifactPanel({ artifact, onHide }: ArtifactPanelProps) {
+export function ArtifactPanel({ artifact, artifacts, onHide }: ArtifactPanelProps) {
+  const stack = artifacts && artifacts.length > 0 ? artifacts : (artifact ? [artifact] : []);
   const [saveOpen, setSaveOpen] = useState(false);
   const [copyOpen, setCopyOpen] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
@@ -101,8 +103,12 @@ export function ArtifactPanel({ artifact, onHide }: ArtifactPanelProps) {
         className="cw-scrollbar"
         style={{ flex: 1, overflowY: "auto", padding: "0 40px 40px" }}
       >
-        {artifact ? (
-          <ArtifactContent artifact={artifact} />
+        {stack.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {stack.map((a) => (
+              <ArtifactContent key={a.id} artifact={a} />
+            ))}
+          </div>
         ) : (
           <ArtifactEmpty />
         )}

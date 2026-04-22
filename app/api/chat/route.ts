@@ -39,6 +39,7 @@ import { tryCache, writeCache } from "@/src/lib/cache";
 import { checkRateLimit, rateLimitHeaders } from "@/src/lib/rate-limit";
 import { ejecutarReportarFeedback, type FeedbackArgs } from "@/src/lib/linear-feedback";
 import { langfuse } from "@/src/lib/langfuse";
+import { tryIntercept } from "@/src/lib/intent";
 
 // Jerarquía de roles
 const ROL_RANK: Record<string, number> = {
@@ -216,6 +217,70 @@ export async function POST(req: NextRequest) {
         ...rlHeaders,
       },
     });
+  }
+
+  // 4.5 Pre-LLM intent intercept (AUT-287) — L1 regex/exact match
+  // Cost=0. Si matchea, responde SSE sin llamar Anthropic.
+  if (!webSearch && lastMessage.length > 0) {
+    try {
+      const intercept = await tryIntercept(lastMessage, predioId);
+      if (intercept) {
+        console.log(`[intent] ${intercept.layer} HIT intent=${intercept.intentId} handler=${intercept.handlerCommand} latency=${intercept.latencyMs}ms`);
+
+        const hadArtifact = Boolean(intercept.artifact);
+        const interceptModelId = `intercept-${intercept.layer}`;
+
+        try {
+          await writeChatUsage({
+            orgId,
+            userId: Number(userId),
+            predioId,
+            modelId: interceptModelId,
+            tier: "light",
+            tokensIn: 0,
+            tokensOut: 0,
+            toolCalls: 0,
+            hadArtifact,
+            latencyMs: intercept.latencyMs,
+            error: null,
+          });
+        } catch (trackErr) {
+          console.warn("[intent] tracking write failed:", trackErr instanceof Error ? trackErr.message : trackErr);
+        }
+
+        const encoder = new TextEncoder();
+        const stream = new ReadableStream({
+          async start(controller) {
+            const send = (data: Record<string, unknown>) => {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+            };
+            send({ type: "text_delta", delta: intercept.label });
+            if (intercept.artifact) {
+              send({ type: "artifact_block", artifact: intercept.artifact });
+            }
+            send({
+              type: "done",
+              intercepted: true,
+              layer: intercept.layer,
+              intentId: intercept.intentId,
+              modelUsed: interceptModelId,
+              latencyMs: intercept.latencyMs,
+            });
+            controller.close();
+          },
+        });
+        return new Response(stream, {
+          headers: {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
+            ...rlHeaders,
+          },
+        });
+      }
+    } catch (err) {
+      console.warn("[intent] tryIntercept falló, cayendo a sonnet:", err instanceof Error ? err.message : err);
+    }
   }
 
   // 5. Routing + Budget (AUT-262, AUT-264)

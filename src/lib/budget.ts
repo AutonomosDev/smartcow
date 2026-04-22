@@ -29,7 +29,7 @@ const PLAN_CAPS: Record<PlanName, number> = {
 const TIERS_BY_PLAN: Record<PlanName, TierName[]> = {
   free: ["light"],
   pro: ["light", "standard"],
-  enterprise: ["light", "standard", "heavy"],
+  enterprise: ["light", "standard"],
 };
 
 const SOFT_ALERT_AT = 0.85;

@@ -1,12 +1,12 @@
 /**
- * router.ts — Heurística de routing de modelos LLM (AUT-262).
+ * router.ts — Heurística de routing de modelos LLM (AUT-262, AUT-287).
  * Fuente de verdad: .claude/references/config/llm-routing-and-budget.yaml
  *
- * Orden de evaluación: heavy_triggers → light_triggers → fallback (standard).
- * Nunca downgrade manual; upgrade = automático por heurística.
+ * Simplificado a 2 tiers (AUT-287): opus/heavy removido — sonnet es techo.
+ * Tier por debajo del LLM: intercept (L1/L2/L3) — ver src/lib/intent/.
  */
 
-export type TierName = "light" | "standard" | "heavy";
+export type TierName = "light" | "standard";
 
 export interface ModelConfig {
   modelId: string;
@@ -35,14 +35,6 @@ export const MODELS: Record<TierName, ModelConfig> = {
     cacheWritePerMtok: 3.75,
     cacheReadPerMtok: 0.30,
   },
-  heavy: {
-    modelId: "claude-opus-4-7",
-    tier: "heavy",
-    costPerMtokIn: 5.00,
-    costPerMtokOut: 25.00,
-    cacheWritePerMtok: 6.25,
-    cacheReadPerMtok: 0.50,
-  },
 };
 
 interface PickModelInput {
@@ -62,67 +54,41 @@ export interface PickedModel {
   cacheReadPerMtok: number;
 }
 
-// Heavy: análisis profundo, multi-predio, históricos largos, informes completos.
-// Triggers realistas observados en el uso: "dashboard completo", "informe/resumen general",
-// "evolución histórica", "comparativa entre todos los predios/lotes", "últimos N años/meses",
-// "correlación", "proyección", "análisis completo".
-const HEAVY_REGEX = new RegExp(
-  [
-    "compara.*(todos|entre\\s+(predios|lotes|razas|fundos))",
-    "(informe|resumen|análisis|analisis|dashboard)\\s+(completo|general|integral|profundo)",
-    "evoluci[oó]n\\s+(hist[oó]rica|completa|de\\s+los\\s+últimos)",
-    "hist[oó]rico\\s+completo",
-    "últimos?\\s+\\d+\\s+(años|meses|trimestres)",
-    "desde\\s+20[12]\\d",
-    "(correlaci[oó]n|tendencia\\s+a\\s+largo|proyecci[oó]n|forecast)",
-    "análisis\\s+multi(-|\\s)?(predio|fundo|lote)",
-  ].join("|"),
-  "i"
-);
-const LIGHT_REGEX = /^(hola|hey|buenas|gracias|ok|okay|sí|si|no|dale|perfecto|listo|bien|genial|👍|👌)\b/i;
+// Light: conversación corta, saludos, confirmaciones, follow-ups sin tool.
+// Se amplió en AUT-287 para capturar ~20% del tráfico conversacional
+// que hoy cae a sonnet sin necesidad (ver análisis Langfuse 2026-04-21).
+const LIGHT_REGEX = /^(hola|hey|buenas|gracias|ok|okay|sí|si|no|dale|perfecto|listo|bien|genial|alo|donde|cuantos?|que|como|cual|sigue|arranca|procede|continua|mientes|por\s+que|👍|👌)\b/i;
+
+const TOOL_HINT_REGEX = /\b(animales?|pesajes?|partos?|lotes?|predios?|gdp|preñez|tratamientos?|vacunaci|ventas?|ecograf|inseminaci|bajas?|mortalidad|potreros?|grafic|dashboard|informe|resumen|análisis|analisis|tendencia|comparar|evolución|histórico)\b/i;
 
 export function pickModel(input: PickModelInput): PickedModel {
   // Override temporal via env — usado mientras se testea infra.
-  // Valores: light | standard | heavy. Prioridad sobre toda heurística.
+  // Valores: light | standard. Prioridad sobre toda heurística.
   const forced = process.env.CHAT_FORCE_TIER as TierName | undefined;
   if (forced && forced in MODELS) {
     return { ...MODELS[forced], reason: `forced via CHAT_FORCE_TIER=${forced}` };
   }
 
-  const { lastMessage, webSearchActive = false, prediosEnScope = 1, toolCallsPrevistos = 0 } = input;
-  const msgLen = lastMessage.trim().length;
+  const { lastMessage, webSearchActive = false, toolCallsPrevistos = 0 } = input;
+  const msg = lastMessage.trim();
+  const msgLen = msg.length;
 
-  // web_search activo → standard mínimo (tool use complejo)
-  if (webSearchActive) {
-    // puede ser heavy si también cumple heavy_triggers
-    if (
-      HEAVY_REGEX.test(lastMessage) ||
-      prediosEnScope > 3 ||
-      toolCallsPrevistos > 5
-    ) {
-      return { ...MODELS.heavy, reason: "web_search + multi-predio/histórico" };
-    }
-    return { ...MODELS.standard, reason: "web_search activo" };
+  // web_search o multi-tool previstos → sonnet
+  if (webSearchActive || toolCallsPrevistos > 2) {
+    return { ...MODELS.standard, reason: webSearchActive ? "web_search activo" : "multi-tool" };
   }
 
-  // heavy_triggers
-  if (
-    HEAVY_REGEX.test(lastMessage) ||
-    prediosEnScope > 3 ||
-    toolCallsPrevistos > 5
-  ) {
-    return { ...MODELS.heavy, reason: "multi-predio/histórico" };
+  // Hints de dominio que requieren tools/SQL → sonnet
+  if (TOOL_HINT_REGEX.test(msg)) {
+    return { ...MODELS.standard, reason: "tool hint detected" };
   }
 
-  // light_triggers
-  if (
-    msgLen < 30 ||
-    LIGHT_REGEX.test(lastMessage.trim())
-  ) {
-    return { ...MODELS.light, reason: "saludo/short" };
+  // Conversación corta sin hint de dominio → haiku
+  if (msgLen < 80 || LIGHT_REGEX.test(msg)) {
+    return { ...MODELS.light, reason: "short/conversational" };
   }
 
-  // fallback
+  // fallback sonnet
   return { ...MODELS.standard, reason: "default" };
 }
 
