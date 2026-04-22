@@ -47,15 +47,12 @@ export function mapToolResultToArtifact(toolContext: { tool: string; result: any
 
       case 'get_alertas_salud':
         if (result.ok && Array.isArray(result.data) && result.data.length > 0) {
-          const items: AlertItem[] = result.data.map((al: any) => {
-            let lvl: AlertItem['level'] = 'Info';
-            if (al.nivel_gravedad > 7) lvl = 'Urgente';
-            else if (al.nivel_gravedad > 4) lvl = 'Atención';
-            return {
-              level: lvl,
-              text: `Animal ${al.diio}: ${al.descripcion}`
-            };
-          });
+          const sorted = [...result.data].sort(
+            (a, b) => (b.nivel_gravedad ?? 0) - (a.nivel_gravedad ?? 0)
+          );
+          const items: AlertItem[] = sorted.map((al: any) => ({
+            text: `Animal ${al.diio}: ${al.descripcion}`,
+          }));
           return { type: 'alerts', title: 'Tratamientos / Alertas', items };
         }
         return null;
@@ -63,11 +60,15 @@ export function mapToolResultToArtifact(toolContext: { tool: string; result: any
       case 'get_lotes':
       case 'get_lote_detalles':
         if (result.ok && result.data && Array.isArray(result.data)) {
-          const rows: ArtifactRow[] = result.data.slice(0, 5).map((l: any) => ({
-            label: l.nombre || `Lote ${l.id}`,
-            value: `${l.cantidad_animales || l.cantidad || 0} cab.${l.estado ? ` - ${l.estado}` : ''}`,
-            color: (l.cantidad_animales === 0 || l.cantidad === 0) ? 'warn' : 'ok'
-          }));
+          const rows: ArtifactRow[] = result.data.slice(0, 5).map((l: any) => {
+            const cant = l.cantidad_animales ?? l.cantidad ?? 0;
+            const row: ArtifactRow = {
+              label: l.nombre || `Lote ${l.id}`,
+              value: `${cant} cab.${l.estado ? ` - ${l.estado}` : ''}`,
+            };
+            if (cant > 0) row.color = 'ok';
+            return row;
+          });
           return {
             type: 'table',
             title: 'Lotes Destacados',

@@ -84,8 +84,7 @@ body {
   --cw-note-bd: #e8e5dd;
   --cw-blue: #eaf0f7;
   --cw-blue-fg: #1a5276;
-  --cw-warn: #fdf0e6;
-  --cw-warn-fg: #9b5e1a;
+  /* --cw-warn/--cw-warn-fg removidos: rojos/naranjas prohibidos en la app */
   --cw-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
 }
 

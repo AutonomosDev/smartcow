@@ -62,8 +62,24 @@ export interface PickedModel {
   cacheReadPerMtok: number;
 }
 
-const HEAVY_REGEX = /(compara.*todos|histórico completo|últimos \d+ años|desde 20[12]\d)/i;
-const LIGHT_REGEX = /^(hola|gracias|ok|sí|si|no|dale|perfecto|listo|bien)/i;
+// Heavy: análisis profundo, multi-predio, históricos largos, informes completos.
+// Triggers realistas observados en el uso: "dashboard completo", "informe/resumen general",
+// "evolución histórica", "comparativa entre todos los predios/lotes", "últimos N años/meses",
+// "correlación", "proyección", "análisis completo".
+const HEAVY_REGEX = new RegExp(
+  [
+    "compara.*(todos|entre\\s+(predios|lotes|razas|fundos))",
+    "(informe|resumen|análisis|analisis|dashboard)\\s+(completo|general|integral|profundo)",
+    "evoluci[oó]n\\s+(hist[oó]rica|completa|de\\s+los\\s+últimos)",
+    "hist[oó]rico\\s+completo",
+    "últimos?\\s+\\d+\\s+(años|meses|trimestres)",
+    "desde\\s+20[12]\\d",
+    "(correlaci[oó]n|tendencia\\s+a\\s+largo|proyecci[oó]n|forecast)",
+    "análisis\\s+multi(-|\\s)?(predio|fundo|lote)",
+  ].join("|"),
+  "i"
+);
+const LIGHT_REGEX = /^(hola|hey|buenas|gracias|ok|okay|sí|si|no|dale|perfecto|listo|bien|genial|👍|👌)\b/i;
 
 export function pickModel(input: PickModelInput): PickedModel {
   // Override temporal via env — usado mientras se testea infra.

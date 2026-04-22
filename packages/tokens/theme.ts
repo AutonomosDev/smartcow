@@ -47,9 +47,6 @@ export const tokens = {
 };
 
 export const badges = {
-  urgente:  { bg: '#fde8e8', text: '#c0392b' },
-  atencion: { bg: '#fdf0e6', text: '#9b5e1a' },
-  ok:       { bg: '#e6f3ec', text: '#1e3a2f' },
-  info:     { bg: '#e6f0f8', text: '#1a5276' },
-  neutro:   { bg: '#ebe9e3', text: '#666666' },
+  ok:     { bg: '#e6f3ec', text: '#1e3a2f' },
+  neutro: { bg: '#ebe9e3', text: '#666666' },
 };

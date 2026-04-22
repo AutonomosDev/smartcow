@@ -12,8 +12,8 @@ import { CHART_THEME, DM } from "./theme";
 export interface ChartKpiItem {
   value: string | number;
   label: string;
-  /** "ok" | "warn" | "bad" */
-  color?: "ok" | "warn" | "bad";
+  /** Solo "ok" permitido — no rojos/naranjas en la app */
+  color?: "ok";
   /** Delta en % (ej: 8.5 = +8.5%, -3.2 = -3.2%) */
   delta?: number;
 }
@@ -31,27 +31,22 @@ export interface ChartKpiProps {
 }
 
 const COLOR_MAP: Record<string, string> = {
-  ok:   CHART_THEME.colors.success,
-  warn: CHART_THEME.colors.warning,
-  bad:  CHART_THEME.colors.danger,
+  ok: CHART_THEME.colors.success,
 };
 
 function DeltaBadge({ delta }: { delta: number }) {
   const isPos = delta >= 0;
-  const color = isPos ? CHART_THEME.colors.success : CHART_THEME.colors.danger;
-  const bg = isPos ? "#e6f3ec" : "#fde8e8";
+  const color = isPos ? CHART_THEME.colors.success : CHART_THEME.colors.ink;
   return (
     <span style={{
       display: "inline-flex",
       alignItems: "center",
-      background: bg,
       color,
-      borderRadius: 20,
-      padding: "2px 7px",
       fontSize: 11,
       fontWeight: 600,
       fontFamily: DM,
       marginTop: 4,
+      fontVariantNumeric: "tabular-nums",
     }}>
       {isPos ? "+" : ""}{delta.toFixed(1)}%
     </span>

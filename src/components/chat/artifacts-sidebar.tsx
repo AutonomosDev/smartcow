@@ -258,29 +258,25 @@ const artMarkdown: Components = {
 
 const DM = "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)";
 
+// Tokens provienen de globals.css (:root --cw-*). Fuente única de verdad de color.
 const PALETTE = {
-  forest:   "#1e3a2f",   // header, acento positivo
-  ink:      "#1a1a1a",   // texto principal
-  ink2:     "#555",      // texto secundario
-  ink3:     "#888",      // labels
-  ink4:     "#bbb",      // micro-labels
-  card:     "#fff",
-  cardBd:   "#e8e5df",
-  divider:  "#f0ede8",
-  warnFg:   "#e74c3c",   // rojo/warn fuerte
-  orangeFg: "#f39c12",   // naranja/atención
-  alert: {
-    Urgente:  { bg: "#fde8e8", color: "#c0392b" },
-    Atención: { bg: "#fdf0e6", color: "#9b5e1a" },
-    Info:     { bg: "#e6f0f8", color: "#1a5276" },
-  },
+  forest:   "var(--cw-green)",
+  ink:      "var(--cw-ink1)",
+  ink2:     "var(--cw-ink2)",
+  ink3:     "var(--cw-ink3)",
+  ink4:     "var(--cw-ink4)",
+  card:     "#ffffff",
+  cardBd:   "var(--cw-note-bd)",
+  divider:  "var(--cw-fog)",
 } as const;
 
+// Regla dura: cajones rojo/naranja prohibidos. Todo va en tipografía neutra.
+// `warn`/`bad` solo cambian a ink más fuerte, nunca a color saturado ni bg.
 const ROW_COLOR: Record<string, string> = {
   ok:     PALETTE.forest,
-  warn:   PALETTE.warnFg,
-  bad:    PALETTE.warnFg,
-  orange: PALETTE.orangeFg,
+  warn:   PALETTE.ink,
+  bad:    PALETTE.ink,
+  orange: PALETTE.ink,
 };
 
 function ArtCard({ title, children }: { title?: string; children: React.ReactNode }) {
@@ -390,34 +386,32 @@ function StructuredKpi({ data }: { data: { title?: string; kpis?: Array<{ val: s
   );
 }
 
-function StructuredAlerts({ data }: { data: { title?: string; items?: Array<{ level: string; text: string }> } }) {
+// Alerts neutralizado: sin cajones de color. Solo tipografía + separador sutil.
+// El `level` se omite visualmente — la jerarquía va en el orden de los items
+// (el modelo debe emitirlos en orden de importancia).
+function StructuredAlerts({ data }: { data: { title?: string; items?: Array<{ level?: string; text: string }> } }) {
   const items = data.items ?? [];
   return (
     <ArtCard title={data.title}>
-      {items.map((item, i) => {
-        const st = PALETTE.alert[item.level as keyof typeof PALETTE.alert] ?? PALETTE.alert.Info;
-        return (
-          <div key={i}>
-            {i > 0 && <div style={{ height: ".5px", background: PALETTE.divider, margin: "8px 0" }} />}
-            <div style={{
-              display: "flex", alignItems: "flex-start", gap: 10,
-              padding: "4px 0",
-            }}>
-              <span style={{
-                fontFamily: DM, fontSize: 10, fontWeight: 600,
-                padding: "3px 10px", borderRadius: 20,
-                background: st.bg, color: st.color,
-                letterSpacing: ".2px",
-                flexShrink: 0, marginTop: 1,
-              }}>{item.level}</span>
-              <span style={{
-                fontFamily: DM, fontSize: 13, fontWeight: 400,
-                color: PALETTE.ink2, lineHeight: 1.5, flex: 1,
-              }}>{item.text}</span>
-            </div>
+      {items.map((item, i) => (
+        <div key={i}>
+          {i > 0 && <div style={{ height: ".5px", background: PALETTE.divider, margin: "8px 0" }} />}
+          <div style={{
+            display: "flex", alignItems: "flex-start", gap: 10,
+            padding: "4px 0",
+          }}>
+            <span style={{
+              fontFamily: DM, fontSize: 13, fontWeight: 400,
+              color: PALETTE.ink3, lineHeight: 1.5, flexShrink: 0,
+              minWidth: 14, textAlign: "center",
+            }}>·</span>
+            <span style={{
+              fontFamily: DM, fontSize: 13, fontWeight: 400,
+              color: PALETTE.ink2, lineHeight: 1.5, flex: 1,
+            }}>{item.text}</span>
           </div>
-        );
-      })}
+        </div>
+      ))}
     </ArtCard>
   );
 }
@@ -537,10 +531,10 @@ function Modal({ title, sub, onClose, children }: { title: string; sub: string; 
 }
 
 const colorMap: Record<string, { bg: string; fg: string }> = {
-  red:   { bg: "#fbefef", fg: "#c23030" },
+  red:   { bg: "#f5f3f0", fg: "#1a1a1a" },
   green: { bg: "#e6f3ec", fg: "#1e3a2f" },
-  blue:  { bg: "var(--cw-blue)", fg: "var(--cw-blue-fg)" },
-  amber: { bg: "var(--cw-warn)", fg: "var(--cw-warn-fg)" },
+  blue:  { bg: "#f5f3f0", fg: "#1a1a1a" },
+  amber: { bg: "#f5f3f0", fg: "#1a1a1a" },
 };
 
 function ModalOpt({ color, icon, t1, t2, working, onClick }: {

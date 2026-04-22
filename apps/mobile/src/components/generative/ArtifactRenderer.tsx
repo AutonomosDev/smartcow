@@ -9,9 +9,9 @@ const F = {
   bold:    'DMSans_600SemiBold',
 };
 
-export type ArtifactRow = { label: string; value: string; color?: 'ok' | 'warn' | 'orange' };
+export type ArtifactRow = { label: string; value: string; color?: 'ok' };
 export type KpiItem     = { val: string; lbl: string; color?: 'ok' };
-export type AlertItem   = { level: 'Urgente' | 'Atención' | 'Info'; text: string };
+export type AlertItem   = { text: string };
 
 export type GenerativeArtifact =
   | { type: 'table';   title?: string; rows: ArtifactRow[] }
@@ -20,12 +20,6 @@ export type GenerativeArtifact =
   | { type: 'weather'; title?: string; data: any }
   | { type: 'market';  title?: string; data: any }
   | { type: 'animal';  title?: string; data: any };
-
-const ALERT_STYLES: Record<string, { bg: string; color: string }> = {
-  Urgente:  { bg: '#fde8e8', color: '#c0392b' },
-  Atención: { bg: '#fdf0e6', color: '#9b5e1a' },
-  Info:     { bg: '#e6f0f8', color: '#1a5276' },
-};
 
 export function ArtifactRenderer({ artifact }: { artifact: GenerativeArtifact }) {
   if (artifact.type === 'table') {
@@ -36,12 +30,7 @@ export function ArtifactRenderer({ artifact }: { artifact: GenerativeArtifact })
           {artifact.rows.map((r, i) => (
             <View key={i} style={[a.row, i < artifact.rows.length - 1 && { marginBottom: 4 }]}>
               <Text style={a.lbl}>{r.label}</Text>
-              <Text style={[
-                a.val, 
-                r.color === 'ok' && { color: '#1e3a2f' }, 
-                r.color === 'warn' && { color: '#e74c3c' }, 
-                r.color === 'orange' && { color: '#f39c12' }
-              ]}>
+              <Text style={[a.val, r.color === 'ok' && { color: '#1e3a2f' }]}>
                 {r.value}
               </Text>
             </View>
@@ -85,20 +74,15 @@ export function ArtifactRenderer({ artifact }: { artifact: GenerativeArtifact })
       <Animated.View entering={FadeInUp.duration(300)} style={a.wrap}>
         {artifact.title && <View style={a.hdr}><Text style={a.title}>{artifact.title}</Text></View>}
         <View style={a.body}>
-          {artifact.items.map((item, i) => {
-            const st = ALERT_STYLES[item.level] || ALERT_STYLES['Info'];
-            return (
-              <View key={i}>
-                {i > 0 && <View style={a.divider} />}
-                <View style={[a.alertRow, i < artifact.items.length - 1 && { marginBottom: 6 }]}>
-                  <View style={[a.alertBadge, { backgroundColor: st.bg }]}>
-                    <Text style={[a.alertBadgeTxt, { color: st.color }]}>{item.level}</Text>
-                  </View>
-                  <Text style={a.alertTxt}>{item.text}</Text>
-                </View>
+          {artifact.items.map((item, i) => (
+            <View key={i}>
+              {i > 0 && <View style={a.divider} />}
+              <View style={[a.alertRow, i < artifact.items.length - 1 && { marginBottom: 6 }]}>
+                <Text style={a.alertBullet}>·</Text>
+                <Text style={a.alertTxt}>{item.text}</Text>
               </View>
-            );
-          })}
+            </View>
+          ))}
         </View>
       </Animated.View>
     );
@@ -187,8 +171,7 @@ const a = StyleSheet.create({
   kpiVal:     { fontFamily: F.bold, fontSize: 15, color: '#1a1a1a' },
   kpiLbl:     { fontFamily: F.regular, fontSize: 9, color: '#bbb', marginTop: 1 },
   alertRow:   { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
-  alertBadge: { paddingVertical: 2, paddingHorizontal: 6, borderRadius: 20, marginTop: 1 },
-  alertBadgeTxt: { fontFamily: F.bold, fontSize: 8 },
+  alertBullet:{ fontFamily: F.regular, fontSize: 10, color: '#888', lineHeight: 14, minWidth: 10, textAlign: 'center' },
   alertTxt:   { fontFamily: F.regular, fontSize: 10, color: '#555', flex: 1, lineHeight: 14 },
   weatherTemp:{ fontFamily: F.bold, fontSize: 24, color: '#1a1a1a' },
   weatherDesc:{ fontFamily: F.medium, fontSize: 11, color: '#888' },

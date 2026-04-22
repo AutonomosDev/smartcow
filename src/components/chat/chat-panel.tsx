@@ -11,12 +11,12 @@ import { PromptInputBox } from "@/src/components/ui/ai-prompt-box";
 
 // ─── SSE types ────────────────────────────────────────────────────────────────
 
-interface ArtifactRow { label: string; value: string; color?: "ok" | "warn" | "bad" }
+interface ArtifactRow { label: string; value: string; color?: "ok" }
 interface ArtifactKpi  { val: string; lbl: string; color?: string }
-interface ArtifactItem { level: "Info" | "Atención" | "Urgente"; text: string }
+interface ArtifactItem { text: string }
 
 interface SSEArtifact {
-  type: "table" | "kpi" | "alerts";
+  type: "table" | "kpi" | "alerts" | "chart" | "dashboard";
   title?: string;
   rows?: ArtifactRow[];
   kpis?: ArtifactKpi[];
