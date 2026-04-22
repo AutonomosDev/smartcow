@@ -10,7 +10,7 @@
  * - Cost tracking: tier="trial" → calcCostUsd via router.ts MODELS.trial
  */
 
-import type { Content, FunctionCall, GenerateContentResponse } from "@google/genai";
+import type { Content, FunctionCall, GenerateContentResponse, Part } from "@google/genai";
 import type { LangfuseTraceClient } from "langfuse";
 import { getGoogleAIClient, CATTLE_TOOLS, ejecutarTool } from "@/src/lib/claude";
 import { MODELS } from "@/src/lib/router";
@@ -113,23 +113,28 @@ export async function runGeminiLoop(input: GeminiLoopInput): Promise<GeminiLoopR
 
     let accumulatedText = "";
     const functionCalls: FunctionCall[] = [];
+    // Gemini 3.x devuelve thoughtSignature en los Part de functionCall y exige
+    // que se reenvíe tal cual en el siguiente turno. Acumulamos los parts crudos
+    // en vez de usar los getters (chunk.text / chunk.functionCalls) que lo descartan.
+    const modelParts: Part[] = [];
     let lastChunk: GenerateContentResponse | null = null;
 
     for await (const chunk of stream) {
       lastChunk = chunk;
 
-      // Texto: usar chunk.text (getter que concatena partes de texto).
-      const chunkText = chunk.text ?? "";
-      if (chunkText) {
-        accumulatedText += chunkText;
-        sendEvent({ type: "text_delta", delta: chunkText });
-      }
+      const parts = chunk.candidates?.[0]?.content?.parts ?? [];
+      for (const part of parts) {
+        // Omitir partes marcadas como thought summary (Gemini no las acepta de vuelta).
+        if ((part as { thought?: boolean }).thought) continue;
 
-      // Function calls: chunk.functionCalls es array de FunctionCall
-      const calls = chunk.functionCalls;
-      if (calls && calls.length > 0) {
-        for (const fc of calls) {
-          functionCalls.push(fc);
+        modelParts.push(part);
+
+        if (part.text) {
+          accumulatedText += part.text;
+          sendEvent({ type: "text_delta", delta: part.text });
+        }
+        if (part.functionCall) {
+          functionCalls.push(part.functionCall);
         }
       }
     }
@@ -182,10 +187,7 @@ export async function runGeminiLoop(input: GeminiLoopInput): Promise<GeminiLoopR
       break;
     }
 
-    // Agregar turno del modelo al historial: texto + functionCall parts
-    const modelParts: Array<{ text?: string; functionCall?: FunctionCall }> = [];
-    if (accumulatedText) modelParts.push({ text: accumulatedText });
-    for (const fc of functionCalls) modelParts.push({ functionCall: fc });
+    // Echo back del turno del modelo preservando thoughtSignature en functionCall parts.
     runContents.push({ role: "model", parts: modelParts });
 
     // Ejecutar cada function call y construir un turno user con functionResponses
