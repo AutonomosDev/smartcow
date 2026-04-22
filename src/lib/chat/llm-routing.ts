@@ -34,6 +34,12 @@ export interface PickedProvider {
  * - Resto                → anthropic (comportamiento legacy).
  */
 export function pickProvider(input: PickProviderInput): PickedProvider {
+  // Override global para testing: FORCE_GEMINI_ALL=1 manda 100% del tráfico a Gemini.
+  // Bypassa allowlist y org check. Usar solo en debug/demo.
+  if (process.env.FORCE_GEMINI_ALL === "1") {
+    return { provider: "google", reason: "force_gemini_all" };
+  }
+
   const email = input.email.toLowerCase().trim();
 
   if (SONNET_ALLOWLIST.has(email)) {
