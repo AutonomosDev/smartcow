@@ -1,0 +1,776 @@
+row_num,fundo_u_origen,obs_raw_flat,rx_diio,rx_rut,rx_pesos_kg,rx_pesos_pv,rx_guia,rx_precio_dollar,rx_precio_texto,rx_precio_kg,rx_precio_unitario,rx_cantidad_animal,rx_fecha_dd_mm_yyyy,rx_fecha_texto,rx_patente_auto,rx_camion_prefix,rx_carro_prefix,rx_kw_compra,rx_kw_venta,rx_kw_traslado,rx_kw_tratamiento,rx_nombre_propio,rx_url,rx_porcentaje,obs_lines_joined
+16,Mollendo,Venta a Frigorifico Temuco,,,,,,,,,,,,,,,,,Venta,,,Frigorifico Temuco,,,Venta a Frigorifico Temuco
+24,Medieria FT,venta 2,,,,,,,,,,,,,,,,,venta,,,,,,venta 2
+25,Medieria FT,venta 1,,,,,,,,,,,,,,,,,venta,,,,,,venta 1
+26,feedlot,salida domingo 22,,,,,,,,,,,,,,,,,salida,,,,,,salida domingo 22
+28,San Pedro,Venta feria Tattersal Freire 6 Toros desecho 13 Vacas desecho,,,,,,,,,,6 Toros | 13 Vacas,,,,,,,Venta,,,Tattersal Freire,,,Venta feria Tattersal Freire ‖ 6 Toros desecho ‖ 13 Vacas desecho
+31,Medieria FT,venta 2,,,,,,,,,,,,,,,,,venta,,,,,,venta 2
+32,Medieria FT,venta 1,,,,,,,,,,,,,,,,,venta,,,,,,venta 1
+40,San Pedro,Venta Feria Tattersal Freire. 15 toros y 16 vacas (animales desechos),,,,,,,,,,15 toros | 16 vacas,,,,,,,Venta,,,Venta Feria Tattersal,,,Venta Feria Tattersal Freire. ‖ 15 toros y 16 vacas (animales desechos)
+43,Medieria FT,Venta 1 Frigorifico Temuco,,,,,,,,,,,,,,,,,Venta,,,Frigorifico Temuco,,,Venta 1 Frigorifico Temuco
+44,feedlot,Frigorifico temuco,,,,,,,,,,,,,,,,,,,,,,,Frigorifico temuco
+45,Medieria FT,venta frigorifico temuco,,,,,,,,,,,,,,,,,venta,,,,,,venta frigorifico temuco
+46,Mollendo,Novillo ciego,,,,,,,,,,,,,,,,,,,,,,,Novillo ciego
+47,Medieria FT,venta temuco,,,,,,,,,,,,,,,,,venta,,,,,,venta temuco
+48,Medieria FT,frigorifico temuco,,,,,,,,,,,,,,,,,,,,,,,frigorifico temuco
+50,Medieria FT,venta 2,,,,,,,,,,,,,,,,,venta,,,,,,venta 2
+51,Medieria FT,venta 1,,,,,,,,,,,,,,,,,venta,,,,,,venta 1
+56,Medieria FT,primera venta Temuco 45 novillos,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,primera venta Temuco 45 novillos
+57,feedlot,45 novillos gordos,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos
+58,feedlot,45 vaquillas gordas,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas
+62,Mollendo,venta 2,,,,,,,,,,,,,,,,,venta,,,,,,venta 2
+63,Mollendo,venta 1,,,,,,,,,,,,,,,,,venta,,,,,,venta 1
+68,Medieria FT,venta 2,,,,,,,,,,,,,,,,,venta,,,,,,venta 2
+69,Medieria FT,venta 1,,,,,,,,,,,,,,,,,venta,,,,,,venta 1
+71,feedlot,45 vaquillas gordas para el martes 9 de diciembre,,,,,,,,,,45 vaquillas,,9 de diciembre,,,,,,,,,,,45 vaquillas gordas para el martes 9 de diciembre
+80,Mollendo,venta mollendo no china,,,,,,,,,,,,,,,,,venta,,,,,,venta mollendo no china
+81,Mollendo,venta china mollendo,,,,,,,,,,,,,,,,,venta,,,,,,venta china mollendo
+90,Mollendo,36 novillos y 9 vaquillas Mollendo gordos a Frigorífico Temuco,,,,,,,,,,36 novillos | 9 vaquillas,,,,,,,,,,Frigorífico Temuco,,,36 novillos y 9 vaquillas Mollendo gordos a Frigorífico Temuco
+97,San Pedro,"9 vacas angus, desechos",,,,,,,,,,9 vacas,,,,,,,,,,,,,"9 vacas angus, desechos"
+98,Medieria FT,45 novillos gordos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos gordos a Frigorífico Temuco
+99,Medieria FT,42 novillos+ 2 vaquillas a Frigorífico Temuco,,,,,,,,,,42 novillos | 2 vaquillas,,,,,,,,,,Frigorífico Temuco,,,42 novillos+ 2 vaquillas a Frigorífico Temuco
+100,Mollendo,31 novillos a Mafrisur,,,,,,,,,,31 novillos,,,,,,,,,,,,,31 novillos a Mafrisur
+101,Mollendo,14 novillos No China a Mafrisur,,,,,,,,,,14 novillos,,,,,,,,,,,,,14 novillos No China a Mafrisur
+102,Medieria FT,44 novillos Frigorífico Temuco,,,,,,,,,,44 novillos,,,,,,,,,,Frigorífico Temuco,,,44 novillos  Frigorífico Temuco
+103,feedlot,7 vaquillas + 34 novillos a Pampa Chile,,,,,,,,,,7 vaquillas | 34 novillos,,,,,,,,,,Pampa Chile,,,7 vaquillas + 34 novillos a Pampa Chile
+104,Medieria FT,42 novillos a Frigorífico Temuco,,,,,,,,,,42 novillos,,,,,,,,,,Frigorífico Temuco,,,42 novillos a Frigorífico Temuco
+105,feedlot,Venta a Corrales 8 vaquillas + 36 novillos,,,,,,,,,,8 vaquillas | 36 novillos,,,,,,,Venta,,,,,,Venta a Corrales 8 vaquillas + 36 novillos
+106,Mollendo,9 novillos no china,,,,,,,,,,9 novillos,,,,,,,,,,,,,9 novillos no china
+107,Mollendo,36 novillos china,,,,,,,,,,36 novillos,,,,,,,,,,,,,36 novillos china
+108,Mollendo,Venta Mollendo No China 45 novillos Mafrisur,,,,,,,,,,45 novillos,,,,,,,Venta,,,Venta Mollendo,,,Venta Mollendo No China 45 novillos  Mafrisur
+109,Mollendo,Venta Mollendo China 45 novillos Venta Mafrisur,,,,,,,,,,45 novillos,,,,,,,Venta,,,Venta Mollendo China | Venta Mafrisur,,,Venta Mollendo China 45 novillos Venta Mafrisur
+110,Medieria FT,45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos a Frigorífico Temuco
+111,Medieria FT,45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos a Frigorífico Temuco
+112,Mollendo,45 novillos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur
+113,Mollendo,45 novillos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur
+114,Medieria FT,45 vaquillas a Frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,Frigorífico Temuco,,,45 vaquillas a Frigorífico Temuco
+115,Medieria FT,45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos a Frigorífico Temuco
+116,Corrales del Sur,40 novillos a Frigorífico Temuco,,,,,,,,,,40 novillos,,,,,,,,,,Frigorífico Temuco,,,40 novillos a Frigorífico Temuco
+117,Mollendo,35 novillos No China a Mafrisur,,,,,,,,,,35 novillos,,,,,,,,,,,,,35 novillos No China a Mafrisur
+118,Mollendo,10 novillos a Mafrisur,,,,,,,,,,10 novillos,,,,,,,,,,,,,10 novillos a Mafrisur
+119,Mollendo,45 novillos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur
+120,Mollendo,45 novillos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur
+121,Corrales del Sur,48 vaquillas a Frigorífico Temuco,,,,,,,,,,48 vaquillas,,,,,,,,,,Frigorífico Temuco,,,48 vaquillas a Frigorífico Temuco
+122,Medieria FT,45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos a Frigorífico Temuco
+123,Medieria FT,45 vaquillas A Frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,Frigorífico Temuco,,,45 vaquillas A Frigorífico Temuco
+124,Mollendo,45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos a Frigorífico Temuco
+125,Mollendo,28 animales a frigorífico Temuco,,,,,,,,,,,,,,,,,,,,,,,28 animales a frigorífico Temuco
+126,Mollendo,17 animales no china a frigorífico Temuco,,,,,,,,,,,,,,,,,,,,,,,17 animales no china a frigorífico Temuco
+127,Mollendo,45 novillos Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Mafrisur
+128,Mollendo,45 novillos Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Mafrisur
+129,Mollendo,45 novillos a Mafrisur (11 no china),,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur (11 no china)
+130,Medieria FT,45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos a Frigorífico Temuco
+131,Medieria FT,45 novillos Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos Frigorífico Temuco
+132,Mollendo,45 novillos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur
+133,Mollendo,45 novillos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur
+134,Mollendo,18 vaquillas + 27 novillos a Mafrisur,,,,,,,,,,18 vaquillas | 27 novillos,,,,,,,,,,,,,18 vaquillas + 27 novillos a Mafrisur
+135,Corrales del Sur,43 novillos a Frigorífico Temuco,,,,,,,,,,43 novillos,,,,,,,,,,Frigorífico Temuco,,,43 novillos a Frigorífico Temuco
+136,Corrales del Sur,43 novillos Frigorífico Temuco,,,,,,,,,,43 novillos,,,,,,,,,,Frigorífico Temuco,,,43 novillos Frigorífico Temuco
+137,feedlot,43 animales a Pampa Chile,,,,,,,,,,,,,,,,,,,,Pampa Chile,,,43 animales a Pampa Chile
+138,Mollendo,45 vaquillas Mafrisur,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas Mafrisur
+139,Mollendo,45 animales a Mafrisur,,,,,,,,,,,,,,,,,,,,,,,45 animales a Mafrisur
+140,Medieria FT,43 novillos a Frigorífico Temuco,,,,,,,,,,43 novillos,,,,,,,,,,Frigorífico Temuco,,,43 novillos a Frigorífico Temuco
+141,San Pedro,Venta 5 vacas Desecho Frigorífico Temuco,,,,,,,,,,5 vacas,,,,,,,Venta,,,Desecho Frigorífico Temuco,,,Venta 5 vacas Desecho Frigorífico Temuco
+142,feedlot,Venta 2 vacas Feedlot a Frigorífico Temuco,,,,,,,,,,2 vacas,,,,,,,Venta,,,Frigorífico Temuco,,,Venta 2 vacas Feedlot a Frigorífico Temuco
+143,Medieria FT,1 novillo Venta Urgencia,,,,,,,,,,1 novillo,,,,,,,Venta,,,Venta Urgencia,,,1 novillo Venta Urgencia
+144,Mollendo,45 vaquillas a Mafrisur,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas a Mafrisur
+145,Corrales del Sur,45 vaquillas a Frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,Frigorífico Temuco,,,45 vaquillas a Frigorífico Temuco
+146,Mollendo,45 novillos Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Mafrisur
+147,Mollendo,45 novillos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur
+149,Medieria FT,Venta 3 45 novillos Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,Venta,,,Frigorífico Temuco,,,Venta 3 45 novillos Frigorífico Temuco
+150,Medieria FT,Venta 2 45 novillos Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,Venta,,,Frigorífico Temuco,,,Venta 2 45 novillos Frigorífico Temuco
+151,Medieria FT,venta 1 45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,venta,,,Frigorífico Temuco,,,venta 1 45 novillos a Frigorífico Temuco
+152,Mollendo,45 vaquillas Gordas. Frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,Frigorífico Temuco,,,45 vaquillas Gordas. Frigorífico Temuco
+153,Corrales del Sur,45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos a Frigorífico Temuco
+154,Mollendo,7 novillos Gordos + 38 vaquillas Gordas a Temuco,,,,,,,,,,7 novillos | 38 vaquillas,,,,,,,,,,,,,7 novillos Gordos + 38 vaquillas Gordas a Temuco
+155,feedlot,9 vaquillas + 36 novillos a Pampa Chile,,,,,,,,,,9 vaquillas | 36 novillos,,,,,,,,,,Pampa Chile,,,9 vaquillas + 36 novillos a Pampa Chile
+156,Medieria FT,43 novillos a Frigorífico Temuco,,,,,,,,,,43 novillos,,,,,,,,,,Frigorífico Temuco,,,43 novillos a Frigorífico Temuco
+157,Mollendo,9 vaquillas + 36 novillos ( 2 novillos no china) a Frigorífico Temuco,,,,,,,,,,9 vaquillas | 36 novillos | 2 novillos,,,,,,,,,,Frigorífico Temuco,,,9 vaquillas + 36 novillos ( 2 novillos no china) a Frigorífico Temuco
+158,Medieria FT,45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos a Frigorífico Temuco
+159,Medieria FT,45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos a Frigorífico Temuco
+160,Medieria FT,45 novillos FT a Temuco,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos FT a Temuco
+161,Corrales del Sur,45 novillos gordos corrales del Sur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos corrales del Sur
+162,Mollendo,45 animales gordos Mollendo,,,,,,,,,,,,,,,,,,,,,,,45 animales gordos Mollendo
+163,feedlot,Venta Comercial la Invernada (Frigorifico Temuco) 45 novillos,,,,,,,,,,45 novillos,,,,,,,Venta,,,Venta Comercial | Frigorifico Temuco,,,Venta Comercial la Invernada (Frigorifico Temuco) 45 novillos
+164,Mollendo,45 novillos gordos a frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos a frigorífico Temuco
+165,Mollendo,45 novillos gordos a frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos a frigorífico Temuco
+166,feedlot,Venta Pampa Chile 18 vaquillas + 25 novillos,,,,,,,,,,18 vaquillas | 25 novillos,,,,,,,Venta,,,Venta Pampa Chile,,,Venta Pampa Chile 18 vaquillas + 25 novillos
+167,Mollendo,45 Novillos a Mafrisur,,,,,,,,,,45 Novillos,,,,,,,,,,,,,45 Novillos a Mafrisur
+168,Mollendo,45 novillos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur
+169,Mollendo,7 Novillos No China a Mafrisur,,,,,,,,,,7 Novillos,,,,,,,,,,,,,7 Novillos No China a Mafrisur
+170,Medieria FT,45 Novillos FT a Temuco,,,,,,,,,,45 Novillos,,,,,,,,,,,,,45 Novillos FT a Temuco
+171,Medieria FT,44 novillos FT agrolomas,,,,,,,,,,44 novillos,,,,,,,,,,,,,44 novillos FT agrolomas
+172,Mollendo,38 novillos China + 7 novillos no China,,,,,,,,,,38 novillos | 7 novillos,,,,,,,,,,,,,38 novillos China + 7 novillos no China
+173,Medieria FT,43 Novillos FT a Temuco,,,,,,,,,,43 Novillos,,,,,,,,,,,,,43 Novillos FT a Temuco
+174,Medieria FT,44 novillos FT a Temuco,,,,,,,,,,44 novillos,,,,,,,,,,,,,44 novillos FT a Temuco
+175,feedlot,35 novillos + 10 vaquillas pampa chile. Faena FT,,,,,,,,,,35 novillos | 10 vaquillas,,,,,,,,,,,,,35 novillos + 10 vaquillas pampa chile. Faena FT
+176,Medieria FT,45 novillos FT agrolomas,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos FT agrolomas
+177,San Pedro,Feria freire tattersal vacas vacías,,,,,,,,,,,,,,,,,,,,,,,Feria freire tattersal vacas vacías
+178,San Pedro,venta 5 vacas desecho,,,,,,,,,,5 vacas,,,,,,,venta,,,,,,venta 5 vacas desecho
+179,Mollendo,32 Novillos Gordos Mafrisur,,,,,,,,,,32 Novillos,,,,,,,,,,Novillos Gordos Mafrisur,,,32 Novillos Gordos Mafrisur
+180,Mollendo,13 novillos no china,,,,,,,,,,13 novillos,,,,,,,,,,,,,13 novillos no china
+181,Mollendo,45 novillos Gordos Mollendo a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,Gordos Mollendo,,,45 novillos Gordos Mollendo a Mafrisur
+182,Medieria FT,45 Novillos FT a Temuco,,,,,,,,,,45 Novillos,,,,,,,,,,,,,45 Novillos FT a Temuco
+183,Medieria FT,43 novillos FT agrolomas,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos FT  agrolomas
+184,Medieria FT,45 novillos Gordos agrolomas,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Gordos agrolomas
+185,Medieria FT,42 novillos FT a agrolomas,,,,,,,,,,42 novillos,,,,,,,,,,,,,42 novillos FT a agrolomas
+186,Medieria FT,43 novillos FT despacho agrolomas,,,,,,,,,,43 novillos,,,,,,,despacho,,,,,,43 novillos FT despacho agrolomas
+187,feedlot,45 novillos Gordos Para Pampa Chile,,,,,,,,,,45 novillos,,,,,,,,,,Gordos Para Pampa,,,45 novillos Gordos Para Pampa Chile
+188,Medieria FT,43 novillos Frigorífico Temuco,,,,,,,,,,43 novillos,,,,,,,,,,Frigorífico Temuco,,,43 novillos Frigorífico Temuco
+189,Mollendo,7 novillos No China a Mafrisur,,,,,,,,,,7 novillos,,,,,,,,,,,,,7 novillos No China a Mafrisur
+190,Mollendo,38 novillos Mafrisur,,,,,,,,,,38 novillos,,,,,,,,,,,,,38 novillos Mafrisur
+191,Medieria FT,43 novillos a Frigorífico Temuco,,,,,,,,,,43 novillos,,,,,,,,,,Frigorífico Temuco,,,43 novillos a Frigorífico Temuco
+192,feedlot,45 novillos Corrales del sur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Corrales del sur
+193,feedlot,40 vaquillas + 3 novillos a Pampa Chile,,,,,,,,,,40 vaquillas | 3 novillos,,,,,,,,,,Pampa Chile,,,40 vaquillas + 3 novillos a Pampa Chile
+194,Medieria FT,42 novillos a Frigorífico Temuco,,,,,,,,,,42 novillos,,,,,,,,,,Frigorífico Temuco,,,42 novillos a Frigorífico Temuco
+195,Mollendo,36 novillos China a Mafrisur,,,,,,,,,,36 novillos,,,,,,,,,,,,,36 novillos China a Mafrisur
+196,Mollendo,9 novillos No China a Mafrisur,,,,,,,,,,9 novillos,,,,,,,,,,,,,9 novillos No China a Mafrisur
+197,Mollendo,45 novillos China a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos China a Mafrisur
+198,Mollendo,5 Novillos No China a Mafrisur,,,,,,,,,,5 Novillos,,,,,,,,,,,,,5 Novillos No China a Mafrisur
+199,Mollendo,40 novillos Mafrisur,,,,,,,,,,40 novillos,,,,,,,,,,,,,40 novillos Mafrisur
+200,Medieria FT,42 novillos a Frigorífico Temuco,,,,,,,,,,42 novillos,,,,,,,,,,Frigorífico Temuco,,,42 novillos a Frigorífico Temuco
+201,Mollendo,22 Novillos Mafrisur,,,,,,,,,,22 Novillos,,,,,,,,,,Novillos Mafrisur,,,22 Novillos Mafrisur
+202,Mollendo,23 novillos No China Mafrisur,,,,,,,,,,23 novillos,,,,,,,,,,China Mafrisur,,,23 novillos No China Mafrisur
+203,Mollendo,45 novillos China a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos China a Mafrisur
+204,feedlot,37 novillos + 8 Vquillas a Pampa Chile,,,,,,,,,,37 novillos,,,,,,,,,,Pampa Chile,,,37 novillos + 8 Vquillas a Pampa Chile
+205,Mollendo,45 novillos Gordos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Gordos a Mafrisur
+206,Mollendo,27 novillos Gordos a Mafrisur,,,,,,,,,,27 novillos,,,,,,,,,,,,,27 novillos Gordos a Mafrisur
+207,Mollendo,18 Novillos Gordos No China a Mafrisur,,,,,,,,,,18 Novillos,,,,,,,,,,Novillos Gordos,,,18 Novillos Gordos No China a Mafrisur
+208,Mollendo,45 novillos Gordos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Gordos a Mafrisur
+209,feedlot,14 novillos + 31 vaquillas Pampa chile,,,,,,,,,,14 novillos | 31 vaquillas,,,,,,,,,,,,,14 novillos + 31 vaquillas Pampa chile
+210,Mollendo,devolución 2 novillos santa clara,,,,,,,,,,2 novillos,,,,,,,,,,,,,devolución 2 novillos santa clara
+211,Mollendo,45 novillos Gordos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Gordos a Mafrisur
+212,Mollendo,45 novillos Gordos Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,Gordos Mafrisur,,,45 novillos Gordos Mafrisur
+213,Mollendo,45 novillos gordos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos a Mafrisur
+214,Mollendo,27 animales china,,,,,,,,,,,,,,,,,,,,,,,27 animales china
+215,Mollendo,18 animales no china,,,,,,,,,,,,,,,,,,,,,,,18 animales no china
+216,Mollendo,30 vaquillas + 6 novillos China,,,,,,,,,,30 vaquillas | 6 novillos,,,,,,,,,,,,,30 vaquillas + 6 novillos China
+217,Mollendo,45 vaquillas Gordas a Mafrisur (china),,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas Gordas a Mafrisur (china)
+218,Mollendo,9 vaquillas No china,,,,,,,,,,9 vaquillas,,,,,,,,,,,,,9 vaquillas No china
+219,San Pedro,Venta Frigorífico Temuco 35 vacas,,,,,,,,,,35 vacas,,,,,,,Venta,,,Venta Frigorífico Temuco,,,Venta Frigorífico Temuco 35 vacas
+220,San Pedro,Venta a Frigorífico Temuco 8 toros y 27 vacas,,,,,,,,,,8 toros | 27 vacas,,,,,,,Venta,,,Frigorífico Temuco,,,Venta a Frigorífico Temuco 8 toros y 27 vacas
+221,Medieria FT,1 novillo Cojo Frigorífico Temuco,,,,,,,,,,1 novillo,,,,,,,,,,Cojo Frigorífico Temuco,,,1 novillo Cojo Frigorífico Temuco
+222,feedlot,11 vaquillas y 30 Novillos a Pampa Chile Frigorífico Temuco,,,,,,,,,,11 vaquillas | 30 Novillos,,,,,,,,,,Pampa Chile Frigorífico,,,11 vaquillas y 30 Novillos a Pampa Chile Frigorífico Temuco
+223,Mollendo,45 vaquillas a Mafrisur,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas a Mafrisur
+224,Mollendo,25 novillos No China Frigorífico Temuco,,,,,,,,,,25 novillos,,,,,,,,,,China Frigorífico Temuco,,,25 novillos No China Frigorífico Temuco
+225,Mollendo,20 novillos gordos a Frigorífico Temuco,,,,,,,,,,20 novillos,,,,,,,,,,Frigorífico Temuco,,,20 novillos gordos a Frigorífico Temuco
+226,Mollendo,45 novillos gordos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos gordos a Frigorífico Temuco
+227,Mollendo,45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos a Frigorífico Temuco
+228,Mollendo,45 novillos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos a Frigorífico Temuco
+229,San Pedro,"45 vacas gordas (Frival), venta China",,,,,,,,,,45 vacas,,,,,,,venta,,,,,,"45 vacas gordas (Frival), venta China"
+230,feedlot,43 novillos gordos Pampa Chile a Frigorífico Temuco,,,,,,,,,,43 novillos,,,,,,,,,,Pampa Chile | Frigorífico Temuco,,,43 novillos gordos Pampa Chile a Frigorífico Temuco
+231,Mollendo,45 animales a mafrisur,,,,,,,,,,,,,,,,,,,,,,,45 animales a mafrisur
+232,Mollendo,5 vaquillas No china Temuco,,,,,,,,,,5 vaquillas,,,,,,,,,,,,,5 vaquillas No china Temuco
+233,Mollendo,40 vaquillas Gordas China A Frigorífico Temuco,,,,,,,,,,40 vaquillas,,,,,,,,,,Gordas China | Frigorífico Temuco,,,40 vaquillas Gordas China A Frigorífico Temuco
+234,Mollendo,45 Novillos a Frigorífico Temuco,,,,,,,,,,45 Novillos,,,,,,,,,,Frigorífico Temuco,,,45 Novillos a Frigorífico Temuco
+235,Mollendo,45 novillos A Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos A Frigorífico Temuco
+236,Mollendo,devolución 3 novillos agrimaq,,,,,,,,,,3 novillos,,,,,,,,,,,,,devolución 3 novillos agrimaq
+237,feedlot,43 noviĺlos gordos Pampa chile,,,,,,,,,,,,,,,,,,,,,,,43 noviĺlos gordos Pampa chile
+238,Mollendo,45 vaquillas Gordas a Mafrisur,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas Gordas a Mafrisur
+239,Mollendo,24 Vaquillas gordas Mafrisur,,,,,,,,,,24 Vaquillas,,,,,,,,,,,,,24 Vaquillas gordas Mafrisur
+240,Mollendo,45 vaquillas gordas a Mafrisur,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas a Mafrisur
+241,Mollendo,21 animales No China a Mafrisur,,,,,,,,,,,,,,,,,,,,,,,21 animales No China a Mafrisur
+242,San Pedro,Venta desecho,,,,,,,,,,,,,,,,,Venta,,,,,,Venta desecho
+243,feedlot,venta desecho 9 novillos desposte y 16 vaquillas.,,,,,,,,,,9 novillos | 16 vaquillas,,,,,,,venta,,,,,,venta desecho 9 novillos desposte y 16 vaquillas.
+244,feedlot,30 vaquillas Gordas + 15 novillos gordos a Pampa Chile faena frigorifico temuco,,,,,,,,,,30 vaquillas | 15 novillos,,,,,,,,,,Pampa Chile,,,30 vaquillas Gordas + 15 novillos gordos a Pampa Chile faena frigorifico temuco
+245,Mollendo,45 Vaquillas a mafrisur,,,,,,,,,,45 Vaquillas,,,,,,,,,,,,,45 Vaquillas a mafrisur
+246,Mollendo,25 novillos gordos + 20 Vaquillas gordas a Mafrisur,,,,,,,,,,25 novillos | 20 Vaquillas,,,,,,,,,,,,,25 novillos gordos + 20 Vaquillas gordas a Mafrisur
+247,Mollendo,45 novillos gordos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos a Mafrisur
+248,Mollendo,45 novillos gordos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos a Mafrisur
+249,Mollendo,45 vaquillas Gordas a Mafrisur,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas Gordas a Mafrisur
+250,Mollendo,45 novillos gordos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos a Mafrisur
+251,feedlot,42 Vaquillas Gordas a Mollendo,,,,,,,,,,42 Vaquillas,,,,,,,,,,Vaquillas Gordas,,,42 Vaquillas Gordas a Mollendo
+252,Mollendo,45 novillos a Mollendo,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mollendo
+253,Mollendo,45 novillos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur
+254,feedlot,45 vaquillas Gordas a Pampa chile,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas Gordas a Pampa chile
+255,Mollendo,45 animales a Mafrisur,,,,,,,,,,,,,,,,,,,,,,,45 animales a Mafrisur
+256,Medieria Frival,47 vaquillas Gordas A Frival,,,,,,,,,,47 vaquillas,,,,,,,,,,,,,47 vaquillas Gordas A Frival
+257,Mollendo,45 novillos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur
+258,feedlot,Venta 48 vaquillas gordas a Tattersall,,,,,,,,,,48 vaquillas,,,,,,,Venta,,,,,,Venta 48 vaquillas gordas a Tattersall
+259,Mollendo,45 vaquillas Gordas a Frigo Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,Frigo Temuco,,,45 vaquillas Gordas a Frigo Temuco
+260,Mollendo,45 Vaquillas Gordas a Frigorifico Temuco,,,,,,,,,,45 Vaquillas,,,,,,,,,,Vaquillas Gordas | Frigorifico Temuco,,,45 Vaquillas Gordas a Frigorifico Temuco
+261,Mollendo,45 novillos gordos A Frigorifico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorifico Temuco,,,45 novillos gordos A Frigorifico Temuco
+262,feedlot,venta 45 vaquillas gordas a mollendo SA faena Mafrisur.,,,,,,,,,,45 vaquillas,,,,,,,venta,,,,,,venta 45 vaquillas gordas a mollendo SA faena Mafrisur.
+263,Mollendo,45 vaquillas gordas a Mafrisur,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas a Mafrisur
+264,Medieria Oller,Venta 48 vaquillas Frigorifico Angol mediria Oller,,,,,,,,,,48 vaquillas,,,,,,,Venta,,,Frigorifico Angol,,,Venta 48 vaquillas Frigorifico Angol mediria Oller
+265,Medieria Frival,44 novillos frival a Pampa Chile,,,,,,,,,,44 novillos,,,,,,,,,,Pampa Chile,,,44 novillos frival a Pampa Chile
+266,Medieria Frival,43 animales Frival Venta los lagos,,,,,,,,,,,,,,,,,Venta,,,Frival Venta,,,43 animales Frival Venta los lagos
+267,Medieria Frival,4 novillos Schilling a Frival,,,,,,,,,,4 novillos,,,,,,,,,,,,,4 novillos Schilling a Frival
+268,Medieria Frival,3 novillos agrícola el bosque a Frival,,,,,,,,,,3 novillos,,,,,,,,,,,,,3 novillos agrícola el bosque a Frival
+269,Medieria Frival,4 novillos Mauricio Yung a Frival y,,,,,,,,,,4 novillos,,,,,,,,,,Mauricio Yung,,,4 novillos Mauricio Yung a Frival y
+270,Medieria Frival,33 vaquillas Javier Yung a Frival,,,,,,,,,,33 vaquillas,,,,,,,,,,Javier Yung,,,33 vaquillas Javier Yung a Frival
+271,Medieria Frival,9 novillos desposte agrícola Los Lagos a Frival,,,,,,,,,,9 novillos,,,,,,,,,,Los Lagos,,,9 novillos desposte agrícola Los Lagos a Frival
+272,Medieria Frival,4 Novillos Mauricio Yung a Frival,,,,,,,,,,4 Novillos,,,,,,,,,,Novillos Mauricio Yung,,,4 Novillos Mauricio Yung a Frival
+273,Medieria Frival,3 novillos schiling a Frival,,,,,,,,,,3 novillos,,,,,,,,,,,,,3 novillos schiling a Frival
+274,Medieria Frival,4 vaquillas preñadas karin a Frival,,,,,,,,,,4 vaquillas,,,,,,,,,,,,,4 vaquillas preñadas karin a Frival
+275,San Pedro,Venta 3 Vacas Desechos PTBC a Don Gustabo Wueinber,,,,,,,,,,3 Vacas,,,,,,,Venta,,,Vacas Desechos | Don Gustabo Wueinber,,,Venta 3 Vacas Desechos PTBC a Don Gustabo Wueinber
+276,feedlot,Venta 2 terneras Recria a Don Gustabo Wueinber,,,,,,,,,,2 terneras,,,,,,,Venta,,,Don Gustabo Wueinber,,,Venta 2 terneras Recria a Don Gustabo Wueinber
+277,Medieria Frival,41 novillos gordos Premiun Niclechest A Frival,,,,,,,,,,41 novillos,,,,,,,,,,Premiun Niclechest,,,41 novillos gordos Premiun Niclechest A Frival
+278,Medieria Frival,45 Novillos desposte a Frival Venta Los Lagos,,,,,,,,,,45 Novillos,,,,,,,Venta,,,Frival Venta Los,,,45 Novillos desposte a Frival Venta Los Lagos
+279,Medieria Frival,19 vaquillas Desposte + 26 novillos Desposte Venta con Guía de la agrícola a Frival,,,,,,,,,,19 vaquillas | 26 novillos,,,,,,,Venta,,,Desposte Venta,,,19 vaquillas Desposte + 26 novillos Desposte Venta con Guía de la agrícola a Frival
+280,Medieria Frival,42 Novillos Niclechest Gordos Premiun a Frival,,,,,,,,,,42 Novillos,,,,,,,,,,Novillos Niclechest Gordos,,,42 Novillos Niclechest Gordos Premiun a Frival
+281,Medieria Frival,42 Novillos Premiun Niclechest A Frival,,,,,,,,,,42 Novillos,,,,,,,,,,Novillos Premiun Niclechest,,,42 Novillos Premiun Niclechest A Frival
+282,Medieria Frival,45 novillos desposte Niclechest A Frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos desposte Niclechest A Frival
+283,Medieria Frival,43 novillos Frival Venta a Pampa Chile con Guía de Los lagos,,,,,,,,,,43 novillos,,,,,,,Venta,,,Frival Venta | Pampa Chile,,,43 novillos Frival Venta a Pampa Chile con Guía de Los lagos
+284,Medieria Frival,45 Novillos desposte Frival vendida por agrícola los lagos.. a Frival,,,,,,,,,,45 Novillos,,,,,,,,,,,,,45 Novillos desposte Frival vendida por agrícola los lagos.. a Frival
+285,Medieria Frival,15 novillos Desposte Mauricio Yung a Frival,,,,,,,,,,15 novillos,,,,,,,,,,Desposte Mauricio Yung,,,15 novillos Desposte Mauricio Yung a Frival
+286,Medieria Frival,10 novillos Desposte chiling a Frival,,,,,,,,,,10 novillos,,,,,,,,,,,,,10 novillos Desposte chiling a Frival
+287,Medieria Frival,20 vaquillas Desposte Karin A Frival,,,,,,,,,,20 vaquillas,,,,,,,,,,Desposte Karin,,,20 vaquillas Desposte Karin A Frival
+288,Medieria Frival,16 novillos + 7 vaquillas desposte Javier Yung a Frival,,,,,,,,,,16 novillos | 7 vaquillas,,,,,,,,,,Javier Yung,,,16 novillos + 7 vaquillas desposte Javier Yung a Frival
+289,Medieria Frival,20 novillos Vareros Javier Yung a Frival,,,,,,,,,,20 novillos,,,,,,,,,,Vareros Javier Yung,,,20 novillos  Vareros Javier Yung a Frival
+290,Medieria Frival,31 novillos Desposte El Bosque a Frival,,,,,,,,,,31 novillos,,,,,,,,,,,,,31 novillos Desposte El Bosque a Frival
+291,Medieria Frival,14 Novillos desposte chunimpa A Frival,,,,,,,,,,14 Novillos,,,,,,,,,,,,,14 Novillos desposte chunimpa A Frival
+292,Medieria Frival,43 Novillos Desposte Niclechest a Frival,,,,,,,,,,43 Novillos,,,,,,,,,,Novillos Desposte Niclechest,,,43 Novillos Desposte Niclechest a Frival
+293,Medieria Frival,23 Novillos Vareros y 20 Novillos Desposte Javier Jung A Frival,,,,,,,,,,23 Novillos | 20 Novillos,,,,,,,,,,Novillos Vareros | Novillos Desposte Javier,,,23 Novillos Vareros y 20 Novillos Desposte Javier Jung A Frival
+294,Mollendo,Despacho 43 animales Mafrisur,,,,,,,,,,,,,,,,,Despacho,,,,,,Despacho 43 animales Mafrisur
+295,Mollendo,Despacho 19 vaquillas + 24 novillos a Mafrisur,,,,,,,,,,19 vaquillas | 24 novillos,,,,,,,Despacho,,,,,,Despacho 19 vaquillas + 24 novillos a Mafrisur
+296,Medieria Frival,43 novillos vareros Niclechekts a Frival,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos vareros Niclechekts a Frival
+297,Mollendo,13 Novillos y 32 vaquillas a Frigorífico Temuco (camión 3),,,,,,,,,,13 Novillos | 32 vaquillas,,,,camión 3,,,,,,Frigorífico Temuco,,,13 Novillos y 32 vaquillas a Frigorífico Temuco (camión 3)
+298,Mollendo,45 novillos A Frigorífico Temuco (camion 2),,,,,,,,,,45 novillos,,,,camion 2,,,,,,Frigorífico Temuco,,,45 novillos A Frigorífico Temuco (camion 2)
+299,Mollendo,45 novillos A Frigorífico Temuco (camión 1),,,,,,,,,,45 novillos,,,,camión 1,,,,,,Frigorífico Temuco,,,45 novillos A Frigorífico Temuco (camión 1)
+300,Medieria Frival,20 vaquillas Karin a Frival,,,,,,,,,,20 vaquillas,,,,,,,,,,,,,20 vaquillas Karin a Frival
+301,Medieria Frival,25 Novillos El Bosque a Frival,,,,,,,,,,25 Novillos,,,,,,,,,,,,,25 Novillos El Bosque a Frival
+302,Medieria Frival,45 novillos gordos Yung a Frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos Yung a Frival
+303,Medieria Frival,despacho 45 novillos Yung a Frival,,,,,,,,,,45 novillos,,,,,,,despacho,,,,,,despacho 45 novillos Yung a Frival
+304,Medieria Frival,despacho 45 Novillos Yung a Frival,,,,,,,,,,45 Novillos,,,,,,,despacho,,,Novillos Yung,,,despacho 45 Novillos Yung a Frival
+305,Medieria Frival,24 novillos Shiling + 20 novillos Niclechest,,,,,,,,,,24 novillos | 20 novillos,,,,,,,,,,,,,24 novillos Shiling + 20 novillos Niclechest
+306,Medieria Frival,25 vaquillas Preñadas Karin + 20 novillos Yung a Frival,,,,,,,,,,25 vaquillas | 20 novillos,,,,,,,,,,Preñadas Karin,,,25 vaquillas Preñadas Karin + 20 novillos Yung a Frival
+307,Mollendo,25 vaquillas gordas y 20 novillos a Mafrisur,,,,,,,,,,25 vaquillas | 20 novillos,,,,,,,,,,,,,25 vaquillas gordas y 20 novillos a Mafrisur
+308,Mollendo,45 Vaquillas Gordas Mafrisur,,,,,,,,,,45 Vaquillas,,,,,,,,,,Vaquillas Gordas Mafrisur,,,45 Vaquillas Gordas Mafrisur
+309,Medieria Oller,Venta 41 Vaquillas a Matadero Angol,,,,,,,,,,41 Vaquillas,,,,,,,Venta,,,Matadero Angol,,,Venta 41 Vaquillas a Matadero Angol
+310,Mollendo,25 novillos Gordos + 20 Vaquillas a Mafrisur,,,,,,,,,,25 novillos | 20 Vaquillas,,,,,,,,,,,,,25 novillos Gordos + 20 Vaquillas a Mafrisur
+311,Medieria Frival,43 Novillos Niclechestc a Fival,,,,,,,,,,43 Novillos,,,,,,,,,,Novillos Niclechestc,,,43 Novillos Niclechestc a Fival
+312,Medieria Frival,45 vaquillas Desposte Yung a Frival,,,,,,,,,,45 vaquillas,,,,,,,,,,Desposte Yung,,,45 vaquillas Desposte Yung a Frival
+313,Medieria Frival,Venta Desposte 24 chunimpa y 20 el bosque.,,,,,,,,,,,,,,,,,Venta,,,Venta Desposte,,,Venta Desposte 24 chunimpa y 20 el bosque.
+314,Medieria Frival,Venta 43 Nobillos nicklichek a Frival,,,,,,,,,,,,,,,,,Venta,,,,,,Venta 43 Nobillos nicklichek a Frival
+315,Medieria Frival,Venta 40 Novillos Klein a Frival,,,,,,,,,,40 Novillos,,,,,,,Venta,,,Novillos Klein,,,Venta 40 Novillos Klein a Frival
+316,Medieria Frival,Venta 45 novillos Yung por Agrícola los lagos con Guía nuestra,,,,,,,,,,45 novillos,,,,,,,Venta,,,,,,Venta 45 novillos Yung por Agrícola los lagos con Guía nuestra
+317,feedlot,43 vaquillas Gordas Pampa Chile. Faena Frigorífico Temuco,,,,,,,,,,43 vaquillas,,,,,,,,,,Gordas Pampa Chile | Faena Frigorífico Temuco,,,43 vaquillas Gordas Pampa Chile. Faena Frigorífico Temuco
+318,Mollendo,45 novillos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos a Mafrisur
+319,feedlot,Venta 43 vaquillas Gordas a Frival,,,,,,,,,,43 vaquillas,,,,,,,Venta,,,,,,Venta 43 vaquillas Gordas a Frival
+320,feedlot,venta 30 novillos Gordos + 13 vaquillas gordas A Frival,,,,,,,,,,30 novillos | 13 vaquillas,,,,,,,venta,,,,,,venta 30 novillos Gordos + 13 vaquillas gordas A Frival
+321,Medieria Frival,45 vaquillas desposte Yung a Frival,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas desposte Yung a Frival
+322,Medieria Frival,43 novillos Yung Desposte a Frival,,,,,,,,,,43 novillos,,,,,,,,,,Yung Desposte,,,43 novillos Yung Desposte a Frival
+323,feedlot,43 novillos Gordos a Frival,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos Gordos a Frival
+324,Medieria Frival,43 Novillos desposte Frival a Frival,,,,,,,,,,43 Novillos,,,,,,,,,,,,,43 Novillos desposte Frival a Frival
+325,Mollendo,45 Novillos Mafrisur (china),,,,,,,,,,45 Novillos,,,,,,,,,,Novillos Mafrisur,,,45 Novillos Mafrisur (china)
+326,Mollendo,32 No China + 13 china a Mafrisur,,,,,,,,,,,,,,,,,,,,,,,32 No China + 13 china a Mafrisur
+327,Mollendo,45 animales a Mafrisur (china),,,,,,,,,,,,,,,,,,,,,,,45 animales a Mafrisur (china)
+328,Mollendo,45 novillos Gordos a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos Gordos a Frigorífico Temuco
+329,feedlot,Venta Frival. 22 vacas China + 5 animales desposte,,,,,,,,,,22 vacas,,,,,,,Venta,,,Venta Frival,,,Venta Frival. 22 vacas China + 5 animales desposte
+330,Mollendo,Venta 45 novillos Mafrisur,,,,,,,,,,45 novillos,,,,,,,Venta,,,,,,Venta 45 novillos Mafrisur
+331,Mollendo,Venta 25 vaquillas + 20 novillos Mafrisur,,,,,,,,,,25 vaquillas | 20 novillos,,,,,,,Venta,,,,,,Venta 25 vaquillas + 20 novillos Mafrisur
+332,Mollendo,45 vaquillas gordas Mafrisur,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas Mafrisur
+333,feedlot,"43 novillos Gordos Pampa Chile, Faena Frigorífico Temuco",,,,,,,,,,43 novillos,,,,,,,,,,Gordos Pampa Chile | Faena Frigorífico Temuco,,,"43 novillos Gordos Pampa Chile, Faena Frigorífico Temuco"
+334,Mollendo,25 vaquillas más 20 novillos Mafrisur,,,,,,,,,,25 vaquillas | 20 novillos,,,,,,,,,,,,,25 vaquillas más 20 novillos Mafrisur
+335,feedlot,44 novillos Gordos Frival,,,,,,,,,,44 novillos,,,,,,,,,,Gordos Frival,,,44 novillos Gordos Frival
+336,Mollendo,45 novillos Gordos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Gordos a Mafrisur
+337,feedlot,38 vaquillas gordas + 9 novillos Gordos a Frival.,,,,,,,,,,38 vaquillas | 9 novillos,,,,,,,,,,,,,38 vaquillas gordas + 9 novillos Gordos a Frival.
+338,feedlot,45 vaquillas Gordas Frival,,,,,,,,,,45 vaquillas,,,,,,,,,,Gordas Frival,,,45 vaquillas Gordas Frival
+339,Mollendo,25 novillos y 20 vaquillas a Mafrisur,,,,,,,,,,25 novillos | 20 vaquillas,,,,,,,,,,,,,25 novillos y 20 vaquillas a Mafrisur
+340,Mollendo,45 novillos Gordos a Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Gordos a Mafrisur
+341,feedlot,44 novillos Gordos Venta Pampa Chile.,,,,,,,,,,44 novillos,,,,,,,Venta,,,Gordos Venta Pampa,,,44 novillos Gordos Venta Pampa Chile.
+342,feedlot,43 novillos Gordos Fegosa,,,,,,,,,,43 novillos,,,,,,,,,,Gordos Fegosa,,,43 novillos Gordos Fegosa
+343,Mollendo,45 Novillos a Mafrisur,,,,,,,,,,45 Novillos,,,,,,,,,,,,,45 Novillos a Mafrisur
+344,Mollendo,45 vaquillas Gordas a Mafrisur,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas Gordas a Mafrisur
+345,Mollendo,45 vaquillas gordas a Mafrisur,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas a Mafrisur
+346,feedlot,20 novillos gordos Frival,,,,,,,,,,20 novillos,,,,,,,,,,,,,20 novillos gordos Frival
+347,Mollendo,Venta 2 novillos Cojos A Mafrisur,,,,,,,,,,2 novillos,,,,,,,Venta,,,,,,Venta 2 novillos Cojos A Mafrisur
+348,feedlot,20 vaquillas Gordas Tattersall Freiré,,,,,,,,,,20 vaquillas,,,,,,,,,,Gordas Tattersall Freir,,,20 vaquillas Gordas Tattersall Freiré
+349,feedlot,20 novillos Gordos Tattersall Freire,,,,,,,,,,20 novillos,,,,,,,,,,Gordos Tattersall Freire,,,20 novillos Gordos Tattersall Freire
+350,feedlot,26 vacas a Feria Araucanias Temuco,,,,,,,,,,26 vacas,,,,,,,,,,Feria Araucanias Temuco,,,26 vacas a Feria Araucanias Temuco
+351,feedlot,10 novillos Gordos y 10 vaquillas gordas a Ferias Araucanias Temuco,,,,,,,,,,10 novillos | 10 vaquillas,,,,,,,,,,Ferias Araucanias Temuco,,,10 novillos Gordos y 10 vaquillas gordas a Ferias Araucanias Temuco
+352,feedlot,20 vaquillas + 25 novillos Ferias Araucanias Temuco,,,,,,,,,,20 vaquillas | 25 novillos,,,,,,,,,,Ferias Araucanias Temuco,,,20 vaquillas + 25 novillos Ferias Araucanias Temuco
+353,feedlot,20 novillos Gordos a Feria Tattersall Freiré,,,,,,,,,,20 novillos,,,,,,,,,,Feria Tattersall Freir,,,20 novillos Gordos a Feria Tattersall Freiré
+354,feedlot,20 Novillos Gordos a Feria Tattersall Freiré,,,,,,,,,,20 Novillos,,,,,,,,,,Novillos Gordos | Feria Tattersall Freir,,,20 Novillos Gordos a Feria Tattersall Freiré
+355,feedlot,3 vaquillas gordas y 45 Vaquillas desposte Frival.,,,,,,,,,,3 vaquillas | 45 Vaquillas,,,,,,,,,,,,,3 vaquillas gordas y 45 Vaquillas desposte Frival.
+356,feedlot,22 vaquillas desposte Frival,,,,,,,,,,22 vaquillas,,,,,,,,,,,,,22 vaquillas desposte Frival
+357,feedlot,venta Pampa Chile. 33 vaquillas y 9 novillos,,,,,,,,,,33 vaquillas | 9 novillos,,,,,,,venta,,,Pampa Chile,,,venta Pampa Chile. 33 vaquillas y 9 novillos
+358,feedlot,45 novillos gordos Pampa Chile faena Mafrisur,,,,,,,,,,45 novillos,,,,,,,,,,Pampa Chile,,,45 novillos gordos Pampa Chile faena Mafrisur
+359,feedlot,45 novillos Gordos A Frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Gordos A Frival
+360,San Pedro,Venta 22 vacas desecho 2 toro desecho Feria Freire.,,,,,,,,,,22 vacas | 2 toro,,,,,,,Venta,,,Feria Freire,,,Venta 22 vacas desecho 2 toro desecho Feria Freire.
+361,feedlot,Venta desposte Frival,,,,,,,,,,,,,,,,,Venta,,,,,,Venta desposte Frival
+362,San Pedro,Venta 20 animales a feria Tattersall Freiré,,,,,,,,,,,,,,,,,Venta,,,Tattersall Freir,,,Venta 20 animales a feria Tattersall Freiré
+363,feedlot,Venta 28 animales a Feria Tattersall Freire,,,,,,,,,,,,,,,,,Venta,,,Feria Tattersall Freire,,,Venta 28 animales a Feria Tattersall Freire
+364,feedlot,Venta Frival 2 vaquillas Engorda + 12 novillos engorda.,,,,,,,,,,2 vaquillas | 12 novillos,,,,,,,Venta,,,Venta Frival,,,Venta Frival 2 vaquillas Engorda + 12 novillos engorda.
+365,San Pedro,28 vacas Secas a Frival,,,,,,,,,,28 vacas,,,,,,,,,,,,,28 vacas Secas a Frival
+366,feedlot,42 Novillos Pampa Chile,,,,,,,,,,42 Novillos,,,,,,,,,,Novillos Pampa Chile,,,42 Novillos Pampa Chile
+367,feedlot,venta 5 vaquillas y 26 novilos a Frival (desposte),,,,,,,,,,5 vaquillas,,,,,,,venta,,,,,,venta 5 vaquillas y 26 novilos a Frival (desposte)
+369,San Pedro,40 vacas gordas Frival,,,,,,,,,,40 vacas,,,,,,,,,,,,,40 vacas gordas Frival
+370,feedlot,Venta frival 12 vaquillas Gordas + 30 novillos Gordos,,,,,,,,,,12 vaquillas | 30 novillos,,,,,,,Venta,,,,,,Venta frival 12 vaquillas Gordas + 30 novillos Gordos
+371,feedlot,Venta desposte Frival 16 vaquillas y 29 novillos,,,,,,,,,,16 vaquillas | 29 novillos,,,,,,,Venta,,,,,,Venta desposte Frival 16 vaquillas y 29 novillos
+372,feedlot,venta 45 Novillos Puchi a Pampa Chile con guía de ellos,,,,,,,,,,45 Novillos,,,,,,,venta,,,Novillos Puchi | Pampa Chile,,,venta 45 Novillos Puchi a Pampa Chile con guía de ellos
+373,feedlot,45 novillos Puchi a Frigorífico Temuco con guía de ellos,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos Puchi a Frigorífico Temuco con guía de ellos
+374,feedlot,8 animales a feria Tattersall Freiré,,,,,,,,,,,,,,,,,,,,Tattersall Freir,,,8 animales a feria Tattersall Freiré
+376,feedlot,2do camión 45 novillos Gordos Puchi a Frigorífico Temuco,,,,,,,,,,45 novillos,,,,camión 45,,,,,,Gordos Puchi | Frigorífico Temuco,,,2do camión 45 novillos Gordos Puchi a Frigorífico Temuco
+377,feedlot,"45 novillos Gordos Puchi, a Frigorífico Temuco con guía de ellos",,,,,,,,,,45 novillos,,,,,,,,,,Gordos Puchi | Frigorífico Temuco,,,"45 novillos Gordos Puchi, a Frigorífico Temuco con guía de ellos"
+378,feedlot,45 novillos Gordos Puchi a Frigorífico Osorno con guía de ellos.,,,,,,,,,,45 novillos,,,,,,,,,,Gordos Puchi | Frigorífico Osorno,,,45 novillos Gordos Puchi a Frigorífico Osorno con guía de ellos.
+379,feedlot,"45 novillos Puchi, Faena Pampa Chle con Guía nuestra.",,,,,,,,,,45 novillos,,,,,,,,,,Faena Pampa Chle,,,"45 novillos Puchi, Faena Pampa Chle con Guía nuestra."
+380,feedlot,Venta 45 Vaquillas Desposte a Frigorífico Temuco,,,,,,,,,,45 Vaquillas,,,,,,,Venta,,,Vaquillas Desposte | Frigorífico Temuco,,,Venta 45 Vaquillas Desposte a Frigorífico Temuco
+381,feedlot,Venta 45 novillos desposte a Frigorífico Temuco. (concepción),,,,,,,,,,45 novillos,,,,,,,Venta,,,Frigorífico Temuco,,,Venta 45 novillos desposte a Frigorífico Temuco. (concepción)
+382,feedlot,"Venta 22 Novillos Puchi a Tattersall, con Guía Puchi",,,,,,,,,,22 Novillos,,,,,,,Venta,,,Novillos Puchi | Guía Puchi,,,"Venta 22 Novillos Puchi a Tattersall, con Guía Puchi"
+383,feedlot,Venta 45 novillos Puchi a Tattersall con guía Puchi,,,,,,,,,,45 novillos,,,,,,,Venta,,,,,,Venta 45 novillos Puchi a Tattersall con guía Puchi
+384,feedlot,Venta 45 novillos Gordos Puchi a Tattersall Ganado S.A (con guía Puchi),,,,,,,,,,45 novillos,,,,,,,Venta,,,Gordos Puchi | Tattersall Ganado,,,Venta 45 novillos Gordos Puchi a Tattersall Ganado S.A (con guía Puchi)
+385,San Pedro,Feria tattersal 6 toros desecho y 1 vaca desecho,,,,,,,,,,6 toros | 1 vaca,,,,,,,,,,,,,Feria tattersal 6 toros desecho y 1 vaca desecho
+386,feedlot,Venta Feria Tattersall Freiré.. 12 vaquillas preñadas y 2 novillos cojos,,,,,,,,,,12 vaquillas | 2 novillos,,,,,,,Venta,,,Venta Feria Tattersall,,,Venta Feria Tattersall Freiré.. 12 vaquillas preñadas y 2 novillos cojos
+387,feedlot,venta 40 novillos gordos Puchi a Tattersall,,,,,,,,,,40 novillos,,,,,,,venta,,,,,,venta 40 novillos gordos Puchi a Tattersall
+388,feedlot,venta 2 45 novillos Puchi a Mollendo con guía Puchi,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,venta 2 45 novillos Puchi a Mollendo con guía Puchi
+389,feedlot,venta 45 novillos Puchi a Mollendo con guía Puchi,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,venta 45 novillos Puchi a Mollendo con guía Puchi
+390,feedlot,44 novillos desposte Frival,,,,,,,,,,44 novillos,,,,,,,,,,,,,44 novillos desposte Frival
+391,feedlot,Venta 45 novillos Desposte Frival,,,,,,,,,,45 novillos,,,,,,,Venta,,,Desposte Frival,,,Venta 45 novillos Desposte Frival
+392,San Pedro,Venta 11 vacas desecho Feria Tattersall Freire,,,,,,,,,,11 vacas,,,,,,,Venta,,,Feria Tattersall Freire,,,Venta 11 vacas desecho Feria Tattersall Freire
+393,feedlot,venta 35 animales feria Tattersall Freire,,,,,,,,,,,,,,,,,venta,,,Tattersall Freire,,,venta 35 animales feria Tattersall Freire
+394,feedlot,Venta Frigorífico Osorno 35 vaquillas gordas y 7 novillos gordos,,,,,,,,,,35 vaquillas | 7 novillos,,,,,,,Venta,,,Venta Frigorífico Osorno,,,Venta Frigorífico Osorno 35 vaquillas gordas y 7 novillos gordos
+395,feedlot,40 vaquillas gordas Tattersall ganado SA,,,,,,,,,,40 vaquillas,,,,,,,,,,,,,40 vaquillas gordas Tattersall ganado SA
+396,feedlot,45 novillos gordos a Frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos a Frival
+397,feedlot,45 vaquillas gordas Frival,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas Frival
+398,feedlot,16 vaquillas engorda Tattersall Freire,,,,,,,,,,16 vaquillas,,,,,,,,,,Tattersall Freire,,,16 vaquillas engorda Tattersall Freire
+399,feedlot,20 vaquillas Gordas Tattersall Freire,,,,,,,,,,20 vaquillas,,,,,,,,,,Gordas Tattersall Freire,,,20 vaquillas Gordas Tattersall Freire
+400,feedlot,Venta 45 vaquillas desposte Frival,,,,,,,,,,45 vaquillas,,,,,,,Venta,,,,,,Venta 45 vaquillas desposte Frival
+401,feedlot,18 novillos gordos Tattersall,,,,,,,,,,18 novillos,,,,,,,,,,,,,18 novillos gordos Tattersall
+402,feedlot,venta 48 novillos a Inversiones R y S lmtda..,,,,,,,,,,48 novillos,,,,,,,venta,,,,,,venta 48 novillos a Inversiones R y S lmtda..
+403,feedlot,Venta 45 vaquillas Gordas a Viento Sur,,,,,,,,,,45 vaquillas,,,,,,,Venta,,,Viento Sur,,,Venta 45 vaquillas Gordas a Viento Sur
+404,feedlot,40 desposte Frigosorno,,,,,,,,,,,,,,,,,,,,,,,40 desposte Frigosorno
+405,feedlot,42 novillos gordos a Frigosorno,,,,,,,,,,42 novillos,,,,,,,,,,,,,42 novillos gordos a Frigosorno
+406,feedlot,"Venta 40 novillos + 5 vaquillas Pampa Chile S.A, faena Mafrisur",,,,,,,,,,40 novillos | 5 vaquillas,,,,,,,Venta,,,Pampa Chile,,,"Venta 40 novillos + 5 vaquillas Pampa Chile S.A, faena Mafrisur"
+407,feedlot,Venta 90 Novillos engorda a Mollendo SA,,,,,,,,,,90 Novillos,,,,,,,Venta,,,,,,Venta 90 Novillos engorda a Mollendo SA
+408,feedlot,7 novillos a Feria Tattersall Bulnes,,,,,,,,,,7 novillos,,,,,,,,,,Feria Tattersall Bulnes,,,7 novillos a Feria Tattersall Bulnes
+409,feedlot,"Venta vaca..526 kgs Brutos, destare de 5,26 %...498 kgs netos",,,..526 kgs | 498 kgs,,,,,,,,,,,,,,Venta,,,,,26 %,"Venta vaca..526 kgs Brutos, destare de 5,26 %...498 kgs netos"
+410,feedlot,47 vaquillas gordas Frival,,,,,,,,,,47 vaquillas,,,,,,,,,,,,,47 vaquillas gordas Frival
+411,feedlot,45 vaquillas gordas Mollendo,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas Mollendo
+412,feedlot,45 vaquillas gordas Mollendo,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas Mollendo
+413,feedlot,47 vaquillas gordas Frival,,,,,,,,,,47 vaquillas,,,,,,,,,,,,,47 vaquillas gordas Frival
+414,feedlot,40 Vaquillas gordas Frigosorno,,,,,,,,,,40 Vaquillas,,,,,,,,,,,,,40 Vaquillas gordas Frigosorno
+415,feedlot,47 vaquillas Desposte Frigosorno,,,,,,,,,,47 vaquillas,,,,,,,,,,Desposte Frigosorno,,,47 vaquillas Desposte Frigosorno
+416,feedlot,22 vaquillas desposte + 28 novillos desposte Frival,,,,,,,,,,22 vaquillas | 28 novillos,,,,,,,,,,,,,22 vaquillas desposte + 28 novillos desposte Frival
+417,feedlot,47 vaquillas desposte Frival,,,,,,,,,,47 vaquillas,,,,,,,,,,,,,47 vaquillas desposte Frival
+418,feedlot,45 vaquillas gordas a Frival,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas a Frival
+419,San Pedro,venta desecho Feria tattersall Freire,,,,,,,,,,,,,,,,,venta,,,,,,venta desecho Feria tattersall Freire
+420,feedlot,venta a Feria Tattersall Freire,,,,,,,,,,,,,,,,,venta,,,Feria Tattersall Freire,,,venta a Feria Tattersall Freire
+421,feedlot,45 vaquillas gordas frigosorno,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas frigosorno
+422,feedlot,25 vaquillas desposte 25 novillos desposte,,,,,,,,,,25 vaquillas | 25 novillos,,,,,,,,,,,,,25 vaquillas desposte ‖ 25 novillos desposte
+423,feedlot,Venta 48 Novillos Feria tattersall Freire,,,,,,,,,,48 Novillos,,,,,,,Venta,,,Novillos Feria,,,Venta 48 Novillos Feria tattersall Freire
+424,feedlot,venta desposte Frival 27 vaquillas y 20 novillos,,,,,,,,,,27 vaquillas | 20 novillos,,,,,,,venta,,,,,,venta desposte Frival 27 vaquillas y 20 novillos
+425,feedlot,45 vaquillas venta ferias araucanias Temuco.,,,,,,,,,,45 vaquillas,,,,,,,venta,,,,,,45 vaquillas venta ferias araucanias Temuco.
+426,feedlot,23 vacas 3 novillos 23 vaquillas a Feria tattersall Freire,,,,,,,,,,23 vacas | 3 novillos | 23 vaquillas,,,,,,,,,,,,,23 vacas ‖ 3 novillos ‖ 23 vaquillas a Feria tattersall Freire
+427,feedlot,45 vacas a Frigorífico Osorno,,,,,,,,,,45 vacas,,,,,,,,,,Frigorífico Osorno,,,45 vacas a Frigorífico Osorno
+428,feedlot,45 vacas a Frigorífico Osorno,,,,,,,,,,45 vacas,,,,,,,,,,Frigorífico Osorno,,,45 vacas a Frigorífico Osorno
+429,feedlot,40 vacas a frigorífico Osorno,,,,,,,,,,40 vacas,,,,,,,,,,,,,40 vacas a frigorífico Osorno
+430,feedlot,48 novillos gordos a Frigorífico Temuco,,,,,,,,,,48 novillos,,,,,,,,,,Frigorífico Temuco,,,48 novillos gordos a Frigorífico Temuco
+431,feedlot,49 novillos engorda a Ferias Tattersall SA,,,,,,,,,,49 novillos,,,,,,,,,,Ferias Tattersall,,,49 novillos engorda a Ferias Tattersall SA
+432,feedlot,45 vaquillas gordas a frigorífico Osorno,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas a frigorífico Osorno
+433,San Pedro,venta desecho 6 terneros 5 vacas,,,,,,,,,,6 terneros | 5 vacas,,,,,,,venta,,,,,,venta desecho ‖ 6 terneros ‖ 5 vacas
+434,feedlot,venta feria Freire Tattersall,,,,,,,,,,,,,,,,,venta,,,Freire Tattersall,,,venta feria Freire Tattersall
+435,feedlot,20 novillos Gordos a Frigorífico Temuco (Pampa Chile),,,,,,,,,,20 novillos,,,,,,,,,,Frigorífico Temuco | Pampa Chile,,,20 novillos Gordos a Frigorífico Temuco (Pampa Chile)
+436,feedlot,17 vaqs + 31 novillos a Feria Tattersall Freire,,,,,,,,,,31 novillos,,,,,,,,,,Feria Tattersall Freire,,,17 vaqs + 31 novillos a Feria Tattersall Freire
+437,feedlot,38 vacas (desposte) a frigorífico Temuco,,,,,,,,,,38 vacas,,,,,,,,,,,,,38 vacas (desposte) a frigorífico Temuco
+438,feedlot,16 vacas + 31 vaquillas a Feria tattersall Freire,,,,,,,,,,16 vacas | 31 vaquillas,,,,,,,,,,,,,16 vacas + 31 vaquillas a Feria tattersall Freire
+439,feedlot,45 vaquillas gordas a frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas a frigorífico Temuco
+440,feedlot,40 vacas engorda (americanas) a Frigorífico Temuco,,,,,,,,,,40 vacas,,,,,,,,,,Frigorífico Temuco,,,40 vacas engorda (americanas) a Frigorífico Temuco
+441,feedlot,51 animales a Feria tattersall Freire,,,,,,,,,,,,,,,,,,,,,,,51 animales a Feria tattersall Freire
+442,feedlot,45 vaquillas gordas Frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,Frigorífico Temuco,,,45 vaquillas gordas Frigorífico Temuco
+443,feedlot,45 novillos Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos Frigorífico Temuco
+444,feedlot,45 novillos gordos a Frigorífico Temuco.,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos gordos a Frigorífico Temuco.
+445,feedlot,29 vacas tratables a China destino frigorífico Temuco SA,,,,,,,,,,29 vacas,,,,,,,,,,,,,29 vacas tratables a China destino frigorífico Temuco SA
+446,feedlot,36 vacas Feria Tattersall Freire,,,,,,,,,,36 vacas,,,,,,,,,,Feria Tattersall Freire,,,36 vacas Feria Tattersall Freire
+447,San Pedro,"8 terneros 10 terneras, feria tattersall Freire",,,,,,,,,,8 terneros | 10 terneras,,,,,,,,,,,,,"8 terneros ‖ 10 terneras, feria tattersall Freire"
+448,feedlot,45 vaquillas gordas Frigorífico Temuco.,,,,,,,,,,45 vaquillas,,,,,,,,,,Frigorífico Temuco,,,45 vaquillas gordas Frigorífico Temuco.
+449,feedlot,25 novillos gordos y 20 vaquillas gordas Frigorífico Temuco.,,,,,,,,,,25 novillos | 20 vaquillas,,,,,,,,,,Frigorífico Temuco,,,25 novillos gordos y 20 vaquillas gordas Frigorífico Temuco.
+450,feedlot,45 novillos gordos Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos gordos Frigorífico Temuco
+451,feedlot,venta Ferias Araucanias,,,,,,,,,,,,,,,,,venta,,,Ferias Araucanias,,,venta Ferias Araucanias
+452,feedlot,venta feria tatersall Freire.,,,,,,,,,,,,,,,,,venta,,,,,,venta feria tatersall Freire.
+453,feedlot,5 novillos americanos 10 vacas flacas ganancias bajas 15 vaquillas gordas 1 ternero 15 vacas gordas ferias araucanias Freire,,,,,,,,,,5 novillos | 10 vacas | 15 vaquillas | 1 ternero | 15 vacas,,,,,,,,,,,,,5 novillos americanos ‖ 10 vacas flacas ganancias bajas ‖ 15 vaquillas gordas ‖ 1 ternero ‖ 15 vacas gordas ‖ ferias araucanias Freire
+454,feedlot,venta a Feria Tattersall Freire 17 novillos americanos 4 vacas flacas 15 vacas gordas 10 novillos gordos,,,,,,,,,,17 novillos | 4 vacas | 15 vacas | 10 novillos,,,,,,,venta,,,Feria Tattersall Freire,,,venta a Feria Tattersall Freire ‖ 17 novillos americanos ‖ 4 vacas flacas ‖ 15 vacas gordas ‖ 10 novillos gordos
+455,feedlot,44 vaquillas gordas Frival,,,,,,,,,,44 vaquillas,,,,,,,,,,,,,44 vaquillas gordas Frival
+456,feedlot,45 novillos gordos a Frigorífico Osorno.,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Osorno,,,45 novillos gordos a Frigorífico Osorno.
+457,San Pedro,venta Fegosa S.A venta terneras angus 46,,,,,,,,,,,,,,,,,venta,,,,,,venta Fegosa S.A ‖ venta terneras angus 46
+458,San Pedro,Feria tattersal Freire.. 5 toros desechos,,,,,,,,,,5 toros,,,,,,,,,,,,,Feria tattersal Freire.. ‖ 5 toros desechos
+459,feedlot,venta a Feria tattersall 7 vacas desecho y 25 vaquillas,,,,,,,,,,7 vacas | 25 vaquillas,,,,,,,venta,,,,,,venta a Feria tattersall 7 vacas desecho y 25 vaquillas
+460,San Pedro,Ventas de terneras a Soc.Agricola Mana ltda. Rio Negro,,,,,,,,,,,,,,,,,Venta,,,Agricola Mana | Rio Negro,,,Ventas de terneras ‖ a Soc.Agricola Mana ltda. ‖ Rio Negro
+461,feedlot,45 novillos Gordos Frigosorno,,,,,,,,,,45 novillos,,,,,,,,,,Gordos Frigosorno,,,45 novillos Gordos Frigosorno
+462,feedlot,45 vaquillas a Frigosorno,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas a Frigosorno
+463,San Pedro,37 vacas secas a Frival,,,,,,,,,,37 vacas,,,,,,,,,,,,,37 vacas secas a Frival
+464,San Pedro,38 vacas a frival.,,,,,,,,,,38 vacas,,,,,,,,,,,,,38 vacas a frival.
+465,San Pedro,38 vacas a frival,,,,,,,,,,38 vacas,,,,,,,,,,,,,38 vacas a frival
+466,San Pedro,venta feria freire tattersal 6 toros desecho. 3 vacas desecho cojas.,,,,,,,,,,6 toros | 3 vacas,,,,,,,venta,,,,,,venta feria freire tattersal ‖ 6 toros desecho. ‖ 3 vacas desecho cojas.
+467,feedlot,venta 10 desecho feedlot,,,,,,,,,,,,,,,,,venta,,,,,,venta 10 desecho feedlot
+468,Arriendo Santa Isabel,venta 37 vaquillas engorda y 7 novillos de engorda a Ganadera Viento Sur lmta,,,,,,,,,,37 vaquillas | 7 novillos,,,,,,,venta,,,Ganadera Viento Sur,,,venta 37 vaquillas engorda y 7 novillos de engorda a Ganadera Viento Sur lmta
+469,feedlot,45 novillos Frival a Ferias Araucanias Freire con Guía nuestra.,,,,,,,,,,45 novillos,,,,,,,,,,Ferias Araucanias Freire,,,45  novillos Frival a Ferias Araucanias Freire con Guía nuestra.
+470,feedlot,43 novillos Frival a Frival con guía de ellos,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos Frival a Frival con guía de ellos
+471,feedlot,8 vaquillas y 35 novillos Frival a Frival con guía de ellos,,,,,,,,,,8 vaquillas | 35 novillos,,,,,,,,,,,,,8 vaquillas y 35 novillos Frival a Frival con guía de ellos
+472,feedlot,20 novillos Frival a Feria Freire Tattersall con guía nuestra,,,,,,,,,,20 novillos,,,,,,,,,,Feria Freire Tattersall,,,20 novillos Frival a Feria Freire Tattersall con guía nuestra
+473,feedlot,21 novillos Frival a Frival con guía de ellos,,,,,,,,,,21 novillos,,,,,,,,,,,,,21 novillos Frival a Frival con guía de ellos
+474,San Pedro,3 toros y una vaca a Feria tattersall Freire.,,,,,,,,,,3 toros,,,,,,,,,,,,,3 toros y una vaca a Feria tattersall Freire.
+475,feedlot,45 animales propios a Feria tattersall Freire,,,,,,,,,,,,,,,,,,,,,,,45 animales propios a Feria tattersall Freire
+476,feedlot,14 animales abso feria fegosa Paillaco,,,,,,,,,,,,,,,,,,,,,,,14 animales abso  feria fegosa Paillaco
+477,feedlot,45 novillos Frival a Frival con guía de ellos,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Frival a Frival con guía de ellos
+478,feedlot,45 vaquillas Frival a Frival con guía de ellos,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas Frival a Frival con guía de ellos
+479,feedlot,44 vaquillas gordas ABSO a Frigorífico Temuco con guía nuestra,,,,,,,,,,44 vaquillas,,,,,,,,,,Frigorífico Temuco,,,44 vaquillas gordas ABSO a Frigorífico Temuco con guía nuestra
+480,feedlot,45 novillos Frival a Frival con guía de ellos,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Frival a Frival con guía de ellos
+481,feedlot,41 vaquillas desposte ABSO a Frival con guía Nuestra.,,,,,,,,,,41 vaquillas,,,,,,,,,,,,,41 vaquillas desposte ABSO a Frival con guía Nuestra.
+482,feedlot,45 Novillos Frival a Frigorífico Osorno con guía nuestra,,,,,,,,,,45 Novillos,,,,,,,,,,Novillos Frival | Frigorífico Osorno,,,45 Novillos Frival a Frigorífico Osorno con guía nuestra
+483,feedlot,40 novillos abso a frigorífico Temuco con guía nuestra,,,,,,,,,,40 novillos,,,,,,,,,,,,,40 novillos abso a frigorífico Temuco con guía nuestra
+484,feedlot,10 novillos y 36 vaquillas animales propios a Frigorífico Temuco,,,,,,,,,,10 novillos | 36 vaquillas,,,,,,,,,,Frigorífico Temuco,,,10 novillos y 36 vaquillas animales propios a Frigorífico Temuco
+485,feedlot,45 novillos Frival a Frival con guía de ellos,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Frival a Frival con guía de ellos
+486,feedlot,16 novillos y 29 vaquillas Frival a Frival con guía de ellos.,,,,,,,,,,16 novillos | 29 vaquillas,,,,,,,,,,,,,16 novillos y 29 vaquillas Frival a Frival con guía de ellos.
+487,feedlot,45 vaquillas ABSO a mollendo con guía nuestra,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas ABSO a mollendo con guía nuestra
+488,feedlot,45 vaquillas abso a mollendo con guía nuestra,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas abso a mollendo con guía nuestra
+489,feedlot,45 novillos gordos Frival a Frival con guía de ellos,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos Frival a Frival con guía de ellos
+490,feedlot,45 vaquillas ABSO a Frigorífico Temuco con guía Fegosa,,,,,,,,,,45 vaquillas,,,,,,,,,,Frigorífico Temuco,,,45 vaquillas ABSO a Frigorífico Temuco  con guía Fegosa
+491,feedlot,6 novillos mas 35 vaquillas ABSO a frigorífico Osorno con guía de ellos,,,,,,,,,,6 novillos | 35 vaquillas,,,,,,,,,,,,,6 novillos mas 35 vaquillas ABSO a frigorífico Osorno con guía de ellos
+492,feedlot,35 vaquillas tattersall del solar a feria tattersall freiré con guía de ellos,,,,,,,,,,35 vaquillas,,,,,,,,,,,,,35 vaquillas tattersall del solar a feria tattersall freiré con guía de ellos
+493,feedlot,45 vaquillas Frival a Frival con guía de ellos.,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas Frival a Frival con guía de ellos.
+494,feedlot,43 vaquillas tattersall oller a Matadero Pangal Aysen con guía Tattersall,,,,,,,,,,43 vaquillas,,,,,,,,,,Matadero Pangal Aysen,,,43 vaquillas tattersall oller a Matadero Pangal Aysen con guía Tattersall
+495,feedlot,42 vaquillas ABSO a frigo Osorno con guía nuestra,,,,,,,,,,42 vaquillas,,,,,,,,,,,,,42 vaquillas ABSO a frigo Osorno con guía nuestra
+496,feedlot,42 vaquillas ABSO a frigo Osorno con guía nuestra.,,,,,,,,,,42 vaquillas,,,,,,,,,,,,,42 vaquillas ABSO a frigo Osorno con guía nuestra.
+497,feedlot,42 novillos propios a Frival,,,,,,,,,,42 novillos,,,,,,,,,,,,,42 novillos propios a Frival
+498,feedlot,24 vaquillas tattersall oller a Feria tattersall Puerto Varas con guía Tattersall,,,,,,,,,,24 vaquillas,,,,,,,,,,Puerto Varas,,,24 vaquillas tattersall oller a Feria tattersall Puerto Varas con guía Tattersall
+499,feedlot,23 vaquillas tattersall del solar a Feria Tattersall Freire con guía de ellos,,,,,,,,,,23 vaquillas,,,,,,,,,,Feria Tattersall Freire,,,23 vaquillas tattersall del solar a Feria Tattersall Freire con guía de ellos
+500,feedlot,46 vaquillas propias ferias Araucanía Temuco,,,,,,,,,,46 vaquillas,,,,,,,,,,Araucanía Temuco,,,46 vaquillas propias ferias Araucanía Temuco
+501,feedlot,43 vaquillas tattersall oller a frigorífico Angol,,,,,,,,,,43 vaquillas,,,,,,,,,,,,,43 vaquillas tattersall oller a frigorífico Angol
+502,feedlot,12 novillos más 36 vaquillas Frival a Frival con guía de ellos.,,,,,,,,,,12 novillos | 36 vaquillas,,,,,,,,,,,,,12 novillos más 36 vaquillas Frival a Frival con guía de ellos.
+503,feedlot,43 novillos Frival a Frival con guía de ellos,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos Frival a Frival con guía de ellos
+504,feedlot,43 novillos propios a Frival,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos propios a Frival
+505,feedlot,45 vaquillas tattersall del solar a Feria Tattersall Freire con guía de ellos,,,,,,,,,,45 vaquillas,,,,,,,,,,Feria Tattersall Freire,,,45 vaquillas tattersall del solar a Feria Tattersall Freire con guía de ellos
+506,feedlot,40 animales propios a Frival desposte,,,,,,,,,,,,,,,,,,,,,,,40 animales propios a Frival desposte
+507,feedlot,40 novillos ABSO gordos a Frival con guía nuestra,,,,,,,,,,40 novillos,,,,,,,,,,,,,40 novillos ABSO gordos a  Frival con guía nuestra
+508,feedlot,45 vaquillas ABSO FrigoOsorno ( con guía nuestra ),,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas ABSO FrigoOsorno ( con guía nuestra )
+509,feedlot,cojos frival,,,,,,,,,,,,,,,,,,,,,,,cojos frival
+510,feedlot,43 novillos Frival a Frival con Guía de ellos.,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos Frival a Frival con Guía de ellos.
+511,feedlot,40 novillos Abso Desposte a Frigosorno con guía nuestra,,,,,,,,,,40 novillos,,,,,,,,,,Abso Desposte,,,40 novillos Abso Desposte a Frigosorno con guía nuestra
+512,San Pedro,feria freire,,,,,,,,,,,,,,,,,,,,,,,feria freire
+513,feedlot,Venta 7 vacas gordas + 1 vaq preñada + 3 vaqs animales propios a Feria Freire,,,,,,,,,,7 vacas,,,,,,,Venta,,,Feria Freire,,,Venta 7 vacas gordas + 1 vaq preñada + 3 vaqs animales propios a Feria Freire
+514,feedlot,45 vaquillas gordas tattersall del solar a Feria tattersall Freire con guía de ellos.,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas tattersall del solar a Feria tattersall Freire con guía de ellos.
+515,feedlot,45 vaquillas propias a Ferias Araucanias Freire,,,,,,,,,,45 vaquillas,,,,,,,,,,Ferias Araucanias Freire,,,45 vaquillas propias a Ferias Araucanias Freire
+516,feedlot,45 vaquillas Frival a Frival con Guía de ellos,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas Frival a Frival con Guía de ellos
+517,feedlot,44 vaquillas Frival a frigorífico Temuco con guía Nuestra,,,,,,,,,,44 vaquillas,,,,,,,,,,,,,44 vaquillas Frival a frigorífico Temuco con guía Nuestra
+518,feedlot,45 vaquillas gordas propias ( pampa chile ) frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas propias ( pampa chile ) frigorífico Temuco
+519,feedlot,20 vaquillas propias a tattersall ( frigorífico victoria) con guía Tattersall,,,,,,,,,,20 vaquillas,,,,,,,,,,,,,20 vaquillas propias a tattersall  ( frigorífico victoria) con guía Tattersall
+520,feedlot,45 novillos Frival a frigo Osorno,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Frival a frigo Osorno
+521,feedlot,45 novillos propios a frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos propios a frigorífico Temuco
+522,feedlot,45 vaquillas abso a frigo Osorno con guía de ellos,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas abso a frigo Osorno con guía de ellos
+523,feedlot,42 novillos desposte Frival a Frival con Guía de ellos,,,,,,,,,,42 novillos,,,,,,,,,,,,,42 novillos desposte Frival a Frival con Guía de ellos
+524,feedlot,45 vaquillas Frival a Frival con Guía de ellos,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas Frival a Frival con Guía de ellos
+525,feedlot,45 vaquillas propias Frival,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias Frival
+526,feedlot,45 vaquillas propias a ferias Araucanias,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias a ferias Araucanias
+527,feedlot,45 vaquillas tattersall oller a Mafrisur ( con guía Tattersall),,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas tattersall oller a Mafrisur ( con guía Tattersall)
+528,feedlot,45 vaquillas tattersall oller a concepción con guía Tattersall,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas tattersall oller a concepción con guía Tattersall
+529,feedlot,43 vaqs ABSO a frigorífico Osorno (con guía de ellos),,,,,,,,,,,,,,,,,,,,,,,43 vaqs ABSO a frigorífico Osorno (con guía de ellos)
+530,feedlot,45 vaquillas tattersall oller a frigorífico concepción (con guía Tattersall),,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas tattersall oller a frigorífico concepción (con guía Tattersall)
+531,feedlot,45 vaquillas propias a Frival,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias a Frival
+532,feedlot,45 vaquillas propias a Frival,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias a Frival
+533,feedlot,43 novillos Frival a Frival. con guía de ellos..,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos Frival a Frival. con guía de ellos..
+534,feedlot,43 novillos Frival a Frival con Guía de ellos.,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos Frival a Frival con Guía de ellos.
+535,feedlot,45 vaquillas propias desposte a Frival,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias desposte a Frival
+536,feedlot,45 vaquillas propias gordas a frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias gordas a frigorífico Temuco
+537,feedlot,47 vaquillas propias desposte Frival,,,,,,,,,,47 vaquillas,,,,,,,,,,,,,47 vaquillas propias desposte Frival
+538,feedlot,43 novillos abso desposte a frigo Osorno con guía nuestra,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos abso desposte a frigo Osorno con guía nuestra
+539,feedlot,40 vaquillas tattersall ( oller ) a concepción con guía Tattersall (guías número 1435765 y 1435766),1435765 | 1435766,,,,,,,,,40 vaquillas,,,,,,,,,,,,,40 vaquillas tattersall ( oller ) a concepción con guía Tattersall (guías número 1435765 y 1435766)
+540,feedlot,45 vaquillas tattersall ( oller ) a Mafrisur con guía Tattersall,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas tattersall ( oller ) a Mafrisur con guía Tattersall
+541,feedlot,45 vaquillas propias gordas a feria Araucanías,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias gordas a feria Araucanías
+542,feedlot,43 novillos Frival a Frival con guía de ellos,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos Frival a Frival con guía de ellos
+543,feedlot,45 novillos abso a frigorífico Temuco con guía Fegosa,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos abso a frigorífico Temuco con guía Fegosa
+544,feedlot,48 animales propios a Feria Araucanias Temuco.,,,,,,,,,,,,,,,,,,,,Feria Araucanias Temuco,,,48 animales propios a Feria Araucanias Temuco.
+545,feedlot,45 novillos Abso a frigorífico Temuco con guía nuestra,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos Abso a frigorífico Temuco con guía nuestra
+546,feedlot,43 novillos Frival a Frival (con guía de ellos),,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos Frival a Frival (con guía de ellos)
+547,feedlot,43 vaquillas abso a angol con guía fegosa,,,,,,,,,,43 vaquillas,,,,,,,,,,,,,43 vaquillas abso a angol con guía fegosa
+548,feedlot,45 vaquillas propias a frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias a frigorífico Temuco
+549,feedlot,45 vaquillas propias a frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias a frigorífico Temuco
+550,feedlot,43 novillos gordos Frival a Frival con Guía de ellos.,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos gordos Frival a Frival con Guía de ellos.
+551,feedlot,8 animales cojos Frival a Frival con guía frival,,,,,,,,,,,,,,,,,,,,,,,8 animales cojos Frival a Frival con guía frival
+552,feedlot,45 vaquillas gordas propias a frigorífico Osorno,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas propias a frigorífico Osorno
+553,feedlot,21 novillos propios a Mafrisur con guia Tattersall,,,,,,,,,,21 novillos,,,,,,,,,,,,,21 novillos propios a Mafrisur con guia Tattersall
+554,feedlot,45 vaquillas propias a frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias a frigorífico Temuco
+555,feedlot,45 vaquillas gordas propias a frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas propias a frigorífico Temuco
+556,feedlot,45 vaquillas abso a frigorífico Temucocon Guía Fegosa,,,,,,,,,,45 vaquillas,,,,,,,,,,Temucocon Guía Fegosa,,,45 vaquillas abso a frigorífico Temucocon Guía Fegosa
+557,feedlot,42 novillos abso a frigorífico Osorno co no guía de ellos,,,,,,,,,,42 novillos,,,,,,,,,,,,,42 novillos abso a frigorífico Osorno co no guía de ellos
+558,feedlot,12 vacas a Frival,,,,,,,,,,12 vacas,,,,,,,,,,,,,12 vacas a Frival
+559,feedlot,45 vaquillas gordas propias a frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas propias a frigorífico Temuco
+560,feedlot,45 vaqs gordas propias a Frigorífico Temuco,,,,,,,,,,,,,,,,,,,,Frigorífico Temuco,,,45 vaqs gordas propias a Frigorífico Temuco
+561,feedlot,45 vaquillas gordas propias a feria freiré tattersall,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas propias a feria freiré tattersall
+562,feedlot,25 desposte propio ganancias bajas a Frival,,,,,,,,,,,,,,,,,,,,,,,25 desposte propio ganancias bajas a Frival
+563,feedlot,25 animales desposte ABSO a Frival,,,,,,,,,,,,,,,,,,,,,,,25 animales desposte ABSO a Frival
+564,feedlot,50 vaquillas gordas propias ganancias bajas a Ferias Araucanias Temuco,,,,,,,,,,50 vaquillas,,,,,,,,,,Ferias Araucanias Temuco,,,50 vaquillas gordas propias ganancias bajas a Ferias Araucanias Temuco
+565,feedlot,40 novillos ABSO medieria a Frigorífico Temuco con guía fegosa,,,,,,,,,,40 novillos,,,,,,,,,,Frigorífico Temuco,,,40 novillos ABSO medieria a Frigorífico Temuco con guía fegosa
+566,feedlot,40 novillos ABSO medieria a Frigorífico Temuco con guía Fegosa,,,,,,,,,,40 novillos,,,,,,,,,,Frigorífico Temuco,,,40 novillos ABSO medieria a Frigorífico Temuco con guía Fegosa
+567,feedlot,43 novillos Frival Medieria a Frival con guía de ellos agroñuble,,,,,,,,,,43 novillos,,,,,,,,,,Frival Medieria,,,43 novillos Frival Medieria a Frival con guía de ellos agroñuble
+568,feedlot,43 novillos Frival Medieria a Frival con guía agroñuble,,,,,,,,,,43 novillos,,,,,,,,,,Frival Medieria,,,43 novillos Frival Medieria a Frival con guía agroñuble
+569,feedlot,45 animales nuestros a Feria tattersall Freiré,,,,,,,,,,,,,,,,,,,,,,,45 animales nuestros a Feria tattersall Freiré
+570,feedlot,50 vaqs propias ganancias bajas a Frival ( desposte),,,,,,,,,,,,,,,,,,,,,,,50 vaqs propias ganancias bajas a Frival ( desposte)
+571,feedlot,50 vaquillas gordas ganancias bajas a feria Araucanía Temuco,,,,,,,,,,50 vaquillas,,,,,,,,,,Araucanía Temuco,,,50 vaquillas gordas ganancias bajas a feria Araucanía Temuco
+572,feedlot,50 animales a feria Freire nuestros ganancias bajas,,,,,,,,,,,,,,,,,,,,,,,50 animales a feria Freire nuestros ganancias bajas
+573,feedlot,45 vaquillas propias a frigorífico Temuco (desposte),,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias a frigorífico Temuco (desposte)
+574,feedlot,20 vaquillas tattersall a feria freire con guía de ellos,,,,,,,,,,20 vaquillas,,,,,,,,,,,,,20 vaquillas tattersall a feria freire con guía de ellos
+575,feedlot,45 novillos gordos ABSO a frigorífico Temuco ( guia nuestra),,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos ABSO a frigorífico Temuco ( guia nuestra)
+576,feedlot,45 vaquillas gordas propias a frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas propias a frigorífico Temuco
+577,feedlot,45 novillos propios T14 desposte Frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos propios  T14 desposte Frival
+578,feedlot,venta 40 novillos Propios a Tattersall (Frigorífico temuco),,,,,,,,,,40 novillos,,,,,,,venta,,,,,,venta 40 novillos Propios a Tattersall (Frigorífico temuco)
+579,feedlot,5 vaquillas Preñadas ABSO devueltas (con guía ABSO),,,,,,,,,,5 vaquillas,,,,,,,,,,,,,5 vaquillas Preñadas ABSO devueltas (con guía ABSO)
+580,feedlot,4 vaquillas Frival preñadas Frival con guia de medieria,,,,,,,,,,4 vaquillas,,,,,,,,,,,,,4 vaquillas Frival preñadas Frival con guia de medieria
+581,feedlot,44 vaqs + 1 vaca (propios) a Feria tattersall Freiré,,,,,,,,,,1 vaca,,,,,,,,,,,,,44 vaqs + 1 vaca (propios) a Feria tattersall Freiré
+582,feedlot,46 vaquillas ABSO a frigorífico Temuco con guía Fegosa,,,,,,,,,,46 vaquillas,,,,,,,,,,,,,46 vaquillas ABSO a frigorífico Temuco con guía Fegosa
+583,feedlot,23 vaqs gordas tattersall a feria tattersall Freiré con guía de agrícola Huite,,,,,,,,,,,,,,,,,,,,,,,23 vaqs gordas tattersall a feria tattersall Freiré con guía de agrícola Huite
+584,feedlot,45 vaqs mix Luksic mas propias a frigorífico Osorno,,,,,,,,,,,,,,,,,,,,,,,45 vaqs mix Luksic mas propias a frigorífico Osorno
+585,feedlot,46 vaquillas propias a Frigorífico Temuco,,,,,,,,,,46 vaquillas,,,,,,,,,,Frigorífico Temuco,,,46 vaquillas propias a Frigorífico Temuco
+586,feedlot,20 vaqs tattersall a feria Freiré con guía tattersall,,,,,,,,,,,,,,,,,,,,,,,20 vaqs tattersall a feria Freiré con guía tattersall
+587,feedlot,24 novillos tattersall a Mafrisur ( con guía tattersall ),,,,,,,,,,24 novillos,,,,,,,,,,,,,24 novillos tattersall a Mafrisur ( con guía tattersall )
+588,feedlot,45 vaquillas ABSO a frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas ABSO a frigorífico Temuco
+589,feedlot,42 vacas propias Frival,,,,,,,,,,42 vacas,,,,,,,,,,,,,42 vacas propias Frival
+590,feedlot,venta 47 vaquillas T 14 y 1 novillo T14 a Frival,,,,,,,,,,47 vaquillas | 1 novillo,,,,,,,venta,,,,,,venta 47 vaquillas T 14 y 1 novillo T14 a Frival
+591,feedlot,20 vaquillas tattersall a Mafrisur con guía tattersall (guías numero 1429390 y 1429392,1429390 | 1429392,,,,guías numero 1429390,,,,,20 vaquillas,,,,,,,,,,,,,20 vaquillas tattersall a Mafrisur con guía tattersall (guías numero 1429390 y 1429392
+592,feedlot,devolucion 1 vaquilla preñada tattersall (del solar),,,,,,,,,,1 vaquilla,,,,,,,,,,,,,devolucion 1 vaquilla preñada tattersall (del solar)
+593,feedlot,42 vacas a Frival,,,,,,,,,,42 vacas,,,,,,,,,,,,,42 vacas a Frival
+594,feedlot,12 animales Abso Frival 33 animales propios Frival (desposte),,,,,,,,,,,,,,,,,,,,Abso Frival,,,12 animales Abso Frival ‖ 33 animales propios Frival (desposte)
+595,feedlot,20 vaquillas tattersall a feria freiré con guía tattersall,,,,,,,,,,20 vaquillas,,,,,,,,,,,,,20 vaquillas tattersall a feria freiré con guía tattersall
+596,feedlot,43 animales Luksic a frigo Osorno,,,,,,,,,,,,,,,,,,,,,,,43 animales Luksic a frigo Osorno
+597,feedlot,45 novillos gordos nuestros a Frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos nuestros a Frival
+598,feedlot,45 novillos ABSO gordos Frival con guía Nuestra,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos ABSO gordos Frival con guía Nuestra
+599,feedlot,15 vaquillas gordas tattersall a Mafrisur con guía Tattersall.,,,,,,,,,,15 vaquillas,,,,,,,,,,,,,15 vaquillas gordas tattersall a Mafrisur con guía Tattersall.
+600,feedlot,52 novillos Tattersall a Mafrisur con guía Tattersall,,,,,,,,,,52 novillos,,,,,,,,,,,,,52 novillos Tattersall a Mafrisur con guía Tattersall
+601,feedlot,1 vaquilla preñada devolucion Tattersall (del solar),,,,,,,,,,1 vaquilla,,,,,,,,,,,,,1 vaquilla preñada devolucion Tattersall (del solar)
+602,feedlot,45 novillos gordos tattersall a frigorífico Temuco ( con guía de ellos concepción ),,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos tattersall a frigorífico Temuco ( con guía de ellos concepción )
+603,feedlot,45 novillos gordos propios a Frival Valdivia,,,,,,,,,,45 novillos,,,,,,,,,,Frival Valdivia,,,45 novillos gordos propios a Frival Valdivia
+604,feedlot,43 novillos gordos propios frigo Osorno,,,,,,,,,,43 novillos,,,,,,,,,,,,,43 novillos gordos propios frigo Osorno
+605,feedlot,45 novillos gordos Luksic Calle Calle con guía de ellos,,,,,,,,,,45 novillos,,,,,,,,,,Luksic Calle Calle,,,45 novillos gordos Luksic Calle Calle con guía de ellos
+606,feedlot,5 vaqs Temuco a Frigorífico Temuco con guía de ellos,,,,,,,,,,,,,,,,,,,,Frigorífico Temuco,,,5 vaqs Temuco a Frigorífico Temuco con guía de ellos
+607,feedlot,45 vaquillas gordas abso a frigorífico Temuco con guía de ellos,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas abso a frigorífico Temuco con guía de ellos
+608,feedlot,venta Temuco,,,,,,,,,,,,,,,,,venta,,,,,,venta Temuco
+609,feedlot,43 vaquillas gordas abso a frigorífico Osorno con guía de ellos,,,,,,,,,,43 vaquillas,,,,,,,,,,,,,43 vaquillas gordas abso a frigorífico Osorno con guía de ellos
+610,feedlot,22 vaquillas gordas tattersall a Mafrisur con guía tattersall con 1427920 y 1427921,1427920 | 1427921,,,,,,,,,22 vaquillas,,,,,,,,,,,,,22 vaquillas gordas tattersall a Mafrisur con guía tattersall ‖ con 1427920 y 1427921
+611,feedlot,45 novillos gordos tattersall a frigorífico Temuco ( concepción ) con guía de ellos,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos tattersall a frigorífico Temuco ( concepción ) con guía de ellos
+612,feedlot,45 novillos gordos tattersall a frigorífico Temuco con guía tattersall,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos tattersall a frigorífico Temuco con guía tattersall
+613,feedlot,18 vaquillas gordas propias y 27 novillos gordos frival,,,,,,,,,,18 vaquillas | 27 novillos,,,,,,,,,,,,,18 vaquillas gordas propias y 27 novillos gordos frival
+614,feedlot,2 novillos cojos tattersall a feria tattersall freire con guía de ellos,,,,,,,,,,2 novillos,,,,,,,,,,,,,2 novillos cojos tattersall a feria tattersall freire con guía de ellos
+615,feedlot,venta feria tattersall freire 36 animales nuestros 1 novillo Luksic,,,,,,,,,,1 novillo,,,,,,,venta,,,,,,venta feria tattersall freire 36 animales nuestros ‖ 1 novillo Luksic
+616,feedlot,45 vaqs gordas propias a Frival,,,,,,,,,,,,,,,,,,,,,,,45 vaqs gordas propias a Frival
+617,feedlot,45 vaquillas gordas propias frival,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas propias frival
+618,feedlot,22 novillos ABSO a Frigorífico Osorno con guía de ellos,,,,,,,,,,22 novillos,,,,,,,,,,Frigorífico Osorno,,,22 novillos ABSO a Frigorífico Osorno con guía de ellos
+619,feedlot,2do camión 45 novillos gordos tattersall frigorífico Temuco concepción. con guía tattersall,,,,,,,,,,45 novillos,,,,camión 45,,,,,,,,,2do camión 45 novillos gordos tattersall frigorífico Temuco concepción. con guía tattersall
+620,feedlot,1er camion 45 novillos tattersall Frigorífico Temuco concepción con Guía Tattersall,,,,,,,,,,45 novillos,,,,camion 45,,,,,,Frigorífico Temuco | Guía Tattersall,,,1er camion 45 novillos tattersall  Frigorífico Temuco concepción con Guía Tattersall
+621,feedlot,1 novillo cojo frival con guía del dueño,,,,,,,,,,1 novillo,,,,,,,,,,,,,1 novillo cojo frival con guía del dueño
+622,feedlot,45 vaquillas gordas temuco con guía de temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas temuco con guía de temuco
+623,feedlot,45 novillos gordos Luksic Frival ( guia nuestra),,,,,,,,,,45 novillos,,,,,,,,,,Luksic Frival,,,45 novillos gordos Luksic Frival ( guia nuestra)
+624,feedlot,45 vaquillas gordas luksic frival con guía nuestra,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas luksic frival con guía nuestra
+625,feedlot,45 vaquillas propias feria tattersall freire,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas propias feria tattersall freire
+626,feedlot,45 vaquillas gordas abso frigorífico temuco con guía Fegosa,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas abso frigorífico temuco con guía Fegosa
+627,feedlot,45 vaquillas gordas propias frival,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas propias frival
+628,feedlot,40 novillos gordos Tattersall Frigorífico las Lomas Concepción,,,,,,,,,,40 novillos,,,,,,,,,,Tattersall Frigorífico | Lomas Concepción,,,40 novillos gordos Tattersall Frigorífico las Lomas Concepción
+629,feedlot,40 novillos gordos Abso frigorífico Osorno,,,,,,,,,,40 novillos,,,,,,,,,,,,,40 novillos gordos Abso frigorífico Osorno
+630,feedlot,45 vaquillas gordas abso frigorífico temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas abso frigorífico temuco
+631,feedlot,45 vaquillas gordas abso a frigorífico Osorno,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas abso a frigorífico Osorno
+632,feedlot,venta 1 novillo cojo medieria tattersall a Feria Tattersall,,,,,,,,,,1 novillo,,,,,,,venta,,,Feria Tattersall,,,venta 1 novillo cojo medieria tattersall a Feria Tattersall
+633,feedlot,40 venta descarte feedlot a feria tattersall,,,,,,,,,,,,,,,,,venta,,,,,,40 venta descarte feedlot a feria tattersall
+634,feedlot,45 vaqs gordas Luksic Frival,,,,,,,,,,,,,,,,,,,,Luksic Frival,,,45 vaqs gordas Luksic Frival
+635,feedlot,45 vaquillas gordas propias frival,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas propias frival
+636,feedlot,45 vaquillas gordas propias a ferias araucanias temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas gordas propias a ferias araucanias  temuco
+637,feedlot,27 novillos gordos tattersall frigorífico temuco,,,,,,,,,,27 novillos,,,,,,,,,,,,,27 novillos gordos tattersall frigorífico temuco
+638,feedlot,40 novillos gordos tattersall frigorífico temuco,,,,,,,,,,40 novillos,,,,,,,,,,,,,40 novillos gordos tattersall frigorífico temuco
+639,feedlot,45 novillos gordos chicos tattersall frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos chicos tattersall frigorífico Temuco
+640,feedlot,45 novillos propios Frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos propios Frival
+641,feedlot,40 novillos gordos Tattersall Temuco,,,,,,,,,,40 novillos,,,,,,,,,,Tattersall Temuco,,,40 novillos gordos Tattersall Temuco
+642,feedlot,41 vaquillas gordas bunster frigorífico Osorno 4 vaquillas gordas propias frigorífico osorno,,,,,,,,,,41 vaquillas | 4 vaquillas,,,,,,,,,,,,,41 vaquillas gordas bunster frigorífico Osorno ‖ 4 vaquillas gordas propias frigorífico osorno
+643,feedlot,45 novillos gordos tattersall frigorífico temuco,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos tattersall frigorífico temuco
+644,feedlot,40 novillos gordos tattersall Mafrisur,,,,,,,,,,40 novillos,,,,,,,,,,,,,40 novillos gordos tattersall Mafrisur
+645,feedlot,45 novillos propios frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos propios frival
+646,feedlot,45 novillos propios Frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos propios Frival
+647,feedlot,45 novillos gordos abso Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos gordos abso Frigorífico Temuco
+648,feedlot,42 novillos Luksic a frigo Osorno,,,,,,,,,,42 novillos,,,,,,,,,,,,,42 novillos Luksic a frigo Osorno
+649,feedlot,45 vaqs gordas propias Frigorífico Temuco.,,,,,,,,,,,,,,,,,,,,Frigorífico Temuco,,,45 vaqs gordas propias Frigorífico Temuco.
+650,feedlot,45 vaqs gordas propias a Frigorífico Temuco.,,,,,,,,,,,,,,,,,,,,Frigorífico Temuco,,,45 vaqs gordas propias a Frigorífico Temuco.
+651,San Pedro,venta terneros wagyu mollendo,,,,,,,,,,,,,,,,,venta,,,,,,venta terneros wagyu ‖ mollendo
+652,feedlot,venta Frigorífico Osorno 15 novillos Bunster 15 novillos Luksic,,,,,,,,,,15 novillos,,,,,,,venta,,,Frigorífico Osorno,,,venta Frigorífico Osorno ‖ 15 novillos Bunster ‖ 15 novillos Luksic
+653,feedlot,40 novillos gordos Tattersall a Mafrisur,,,,,,,,,,40 novillos,,,,,,,,,,,,,40 novillos gordos Tattersall a Mafrisur
+654,San Pedro,venta destetados wagyu mollendo,,,,,,,,,,,,,,,,,venta,,,,,,venta destetados wagyu ‖ mollendo
+655,San Pedro,venta terneros destetetados mollendo,,,,,,,,,,,,,,,,,venta,,,,,,venta terneros destetetados ‖ mollendo
+656,feedlot,45 vaqs. gordas propias Ferias Araucanias,,,,,,,,,,,,,,,,,,,,Ferias Araucanias,,,45 vaqs. gordas propias Ferias Araucanias
+657,feedlot,45 vaqs gordas. propias a Frigorífico Temuco.,,,,,,,,,,,,,,,,,,,,Frigorífico Temuco,,,45 vaqs gordas. propias a Frigorífico Temuco.
+658,feedlot,45 Vaqs Gordas ABSO Frigorífico Temuco,,,,,,,,,,,,,,,,,,,,Vaqs Gordas | Frigorífico Temuco,,,45 Vaqs Gordas ABSO Frigorífico Temuco
+659,feedlot,25 novillos gordos Tattersall Mafrisur,,,,,,,,,,25 novillos,,,,,,,,,,Tattersall Mafrisur,,,25 novillos gordos Tattersall Mafrisur
+660,San Pedro,venta terneros destetado wagyu mollendo 1 dijo con problema 83,,,,,,,,,,,,,,,,,venta,,,,,,venta terneros destetado ‖ wagyu ‖ mollendo   1 dijo con problema 83
+661,feedlot,20 novillos Tattersall gordos a Frigorífico Temuco,,,,,,,,,,20 novillos,,,,,,,,,,Frigorífico Temuco,,,20 novillos Tattersall gordos a Frigorífico Temuco
+662,San Pedro,salida terneros wagyu destetado 75 mollendo,,,,,,,,,,,,,,,,,salida,,,,,,salida terneros wagyu destetado ‖ 75 ‖ mollendo
+663,San Pedro,salida 61 terneros wagyu mollendo,,,,,,,,,,61 terneros,,,,,,,salida,,,,,,salida 61 terneros wagyu ‖ mollendo
+664,feedlot,45 vaqs gordas ABSO Frigorífico Temuco.,,,,,,,,,,,,,,,,,,,,Frigorífico Temuco,,,45 vaqs gordas ABSO Frigorífico Temuco.
+665,feedlot,45 vaqs gordas ABSO a Frival,,,,,,,,,,,,,,,,,,,,,,,45 vaqs gordas ABSO a Frival
+666,feedlot,45 mix Bunster Frival 36 novillos y 9 vaquillas,,,,,,,,,,36 novillos | 9 vaquillas,,,,,,,,,,Bunster Frival,,,45 mix Bunster Frival 36 novillos y 9 vaquillas
+667,feedlot,45 vaquillas gordas Frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,Frigorífico Temuco,,,45 vaquillas gordas Frigorífico Temuco
+668,feedlot,venta 50 vaqs ganancias bajas feria tattersall,,,,,,,,,,,,,,,,,venta,,,,,,venta 50 vaqs ganancias bajas feria tattersall
+669,feedlot,45 vaqs Gordas Luksic Calle Calle,,,,,,,,,,,,,,,,,,,,Gordas Luksic Calle,,,45 vaqs Gordas Luksic Calle Calle
+670,San Pedro,40 vacas Mafrisur,,,,,,,,,,40 vacas,,,,,,,,,,,,,40 vacas Mafrisur
+671,feedlot,45 novillos gordos Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos gordos Frigorífico Temuco
+672,feedlot,45 vas Frigorífico Temuco,,,,,,,,,,,,,,,,,,,,Frigorífico Temuco,,,45 vas Frigorífico Temuco
+673,feedlot,45 vaqs gordas ferias Araucanias,,,,,,,,,,,,,,,,,,,,,,,45 vaqs gordas ferias Araucanias
+674,feedlot,45 novillos Luksic Frigosorno,,,,,,,,,,45 novillos,,,,,,,,,,Luksic Frigosorno,,,45 novillos Luksic Frigosorno
+675,feedlot,45 novillos Frigosorno camión 2,,,,,,,,,,45 novillos,,,,camión 2,,,,,,,,,45 novillos Frigosorno camión 2
+676,feedlot,venta 45 novillos Frigosorno camión 1,,,,,,,,,,45 novillos,,,,camión 1,,,venta,,,,,,venta 45 novillos Frigosorno camión 1
+677,feedlot,45 novillos gordos Frigorífico Temuco.,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos gordos Frigorífico Temuco.
+678,San Pedro,venta 15 vacas desecho Flacas,,,,,,,,,,15 vacas,,,,,,,venta,,,,,,venta 15 vacas desecho Flacas
+679,feedlot,venta Feria Tattersall,,,,,,,,,,,,,,,,,venta,,,Feria Tattersall,,,venta Feria Tattersall
+680,feedlot,venta 45 novillos gordos Frival,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,venta 45 novillos gordos Frival
+681,San Pedro,venta 40 vacas gordas Frival,,,,,,,,,,40 vacas,,,,,,,venta,,,,,,venta 40 vacas gordas Frival
+682,feedlot,45 vaqs Frigorífico Temuco 2,,,,,,,,,,,,,,,,,,,,Frigorífico Temuco,,,45 vaqs Frigorífico Temuco 2
+683,feedlot,45 vaqs Frigorífico Temuco,,,,,,,,,,,,,,,,,,,,Frigorífico Temuco,,,45 vaqs Frigorífico Temuco
+684,feedlot,45 vaquillas gordas Frigorífico Temuco,,,,,,,,,,45 vaquillas,,,,,,,,,,Frigorífico Temuco,,,45 vaquillas gordas Frigorífico Temuco
+685,feedlot,45 novillos Gordos Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Gordos Frigorífico Temuco,,,45 novillos Gordos Frigorífico Temuco
+686,feedlot,venta 45 novillos Frigorífico Temuco,,,,,,,,,,45 novillos,,,,,,,venta,,,Frigorífico Temuco,,,venta 45 novillos Frigorífico Temuco
+687,feedlot,45 novillos gordos Frigorífico Temuco 2,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos gordos Frigorífico Temuco 2
+688,feedlot,45 novillos gordos Frigorífico Temuco 1,,,,,,,,,,45 novillos,,,,,,,,,,Frigorífico Temuco,,,45 novillos gordos Frigorífico Temuco 1
+689,feedlot,traslado de vaquilla preñada a fundo Barro Blanco rup. 10.3.01.0491,,,,,,,,,,,,,,,,,,traslado,,Barro Blanco,,,traslado de vaquilla preñada a fundo Barro Blanco rup. 10.3.01.0491
+690,feedlot,Venta urgencia Luksic,,,,,,,,,,,,,,,,,Venta,,,,,,Venta urgencia Luksic
+691,feedlot,Devolucion 1 vaquilla Tattersall (21-01-22),,,,,,,,,,1 vaquilla,21-01-22,,,,,,,,,,,,Devolucion 1 vaquilla Tattersall (21-01-22)
+692,feedlot,6 vaquillas 39 novillos,,,,,,,,,,6 vaquillas | 39 novillos,,,,,,,,,,,,,6 vaquillas ‖ 39 novillos
+693,feedlot,Devolucion 10 Vaquillas preñadas VAQUERIA.,,,,,,,,,,10 Vaquillas,,,,,,,,,,,,,Devolucion 10 Vaquillas preñadas VAQUERIA.
+694,feedlot,venta 45 vaquillas gordas Frival,,,,,,,,,,45 vaquillas,,,,,,,venta,,,,,,venta 45 vaquillas gordas Frival
+695,feedlot,venta tattersall 3 novillos 9 vaquillas,,,,,,,,,,3 novillos | 9 vaquillas,,,,,,,venta,,,,,,venta tattersall ‖ 3 novillos ‖ 9 vaquillas
+696,feedlot,venta 44 novillos gordos Frival,,,,,,,,,,44 novillos,,,,,,,venta,,,,,,venta 44 novillos gordos Frival
+697,feedlot,venta Frival 46 vaquillas gordas,,,,,,,,,,46 vaquillas,,,,,,,venta,,,,,,venta Frival 46 vaquillas gordas
+698,feedlot,venta ABSO - 13 novillos - 33 vaquillas,,,,,,,,,,13 novillos | 33 vaquillas,,,,,,,venta,,,,,,venta ABSO ‖ - 13 novillos ‖ - 33 vaquillas
+699,feedlot,45 novillos gordos Frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos Frival
+700,feedlot,45 vqs gordas Frival,,,,,,,,,,,,,,,,,,,,,,,45 vqs gordas Frival
+701,feedlot,venta 45 novillos Frival,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,venta 45 novillos Frival
+702,feedlot,venta 45 novillos ABSO a Fegosa Osorno. la GD es de ABSO.,,,,,,,,,,45 novillos,,,,,,,venta,,,Fegosa Osorno,,,venta 45 novillos ABSO a Fegosa Osorno. ‖ la GD es de ABSO.
+703,feedlot,venta 45 novillos gordos Frival,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,venta 45 novillos gordos Frival
+704,San Pedro,venta 7 vacas desecho feria tattersall,,,,,,,,,,7 vacas,,,,,,,venta,,,,,,venta 7 vacas desecho feria tattersall
+705,feedlot,venta 34 novillos a feria tattersall,,,,,,,,,,34 novillos,,,,,,,venta,,,,,,venta 34 novillos a feria tattersall
+706,feedlot,45 Vaquillas ABSO. Frigosorno,,,,,,,,,,45 Vaquillas,,,,,,,,,,,,,45 Vaquillas ABSO. ‖ Frigosorno
+707,feedlot,venta Ferias Araucanias 25 machos 20 hembras,,,,,,,,,,,,,,,,,venta,,,Ferias Araucanias,,,venta Ferias Araucanias ‖ 25 machos ‖ 20 hembras
+708,feedlot,venta 45 novillos gordos Araucanias,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,venta 45 novillos gordos Araucanias
+709,feedlot,venta 45 novillos ABSO Frigosorno,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,venta 45 novillos ABSO Frigosorno
+710,feedlot,45 novillos gordos Frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos Frival
+711,feedlot,10 novillos gordos Frival,,,,,,,,,,10 novillos,,,,,,,,,,,,,10 novillos gordos Frival
+712,feedlot,venta ABSO,,,,,,,,,,,,,,,,,venta,,,,,,venta ABSO
+713,feedlot,45 novillos gordos ferias Araucanias,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos ferias Araucanias
+714,feedlot,45 Vaquillas gordas ferias Araucanias,,,,,,,,,,45 Vaquillas,,,,,,,,,,,,,45 Vaquillas gordas ferias Araucanias
+715,feedlot,45 novillos gordos Feria Araucanias Temuco,,,,,,,,,,45 novillos,,,,,,,,,,Feria Araucanias Temuco,,,45 novillos gordos Feria Araucanias Temuco
+716,feedlot,venta Frival vaqs gordas,,,,,,,,,,,,,,,,,venta,,,,,,venta Frival vaqs gordas
+717,feedlot,venta 45 vqs gordas ferias araucanias,,,,,,,,,,,,,,,,,venta,,,,,,venta 45 vqs gordas ferias araucanias
+718,feedlot,venta 45 novillos Frival,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,venta 45 novillos Frival
+719,feedlot,venta feria tattersall,,,,,,,,,,,,,,,,,venta,,,,,,venta feria tattersall
+720,feedlot,12 ventas Abso,,,,,,,,,,,,,,,,,venta,,,,,,12 ventas Abso
+721,feedlot,45 novillos gordos Frival,,,,,,,,,,45 novillos,,,,,,,,,,,,,45 novillos gordos Frival
+722,feedlot,venta Frival 45 novillos gordos,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,venta Frival 45 novillos gordos
+723,feedlot,"venta 45 novillos carnicería "" La nueva """,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,"venta 45 novillos carnicería "" La nueva """
+724,feedlot,4to camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,4to camión mollendo
+725,feedlot,3er camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,3er camión mollendo
+726,feedlot,2do camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,2do camión mollendo
+727,feedlot,1er camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,1er camión mollendo
+728,feedlot,10 animales venta ABSO,,,,,,,,,,,,,,,,,venta,,,,,,10 animales venta ABSO
+729,feedlot,20 novillos tattersall,,,,,,,,,,20 novillos,,,,,,,,,,,,,20 novillos tattersall
+730,feedlot,43 vaquillas gordas Frival,,,,,,,,,,43 vaquillas,,,,,,,,,,,,,43 vaquillas gordas Frival
+731,feedlot,venta 40 novillos gordos Tattersall ( carnicero imperial),,,,,,,,,,40 novillos,,,,,,,venta,,,,,,venta 40 novillos gordos Tattersall ( carnicero imperial)
+732,feedlot,venta 39 animales feria Tattersall,,,,,,,,,,,,,,,,,venta,,,,,,venta 39 animales feria Tattersall
+733,feedlot,venta 45 vaquillas Gordas frigosorno,,,,,,,,,,45 vaquillas,,,,,,,venta,,,,,,venta 45 vaquillas Gordas frigosorno
+734,feedlot,venta 45 gordos Frival.,,,,,,,,,,,,,,,,,venta,,,,,,venta 45 gordos Frival.
+735,feedlot,18 animales venta feria tattersall,,,,,,,,,,,,,,,,,venta,,,,,,18 animales venta feria tattersall
+736,San Pedro,feria tattersal freire,,,,,,,,,,,,,,,,,,,,,,,feria tattersal freire
+737,feedlot,45 gordos Frigosorno,,,,,,,,,,,,,,,,,,,,,,,45 gordos Frigosorno
+738,feedlot,45 novillos gordos venta Frival,,,,,,,,,,45 novillos,,,,,,,venta,,,,,,45 novillos gordos venta Frival
+739,feedlot,44 novillos gordos carniceria la nueva,,,,,,,,,,44 novillos,,,,,,,,,,,,,44 novillos gordos carniceria la nueva
+740,feedlot,47 vaqs gordas Frigosorno,,,,,,,,,,,,,,,,,,,,,,,47 vaqs gordas Frigosorno
+741,feedlot,40 vaqs gordas Carniceria la nueva,,,,,,,,,,,,,,,,,,,,,,,40 vaqs gordas ‖ Carniceria la nueva
+742,feedlot,45 vaquillas.gordas frigosorno,,,,,,,,,,45 vaquillas,,,,,,,,,,,,,45 vaquillas.gordas frigosorno
+743,San Pedro,feria tattersal Freire Eduardo Gutiérrez 9.871.917-2 5 toros 3 terneros 8 vacas 1 vaquilla,,9.871.917-2,,,,,,,,5 toros | 3 terneros | 8 vacas | 1 vaquilla,,,,,,,,,,Freire Eduardo Gutiérrez,,,feria tattersal Freire ‖ Eduardo Gutiérrez ‖ 9.871.917-2 ‖ 5 toros ‖ 3 terneros ‖ 8 vacas ‖ 1 vaquilla
+744,San Pedro,Venta de urgencia,,,,,,,,,,,,,,,,,Venta,,,,,,Venta de urgencia
+745,San Pedro,feria tattersal Freire Álvaro Reyes 18.871.807 -8 terneros M y H 47 y vaca vacía y ptb,,,,,,,,,,8 terneros,,,,,,,,,,Freire Álvaro Reyes,,,feria tattersal Freire ‖ Álvaro Reyes ‖ 18.871.807 -8 ‖ terneros M y H 47 y vaca vacía y ptb
+746,feedlot,feria tattersal Freire Álvaro Reyes 18.871.807-8 25 vacas gordas,,18.871.807-8,,,,,,,,25 vacas,,,,,,,,,,Freire Álvaro Reyes,,,feria tattersal Freire ‖ Álvaro Reyes ‖ 18.871.807-8 ‖ 25 vacas gordas
+747,feedlot,Feria tattersal Freire 09.5.01.0502 vacas desecho transporte Eduardo Gutiérrez 9.871.917-2,,9.871.917-2,,,,,,,,0502 vacas,,,,,,,,,,Eduardo Gutiérrez,,,Feria tattersal   Freire ‖ 09.5.01.0502 ‖ vacas desecho ‖ transporte ‖ Eduardo Gutiérrez ‖ 9.871.917-2
+748,San Pedro,1 vaca con prolapso uterino ( desecho),,,,,,,,,,1 vaca,,,,,,,,,,,,,1 vaca con prolapso uterino ( desecho)
+749,San Pedro,venta 36 vacas feria Tatersall,,,,,,,,,,36 vacas,,,,,,,venta,,,,,,venta 36 vacas feria Tatersall
+750,San Pedro,2 venta martes 9 frigosorno,,,,,,,,,,,,,,,,,venta,,,,,,2 venta martes 9 frigosorno
+751,San Pedro,1 venta 42 vacas a frigosorno. Tara 17.160 kgs peso total 39.840 kgs vacas 22.680 promedio vacas 540 kgs.,,,17.160 kgs | 39.840 kgs | 540 kgs,,,,,,,42 vacas,,,,,,,venta,,,,,,1 venta 42 vacas a frigosorno. ‖ Tara 17.160 kgs ‖ peso total 39.840 ‖ kgs vacas 22.680 ‖ promedio vacas 540 kgs.
+752,San Pedro,"40 vacas venta frigosorno. Tara camion: 17.300 kgs camión cargado: 39.160 kgs vacas: 21.860 kgs promedio por vaca 546,5 kgs.",,,"17.300 kgs | 39.160 kgs | 21.860 kgs | 546,5 kgs",,,,,,,40 vacas,,,,camion: 17 | camión cargado,,,venta,,,,,,"40 vacas venta frigosorno. ‖ Tara camion: 17.300 kgs ‖ camión cargado: 39.160 ‖ kgs vacas: 21.860 kgs ‖ promedio por vaca 546,5 kgs."
+753,San Pedro,venta desecho Tatersall,,,,,,,,,,,,,,,,,venta,,,,,,venta desecho Tatersall
+754,San Pedro,Venta urgencia. don Rodolfo Bustamante,,,,,,,,,,,,,,,,,Venta,,,Rodolfo Bustamante,,,Venta urgencia. don Rodolfo Bustamante
+755,San Pedro,22 animales desecho a feria Tatersall,,,,,,,,,,,,,,,,,,,,,,,22 animales desecho a feria Tatersall
+756,feedlot,venta mollendo 46 novillos camión: frvb42 carro jk4101 jorge moncada 8.500.689-0,,8.500.689-0,,,,,,,,46 novillos,,,,camión: frvb42,carro jk4101,,venta,,,,,,venta mollendo 46 novillos ‖ camión: frvb42 ‖ carro jk4101 ‖ jorge moncada ‖ 8.500.689-0
+757,San Pedro,venta 74 vaquillas united,,,,,,,,,,74 vaquillas,,,,,,,venta,,,,,,venta 74 vaquillas united
+758,feedlot,4to camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,4to camión mollendo
+759,feedlot,3er camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,3er camión mollendo
+760,feedlot,2do camión,,,,,,,,,,,,,,,,,,,,,,,2do camión
+761,feedlot,1er camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,1er camión mollendo
+762,feedlot,39 novillos Omar Paredes,,,,,,,,,,39 novillos,,,,,,,,,,Omar Paredes,,,39 novillos Omar Paredes
+763,feedlot,2 do camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,2 do camión mollendo
+764,feedlot,1 er camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,1 er camión mollendo
+765,San Pedro,venta 1 vaca desecho 540 kgs bruto. 511 kgs destarados.,,,540 kgs | 511 kgs,,,,,,,1 vaca,,,,,,,venta,,,,,,venta 1 vaca desecho 540 kgs bruto. ‖ 511 kgs destarados.
+766,San Pedro,22 vacas 2 toros feria freire,,,,,,,,,,22 vacas | 2 toros,,,,,,,,,,,,,22 vacas ‖ 2 toros ‖ feria freire
+767,San Pedro,venta 3 toros mayol,,,,,,,,,,3 toros,,,,,,,venta,,,,,,venta 3 toros mayol
+768,feedlot,3er camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,3er camión mollendo
+769,feedlot,mollendo camión 2,,,,,,,,,,,,,,camión 2,,,,,,,,,mollendo camión 2
+770,feedlot,mollendo camión 1,,,,,,,,,,,,,,camión 1,,,,,,,,,mollendo camión 1
+771,San Pedro,peso bruto 590 kgs destare 35 kgs A pagar 555 kgs,,,590 kgs | 35 kgs | 555 kgs,,,,,,,,,,,,,,,,,,,,peso bruto 590 kgs ‖ destare 35 kgs ‖ A pagar 555 kgs
+772,San Pedro,3 toretes Mayol,,,,,,,,,,,,,,,,,,,,,,,3 toretes Mayol
+773,San Pedro,1 torete,,,,,,,,,,,,,,,,,,,,,,,1 torete
+774,feedlot,2 do camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,2 do camión mollendo
+775,feedlot,55 novillos mollendo.,,,,,,,,,,55 novillos,,,,,,,,,,,,,55 novillos mollendo.
+776,San Pedro,"venta desecho Rodolfo Bustamante 568 kgs bruto con el 5,68% destare a pagar 536 kgs.",,,568 kgs | 536 kgs,,,,,,,,,,,,,,venta,,,Rodolfo Bustamante,,68%,"venta desecho Rodolfo Bustamante ‖ 568 kgs bruto con el 5,68% destare a pagar 536 kgs."
+777,San Pedro,venta torete,,,,,,,,,,,,,,,,,venta,,,,,,venta torete
+778,feedlot,55 novillos mollendo,,,,,,,,,,55 novillos,,,,,,,,,,,,,55 novillos mollendo
+779,San Pedro,venta Feria Tatersall 4 novillos hereford 36 vacas angus,,,,,,,,,,4 novillos | 36 vacas,,,,,,,venta,,,Feria Tatersall,,,venta Feria Tatersall ‖ 4 novillos hereford ‖ 36 vacas angus
+780,San Pedro,venta 45 vacas frigosorno,,,,,,,,,,45 vacas,,,,,,,venta,,,,,,venta 45 vacas frigosorno
+781,San Pedro,venta Víctor Olave,,,,,,,,,,,,,,,,,venta,,,Víctor Olave,,,venta Víctor Olave
+782,feedlot,Pérez Cruz camión 4,,,,,,,,,,,,,,camión 4,,,,,,Pérez Cruz,,,Pérez Cruz camión 4
+783,feedlot,Pérez Cruz Camión 3,,,,,,,,,,,,,,Camión 3,,,,,,Pérez Cruz Camión,,,Pérez Cruz Camión 3
+784,feedlot,Pérez Cruz Camión 2,,,,,,,,,,,,,,Camión 2,,,,,,Pérez Cruz Camión,,,Pérez Cruz Camión 2
+785,feedlot,Pérez cruz camión 1,,,,,,,,,,,,,,camión 1,,,,,,,,,Pérez cruz camión 1
+786,feedlot,venta 15 vacas Víctor Olave,,,,,,,,,,15 vacas,,,,,,,venta,,,Víctor Olave,,,venta 15 vacas Víctor Olave
+787,feedlot,venta 3er camión mollendo 55 novillos,,,,,,,,,,55 novillos,,,,camión mollendo,,,venta,,,,,,venta 3er camión mollendo 55 novillos
+788,feedlot,venta mollendo 2 do camión 55 novillos,,,,,,,,,,55 novillos,,,,camión 55,,,venta,,,,,,venta mollendo 2 do camión ‖ 55 novillos
+789,San Pedro,Venta ternero quebrado Rodolfo Bustamante.,,,,,,,,,,,,,,,,,Venta,,,Rodolfo Bustamante,,,Venta ternero quebrado Rodolfo Bustamante.
+790,feedlot,1er camión mollendo,,,,,,,,,,,,,,camión mollendo,,,,,,,,,1er camión mollendo
+791,feedlot,venta 44 vacas frigosorno 22.240 kilos bruto romana.,,,22.240 kilos,,,,,,,44 vacas,,,,,,,venta,,,,,,venta 44 vacas frigosorno ‖ 22.240 kilos bruto romana.
+792,feedlot,venta 43 vacas Mafrisur,,,,,,,,,,43 vacas,,,,,,,venta,,,,,,venta 43 vacas Mafrisur
+793,San Pedro,Venta 40 vacas frigosorno,,,,,,,,,,40 vacas,,,,,,,Venta,,,,,,Venta 40 vacas frigosorno
+794,San Pedro,Venta vaca desecho Rodolfo Bustamante - kilos Bruto: 654 - kgs destare: 42 - Kilos Neto: 612,,,,,,,,,,,,,,,,,Venta,,,Rodolfo Bustamante | Kilos Neto,,,Venta vaca desecho Rodolfo Bustamante ‖ - kilos Bruto: 654 ‖ - kgs destare: 42 ‖ - Kilos Neto: 612
+795,feedlot,venta 40 hereford frigorífico camer Ltda. Santiago,,,,,,,,,,,,,,,,,venta,,,,,,venta 40 hereford frigorífico camer Ltda. Santiago
+796,feedlot,venta 44 hereford Tatersall,,,,,,,,,,,,,,,,,venta,,,,,,venta 44 hereford Tatersall
+797,San Pedro,venta 2 toros campo verde,,,,,,,,,,2 toros,,,,,,,venta,,,,,,venta 2 toros campo verde
+798,feedlot,venta frigosorno,,,,,,,,,,,,,,,,,venta,,,,,,venta frigosorno
+799,San Pedro,venta todos Benjamín Faret,,,,,,,,,,,,,,,,,venta,,,Benjamín Faret,,,venta todos Benjamín Faret
+800,San Pedro,venta Mafrisur,,,,,,,,,,,,,,,,,venta,,,,,,venta Mafrisur
+801,feedlot,venta Frival,,,,,,,,,,,,,,,,,venta,,,,,,venta Frival
+802,feedlot,venta frigosorno,,,,,,,,,,,,,,,,,venta,,,,,,venta frigosorno
+803,feedlot,venta quebrado agroranco,,,,,,,,,,,,,,,,,venta,,,,,,venta quebrado agroranco
+804,San Pedro,venta Daniel vaquilla cadera quebrada,,,,,,,,,,,,,,,,,venta,,,,,,venta Daniel vaquilla cadera quebrada
+805,San Pedro,venta Carlos Naranjo,,,,,,,,,,,,,,,,,venta,,,Carlos Naranjo,,,venta Carlos Naranjo
+806,feedlot,venta daniel novillo feed lot,,,,,,,,,,,,,,,,,venta,,,,,,venta daniel novillo feed lot
+807,feedlot,venta torete riñihue,,,,,,,,,,,,,,,,,venta,,,,,,venta torete riñihue
+808,feedlot,frigorífico Osorno gordos propios,,,,,,,,,,,,,,,,,,,,,,,frigorífico Osorno gordos propios
+809,feedlot,mollendo 3,,,,,,,,,,,,,,,,,,,,,,,mollendo 3
+810,San Pedro,venta 15 vacas tatersall,,,,,,,,,,15 vacas,,,,,,,venta,,,,,,venta 15 vacas tatersall
+811,feedlot,venta 13 novillos tattersall,,,,,,,,,,13 novillos,,,,,,,venta,,,,,,venta 13 novillos tattersall
+812,feedlot,venta Daniel silva,,,,,,,,,,,,,,,,,venta,,,,,,venta Daniel silva
+813,feedlot,mollendo,,,,,,,,,,,,,,,,,,,,,,,mollendo
+814,feedlot,venta frigosorno,,,,,,,,,,,,,,,,,venta,,,,,,venta frigosorno
+815,feedlot,venta frigo temuco gasich,,,,,,,,,,,,,,,,,venta,,,,,,venta frigo temuco gasich
+816,San Pedro,6 vacas desecho,,,,,,,,,,6 vacas,,,,,,,,,,,,,6 vacas desecho
+817,feedlot,41 vaqs gordas mafrisur,,,,,,,,,,,,,,,,,,,,,,,41 vaqs gordas mafrisur
+818,feedlot,venta novillos gordos. mollendo,,,,,,,,,,,,,,,,,venta,,,,,,venta novillos gordos. mollendo
+819,San Pedro,venta 5 toros angus,,,,,,,,,,5 toros,,,,,,,venta,,,,,,venta 5 toros angus
+820,feedlot,50 venta novillos mollendo 2,,,,,,,,,,,,,,,,,venta,,,,,,50 venta novillos mollendo 2
+821,feedlot,50 venta novillo fundó mollendo,,,,,,,,,,,,,,,,,venta,,,,,,50 venta novillo fundó mollendo
+822,feedlot,50 venta vaquilla feedlot mollendo,,,,,,,,,,,,,,,,,venta,,,,,,50 venta vaquilla feedlot mollendo
+823,feedlot,frigosorno 42 vaquillas gordas,,,,,,,,,,42 vaquillas,,,,,,,,,,,,,frigosorno 42 vaquillas gordas
+824,San Pedro,Francisco Silinng,,,,,,,,,,,,,,,,,,,,Francisco Silinng,,,Francisco Silinng
+825,San Pedro,venta desecho ervin montecinos,,,,,,,,,,,,,,,,,venta,,,,,,venta desecho ervin montecinos
+826,San Pedro,venta vaca de 528 kgs bruto. 5 % destare 28 total a pagar 500 kgs neto.,,,528 kgs | 500 kgs,,,,,,,,,,,,,,venta,,,,,5 %,venta vaca de 528 kgs bruto. ‖ 5 % destare 28 ‖ total a pagar 500 kgs neto.
+827,San Pedro,Maria antonieta 73 terneras kgs neto 14.771,,,,,,,,,,73 terneras,,,,,,,,,,,,,Maria antonieta 73 terneras kgs neto 14.771
+828,San Pedro,Federico neumann 60 terneros con 12.352 kgs neto,,,12.352 kgs,,,,,,,60 terneros,,,,,,,,,,,,,Federico neumann 60 terneros con 12.352 kgs neto
+829,San Pedro,venta mollendo 100 terneros con 23.931 kgs neto,,,23.931 kgs,,,,,,,100 terneros,,,,,,,venta,,,,,,venta mollendo 100 terneros con 23.931 kgs neto
+830,San Pedro,venta mollendo,,,,,,,,,,,,,,,,,venta,,,,,,venta mollendo
+831,San Pedro,venta 9 desechos. ervin montecinos.,,,,,,,,,,,,,,,,,venta,,,,,,venta 9 desechos. ervin montecinos.
+832,San Pedro,venta 37 vacas frigosorno.,,,,,,,,,,37 vacas,,,,,,,venta,,,,,,venta 37 vacas frigosorno.
+833,San Pedro,venta vacas gordas frigorifico osorno,,,,,,,,,,,,,,,,,venta,,,,,,venta vacas gordas frigorifico osorno
+834,San Pedro,Venta urgencia quebrada,,,,,,,,,,,,,,,,,Venta,,,,,,Venta urgencia quebrada
+835,San Pedro,victor olave,,,,,,,,,,,,,,,,,,,,,,,victor olave
+836,San Pedro,victor olave.,,,,,,,,,,,,,,,,,,,,,,,victor olave.
+837,San Pedro,venta urgencia,,,,,,,,,,,,,,,,,venta,,,,,,venta urgencia
+838,San Pedro,4 vacas desecho ervin montecinos,,,,,,,,,,4 vacas,,,,,,,,,,,,,4 vacas desecho ervin montecinos
+839,San Pedro,Venta toros feria araucania,,,,,,,,,,,,,,,,,Venta,,,,,,Venta toros feria araucania
+840,San Pedro,venta frigosorno,,,,,,,,,,,,,,,,,venta,,,,,,venta frigosorno
+841,San Pedro,venta frigosorno,,,,,,,,,,,,,,,,,venta,,,,,,venta frigosorno
+842,San Pedro,2 vacas angus gordas,,,,,,,,,,2 vacas,,,,,,,,,,,,,2 vacas angus gordas
+843,San Pedro,venta vcs flacas Ptbc,,,,,,,,,,,,,,,,,venta,,,,,,venta vcs flacas Ptbc
+844,San Pedro,venta rodolfo bustamante,,,,,,,,,,,,,,,,,venta,,,,,,venta rodolfo bustamante
+845,San Pedro,Don Gustabo W.,,,,,,,,,,,,,,,,,,,,Don Gustabo,,,Don Gustabo W.
+846,San Pedro,Mollendo,,,,,,,,,,,,,,,,,,,,,,,Mollendo
+847,San Pedro,victor olave,,,,,,,,,,,,,,,,,,,,,,,victor olave

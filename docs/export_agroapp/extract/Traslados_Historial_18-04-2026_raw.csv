@@ -1,0 +1,403 @@
+ID,Origen,Destino,N° Guía,Animales,Tipo ganado,Observaciones,Estado,Fecha traslado,Creado por,Fecha creado
+17619,San Pedro,feedlot,,22,"Vaca: 19
+Vaquilla: 3",,Completo,"""2026-04-16T00:00:00.000Z""",Hernan Silva,"""2026-04-16T00:00:00.000Z"""
+17616,San Pedro,Recría Feedlot ,,14,"Ternera: 6
+Ternero: 8",,Completo,"""2026-04-15T00:00:00.000Z""",Hernan Silva,"""2026-04-15T00:00:00.000Z"""
+17608,Recría FT,Medieria FT,,120,Novillo: 120,,Completo,"""2026-04-14T00:00:00.000Z""",Hernan Silva,"""2026-04-14T00:00:00.000Z"""
+17606,San Pedro,feedlot,,18,Vaca: 18,18 vaquillas secas de San Pedro a engorda Feedlot ,Completo,"""2026-04-14T00:00:00.000Z""",Hernan Silva,"""2026-04-14T00:00:00.000Z"""
+17601,San Pedro,Recría Feedlot ,,256,"Novillo: 1
+Ternera: 118
+Ternero: 137",,Completo,"""2026-04-13T00:00:00.000Z""",Hernan Silva,"""2026-04-13T00:00:00.000Z"""
+17541,San Pedro,Recría Feedlot ,,267,"Ternera: 121
+Ternero: 146",,Completo,"""2026-03-30T00:00:00.000Z""",Hernan Silva,"""2026-03-30T00:00:00.000Z"""
+17518,Recría FT,Recría Feedlot ,,69,Novillo: 69,,Completo,"""2026-03-25T00:00:00.000Z""",Hernan Silva,"""2026-03-25T00:00:00.000Z"""
+17513,San Pedro,feedlot,,1,Vaquilla: 1,,Completo,"""2026-03-24T00:00:00.000Z""",Hernan Silva,"""2026-03-24T00:00:00.000Z"""
+17510,San Pedro,Recría Feedlot ,,370,"Ternera: 170
+Ternero: 200",,Completo,"""2026-03-23T00:00:00.000Z""",Hernan Silva,"""2026-03-23T00:00:00.000Z"""
+17505,Recría FT,Medieria FT,,77,Novillo: 77,,Completo,"""2026-03-20T00:00:00.000Z""",Hernan Silva,"""2026-03-20T00:00:00.000Z"""
+17504,Recría Feedlot ,Arriendo Santa Isabel ,,106,Vaquilla: 106,,Completo,"""2026-03-20T00:00:00.000Z""",Hernan Silva,"""2026-03-20T00:00:00.000Z"""
+17495,Recría FT,Medieria FT,,13,Novillo: 13,,Completo,"""2026-03-18T00:00:00.000Z""",Hernan Silva,"""2026-03-18T00:00:00.000Z"""
+17492,San Pedro,Recría Feedlot ,,142,"Ternera: 72
+Ternero: 70",,Completo,"""2026-03-17T00:00:00.000Z""",Hernan Silva,"""2026-03-17T00:00:00.000Z"""
+17480,Recría Feedlot ,feedlot,,40,Vaquilla: 40,,Completo,"""2026-03-16T00:00:00.000Z""",Hernan Silva,"""2026-03-16T00:00:00.000Z"""
+17364,San Pedro,feedlot,,1,Vaca: 1,,Completo,"""2026-02-16T00:00:00.000Z""",guentrepan,"""2026-02-16T00:00:00.000Z"""
+17305,Recría FT,Medieria FT,,140,Novillo: 140,140 novillos de recría FT a Temuco Ft,Completo,"""2026-01-22T00:00:00.000Z""",guentrepan,"""2026-01-22T00:00:00.000Z"""
+17295,Aguas Buenas ,Recría Feedlot ,,146,Vaquilla: 146,146 vaquillas de aguas buenas destino Feedlot ,Completo,"""2026-01-16T00:00:00.000Z""",guentrepan,"""2026-01-16T00:00:00.000Z"""
+17292,Arriendo Santa Isabel ,Aguas Buenas ,,146,Vaquilla: 146,traslado vaquillas vacias 146 ,Completo,"""2026-01-15T00:00:00.000Z""",Diego,"""2026-01-15T00:00:00.000Z"""
+17240,San Pedro,feedlot,,1,Novillo: 1,,Completo,"""2025-12-30T00:00:00.000Z""",guentrepan,"""2025-12-30T00:00:00.000Z"""
+17239,feedlot,Aguas Buenas ,,0,,,En Proceso,"""2025-12-30T00:00:00.000Z""",guentrepan,"""2025-12-30T00:00:00.000Z"""
+17195,Arriendo Santa Isabel ,feedlot,,2,Vaquilla: 2,"traslado de 2 vaquillas que no se genero físicamente, solo por el programa",Completo,"""2025-12-16T00:00:00.000Z""",Diego,"""2025-12-16T00:00:00.000Z"""
+17192,Arriendo Santa Isabel ,feedlot,,32,Vaquilla: 32,32 vaquillas de Santa Isabel destino Feedlot ,Completo,"""2025-12-13T00:00:00.000Z""",guentrepan,"""2025-12-13T00:00:00.000Z"""
+17178,Arriendo las quebradas ,feedlot,,10,Novillo: 10,10 novillos de arriendo las quebradas con destino Feedlot ,Completo,"""2025-12-05T00:00:00.000Z""",guentrepan,"""2025-12-05T00:00:00.000Z"""
+17167,Arriendo Santa Isabel ,feedlot,,110,"Vaca: 1
+Vaquilla: 109",110 vaquillas de Santa Isabel con destino Feedlot ,Completo,"""2025-12-02T00:00:00.000Z""",guentrepan,"""2025-12-02T00:00:00.000Z"""
+17158,Arriendo las quebradas ,feedlot,,116,"Novillo: 104
+Vaquilla: 12",traslado de 116 terneros al feedlot desde Regina,Completo,"""2025-11-27T00:00:00.000Z""",Diego,"""2025-11-27T00:00:00.000Z"""
+17157,Aguas Buenas ,feedlot,,1,Vaquilla: 1,,Completo,"""2025-11-26T00:00:00.000Z""",guentrepan,"""2025-11-26T00:00:00.000Z"""
+17156,Aguas Buenas ,feedlot,,2,"Vaca: 1
+Vaquilla: 1",,Completo,"""2025-11-26T00:00:00.000Z""",guentrepan,"""2025-11-26T00:00:00.000Z"""
+17132,San Pedro,Aguas Buenas ,,2,Vaca: 2,2 vaquillas de San Pedro a Feedlot ,Completo,"""2025-11-18T00:00:00.000Z""",guentrepan,"""2025-11-18T00:00:00.000Z"""
+17131,Recría Feedlot ,Aguas Buenas ,,3,"Novillo: 1
+Vaquilla: 2",2 vaquillas más 1 ternero de recria a Feedlot,Completo,"""2025-11-18T00:00:00.000Z""",guentrepan,"""2025-11-18T00:00:00.000Z"""
+17031,feedlot,Recría Feedlot ,,1,Novillo: 1,1 torete de feedlot a recria ,Completo,"""2025-10-16T00:00:00.000Z""",guentrepan,"""2025-10-16T00:00:00.000Z"""
+17030,Recría Feedlot ,feedlot,,1,Novillo: 1,1 torete de recria a Feedlot ,Completo,"""2025-10-16T00:00:00.000Z""",guentrepan,"""2025-10-16T00:00:00.000Z"""
+16996,Recría Feedlot ,Arriendo Santa Isabel ,,2,Vaquilla: 2,2 vaquillas a sta Isabel ,Completo,"""2025-10-04T00:00:00.000Z""",guentrepan,"""2025-10-06T00:00:00.000Z"""
+16994,Recría Feedlot ,feedlot,,77,"Novillo: 75
+Vaquilla: 2",77 novillos a Engorda ,Completo,"""2025-10-04T00:00:00.000Z""",guentrepan,"""2025-10-04T00:00:00.000Z"""
+16993,Recría Feedlot ,Arriendo las quebradas ,,4,Novillo: 4,4 machos a las quebradas ,Completo,"""2025-10-04T00:00:00.000Z""",guentrepan,"""2025-10-04T00:00:00.000Z"""
+16992,Recría Feedlot ,Arriendo Santa Isabel ,,76,Vaquilla: 76,76 Hembras a Santa Isabel ,Completo,"""2025-10-03T00:00:00.000Z""",guentrepan,"""2025-10-03T00:00:00.000Z"""
+16990,feedlot,Aguas Buenas ,,1,Vaquilla: 1,,Completo,"""2025-10-03T00:00:00.000Z""",guentrepan,"""2025-10-03T00:00:00.000Z"""
+16989,Recría Feedlot ,Arriendo Santa Isabel ,,191,"Vaca: 1
+Vaquilla: 190",191 vaquillas a Santa Isabel ,Completo,"""2025-10-03T00:00:00.000Z""",guentrepan,"""2025-10-03T00:00:00.000Z"""
+16988,Recría Feedlot ,Arriendo Santa Isabel ,,157,"Vaca: 1
+Vaquilla: 156",157 vaquillas a sta Isabel ,Completo,"""2025-10-03T00:00:00.000Z""",guentrepan,"""2025-10-03T00:00:00.000Z"""
+16987,Recría Feedlot ,Arriendo las quebradas ,,123,"Novillo: 111
+Vaquilla: 12",machos,Completo,"""2025-10-03T00:00:00.000Z""",guentrepan,"""2025-10-03T00:00:00.000Z"""
+16925,Recría Feedlot ,feedlot,,82,"Novillo: 80
+Vaquilla: 2",82 novillos de recria a feedlot ,Completo,"""2025-09-22T00:00:00.000Z""",guentrepan,"""2025-09-22T00:00:00.000Z"""
+16798,feedlot,Recría Feedlot ,,9,Novillo: 9,,Completo,"""2025-08-23T00:00:00.000Z""",guentrepan,"""2025-08-23T00:00:00.000Z"""
+16797,Recría Feedlot ,feedlot,,51,"Novillo: 50
+Vaquilla: 1",,Completo,"""2025-08-23T00:00:00.000Z""",guentrepan,"""2025-08-23T00:00:00.000Z"""
+16759,Recría Feedlot ,feedlot,,157,"Novillo: 151
+Vaquilla: 6",,Completo,"""2025-08-21T00:00:00.000Z""",guentrepan,"""2025-08-21T00:00:00.000Z"""
+16724,Recría Feedlot ,feedlot,,100,"Novillo: 9
+Vaquilla: 91",100 vaquillas a Engorda ,Completo,"""2025-08-14T00:00:00.000Z""",guentrepan,"""2025-08-14T00:00:00.000Z"""
+16706,San Pedro,feedlot,,1,Vaca: 1,vaquillas flaca ,Completo,"""2025-08-13T00:00:00.000Z""",guentrepan,"""2025-08-13T00:00:00.000Z"""
+16701,San Pedro,Medieria FT,,4,Vaca: 4,4 vaquillas de San Pedro a feedlot ,Completo,"""2025-08-11T00:00:00.000Z""",guentrepan,"""2025-08-11T00:00:00.000Z"""
+16393,Recría Feedlot ,feedlot,,94,"Novillo: 13
+Vaquilla: 81",94 Hembras a Engorda ,Completo,"""2025-07-21T00:00:00.000Z""",guentrepan,"""2025-07-07T00:00:00.000Z"""
+16391,feedlot,Recría Feedlot ,,2,Vaquilla: 2,2 vaquillas secas chicas,Completo,"""2025-07-04T00:00:00.000Z""",guentrepan,"""2025-07-07T00:00:00.000Z"""
+16260,Recría Feedlot ,feedlot,,91,"Novillo: 84
+Vaquilla: 7",91 novillos a engorda ,Completo,"""2025-06-16T00:00:00.000Z""",guentrepan,"""2025-06-16T00:00:00.000Z"""
+16230,Arriendo Santa Isabel ,feedlot,,13,Vaquilla: 13,traslado de vaquillas a Feedlot ,Completo,"""2025-06-09T00:00:00.000Z""",guentrepan,"""2025-06-09T00:00:00.000Z"""
+16229,Arriendo Santa Isabel ,San Pedro,,288,"Novillo: 1
+Vaca: 286
+Vaquilla: 1",traslado de 286 vaquillas Preñadas + 1 vaquilla Vacia + 1 cría total 288,Completo,"""2025-06-09T00:00:00.000Z""",guentrepan,"""2025-06-09T00:00:00.000Z"""
+16162,Arriendo las quebradas ,Recría Feedlot ,,271,"Novillo: 256
+Vaquilla: 15",traslado Recria a Feedlot ,Completo,"""2025-05-30T00:00:00.000Z""",guentrepan,"""2025-05-30T00:00:00.000Z"""
+16131,San Pedro,Recría Feedlot ,,1,Novillo: 1, 1 ternero ,Completo,"""2025-05-23T00:00:00.000Z""",Diego,"""2025-05-23T00:00:00.000Z"""
+16129,Arriendo las quebradas ,Recría Feedlot ,,232,"Novillo: 3
+Ternera: 2
+Vaquilla: 227",,Completo,"""2025-05-23T00:00:00.000Z""",guentrepan,"""2025-05-23T00:00:00.000Z"""
+16032,San Pedro,Recría Feedlot ,,4,"Novillo: 3
+Vaquilla: 1",4 terneros charros,Completo,"""2025-04-25T00:00:00.000Z""",guentrepan,"""2025-04-25T00:00:00.000Z"""
+15945,San Pedro,feedlot,,4,"Novillo: 1
+Vaca: 3","3 vacas vacias 
+1 ternero ",Completo,"""2025-04-10T00:00:00.000Z""",guentrepan,"""2025-04-10T00:00:00.000Z"""
+15915,San Pedro,Recría Feedlot ,,1,Novillo: 1,ternero cambio de diio,Completo,"""2025-04-03T00:00:00.000Z""",Diego,"""2025-04-03T00:00:00.000Z"""
+15913,San Pedro,Recría Feedlot ,,3,"Novillo: 1
+Vaquilla: 2",,Completo,"""2025-04-02T00:00:00.000Z""",Diego,"""2025-04-02T00:00:00.000Z"""
+15912,Aguas Buenas ,San Pedro,,1,Ternera: 1,,Completo,"""2025-04-02T00:00:00.000Z""",guentrepan,"""2025-04-02T00:00:00.000Z"""
+15911,feedlot,Aguas Buenas ,,1,Ternera: 1,,Completo,"""2025-04-02T00:00:00.000Z""",guentrepan,"""2025-04-02T00:00:00.000Z"""
+15893,San Pedro,Recría Feedlot ,,198,"Novillo: 71
+Ternero: 2
+Vaca: 2
+Vaquilla: 123",,Completo,"""2025-03-28T00:00:00.000Z""",guentrepan,"""2025-03-28T00:00:00.000Z"""
+15886,feedlot,Recría Feedlot ,,18,"Novillo: 15
+Ternera: 1
+Vaquilla: 2",,Completo,"""2025-03-27T00:00:00.000Z""",guentrepan,"""2025-03-27T00:00:00.000Z"""
+15885,San Pedro,Arriendo las quebradas ,,1,Ternera: 1,ternero ,Completo,"""2025-03-11T00:00:00.000Z""",Diego,"""2025-03-27T00:00:00.000Z"""
+15865,San Pedro,Recría Feedlot ,,422,"Novillo: 220
+Ternera: 2
+Ternero: 2
+Vaquilla: 198",,Completo,"""2025-03-20T00:00:00.000Z""",guentrepan,"""2025-03-20T00:00:00.000Z"""
+15841,San Pedro,Arriendo las quebradas ,,150,"Novillo: 80
+Ternero: 1
+Vaquilla: 69",150 terneros destete a las quebradas ,Completo,"""2025-03-11T00:00:00.000Z""",guentrepan,"""2025-03-11T00:00:00.000Z"""
+15835,San Pedro,Recría Feedlot ,,105,"Novillo: 36
+Ternera: 2
+Ternero: 1
+Vaquilla: 66","traslado 106 terneros de San Pedro a recría  feedlot encerrados 1 de marzo 26437205 DIIO no existe 
+desparasitados dectomax 4cc 
+vacuna Clostribac 2cc",Completo,"""2025-03-10T00:00:00.000Z""",guentrepan,"""2025-03-10T00:00:00.000Z"""
+15830,Arriendo Santa Isabel ,San Pedro,,5,Novillo: 5,traslado 5 toretes,Completo,"""2025-01-31T00:00:00.000Z""",Diego,"""2025-03-07T00:00:00.000Z"""
+15800,Arriendo Santa Isabel ,feedlot,,51,Vaquilla: 51,traslado 51 vaquillas vacias desde sta isabel a feedlot...,Completo,"""2025-02-28T00:00:00.000Z""",Diego,"""2025-02-28T00:00:00.000Z"""
+15797,San Pedro,Arriendo las quebradas ,275,54,"Novillo: 28
+Vaquilla: 26",traslado  54 terneros destetado desde san pedro a las quebradas,Completo,"""2025-02-28T00:00:00.000Z""",Diego,"""2025-02-28T00:00:00.000Z"""
+15795,Arriendo Santa Isabel ,feedlot,,55,Vaquilla: 55,traslado 55 vaquillas vacias desde sta isabel a feedlot,Completo,"""2025-02-28T00:00:00.000Z""",Diego,"""2025-02-28T00:00:00.000Z"""
+15793,San Pedro,Arriendo las quebradas ,,75,"Novillo: 42
+Vaquilla: 33",traslado 75 terneros  a las quebradas,Completo,"""2025-02-27T00:00:00.000Z""",guentrepan,"""2025-02-27T00:00:00.000Z"""
+15784,Arriendo las quebradas ,feedlot,,58,"Novillo: 57
+Vaquilla: 1",58 novillos de arriendo las quebradas con destino Feedlot ,Completo,"""2025-02-25T00:00:00.000Z""",guentrepan,"""2025-02-25T00:00:00.000Z"""
+15781,Aguas Buenas ,feedlot,,116,"Novillo: 108
+Vaquilla: 8",116 novillos de aguas buenas con destino Feedlot ,Completo,"""2025-02-25T00:00:00.000Z""",guentrepan,"""2025-02-25T00:00:00.000Z"""
+15780,Arriendo las quebradas ,Aguas Buenas ,,116,"Novillo: 108
+Vaquilla: 8",116 novillos de arriendo las quebradas con destino Feedlot ,Completo,"""2025-02-25T00:00:00.000Z""",guentrepan,"""2025-02-25T00:00:00.000Z"""
+15779,San Pedro,Arriendo las quebradas ,271,75,"Novillo: 29
+Ternera: 1
+Vaquilla: 45",75 terneros  traslado a las quebradas  kg18.650,Completo,"""2025-02-25T00:00:00.000Z""",Diego,"""2025-02-25T00:00:00.000Z"""
+15776,San Pedro,Arriendo las quebradas ,270,75,"Novillo: 46
+Ternera: 2
+Vaquilla: 27",traslado 75 terneros a las quebradas kg 14880,Completo,"""2025-02-24T00:00:00.000Z""",Diego,"""2025-02-24T00:00:00.000Z"""
+15774,San Pedro,Arriendo las quebradas ,268,76,"Novillo: 34
+Vaquilla: 42",76 terneros destetados a las quebradas kg 14.820,Completo,"""2025-02-24T00:00:00.000Z""",Diego,"""2025-02-24T00:00:00.000Z"""
+15769,feedlot,San Pedro,,38,Vaca: 38,vacas vacias 38 para venta en san pedro,Completo,"""2025-02-22T00:00:00.000Z""",Diego,"""2025-02-22T00:00:00.000Z"""
+15756,San Pedro,feedlot,,38,Vaca: 38,vacas vacias 38,Completo,"""2025-02-20T00:00:00.000Z""",Diego,"""2025-02-20T00:00:00.000Z"""
+15694,Arriendo las quebradas ,feedlot,,49,"Novillo: 46
+Vaquilla: 3",49 novillos a engorda.. feedlot los lagos,Completo,"""2025-01-22T00:00:00.000Z""",guentrepan,"""2025-01-22T00:00:00.000Z"""
+15670,Arriendo las quebradas ,feedlot,,53,"Novillo: 47
+Vaquilla: 6",53 novillos de las Quebradas con destino Feedlot ,Completo,"""2025-01-09T00:00:00.000Z""",guentrepan,"""2025-01-09T00:00:00.000Z"""
+15662,Arriendo Santa Isabel ,feedlot,,56,Vaquilla: 56,56 vaquillas de Santa Isabel con destino Feedlot ,Completo,"""2025-01-08T00:00:00.000Z""",guentrepan,"""2025-01-08T00:00:00.000Z"""
+15623,Arriendo las quebradas ,feedlot,,20,"Novillo: 19
+Vaquilla: 1",,Completo,"""2024-12-12T00:00:00.000Z""",guentrepan,"""2024-12-12T00:00:00.000Z"""
+15622,Arriendo las quebradas ,Arriendo Santa Isabel ,,5,Novillo: 5,5 novillos de las Quebradas con destino Santa Isabel ,Completo,"""2024-12-12T00:00:00.000Z""",guentrepan,"""2024-12-12T00:00:00.000Z"""
+15621,Arriendo las quebradas ,San Pedro,,20,"Novillo: 19
+Toro: 1",20 toretes de las Quebradas con destino San Pedro ,Completo,"""2024-12-12T00:00:00.000Z""",guentrepan,"""2024-12-12T00:00:00.000Z"""
+15620,Arriendo las quebradas ,feedlot,,31,"Novillo: 29
+Vaquilla: 2",31 novillos de las Quebradas destino Feedlot ,Completo,"""2024-12-12T00:00:00.000Z""",guentrepan,"""2024-12-12T00:00:00.000Z"""
+15606,Medieria Frival,feedlot,,26,"Novillo: 9
+Vaquilla: 17",,Completo,"""2024-12-05T00:00:00.000Z""",guentrepan,"""2024-12-05T00:00:00.000Z"""
+15448,feedlot,San Pedro,,1,Novillo: 1,1 torete ,Completo,"""2024-09-30T00:00:00.000Z""",guentrepan,"""2024-10-04T00:00:00.000Z"""
+15447,feedlot,San Pedro,,6,Vaca: 6,traslado de 6 vacas desecho preñadas a san pedro,Completo,"""2024-09-30T00:00:00.000Z""",Diego,"""2024-10-04T00:00:00.000Z"""
+15436,feedlot,Arriendo las quebradas ,,49,"Novillo: 47
+Toro: 1
+Vaquilla: 1",49 terneros a las Quebradas (camión 2),Completo,"""2024-10-01T00:00:00.000Z""",guentrepan,"""2024-10-01T00:00:00.000Z"""
+15435,feedlot,Arriendo las quebradas ,,47,"Novillo: 44
+Vaquilla: 3",47 novillos a Las Quebradas (camión 1),Completo,"""2024-10-01T00:00:00.000Z""",guentrepan,"""2024-10-01T00:00:00.000Z"""
+15432,feedlot,Arriendo Santa Isabel ,,60,"Vaca: 40
+Vaquilla: 20",60 vaquillas a Santa Isabel (camión 3),Completo,"""2024-10-01T00:00:00.000Z""",guentrepan,"""2024-10-01T00:00:00.000Z"""
+15431,feedlot,Arriendo Santa Isabel ,,60,"Vaca: 44
+Vaquilla: 16",60 vaquillas a Santa Isabel (camión 2),Completo,"""2024-10-01T00:00:00.000Z""",guentrepan,"""2024-10-01T00:00:00.000Z"""
+15430,feedlot,Arriendo Santa Isabel ,,60,"Vaca: 40
+Vaquilla: 20",60 vaquillas a Santa Isabel (camión 1),Completo,"""2024-10-01T00:00:00.000Z""",guentrepan,"""2024-10-01T00:00:00.000Z"""
+15199,San Pedro,feedlot,,6,"Vaca: 5
+Vaquilla: 1",,Completo,"""2024-08-20T00:00:00.000Z""",guentrepan,"""2024-08-20T00:00:00.000Z"""
+15054,San Pedro,feedlot,,22,Vaca: 22,22 vacas traslado San Pedro a feedlot ,Completo,"""2024-07-30T00:00:00.000Z""",guentrepan,"""2024-07-30T00:00:00.000Z"""
+14786,feedlot,Mollendo ,,1,Novillo: 1,novillo arrancado,Completo,"""2024-06-28T00:00:00.000Z""",guentrepan,"""2024-06-28T00:00:00.000Z"""
+14749,Arriendo las quebradas ,feedlot,,120,"Novillo: 109
+Toro: 1
+Vaquilla: 10",,Completo,"""2024-06-21T00:00:00.000Z""",guentrepan,"""2024-06-21T00:00:00.000Z"""
+14722,San Pedro,feedlot,,2,Vaca: 2,2 vacas secas,Completo,"""2024-06-17T00:00:00.000Z""",guentrepan,"""2024-06-17T00:00:00.000Z"""
+14709,San Pedro,feedlot,,33,"Vaca: 23
+Vaquilla: 10",33 animales vacíos de palpación ,Completo,"""2024-06-12T00:00:00.000Z""",guentrepan,"""2024-06-12T00:00:00.000Z"""
+14705,San Pedro,feedlot,,2,Vaca: 2,2 terneras crianza a recría feedlot,Completo,"""2024-06-08T00:00:00.000Z""",Diego,"""2024-06-08T00:00:00.000Z"""
+14631,San Pedro,feedlot,,7,Vaca: 7,vacas vacias palpación ,Completo,"""2024-05-22T00:00:00.000Z""",Diego,"""2024-05-22T00:00:00.000Z"""
+14581,San Pedro,feedlot,,471,"Novillo: 84
+Ternera: 2
+Ternero: 2
+Vaca: 122
+Vaquilla: 261",,Completo,"""2024-05-09T00:00:00.000Z""",guentrepan,"""2024-05-09T00:00:00.000Z"""
+14560,Arriendo las quebradas ,Arriendo Santa Isabel ,,152,"Vaca: 90
+Vaquilla: 62","6cc Solution
+2cc RB-51",Completo,"""2024-05-02T00:00:00.000Z""",guentrepan,"""2024-05-02T00:00:00.000Z"""
+14552,Arriendo Santa Isabel ,Arriendo las quebradas ,,52,"Novillo: 44
+Toro: 1
+Vaquilla: 7",,Completo,"""2024-04-30T00:00:00.000Z""",guentrepan,"""2024-04-30T00:00:00.000Z"""
+14547,Aguas Buenas ,Arriendo las quebradas ,,65,"Novillo: 62
+Vaca: 2
+Vaquilla: 1",traslado terneros,Completo,"""2024-04-23T00:00:00.000Z""",Diego,"""2024-04-23T00:00:00.000Z"""
+14516,Aguas Buenas ,Arriendo Santa Isabel ,,34,"Ternera: 2
+Vaca: 13
+Vaquilla: 19",traslado terneros hacia sta Isabel...,Completo,"""2024-04-13T00:00:00.000Z""",Diego,"""2024-04-13T00:00:00.000Z"""
+14507,San Pedro,Arriendo las quebradas ,,202,"Novillo: 185
+Ternero: 2
+Vaquilla: 15",traslado desde San Pedro a las quebradas 202 terneros machos promedio 210 kl,Completo,"""2024-04-11T00:00:00.000Z""",guentrepan,"""2024-04-11T00:00:00.000Z"""
+14505,feedlot,Mollendo ,,130,"Novillo: 128
+Vaquilla: 2",venta 130 novillos a Mollendo,Completo,"""2024-04-10T00:00:00.000Z""",guentrepan,"""2024-04-10T00:00:00.000Z"""
+14442,San Pedro,Arriendo las quebradas ,,58,"Novillo: 30
+Vaca: 11
+Vaquilla: 17",destete terneros desde san pedro hacia las quebradas ,Completo,"""2024-03-21T00:00:00.000Z""",Diego,"""2024-03-21T00:00:00.000Z"""
+14441,San Pedro,Arriendo las quebradas ,,187,"Novillo: 55
+Vaca: 79
+Vaquilla: 53",destete terneros a las quebradas ,Completo,"""2024-03-19T00:00:00.000Z""",Diego,"""2024-03-19T00:00:00.000Z"""
+14434,San Pedro,Aguas Buenas ,,99,"Novillo: 62
+Ternera: 2
+Vaca: 15
+Vaquilla: 20",traslado terneros destetado desde San Pedro hacia Sta Isabel,Completo,"""2024-03-14T00:00:00.000Z""",Diego,"""2024-03-14T00:00:00.000Z"""
+14432,San Pedro,Arriendo Santa Isabel ,,150,"Novillo: 44
+Ternera: 1
+Toro: 1
+Vaca: 57
+Vaquilla: 47",traslado terneros destetado desde San Pedro hacia Sta Isabel...,Completo,"""2024-03-13T00:00:00.000Z""",Diego,"""2024-03-13T00:00:00.000Z"""
+14400,San Pedro,feedlot,,41,"Vaca: 23
+Vaquilla: 18",,Completo,"""2024-02-20T00:00:00.000Z""",guentrepan,"""2024-02-20T00:00:00.000Z"""
+14364,Arriendo Santa Isabel ,feedlot,,263,"Novillo: 84
+Vaquilla: 179",traslado 263 animales de Sta Isabel a Feedlot ,Completo,"""2024-02-07T00:00:00.000Z""",guentrepan,"""2024-02-07T00:00:00.000Z"""
+14362,Arriendo las quebradas ,feedlot,176177,350,"Novillo: 343
+Vaquilla: 7",traslado 349 animales de las Quebradas al feedlot ,Completo,"""2024-02-07T00:00:00.000Z""",guentrepan,"""2024-02-07T00:00:00.000Z"""
+14349,Arriendo Santa Isabel ,feedlot,,54,"Novillo: 39
+Vaquilla: 15",55 animales al feedlot + Diio 22619295,Completo,"""2024-01-31T00:00:00.000Z""",guentrepan,"""2024-01-31T00:00:00.000Z"""
+14328,Arriendo las quebradas ,feedlot,,52,"Novillo: 51
+Vaquilla: 1",,Completo,"""2024-01-27T00:00:00.000Z""",guentrepan,"""2024-01-27T00:00:00.000Z"""
+14118,Arriendo Santa Isabel ,feedlot,,51,"Novillo: 40
+Vaquilla: 11",,Completo,"""2023-12-30T00:00:00.000Z""",guentrepan,"""2023-12-30T00:00:00.000Z"""
+14115,Arriendo las quebradas ,feedlot,,55,"Novillo: 54
+Vaquilla: 1",,Completo,"""2023-12-30T00:00:00.000Z""",guentrepan,"""2023-12-30T00:00:00.000Z"""
+13584,San Pedro,feedlot,,2,Vaquilla: 2,,Completo,"""2023-10-13T00:00:00.000Z""",guentrepan,"""2023-10-13T00:00:00.000Z"""
+13485,Aguas Buenas ,Arriendo las quebradas ,138,55,"Novillo: 54
+Ternero: 1",55 terneros a las quebradas ,Completo,"""2023-10-04T00:00:00.000Z""",guentrepan,"""2023-10-04T00:00:00.000Z"""
+13484,Aguas Buenas ,Arriendo Santa Isabel ,137,34,Novillo: 34,34 terneros a Sta isabel ,Completo,"""2023-10-04T00:00:00.000Z""",guentrepan,"""2023-10-04T00:00:00.000Z"""
+13483,San Pedro,Arriendo Santa Isabel ,137,16,Vaquilla: 16,16 vaquillas a Sta isabel,Completo,"""2023-10-04T00:00:00.000Z""",guentrepan,"""2023-10-04T00:00:00.000Z"""
+12556,San Pedro,feedlot,,3,"Vaca: 2
+Vaquilla: 1",,Completo,"""2023-08-04T00:00:00.000Z""",guentrepan,"""2023-08-04T00:00:00.000Z"""
+12423,Arriendo Santa Isabel ,Aguas Buenas ,,18,Novillo: 18,18 toretes a feedlot ,Completo,"""2023-07-24T00:00:00.000Z""",guentrepan,"""2023-07-27T00:00:00.000Z"""
+12422,Arriendo las quebradas ,feedlot,,7,Novillo: 7,7 Toretes a feedlot ,Completo,"""2023-07-24T00:00:00.000Z""",guentrepan,"""2023-07-27T00:00:00.000Z"""
+12332,Arriendo Santa Isabel ,Arriendo las quebradas ,,110,"Novillo: 105
+Vaquilla: 5",110 machos a Las quebradas (forraje),Completo,"""2023-07-24T00:00:00.000Z""",guentrepan,"""2023-07-24T00:00:00.000Z"""
+11992,San Pedro,feedlot,,2,Vaca: 2,2 vacas abortadas,Completo,"""2023-06-28T00:00:00.000Z""",guentrepan,"""2023-06-28T00:00:00.000Z"""
+11814,San Pedro,feedlot,,40,"Vaca: 24
+Vaquilla: 16",traslado de vacas y vaquillas Vacías al feedlot.,Completo,"""2023-06-05T00:00:00.000Z""",guentrepan,"""2023-06-05T00:00:00.000Z"""
+11784,San Pedro,Arriendo Santa Isabel ,,146,"Novillo: 12
+Ternera: 1
+Vaquilla: 133",146 terneras a Sta isabel ,Completo,"""2023-05-31T00:00:00.000Z""",guentrepan,"""2023-05-31T00:00:00.000Z"""
+11626,San Pedro,feedlot,,5,"Vaca: 4
+Vaquilla: 1",5 vacas secas,Completo,"""2023-05-10T00:00:00.000Z""",guentrepan,"""2023-05-10T00:00:00.000Z"""
+11397,San Pedro,feedlot,,6,"Vaca: 5
+Vaquilla: 1",vacias,Completo,"""2023-04-06T00:00:00.000Z""",guentrepan,"""2023-04-06T00:00:00.000Z"""
+11201,San Pedro,Arriendo Santa Isabel ,2288,266,"Novillo: 253
+Ternero: 4
+Vaquilla: 9","traslado 266 terneros con guías de despacho 2288, 2289, 2290 y 2291",Completo,"""2023-03-03T00:00:00.000Z""",guentrepan,"""2023-03-03T00:00:00.000Z"""
+11200,San Pedro,Arriendo las quebradas ,2292,319,"Novillo: 309
+Ternero: 5
+Vaquilla: 5","Traslado de 319 terneros a las quebradas con Guías de despacho 2292, 2293, 2294 y 2295",Completo,"""2023-03-03T00:00:00.000Z""",guentrepan,"""2023-03-03T00:00:00.000Z"""
+11167,San Pedro,feedlot,,88,"Vaca: 74
+Vaquilla: 14",,Completo,"""2023-02-22T00:00:00.000Z""",guentrepan,"""2023-02-22T00:00:00.000Z"""
+11166,San Pedro,feedlot,,63,Vaquilla: 63,,Completo,"""2023-02-22T00:00:00.000Z""",guentrepan,"""2023-02-22T00:00:00.000Z"""
+11037,Arriendo las quebradas ,San Pedro,,6,Novillo: 6,traslado de 6 toretes a San pedro,Completo,"""2023-01-31T00:00:00.000Z""",guentrepan,"""2023-01-31T00:00:00.000Z"""
+11016,Arriendo Santa Isabel ,feedlot,,207,"Novillo: 118
+Vaquilla: 89",traslado de 207 animales a feedlot,Completo,"""2023-01-30T00:00:00.000Z""",guentrepan,"""2023-01-30T00:00:00.000Z"""
+11011,Arriendo las quebradas ,feedlot,,96,Novillo: 96,96 novillos a feedlot,Completo,"""2023-01-30T00:00:00.000Z""",guentrepan,"""2023-01-30T00:00:00.000Z"""
+10895,Arriendo Santa Isabel ,feedlot,2279,141,"Novillo: 50
+Vaquilla: 91","traslado de 141 cabezas desde sta isabel a feedlot Guias de Despacho N 2279, 2280, 2281",Completo,"""2023-01-03T00:00:00.000Z""",guentrepan,"""2023-01-03T00:00:00.000Z"""
+10894,Arriendo las quebradas ,feedlot,2276,168,Novillo: 168,"traslado desde fundo las quebradas a Feedlot. guias 2276, 2277, 2278",Completo,"""2023-01-03T00:00:00.000Z""",guentrepan,"""2023-01-03T00:00:00.000Z"""
+10869,Aguas Buenas ,feedlot,,38,"Novillo: 1
+Vaquilla: 37",38 vaquillas a feedlot,Completo,"""2022-12-28T00:00:00.000Z""",guentrepan,"""2022-12-28T00:00:00.000Z"""
+10861,San Pedro,Aguas Buenas ,,38,"Novillo: 1
+Vaquilla: 37",38 vaquillas sin encaste a Feedlot ,Completo,"""2022-12-27T00:00:00.000Z""",guentrepan,"""2022-12-27T00:00:00.000Z"""
+10504,San Pedro,feedlot,,16,"Vaca: 14
+Vaquilla: 2",,Completo,"""2022-10-03T00:00:00.000Z""",guentrepan,"""2022-10-03T00:00:00.000Z"""
+10465,Arriendo Santa Isabel ,San Pedro,,64,"Novillo: 1
+Vaca: 13
+Vaquilla: 50",,Completo,"""2022-09-27T00:00:00.000Z""",guentrepan,"""2022-09-27T00:00:00.000Z"""
+10308,feedlot,Arriendo las quebradas ,,1,Novillo: 1,1 ternero,Completo,"""2022-09-06T00:00:00.000Z""",guentrepan,"""2022-09-06T00:00:00.000Z"""
+10106,feedlot,Arriendo Santa Isabel ,2231,133,Vaquilla: 133,,Completo,"""2022-08-20T00:00:00.000Z""",guentrepan,"""2022-08-20T00:00:00.000Z"""
+9423,San Pedro,feedlot,,17,"Vaca: 9
+Vaquilla: 8",17 vacas vacias,Completo,"""2022-06-24T00:00:00.000Z""",guentrepan,"""2022-06-24T00:00:00.000Z"""
+9325,San Pedro,Arriendo Santa Isabel ,,69,"Novillo: 3
+Vaca: 13
+Vaquilla: 53",traslado hembras más 1 macho castrado ,Completo,"""2022-06-16T00:00:00.000Z""",Diego,"""2022-06-16T00:00:00.000Z"""
+8821,San Pedro,feedlot,,156,"Vaca: 150
+Vaquilla: 6",,Completo,"""2022-04-18T00:00:00.000Z""",guentrepan,"""2022-04-18T00:00:00.000Z"""
+8788,San Pedro,Arriendo Santa Isabel ,,171,Novillo: 171,traslado machos destetado,Completo,"""2022-04-12T00:00:00.000Z""",Diego,"""2022-04-12T00:00:00.000Z"""
+8765,San Pedro,Arriendo las quebradas ,,121,"Novillo: 120
+Ternero: 1",,Completo,"""2022-04-08T00:00:00.000Z""",Diego,"""2022-04-08T00:00:00.000Z"""
+8754,San Pedro,Arriendo Santa Isabel ,,74,"Novillo: 73
+Ternero: 1",74 terneros a sta isabel,Completo,"""2022-04-07T00:00:00.000Z""",Diego,"""2022-04-07T00:00:00.000Z"""
+8747,San Pedro,Arriendo las quebradas ,,80,"Novillo: 79
+Vaca: 1",machos destetados,Completo,"""2022-04-06T00:00:00.000Z""",Diego,"""2022-04-06T00:00:00.000Z"""
+8469,San Pedro,feedlot,,30,"Vaca: 1
+Vaquilla: 29",vaquillas vacias,Completo,"""2022-03-01T00:00:00.000Z""",Diego,"""2022-03-01T00:00:00.000Z"""
+8371,Arriendo Santa Isabel ,feedlot,,201,"Novillo: 148
+Ternera: 2
+Ternero: 43
+Vaquilla: 8",traslado mix recria a engorda feedlot,Completo,"""2022-02-18T00:00:00.000Z""",santiago,"""2022-02-18T00:00:00.000Z"""
+8325,Arriendo las quebradas ,feedlot,2068,252,"Novillo: 31
+Ternera: 87
+Ternero: 70
+Vaquilla: 64",252 animales a feedlot ,Completo,"""2022-02-09T00:00:00.000Z""",guentrepan,"""2022-02-10T00:00:00.000Z"""
+8320,Arriendo las quebradas ,San Pedro,,38,"Vaca: 28
+Vaquilla: 10",traslado vaquillas preñadas  38,Completo,"""2022-02-09T00:00:00.000Z""",Diego,"""2022-02-09T00:00:00.000Z"""
+8180,Arriendo Santa Isabel ,feedlot,,115,"Novillo: 34
+Ternera: 4
+Ternero: 76
+Vaquilla: 1",115 novillos,Completo,"""2021-12-30T00:00:00.000Z""",guentrepan,"""2021-12-30T00:00:00.000Z"""
+8169,Medieria Chacaipulli,feedlot,,126,"Novillo: 71
+Ternera: 17
+Ternero: 38",,Completo,"""2021-12-28T00:00:00.000Z""",guentrepan,"""2021-12-28T00:00:00.000Z"""
+8143,Arriendo las quebradas ,feedlot,2053,49,"Ternera: 9
+Vaquilla: 40","49 vaqs a feedlot 
+kgs totales: 19.324
+promedio: 394,3",Completo,"""2021-12-21T00:00:00.000Z""",guentrepan,"""2021-12-21T00:00:00.000Z"""
+8128,Medieria Chacaipulli,feedlot,,142,"Novillo: 93
+Ternero: 49",142 novillos ,Completo,"""2021-12-13T00:00:00.000Z""",guentrepan,"""2021-12-13T00:00:00.000Z"""
+8117,Arriendo Santa Isabel ,feedlot,,1,Ternero: 1,,Completo,"""2021-12-09T00:00:00.000Z""",guentrepan,"""2021-12-09T00:00:00.000Z"""
+8113,Arriendo Santa Isabel ,feedlot,,60,"Novillo: 17
+Ternero: 43",,Completo,"""2021-12-07T00:00:00.000Z""",guentrepan,"""2021-12-07T00:00:00.000Z"""
+8112,Arriendo Santa Isabel ,feedlot,,60,"Novillo: 14
+Ternera: 1
+Ternero: 44
+Vaquilla: 1",,Completo,"""2021-12-07T00:00:00.000Z""",guentrepan,"""2021-12-07T00:00:00.000Z"""
+7841,Arriendo Santa Isabel ,Arriendo las quebradas ,,40,"Novillo: 16
+Ternera: 10
+Ternero: 14",40 terneros ,Completo,"""2021-10-07T00:00:00.000Z""",guentrepan,"""2021-10-07T00:00:00.000Z"""
+7832,San Pedro,Arriendo las quebradas ,,92,"Ternera: 16
+Vaca: 28
+Vaquilla: 48",traslado de vaquilla ,Completo,"""2021-10-07T00:00:00.000Z""",Diego,"""2021-10-07T00:00:00.000Z"""
+7124,Arriendo las quebradas ,Medieria Chacaipulli,,129,"Novillo: 79
+Ternera: 17
+Ternero: 33",,Completo,"""2021-08-06T00:00:00.000Z""",guentrepan,"""2021-08-06T00:00:00.000Z"""
+7113,feedlot,Medieria Chacaipulli,2003,141,"Novillo: 85
+Ternero: 56","141 novillos con 40.879 kgs bruto y promedio de 289,9 cada uno.",Completo,"""2021-08-05T00:00:00.000Z""",guentrepan,"""2021-08-05T00:00:00.000Z"""
+6996,Arriendo las quebradas ,Arriendo Santa Isabel ,,117,"Novillo: 66
+Ternera: 1
+Ternero: 47
+Vaquilla: 3",100 machos angus recria ,Completo,"""2021-07-27T00:00:00.000Z""",guentrepan,"""2021-07-27T00:00:00.000Z"""
+6750,San Pedro,feedlot,,181,"Novillo: 108
+Ternero: 68
+Vaca: 1
+Vaquilla: 4",terneros y vacas para feddlot,Completo,"""2021-07-07T00:00:00.000Z""",guentrepan,"""2021-07-07T00:00:00.000Z"""
+6616,Arriendo las quebradas ,feedlot,,88,"Novillo: 10
+Vaca: 2
+Vaquilla: 76",,Completo,"""2021-06-26T00:00:00.000Z""",guentrepan,"""2021-06-26T00:00:00.000Z"""
+6601,Arriendo las quebradas ,Arriendo Santa Isabel ,,67,"Novillo: 23
+Ternera: 10
+Ternero: 34",,Completo,"""2021-06-25T00:00:00.000Z""",guentrepan,"""2021-06-25T00:00:00.000Z"""
+6598,San Pedro,Arriendo Santa Isabel ,,70,"Novillo: 30
+Ternero: 40",70 terneros,Completo,"""2021-06-24T00:00:00.000Z""",guentrepan,"""2021-06-24T00:00:00.000Z"""
+6466,feedlot,San Pedro,,1,Vaquilla: 1,,Completo,"""2021-06-08T00:00:00.000Z""",santiago,"""2021-06-08T00:00:00.000Z"""
+6227,San Pedro,Aguas Buenas ,,175,"Novillo: 95
+Ternera: 1
+Ternero: 76
+Vaquilla: 3",machos traslado 230kg pv,Completo,"""2021-05-10T00:00:00.000Z""",Diego,"""2021-05-10T00:00:00.000Z"""
+6221,San Pedro,Arriendo Santa Isabel ,,225,"Novillo: 110
+Ternera: 6
+Ternero: 102
+Vaquilla: 7",traslado de machos ,Completo,"""2021-05-10T00:00:00.000Z""",Diego,"""2021-05-10T00:00:00.000Z"""
+6117,feedlot,San Pedro,,1,Vaca: 1,vaquilla encaste ,Completo,"""2021-04-26T00:00:00.000Z""",guentrepan,"""2021-04-26T00:00:00.000Z"""
+5868,San Pedro,feedlot,,145,"Vaca: 78
+Vaquilla: 67",engorda,Completo,"""2021-03-24T00:00:00.000Z""",Diego,"""2021-03-24T00:00:00.000Z"""
+5814,Arriendo Santa Isabel ,Arriendo las quebradas ,,355,"Novillo: 97
+Ternera: 98
+Ternero: 96
+Vaquilla: 64",,Completo,"""2021-03-11T00:00:00.000Z""",guentrepan,"""2021-03-22T00:00:00.000Z"""
+5772,San Pedro,Arriendo Santa Isabel ,,204,"Novillo: 90
+Ternera: 38
+Ternero: 13
+Vaquilla: 63",,Completo,"""2021-01-29T00:00:00.000Z""",guentrepan,"""2021-03-09T00:00:00.000Z"""
+5691,Aguas Buenas ,Arriendo las quebradas ,,80,"Vaca: 2
+Vaquilla: 78",80 vaquillas ,Completo,"""2021-02-08T00:00:00.000Z""",guentrepan,"""2021-02-08T00:00:00.000Z"""
+5400,feedlot,San Pedro,,6,Novillo: 6,toretes ,Completo,"""2020-11-04T00:00:00.000Z""",guentrepan,"""2020-11-04T00:00:00.000Z"""
+5353,feedlot,San Pedro,,79,Vaca: 79,vacas compradas ,Completo,"""2020-10-27T00:00:00.000Z""",guentrepan,"""2020-10-27T00:00:00.000Z"""
+3885,feedlot,San Pedro,,1,Novillo: 1,1 novillo charro ,Completo,"""2020-06-16T00:00:00.000Z""",guentrepan,"""2020-06-16T00:00:00.000Z"""
+3320,San Pedro,feedlot,,242,"Novillo: 222
+Ternero: 4
+Torete: 11
+Toro: 2
+Vaquilla: 3",destete 4 y 5,Completo,"""2020-04-14T00:00:00.000Z""",guentrepan,"""2020-04-14T00:00:00.000Z"""
+3268,San Pedro,feedlot,,79,"Vaca: 32
+Vaquilla: 47",vacías ,Completo,"""2020-04-07T00:00:00.000Z""",guentrepan,"""2020-04-07T00:00:00.000Z"""
+3258,San Pedro,feedlot,,115,"Novillo: 105
+Ternero: 2
+Torete: 1
+Vaquilla: 7",lote 1 destete ,Completo,"""2020-04-07T00:00:00.000Z""",guentrepan,"""2020-04-07T00:00:00.000Z"""
+1780,San Pedro,feedlot,,113,"Novillo: 61
+Torete: 50
+Toro: 2",,Completo,"""2019-07-02T00:00:00.000Z""",guentrepan,"""2019-07-02T00:00:00.000Z"""
+1760,feedlot,San Pedro,,1,Vaquilla: 1,,Completo,"""2019-06-27T00:00:00.000Z""",guentrepan,"""2019-06-27T00:00:00.000Z"""
+1611,San Pedro,feedlot,,1,Vaquilla: 1,vaquilla vacia,Completo,"""2019-06-12T00:00:00.000Z""",guentrepan,"""2019-06-12T00:00:00.000Z"""
+1588,San Pedro,feedlot,,3,"Vaca: 2
+Vaquilla: 1",3 vaqs abortadas,Completo,"""2019-06-07T00:00:00.000Z""",guentrepan,"""2019-06-07T00:00:00.000Z"""
+1546,San Pedro,feedlot,,100,"Novillo: 14
+Torete: 81
+Toro: 2
+Vaquilla: 3",100 novillos,Completo,"""2019-06-04T00:00:00.000Z""",guentrepan,"""2019-06-04T00:00:00.000Z"""
+1519,San Pedro,feedlot,,100,"Novillo: 49
+Ternero: 1
+Torete: 46
+Toro: 3
+Vaquilla: 1",AJUSTE DE BASE DE DATOS,Completo,"""2019-05-30T00:00:00.000Z""",guentrepan,"""2019-05-30T00:00:00.000Z"""
+1488,San Pedro,feedlot,,85,"Vaca: 30
+Vaquilla: 55",85 vqs con un promedio de 429 kgs y un total de 36526 kgs bruto.,Completo,"""2019-05-28T00:00:00.000Z""",guentrepan,"""2019-05-28T00:00:00.000Z"""
+1486,feedlot,San Pedro,,23,"Novillo: 22
+Toro: 1",toretes ,Completo,"""2020-06-16T00:00:00.000Z""",guentrepan,"""2019-05-28T00:00:00.000Z"""
+1484,San Pedro,feedlot,,100,Vaquilla: 100,100 vaquillas con un promedio de 289 kgs y total kgs de 28926,Completo,"""2019-05-28T00:00:00.000Z""",guentrepan,"""2019-05-28T00:00:00.000Z"""
