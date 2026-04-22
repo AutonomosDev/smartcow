@@ -288,6 +288,8 @@ export interface PromptInputBoxProps {
   isLoading?: boolean;
   placeholder?: string;
   className?: string;
+  /** Oculta el botón de adjuntar archivos. AUT-290: org 99 (demo) solo texto. */
+  disableAttachments?: boolean;
 }
 
 export const PromptInputBox = React.forwardRef(
@@ -298,6 +300,7 @@ export const PromptInputBox = React.forwardRef(
       isLoading = false,
       placeholder = "Mensaje a SmartCow...",
       className,
+      disableAttachments = false,
     } = props;
 
     const [input, setInput] = React.useState("");
@@ -391,15 +394,17 @@ export const PromptInputBox = React.forwardRef(
           {/* Toolbar V2 */}
           <div className="flex items-center justify-between mt-1 px-1">
             <div className="flex items-center gap-0.5">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button onClick={() => uploadInputRef.current?.click()} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-50 transition-colors">
-                    <Paperclip size={18} />
-                    <input ref={uploadInputRef} type="file" className="hidden" onChange={(e) => e.target.files?.[0] && processFile(e.target.files[0])} />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>Adjuntar</TooltipContent>
-              </Tooltip>
+              {!disableAttachments && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button onClick={() => uploadInputRef.current?.click()} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-50 transition-colors">
+                      <Paperclip size={18} />
+                      <input ref={uploadInputRef} type="file" className="hidden" onChange={(e) => e.target.files?.[0] && processFile(e.target.files[0])} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Adjuntar</TooltipContent>
+                </Tooltip>
+              )}
 
               <Tooltip>
                 <TooltipTrigger asChild>

@@ -40,6 +40,19 @@ import { checkRateLimit, rateLimitHeaders } from "@/src/lib/rate-limit";
 import { ejecutarReportarFeedback, type FeedbackArgs } from "@/src/lib/linear-feedback";
 import { langfuse } from "@/src/lib/langfuse";
 import { tryIntercept } from "@/src/lib/intent";
+import { pickProvider, TRIAL_ORG_ID } from "@/src/lib/chat/llm-routing";
+import { runGeminiLoop, GEMINI_TRIAL_MODEL } from "@/src/lib/chat/gemini-loop";
+
+// AUT-290 — ventana operacional org 99: chat bloqueado 00:00-05:59 CLT.
+function isTrialOrgBlockedNow(): boolean {
+  const hourStr = new Date().toLocaleString("en-US", {
+    timeZone: "America/Santiago",
+    hour: "2-digit",
+    hour12: false,
+  });
+  const hour = Number(hourStr);
+  return Number.isFinite(hour) && hour < 6;
+}
 
 // Jerarquía de roles
 const ROL_RANK: Record<string, number> = {
@@ -138,7 +151,31 @@ export async function POST(req: NextRequest) {
 
   // 3. Scope de predios — el chat opera sobre TODOS los predios del usuario (AUT-288).
   //    predio_id es opcional y solo sirve como contexto (buildSystemPrompt, artifact render).
-  const { rol, predios, id: userId, orgId } = session.user;
+  const { rol, predios, id: userId, orgId, email: userEmail } = session.user;
+
+  // 3.1 AUT-290 — Guards org 99 (demo):
+  //   a) Ventana operacional 06:00-23:59 CLT (bloqueado 00:00-05:59 por refresh nocturno).
+  //   b) Adjuntos deshabilitados (solo texto).
+  if (orgId === TRIAL_ORG_ID) {
+    if (isTrialOrgBlockedNow()) {
+      return new Response(
+        JSON.stringify({
+          error: "Demo en mantención nocturna. Vuelve a las 06:00 hrs.",
+          code: "TRIAL_MAINTENANCE_WINDOW",
+        }),
+        { status: 503, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    if (attachmentIds && attachmentIds.length > 0) {
+      return new Response(
+        JSON.stringify({
+          error: "Demo: solo preguntas de texto. Adjuntos deshabilitados.",
+          code: "TRIAL_ATTACHMENTS_FORBIDDEN",
+        }),
+        { status: 403, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  }
   const tieneAccesoTotal = rol === "superadmin" || rol === "admin_org";
 
   if (predioIdOpt && typeof predioIdOpt === "number" && !tieneAccesoTotal && !predios.includes(predioIdOpt)) {
@@ -288,15 +325,26 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 5. Routing + Budget (AUT-262, AUT-264)
+  // 5. Routing + Budget (AUT-262, AUT-264, AUT-290)
   const picked = pickModel({
     lastMessage,
     webSearchActive: webSearch,
     prediosEnScope: prediosDelScope.length,
   });
   let { modelId, tier } = picked;
-  const { reason: pickReason } = picked;
-  console.log(`[router] tier=${tier} model=${modelId} reason=${pickReason}`);
+  let { reason: pickReason } = picked;
+
+  // AUT-290 — Provider routing por email. Si cae en trial (gemini),
+  // override tier/modelId ANTES de budget para que canUseTier/trackeo
+  // usen pricing correcto (MODELS.trial).
+  const providerPick = pickProvider({ email: userEmail, orgId });
+  const provider = providerPick.provider;
+  if (provider === "google") {
+    tier = "trial";
+    modelId = GEMINI_TRIAL_MODEL;
+    pickReason = `${pickReason} → ${providerPick.reason}`;
+  }
+  console.log(`[router] provider=${provider} tier=${tier} model=${modelId} reason=${pickReason}`);
 
   // Budget hard-block (402 antes de llamar Anthropic)
   const budgetStatus = await checkBudget(orgId, tier);
@@ -435,6 +483,7 @@ export async function POST(req: NextRequest) {
           attachmentsMeta: attachmentsMeta.length > 0 ? attachmentsMeta : undefined,
           webSearch,
           userMemory: userMemoryRows.length > 0 ? userMemoryRows : undefined,
+          isTrial: orgId === TRIAL_ORG_ID,
         });
 
         // Cargar documentos KB válidos
@@ -448,6 +497,56 @@ export async function POST(req: NextRequest) {
           }
         } catch {
           // kb_documents tabla no disponible — continuar sin KB
+        }
+
+        // AUT-290 — Branch Gemini (trial org 99). Misma SSE emission, distinto loop.
+        if (provider === "google") {
+          const geminiStart = Date.now();
+          const result = await runGeminiLoop({
+            session,
+            systemPrompt: systemPrompt + kbContext,
+            messages,
+            prediosPermitidos,
+            rolRank,
+            webSearch,
+            sendEvent,
+          });
+
+          tokensIn += result.tokensIn;
+          tokensOut += result.tokensOut;
+          toolCallsCount += result.toolCallsCount;
+          hadArtifact = result.hadArtifact;
+          hadWrite = result.hadWrite;
+          finalResponse = result.finalResponse;
+          finalArtifact = result.finalArtifact;
+
+          // Generation Langfuse — costo manual via usageDetails (AUT-272).
+          // Langfuse no tiene pricing table para gemini-3.1-flash-lite-preview,
+          // por eso aportamos costDetails calculados con MODELS.trial.
+          trace?.generation({
+            name: "gemini_call",
+            model: modelId,
+            input: messages.slice(-1),
+            output: finalResponse.slice(0, 500),
+            usage: {
+              input: result.tokensIn,
+              output: result.tokensOut,
+              unit: "TOKENS",
+            },
+            usageDetails: {
+              input: result.tokensIn,
+              output: result.tokensOut,
+            },
+            metadata: {
+              provider: "google",
+              iterations: result.iteraciones,
+              latencyMs: Date.now() - geminiStart,
+              toolsCalled: result.toolCallsCount,
+            },
+          });
+
+          controller.close();
+          return;
         }
 
         // Construir historial en formato Anthropic

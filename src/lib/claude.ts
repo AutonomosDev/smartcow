@@ -931,6 +931,7 @@ export function buildSystemPrompt(
     attachmentsMeta?: AttachmentMeta[];
     webSearch?: boolean;
     userMemory?: Array<{ key: string; value: string }>;
+    isTrial?: boolean;
   }
 ): string {
   const { nombre, rol, modulos, predios } = session.user;
@@ -987,8 +988,12 @@ export function buildSystemPrompt(
         `\n\nAplica estas preferencias cuando sean relevantes. Para olvidar/actualizar usa memory_delete / memory_write.`
       : "";
 
-  return `Eres el asistente ganadero de SmartCow, una plataforma de gestión de lotes bovinos.
+  const trialPreamble = ctx.isTrial
+    ? `\n== MODO DEMO (TRIAL — ORG 99) ==\nEstás en modo demostración. Los datos son reales pero anonimizados desde un cliente piloto.\nSe refrescan automáticamente cada noche a las 00:00 CLT.\nSi el usuario pregunta "¿es demo?" o similar: confirma y menciona que los datos son reales anonimizados.\nNo ejecutes escrituras (registrar_pesaje, registrar_parto) — informa que el demo es solo lectura.\n\n== GLOSARIO GANADERO ESENCIAL ==\n- DIIO: identificador visual del arete (string alfanumérico)\n- EID: tag electrónico RFID (no confundir con DIIO)\n- GDP: ganancia diaria de peso (kg/día) — KPI crítico\n- Feedlot: engorda intensiva — anima­les en corrales con dieta concentrada\n- Crianza: etapa de vaca+ternero al pie\n- Preñez: detección vía ecografía o palpación\n- Parto: evento reproductivo; resultado = exitoso/muerto/aborto\n- Mortalidad / Baja: animal que sale del inventario por muerte/faena/venta\n\n== EJEMPLOS DE ARTIFACTS ==\nConteo simple → artifact tipo kpi con {val, lbl}.\nRanking N items → artifact tipo table con rows ordenadas.\nDistribución por rango → artifact tipo chart variant=histogram.\nEvolución temporal → artifact tipo chart variant=line.\n`
+    : "";
 
+  return `Eres el asistente ganadero de SmartCow, una plataforma de gestión de lotes bovinos.
+${trialPreamble}
 Contexto del usuario:
 - Nombre: ${nombre}
 - Rol: ${rol}

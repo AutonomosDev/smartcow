@@ -13,6 +13,7 @@ export function ChatPageClient({ initialMessage, session }: {
         <ChatPanel
           initialMessage={initialMessage}
           userName={session.user.nombre}
+          orgId={session.user.orgId}
         />
       </div>
     </FontProvider>
