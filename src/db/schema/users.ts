@@ -2,7 +2,7 @@ import { pgTable, serial, integer, varchar, pgEnum, timestamp, primaryKey } from
 import { organizaciones } from "./organizaciones";
 import { predios } from "./predios";
 
-export const rolEnum = pgEnum("rol", ["superadmin", "admin_org", "admin_fundo", "operador", "veterinario", "viewer"]);
+export const rolEnum = pgEnum("rol", ["superadmin", "admin_org", "admin_fundo", "operador", "veterinario", "viewer", "trial"]);
 
 /**
  * users — Usuarios del sistema.
@@ -28,6 +28,11 @@ export const users = pgTable("users", {
   firebaseUid: varchar("firebase_uid", { length: 128 }).unique(),
   nombre: varchar("nombre", { length: 200 }).notNull(),
   rol: rolEnum("rol").notNull().default("operador"),
+  /**
+   * trialUntil — Si rol='trial' y trialUntil > now, usuario en modo demo read-only.
+   * Si trialUntil <= now, acceso bloqueado. AUT-289.
+   */
+  trialUntil: timestamp("trial_until", { withTimezone: true }),
   creadoEn: timestamp("creado_en", { withTimezone: true }).defaultNow().notNull(),
   actualizadoEn: timestamp("actualizado_en", { withTimezone: true }).defaultNow().notNull(),
 });

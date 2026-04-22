@@ -12,7 +12,9 @@ import { auth, loadUserByEmail } from "./auth";
 import type { SmartCowSession, UserRol } from "./auth";
 
 // Jerarquía de roles (mayor índice = mayor privilegio)
+// trial: read-only por 48h, rank -1 para que cualquier rolMinimo lo bloquee.
 const ROL_RANK: Record<UserRol, number> = {
+  trial: -1,
   viewer: 0,
   operador: 1,
   veterinario: 2,
@@ -42,7 +44,14 @@ export interface WithAuthOptions {
 
 function applyOptions(session: SmartCowSession, options?: WithAuthOptions): void {
   const { rolMinimo, modulo, predioId } = options ?? {};
-  const { rol, predios, modulos } = session.user;
+  const { rol, predios, modulos, trialUntil } = session.user;
+
+  // AUT-289 — Trial users: bloquear si trialUntil vencido.
+  if (rol === "trial") {
+    if (!trialUntil || new Date(trialUntil).getTime() <= Date.now()) {
+      throw new AuthError("Período de demo finalizado", "FORBIDDEN");
+    }
+  }
 
   if (rolMinimo !== undefined) {
     if ((ROL_RANK[rol] ?? -1) < (ROL_RANK[rolMinimo] ?? 0)) {

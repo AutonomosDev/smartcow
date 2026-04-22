@@ -16,7 +16,8 @@ export type UserRol =
   | "admin_fundo"
   | "operador"
   | "veterinario"
-  | "viewer";
+  | "viewer"
+  | "trial";
 
 export interface SmartCowSession {
   expires: string;
@@ -28,8 +29,13 @@ export interface SmartCowSession {
     predios: number[];
     rol: UserRol;
     modulos: Record<string, boolean>;
+    trialUntil?: string | null;
   };
 }
+
+// Org ID reservado para modo demo/trial. AUT-289.
+export const TRIAL_ORG_ID = 99;
+export const TRIAL_DURATION_MS = 48 * 60 * 60 * 1000;
 
 // ─── DEV SESSION (bypass en desarrollo) ──────────────────────────────────────
 
@@ -108,6 +114,7 @@ export async function loadUserByEmail(email: string): Promise<SmartCowSession | 
       predios: predioRows.map((r) => r.predioId),
       rol: user.rol as UserRol,
       modulos: (orgRows[0]?.modulos as Record<string, boolean>) ?? {},
+      trialUntil: user.trialUntil ? user.trialUntil.toISOString() : null,
     },
   };
 }

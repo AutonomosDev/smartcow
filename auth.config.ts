@@ -17,9 +17,10 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { db } from "@/src/db/client";
-import { users, userPredios, organizaciones } from "@/src/db/schema/index";
+import { users, userPredios, organizaciones, predios } from "@/src/db/schema/index";
 import { eq } from "drizzle-orm";
 import type { SmartCowSession, UserRol } from "@/src/lib/auth";
+import { TRIAL_ORG_ID, TRIAL_DURATION_MS } from "@/src/lib/auth";
 import type { JWT } from "@auth/core/jwt";
 import type { Session, Account, User } from "next-auth";
 
@@ -47,15 +48,53 @@ async function loadSmartCowUser(email: string): Promise<SmartCowSession["user"] 
       .limit(1),
   ]);
 
+  // Trial users: predios array = todos los predios de su org (sin user_predios explícitos)
+  let predioIds = predioRows.map((r) => r.predioId);
+  if (user.rol === "trial" && user.orgId === TRIAL_ORG_ID) {
+    const orgPredios = await db
+      .select({ id: predios.id })
+      .from(predios)
+      .where(eq(predios.orgId, TRIAL_ORG_ID));
+    predioIds = orgPredios.map((p) => p.id);
+  }
+
   return {
     id: String(user.id),
     email: user.email,
     nombre: user.nombre,
     orgId: user.orgId,
-    predios: predioRows.map((r) => r.predioId),
+    predios: predioIds,
     rol: user.rol as UserRol,
     modulos: (orgRows[0]?.modulos as Record<string, boolean>) ?? {},
+    trialUntil: user.trialUntil ? user.trialUntil.toISOString() : null,
   };
+}
+
+// AUT-289 — Auto-create Google users as trial (48h read-only, org_id=99)
+async function createTrialUser(email: string, nombre: string): Promise<SmartCowSession["user"] | null> {
+  // Verificar que org 99 exista. Si no, abortar (seed no corrió aún).
+  const orgCheck = await db
+    .select({ id: organizaciones.id })
+    .from(organizaciones)
+    .where(eq(organizaciones.id, TRIAL_ORG_ID))
+    .limit(1);
+
+  if (!orgCheck[0]) {
+    console.error(`[auth] createTrialUser aborted: org ${TRIAL_ORG_ID} no existe. Correr seed-synthetic-dataset.ts`);
+    return null;
+  }
+
+  const trialUntil = new Date(Date.now() + TRIAL_DURATION_MS);
+
+  await db.insert(users).values({
+    orgId: TRIAL_ORG_ID,
+    email,
+    nombre: nombre || email.split("@")[0],
+    rol: "trial",
+    trialUntil,
+  });
+
+  return loadSmartCowUser(email);
 }
 
 // ─── Next-Auth config ─────────────────────────────────────────────────────────
@@ -134,9 +173,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (u?.smartcow) {
         token.smartcow = u.smartcow;
       }
-      // Para Google SSO: cargar datos SmartCow por email en el primer login
+      // Para Google SSO: cargar datos SmartCow por email. Si no existe → crear como trial.
       if (account?.provider === "google" && token.email && !token.smartcow) {
-        const smartCowUser = await loadSmartCowUser(token.email);
+        let smartCowUser = await loadSmartCowUser(token.email);
+        if (!smartCowUser) {
+          smartCowUser = await createTrialUser(token.email, (token.name as string) ?? token.email);
+        }
         if (smartCowUser) {
           token.smartcow = smartCowUser;
         }
