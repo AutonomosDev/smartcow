@@ -426,14 +426,21 @@ export async function POST(req: NextRequest) {
           let currentToolName = "";
           let currentToolInput = "";
 
+          // Usage por iteración — necesario para que cada generation Langfuse
+          // tenga su usage específico (no acumulado del turno).
+          let iterTokensIn = 0;
+          let iterTokensOut = 0;
+          let iterCacheRead = 0;
+          let iterCacheWrite = 0;
+
           for await (const event of response) {
             if (event.type === "message_start") {
               const usage = event.message.usage;
-              tokensIn += usage?.input_tokens ?? 0;
-              cacheReadTokens += usage?.cache_read_input_tokens ?? 0;
-              cacheWriteTokens += usage?.cache_creation_input_tokens ?? 0;
+              iterTokensIn += usage?.input_tokens ?? 0;
+              iterCacheRead += usage?.cache_read_input_tokens ?? 0;
+              iterCacheWrite += usage?.cache_creation_input_tokens ?? 0;
             } else if (event.type === "message_delta") {
-              tokensOut += event.usage?.output_tokens ?? 0;
+              iterTokensOut += event.usage?.output_tokens ?? 0;
             } else if (event.type === "content_block_start") {
               if (event.content_block.type === "tool_use") {
                 currentToolId = event.content_block.id;
@@ -461,18 +468,36 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          // Span: anthropic_call (AUT-272)
-          trace?.span({
+          // Acumular al turno (para chat_usage + metadata final del trace)
+          tokensIn += iterTokensIn;
+          tokensOut += iterTokensOut;
+          cacheReadTokens += iterCacheRead;
+          cacheWriteTokens += iterCacheWrite;
+
+          // Generation: anthropic_call (AUT-272 + costos Langfuse)
+          // Langfuse calcula costos SOLO sobre observations tipo GENERATION con
+          // el campo `model` matcheando su tabla de pricing. Spans no cuentan.
+          trace?.generation({
             name: "anthropic_call",
-            input: { model: modelId, iteration: iteraciones, messagesCount: runMessages.length },
-            output: { toolsRequested: toolUseBlocks.length, textLength: accumulatedText.length },
+            model: modelId,
+            input: runMessages,
+            output: accumulatedText || toolUseBlocks.map((t) => ({ type: "tool_use", name: t.name })),
+            usage: {
+              input: iterTokensIn,
+              output: iterTokensOut,
+              unit: "TOKENS",
+            },
+            usageDetails: {
+              input: iterTokensIn,
+              output: iterTokensOut,
+              cache_read_input_tokens: iterCacheRead,
+              cache_creation_input_tokens: iterCacheWrite,
+            },
             metadata: {
-              tokensIn,
-              tokensOut,
-              cacheReadTokens,
-              cacheWriteTokens,
+              iteration: iteraciones,
               latencyMs: Date.now() - anthropicSpanStart,
-              cached: cacheReadTokens > 0,
+              cached: iterCacheRead > 0,
+              toolsRequested: toolUseBlocks.length,
             },
           });
 
