@@ -6,3 +6,7 @@ dist/
 .env.*.local
 *.log
 next-env.d.ts
+
+# Local Claude Code settings (puede contener comandos con API keys de CLI)
+.claude/settings.local.json
+.claude/worktrees/
