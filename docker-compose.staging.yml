@@ -15,7 +15,8 @@ services:
     build: .
     container_name: smartcow-app-staging
     ports:
-      - "3001:3000"
+      # Bind solo a loopback: acceso público únicamente vía nginx (443 staging).
+      - "127.0.0.1:3001:3000"
     environment:
       - DATABASE_URL=postgres://smartcow:${POSTGRES_PASSWORD_STAGING}@db-staging:5432/smartcow
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET_STAGING}
@@ -59,7 +60,9 @@ services:
     image: postgres:16-alpine
     container_name: smartcow-db-staging
     ports:
-      - "5433:5432"  # expuesto solo local, firewall debe bloquear externo
+      # Bind solo a loopback: Postgres staging NUNCA accesible desde internet.
+      # Para conectarse desde tu máquina: ssh -L 5433:127.0.0.1:5433 smartcow-vps
+      - "127.0.0.1:5433:5432"
     environment:
       - POSTGRES_USER=smartcow
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_STAGING}

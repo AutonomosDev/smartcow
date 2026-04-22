@@ -2,7 +2,8 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      # Bind solo a loopback: acceso público únicamente vía nginx (443).
+      - "127.0.0.1:3000:3000"
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
@@ -20,6 +21,7 @@ services:
       - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
       - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
       - LANGFUSE_HOST=${LANGFUSE_HOST:-http://langfuse-web:3000}
+      - FORCE_GEMINI_ALL=${FORCE_GEMINI_ALL:-0}
       - NODE_ENV=production
     depends_on:
       - db
