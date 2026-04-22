@@ -9,7 +9,7 @@ export function ChatPageClient({ initialMessage, session }: {
 }) {
   return (
     <FontProvider>
-      <div style={{ width: "100vw", height: "100vh", overflow: "hidden", zoom: 1.1 }}>
+      <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
         <ChatPanel
           initialMessage={initialMessage}
           userName={session.user.nombre}
