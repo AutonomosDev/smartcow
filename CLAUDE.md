@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Reglas criticas
 
-**MODELO AI PROHIBIDO CAMBIAR** — El chat ganadero usa `claude-sonnet-4-6` via Anthropic SDK directo. PROHIBIDO cambiarlo sin aprobacion explicita de Cesar. Referencia operacional: `.claude/references/config/llm-routing-and-budget.yaml`. Migrado desde Gemma-4-31b/OpenRouter el 2026-04-20 (AUT-261). Esta regla tiene prioridad sobre cualquier otra.
+**MODELO AI PROHIBIDO CAMBIAR** — El chat ganadero usa `claude-sonnet-4-6` (standard) / `claude-haiku` (light) via Anthropic SDK directo. PROHIBIDO cambiarlo sin aprobacion explicita de Cesar. **Excepcion autorizada (AUT-290)**: org 99 (trial/demo) rutea a `gemini-3.1-flash-lite-preview` via `src/lib/chat/llm-routing.ts` (pickProvider). Referencia operacional: `.claude/references/config/llm-routing-and-budget.yaml`. Migrado desde Gemma-4-31b/OpenRouter el 2026-04-20 (AUT-261). Esta regla tiene prioridad sobre cualquier otra.
+
+**INFRA Y SEGURIDAD → YAML** — Fuente de verdad: `.claude/references/config/infra-and-security.yaml`. VPS, firewall, SSH, backups, GCP, env vars, puertos, DNS. Leer ANTES de afirmar cualquier cosa sobre infra.
 
 **EL CODIGO MANDA** — El codigo en el repo es la fuente de verdad. Linear, docs y memoria son referencia secundaria. Leer el codigo primero; si la respuesta esta en el repo, no preguntar.
 
@@ -28,7 +30,7 @@ npm run mobile       # Metro bundler + iOS simulator (Metro en 8081)
 npm run mobile:dev   # Next.js (3003) + Metro (8081) concurrentemente
 ```
 
-Deploy web: SOLO via CI/CD (push a `main`). Flujo exacto de prod: confirmar con Cesar (VPS Hostinger — ver `.claude/CLAUDE.md`).
+Deploy web: `./deploy.sh` desde local (requiere SSH alias `smartcow-vps`). Hace git pull en VPS + docker compose rebuild. `./deploy.sh --migrate` para correr migrations. Detalle en `.claude/references/config/infra-and-security.yaml`.
 
 No hay test suite — verificacion = `npm run typecheck`. Sin Jest, Vitest ni Playwright.
 
@@ -41,8 +43,9 @@ Monorepo con web (Next.js) en raiz y mobile (Expo) en `apps/mobile/`.
 - PostgreSQL + Drizzle ORM (`src/db/`) — NUNCA raw queries con `pg`
 - NextAuth v5 (JWT strategy, cookie `__session`, 8h) — `auth.config.ts`
 - Anthropic SDK (`@anthropic-ai/sdk`, modelo `claude-sonnet-4-6`) — chat ganadero SSE con prompt caching
+- Google AI SDK (`@google/genai`, `gemini-3.1-flash-lite-preview`) — chat trial org 99 (AUT-290)
 - TailwindCSS v4, Radix UI, Recharts, Framer Motion
-- Produccion: Hostinger VPS (ver `.claude/CLAUDE.md`)
+- Produccion: Hostinger VPS único (ver `.claude/references/config/infra-and-security.yaml`)
 
 ### Mobile — Expo ~54.0.33 / React Native 0.81.5 / React 19.1.0
 - New Architecture habilitada
@@ -55,39 +58,43 @@ Monorepo con web (Next.js) en raiz y mobile (Expo) en `apps/mobile/`.
 ### Estructura clave
 
 ```
-app/                        — App Router pages
-  login/page.tsx            — Login (FROZEN — solo logica auth interna)
-  (protected)/              — Rutas autenticadas (dashboard, chat, animales, etc.)
-  api/chat/route.ts         — Chat SSE endpoint (Anthropic SDK + tool use)
-  api/auth/                 — NextAuth handlers
-  api/mobile/auth/refresh/  — Token refresh para app mobile
-auth.config.ts              — NextAuth v5: Credentials + Google SSO
-middleware.ts               — Protege rutas: verifica cookie o Bearer token
+app/                          — App Router pages
+  login/page.tsx              — Login (FROZEN — solo logica auth interna)
+  (protected)/                — Rutas autenticadas (dashboard, chat, animales, etc.)
+  api/chat/route.ts           — Chat SSE endpoint (orquesta Anthropic o Gemini)
+  api/auth/                   — NextAuth handlers
+  api/mobile/auth/refresh/    — Token refresh para app mobile
+auth.config.ts                — NextAuth v5: Credentials + Google SSO
+middleware.ts                 — Protege rutas: verifica cookie o Bearer token
 src/
   db/
-    schema/index.ts         — Tablas Drizzle (fuente de verdad del schema — ver archivo)
-    client.ts               — Pool + withPredioContext() para RLS
-    migrations/             — Drizzle Kit migrations (NO editar SQL a mano)
+    schema/index.ts           — Tablas Drizzle (fuente de verdad — ver archivo)
+    client.ts                 — Pool + withPredioContext() para RLS
+    migrations/               — Drizzle Kit migrations (NO editar SQL a mano)
   lib/
-    auth.ts                 — auth() wrapper: DEV_SESSION en dev, NextAuth en prod
-    with-auth.ts            — withAuth() + withAuthBearer() guards
-    mobile-jwt.ts           — JWT HS256 para app mobile (usa AUTH_SECRET)
-    claude.ts               — Tool definitions + ejecutarTool() para chat ganadero
-    modules.ts              — Feature flags por org (feedlot, crianza)
-    queries/                — Drizzle queries reutilizables
+    auth.ts                   — auth() wrapper: DEV_SESSION en dev, NextAuth en prod
+    with-auth.ts              — withAuth() + withAuthBearer() guards
+    mobile-jwt.ts             — JWT HS256 para app mobile (usa AUTH_SECRET)
+    claude.ts                 — Tool definitions (CATTLE_TOOLS) + ejecutarTool()
+    modules.ts                — Feature flags por org (feedlot, crianza)
+    queries/                  — Drizzle queries reutilizables
+    chat/
+      llm-routing.ts          — pickProvider() — anthropic vs google por email/org (AUT-290)
+      gemini-loop.ts          — Tool loop Gemini (thoughtSignature preserved, Langfuse tracing AUT-291)
+      anthropic-loop.ts       — Tool loop Anthropic
   components/
-    chat/                   — Chat panel, sidebar, message renderer
-    dashboard/              — Dashboard widgets
-    ui/                     — Primitivos UI (ai-prompt-box, etc.)
-  agroapp/                  — Integracion API externa AgroApp
-  etl/                      — Pipelines de importacion datos
+    chat/                     — Chat panel, sidebar, message renderer
+    dashboard/                — Dashboard widgets
+    ui/                       — Primitivos UI (ai-prompt-box, etc.)
+  agroapp/                    — Integracion API externa AgroApp
+  etl/                        — Pipelines de importacion datos
   lib/
-    router.ts               — LLM tier selection (pickModel)
-    budget.ts               — Budget enforcement (checkBudget, highestAllowedTier)
-    langfuse.ts             — LLM observability traces
-apps/mobile/                — App Expo (React Native)
-  src/lib/sseClient.ts      — SSE client para chat ganadero mobile
-packages/                   — Shared packages
+    router.ts                 — LLM tier selection (pickModel)
+    budget.ts                 — Budget enforcement (no downgrade si provider=google)
+    langfuse.ts               — LLM observability traces
+apps/mobile/                  — App Expo (React Native)
+  src/lib/sseClient.ts        — SSE client para chat ganadero mobile
+packages/                     — Shared packages
 ```
 
 ### Tablas DB adicionales (chat system)

@@ -1,0 +1,311 @@
+# infra-and-security.yaml — fuente de verdad de infraestructura y seguridad
+# Última actualización: 2026-04-22 (post GCP clean sweep + security hardening)
+#
+# Regla: SIEMPRE leer este archivo antes de afirmar cosas sobre infra, VPS,
+# secrets, seguridad o deploy. El CLAUDE.md es resumen humano; este YAML es
+# el contrato máquina.
+
+version: 2
+
+# ─────────────────────────────────────────────────────────────
+# VPS — Hostinger (único servidor, todo self-hosted)
+# ─────────────────────────────────────────────────────────────
+vps:
+  provider: hostinger
+  id: 1591599
+  hostname: srv1591599.hstgr.cloud
+  ipv4: 2.24.204.73
+  ipv6: 2a02:4780:75:66b4::1
+  ptr: smartcow.cl
+  plan: KVM 2
+  specs:
+    cpus: 2
+    memory_gb: 8
+    disk_gb: 100
+    bandwidth_gb: 8000
+  datacenter_id: 24
+  os: Ubuntu 24.04 (template Docker oficial Hostinger)
+  ssh_alias: smartcow-vps    # ~/.ssh/config → User=root, Key=~/.ssh/smartcow_vps
+
+# ─────────────────────────────────────────────────────────────
+# Docker containers en el VPS (docker compose)
+# ─────────────────────────────────────────────────────────────
+containers:
+  prod:
+    app:
+      image: build desde ./Dockerfile (Next.js standalone)
+      port_binding: 127.0.0.1:3000 → 3000   # loopback: solo nginx accede
+      container: smartcow-app-1
+    db:
+      image: postgres:16-alpine
+      port_binding: internal only (no publish)
+      volume: postgres_data
+      container: smartcow-db-1
+    redis:
+      image: redis:7-alpine
+      port_binding: internal only
+      container: smartcow-redis-1
+      uso: rate limiting app
+
+  staging:
+    app:
+      port_binding: 127.0.0.1:3001 → 3000   # loopback
+      container: smartcow-app-staging
+    db:
+      port_binding: 127.0.0.1:5433 → 5432   # loopback (ssh -L para conectarse)
+      container: smartcow-db-staging
+    redis:
+      port_binding: internal only
+      container: smartcow-redis-staging
+
+  langfuse:
+    web:
+      domain: langfuse.smartcow.cl
+      container: smartcow-langfuse-web-1
+    worker:
+      container: smartcow-langfuse-worker-1
+    clickhouse:
+      container: smartcow-clickhouse-1
+      volume: clickhouse_data
+    redis:
+      container: smartcow-redis-langfuse-1
+      auth: requerido (LANGFUSE_REDIS_AUTH)
+    minio:
+      container: smartcow-minio-1
+      volume: minio_data
+      uso: S3-compatible para event sourcing + media uploads langfuse
+
+  proxy:
+    nginx:
+      image: nginx:alpine
+      port_binding: 0.0.0.0:80, 0.0.0.0:443
+      container: smartcow-nginx-1
+      certs: /etc/letsencrypt (certbot auto-renew)
+
+# ─────────────────────────────────────────────────────────────
+# DNS / Dominios (smartcow.cl gestionado en Hostinger)
+# ─────────────────────────────────────────────────────────────
+dns:
+  smartcow.cl:
+    target: 2.24.204.73
+    upstream: nginx → app:3000
+  www.smartcow.cl:
+    target: 2.24.204.73
+    upstream: nginx → app:3000
+  langfuse.smartcow.cl:
+    target: 2.24.204.73
+    upstream: nginx → langfuse-web:3000
+  staging.smartcow.cl:
+    target: 2.24.204.73
+    upstream: nginx → app-staging:3000
+    estado: activo (DNS + cert OK)
+
+# ─────────────────────────────────────────────────────────────
+# GCP — proyecto único smartcow-cl
+# Clean sweep 2026-04-22: eliminados c22fb, 492119, web, smartedu-v1,
+# gen-lang-client-0481252325. NO QUEDA nada fuera de smartcow-cl.
+# ─────────────────────────────────────────────────────────────
+gcp:
+  active_project: smartcow-cl
+  project_number: 396316982937
+  owner_account: autonomos.dev@gmail.com
+  billing: linked
+  enabled_apis:
+    - generativelanguage.googleapis.com   # Gemini API (AI Studio)
+    - apikeys.googleapis.com
+    - iap.googleapis.com
+    - cloudapis.googleapis.com
+  credentials:
+    gemini_api_key:
+      env_var: GOOGLE_API_KEY
+      key_id: c7fb97fe-937c-45f1-ad99-977bb510c719
+      display_name: smartcow-gemini-prod
+      restrictions:
+        api_target: generativelanguage.googleapis.com
+        allowed_ips:
+          - 2.24.204.73             # VPS IPv4
+          - 2a02:4780:75:66b4::/64  # VPS IPv6 /64
+    oauth_client:
+      env_vars:
+        - GOOGLE_CLIENT_ID
+        - GOOGLE_CLIENT_SECRET
+      type: web
+      redirect_uri: https://smartcow.cl/api/auth/callback/google
+      js_origin: https://smartcow.cl
+  eliminated_projects:
+    # Referencia histórica — NO usar, NO intentar restaurar.
+    - smartcow-c22fb              # Firebase legacy
+    - smartcow-492119             # Cloud SQL legacy
+    - smartcow-web                # Firebase Hosting vacío
+    - smartedu-v1                 # smartEdu legacy
+    - gen-lang-client-0481252325  # Default Gemini AI Studio
+
+# ─────────────────────────────────────────────────────────────
+# Seguridad — hardening aplicado 2026-04-22
+# ─────────────────────────────────────────────────────────────
+security:
+  firewall:
+    provider: hostinger (hypervisor level)
+    id: 268254
+    name: smartcow-firewall
+    synced: true
+    rules:
+      - port: 22
+        proto: tcp (SSH)
+        source: any
+      - port: 80
+        proto: tcp (HTTP)
+        source: any
+      - port: 443
+        proto: tcp (HTTPS)
+        source: any
+    # TODOS los demás puertos cerrados a internet.
+    # Los puertos 3000/3001/5433 NUNCA deben estar en 0.0.0.0 (ver docker-compose).
+  ssh:
+    config_file: /etc/ssh/sshd_config.d/99-hardening.conf
+    permit_root_login: prohibit-password
+    password_authentication: "no"
+    max_auth_tries: 3
+    login_grace_time: 30
+    authorized_keys: /root/.ssh/authorized_keys (2 keys)
+  fail2ban:
+    installed: true
+    enabled: true
+    config: /etc/fail2ban/jail.local
+    jails:
+      - name: sshd
+        maxretry: 5
+        findtime: 10m
+        bantime: 1h
+  ssl:
+    provider: letsencrypt (certbot)
+    auto_renew: true
+    certs:
+      - domains: [smartcow.cl, www.smartcow.cl]
+      - domains: [langfuse.smartcow.cl]
+      - domains: [staging.smartcow.cl]
+  secrets:
+    storage: /var/www/smartcow/.env (perms 600, owner root)
+    nunca_committear:
+      - .env
+      - .env.backup-*
+      - .claude/settings.local.json   # tuvo key leak 2026-04-22, ya en gitignore
+    rotaciones_pendientes:
+      # Siguen con defaults del docker-compose (changeme). Solo accesibles
+      # desde red interna docker, pero higiene.
+      - LANGFUSE_REDIS_AUTH
+      - CLICKHOUSE_PASSWORD
+      - MINIO_ROOT_PASSWORD
+      - LANGFUSE_SALT
+      - LANGFUSE_ENCRYPTION_KEY
+  backups:
+    postgres_prod:
+      script: /usr/local/bin/smartcow-pg-backup.sh
+      destination: /var/backups/smartcow-postgres/
+      schedule_cron: "15 3 * * *"          # 03:15 UTC ≈ 00:15 CLT
+      retention_days: 7
+      format: pg_dump --clean --if-exists | gzip -9
+      log: /var/log/smartcow-backup.log
+      off_site: pendiente (recomendado: sync a S3/R2/B2)
+    hostinger_snapshots:
+      retention: 1 snapshot rotativo (auto)
+  waf: ninguno (no Cloudflare, no WAF aplicativo)
+  rate_limiting:
+    ssh: fail2ban (via sshd jail)
+    chat_api: redis-based (app nivel)
+    sso_brute: NextAuth no expone bruteforce por credentials (bcrypt 10 rounds)
+
+# ─────────────────────────────────────────────────────────────
+# Deploy
+# ─────────────────────────────────────────────────────────────
+deploy:
+  script: ./deploy.sh
+  requirements:
+    - ssh alias smartcow-vps configurado
+    - /var/www/smartcow es clone git de AutonomosDev/smartcow
+    - /var/www/smartcow/.env presente con todos los secrets
+  steps:
+    - git pull origin main
+    - docker compose build app
+    - docker compose up -d
+  migrate_mode: ./deploy.sh --migrate  # usa stage "migrate" del Dockerfile
+  manual_migrate_fallback: docker compose run --rm --profile migrate migrate
+  db_tracking_sync: docker compose exec -T app npx tsx scripts/sync-drizzle-tracking.ts
+  ci_cd: push a main → deploy manual via ./deploy.sh (no GitHub Actions)
+
+# ─────────────────────────────────────────────────────────────
+# Servicios externos conectados
+# ─────────────────────────────────────────────────────────────
+external_services:
+  anthropic:
+    env: ANTHROPIC_API_KEY
+    uso: chat (claude-sonnet-4-6 default, claude-haiku tier light, opus tier heavy)
+  google_gemini:
+    env: GOOGLE_API_KEY
+    uso: chat trial (gemini-3.1-flash-lite-preview) para org 99 y FORCE_GEMINI_ALL
+  tavily:
+    env: TAVILY_API_KEY
+    uso: web search en chat (toggle)
+  mapbox:
+    env: NEXT_PUBLIC_MAPBOX_TOKEN
+    uso: mapas frontend
+  agroapp:
+    url: http://agroapp.cl:8080/AgroAppWebV18/
+    env: [AGROAPP_USER, AGROAPP_PASSWORD]
+    uso: ETLs importación datos
+  sentry:
+    uso: tracking errores prod
+  github:
+    repo: AutonomosDev/smartcow
+  linear:
+    team_id: b0184c23-f78a-4035-bd78-74b75481292c
+    team_name: Autonomos Dev
+  eas_expo:
+    uso: builds app móvil (apps/mobile/)
+  odepa:
+    uso: ETL precios_feria (AFECH boletines)
+
+# ─────────────────────────────────────────────────────────────
+# Env vars (sanity list — ver /var/www/smartcow/.env en VPS para valores)
+# ─────────────────────────────────────────────────────────────
+env_vars:
+  required:
+    - DATABASE_URL
+    - NEXTAUTH_SECRET                     # alias AUTH_SECRET
+    - NEXTAUTH_URL
+    - AUTH_TRUST_HOST
+    - REDIS_URL
+    - GOOGLE_API_KEY                      # Gemini inference (trial) + antes fue solo tools declaration
+    - GOOGLE_CLIENT_ID                    # OAuth SSO
+    - GOOGLE_CLIENT_SECRET                # OAuth SSO
+    - ANTHROPIC_API_KEY
+    - TAVILY_API_KEY
+    - LANGFUSE_SECRET_KEY
+    - LANGFUSE_PUBLIC_KEY
+    - LANGFUSE_HOST
+  optional_or_feature_flag:
+    - FORCE_GEMINI_ALL                    # "1" fuerza todo tráfico a Gemini (testing). Default 0.
+    - AGROAPP_USER, AGROAPP_PASSWORD
+    - NEXT_PUBLIC_MAPBOX_TOKEN
+    - LINEAR_API_KEY
+  langfuse_self_hosted:
+    # Solo relevantes en docker-compose.yml (stack Langfuse)
+    - LANGFUSE_DATABASE_URL
+    - LANGFUSE_NEXTAUTH_SECRET
+    - LANGFUSE_SALT
+    - LANGFUSE_ENCRYPTION_KEY
+    - LANGFUSE_REDIS_AUTH
+    - CLICKHOUSE_USER, CLICKHOUSE_PASSWORD
+    - MINIO_ROOT_USER, MINIO_ROOT_PASSWORD
+  removed_or_legacy:
+    - OPENROUTER_API_KEY                  # AUT-261 eliminado
+    - FIREBASE_CLIENT_EMAIL               # post-migración NextAuth
+    - FIREBASE_PRIVATE_KEY                # post-migración NextAuth
+
+# ─────────────────────────────────────────────────────────────
+# Estado conocido 2026-04-22 (revisar al actualizar)
+# ─────────────────────────────────────────────────────────────
+known_state:
+  force_gemini_all: 1           # activo para testing Gemini trial. Revertir cuando termine.
+  pending_off_site_backup: true # recomendación: S3/R2/B2 nocturno
+  pending_secret_rotation: true # defaults changeme en docker-compose

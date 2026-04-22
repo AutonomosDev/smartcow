@@ -33,8 +33,11 @@
 - Roles validos en DB enum: `admin`, `operador`, `veterinario`, `viewer`, `admin_fundo`, `admin_org`, `superadmin` — `src/db/schema/users.ts:5` y `src/lib/with-auth.ts:15-21`
 
 **Asistente ganadero (chat)**
-- Modelo: `claude-sonnet-4-6` via Anthropic SDK directo — PROHIBIDO CAMBIAR SIN APROBACION DE CESAR (migrado desde Gemma-4-31b/OpenRouter el 2026-04-20, AUT-261)
-- Endpoint: `app/api/chat/route.ts` — SSE streaming nativo Anthropic
+- Modelo default: `claude-sonnet-4-6` via Anthropic SDK — PROHIBIDO CAMBIAR SIN APROBACION DE CESAR (migrado desde Gemma-4-31b/OpenRouter el 2026-04-20, AUT-261)
+- Excepcion Gemini: AUT-290 activa ruta Gemini (`gemini-3.1-flash-lite-preview` via `@google/genai`) para org 99 o cuando `FORCE_GEMINI_ALL=1`. Los loops viven en `src/lib/chat/gemini-loop.ts` y `src/lib/chat/anthropic-loop.ts`, seleccionados en `src/lib/chat/llm-routing.ts`
+- Endpoint: `app/api/chat/route.ts` — SSE streaming (delegado al loop correspondiente)
+- Gemini 3.x exige preservar `thoughtSignature` en los Part de functionCall — iterar `candidates[0].content.parts` crudo, NO usar `chunk.functionCalls` (ver commit 0dd251f)
+- Budget downgrade se skippea cuando `provider === "google"` (tier=trial no mapea a plan normal) — `app/api/chat/route.ts` commit 0a262e8
 - Tool principal de lectura: `query_db` (generico, consulta cualquier tabla por nombre + filtros)
 - Tools de escritura (2): `registrar_pesaje`, `registrar_parto`
 - Schema de tools: declarado en formato Google AI SDK (`CATTLE_TOOLS` en `src/lib/claude.ts`), convertido a Anthropic por `toAnthropicTools()` en route.ts
@@ -42,7 +45,7 @@
 - Tools de escritura requieren `rolRank >= 1` (operador)
 - Routing: `pickModel()` en `src/lib/router.ts` elige tier light/standard/heavy segun heuristica
 - Budget: `checkBudget()` / `highestAllowedTier()` en `src/lib/budget.ts`
-- Observabilidad: `src/lib/langfuse.ts` — Langfuse traces por request
+- Observabilidad: `src/lib/langfuse.ts` — Langfuse traces por request (AUT-291 agrega instrumentacion Gemini)
 - EID = tag electronico RFID | DIIO = identificador visual del arete — no intercambiar
 - Pesos en kg | Fechas en YYYY-MM-DD
 - Componentes chat: `src/components/chat/chat-panel.tsx`, `chat-sidebar.tsx`, `message-renderer.tsx`
@@ -54,47 +57,50 @@
 - Feature flags por org: `feedlot`, `crianza`, etc. — stored en `organizaciones.modulos` (JSONB)
 - Verificar con `withAuth({ modulo: 'feedlot' })` antes de exponer funcionalidad
 
-**Infra de produccion — Hostinger VPS**
+**Infra y seguridad — ver `.claude/references/config/infra-and-security.yaml`**
 
-| Campo | Valor |
-|-------|-------|
-| VPS ID | 1591599 |
-| IP publica | 2.24.204.73 |
-| Hostname | srv1591599.hstgr.cloud |
-| PTR | smartcow.cl |
-| Plan | KVM 2 (2 vCPU, 8 GB RAM, 100 GB) |
-| Datacenter | 24 |
-| OS | Ubuntu 24.04 con template Docker |
-| Estado | running |
+Ese YAML es la fuente de verdad para VPS, contenedores, DNS, GCP, firewall, SSH, backups, env vars y deploy. Leerlo antes de afirmar cualquier cosa sobre infra.
 
-- Deploy oficial: `./deploy.sh` (solo código) o `./deploy.sh --migrate` (código + migrations)
-  - Requiere alias SSH `smartcow-vps` apuntando a 2.24.204.73
-  - /var/www/smartcow debe ser clone git de AutonomosDev/smartcow (setup one-time: ver deploy.sh)
-  - El script hace: git pull → docker compose build app → docker compose up -d
-  - `--migrate` usa el stage `migrate` del Dockerfile (drizzle-kit incluido)
-- Migrations en prod: `docker compose run --rm migrate` (stage Dockerfile separado)
-  - Si __drizzle_migrations desincronizado: `docker compose exec -T app npx tsx scripts/sync-drizzle-tracking.ts`
-- DB: PostgreSQL en VPS local (docker compose postgres service), .env en /var/www/smartcow/.env
-- Secrets: en /var/www/smartcow/.env del VPS — NO commitear al repo. Backup antes de cualquier rsync.
-- Staging: infra lista en `docker-compose.staging.yml` (AUT-286). App en puerto 3001, db-staging en 5433. Activación requiere pasos manuales: DNS `staging.smartcow.cl` → VPS + `certbot --nginx` + descomentar bloque en `nginx.conf` + `bash scripts/sync-staging-from-prod.sh` (seed anonimizado desde prod).
-- `apphosting.yaml` en el repo: RESIDUO LEGACY — otro agente lo elimina
+Resumen operativo (detalle en YAML):
+- VPS unico: Hostinger KVM 2, 2.24.204.73, alias SSH `smartcow-vps`. Self-hosted todo (app + db + redis + langfuse stack + nginx).
+- Deploy: `./deploy.sh` (código) o `./deploy.sh --migrate` (código + migrations). CI/CD manual — no GitHub Actions. Git pull → `docker compose build app` → `docker compose up -d`.
+- Migrations: `docker compose run --rm --profile migrate migrate` o stage `migrate` del Dockerfile. Si __drizzle_migrations desincronizado → `docker compose exec -T app npx tsx scripts/sync-drizzle-tracking.ts`.
+- Staging: `docker-compose.staging.yml`. App 3001 / db-staging 5433 (ambos en loopback). DNS + cert activos. Seed desde prod: `bash scripts/sync-staging-from-prod.sh`.
+- Secrets: `/var/www/smartcow/.env` en VPS (perms 600 root). NUNCA commitear. Backup antes de rsync.
+- `apphosting.yaml` en el repo: RESIDUO LEGACY — otro agente lo elimina.
 
-**LEGACY GCP (residual — no usar)**
-- Firebase project `smartcow-c22fb`, Cloud SQL `smartcow-492119`, Cloud Run `us-central1` — todo migrado a Hostinger
-- Secrets en GCP Secret Manager: `database-url`, `openrouter-api-key`, etc. — verificar si aun activos con Cesar
-- `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` en env: residuo de Firebase Admin — ya no se usan
+**Seguridad — hardening 2026-04-22 (detalle en YAML)**
+- Firewall Hostinger activo (id 268254): solo 22/80/443 abiertos. Puertos 3000/3001/5433 en 127.0.0.1 — NUNCA exponer a 0.0.0.0.
+- SSH: `prohibit-password` (solo keys), fail2ban con jail sshd (5 retries, 1h ban).
+- SSL: Let's Encrypt auto-renew (smartcow.cl, www, langfuse, staging).
+- Backups Postgres prod: diarios 03:15 UTC, retencion 7 dias, en `/var/backups/smartcow-postgres/`. **Off-site pendiente.**
+- Secrets pendientes de rotacion (defaults `changeme`): `LANGFUSE_REDIS_AUTH`, `CLICKHOUSE_PASSWORD`, `MINIO_ROOT_PASSWORD`, `LANGFUSE_SALT`, `LANGFUSE_ENCRYPTION_KEY`. Solo accesibles desde red docker interna, pero higiene.
+- Sin WAF, sin Cloudflare. Rate limit chat app-level via Redis.
 
-**Env vars relevantes**
+**GCP — proyecto unico `smartcow-cl` (clean sweep 2026-04-22)**
+- Eliminados: `smartcow-c22fb` (Firebase legacy), `smartcow-492119` (Cloud SQL legacy), `smartcow-web`, `smartedu-v1`, `gen-lang-client-0481252325`. En DELETE_REQUESTED, 30 dias de recovery — NO restaurar.
+- APIs activas: `generativelanguage.googleapis.com`, `apikeys.googleapis.com`, `iap.googleapis.com`, `cloudapis.googleapis.com`.
+- Credenciales vigentes:
+  - Gemini API key (`GOOGLE_API_KEY`): restringida a `generativelanguage.googleapis.com` + IPs VPS (IPv4 2.24.204.73 + IPv6 /64).
+  - OAuth Client web (`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`): redirect `https://smartcow.cl/api/auth/callback/google`.
+- Firebase Admin ya no se usa. `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` = env residuales, eliminar cuando se toquen.
+
+**Env vars relevantes** (lista sanity — fuente canonica: `.claude/references/config/infra-and-security.yaml`)
 - `DATABASE_URL` -> PostgreSQL connection string
 - `NEXTAUTH_SECRET` / `AUTH_SECRET` -> Secreto JWT para NextAuth + mobile tokens
-- `ANTHROPIC_API_KEY` -> Anthropic SDK (chat ganadero, modelo claude-sonnet-4-6)
-- `GOOGLE_API_KEY` -> Google AI SDK (solo para declarar CATTLE_TOOLS, no para inferencia)
+- `NEXTAUTH_URL` / `AUTH_TRUST_HOST` -> NextAuth config
+- `ANTHROPIC_API_KEY` -> Anthropic SDK (chat ganadero default, claude-sonnet-4-6)
+- `GOOGLE_API_KEY` -> Gemini inference (AUT-290 trial via `@google/genai`) + declaracion CATTLE_TOOLS. Restringida a generativelanguage.googleapis.com + IPs VPS.
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` -> OAuth SSO (proyecto smartcow-cl)
+- `FORCE_GEMINI_ALL` -> "1" fuerza toda peticion chat al loop Gemini (testing). Default 0. Actualmente ACTIVO en prod — revertir post-testing.
 - `TAVILY_API_KEY` -> Web search (Tavily, 100 req/mes tier gratis)
-- `REDIS_URL` -> Rate limiting (redis://localhost:6379)
-- `LANGFUSE_SECRET_KEY` / `LANGFUSE_PUBLIC_KEY` -> Observabilidad LLM
+- `REDIS_URL` -> Rate limiting app (redis://redis:6379 en docker)
+- `LANGFUSE_SECRET_KEY` / `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_HOST` -> Observabilidad LLM (self-hosted en langfuse.smartcow.cl)
 - `NEXT_PUBLIC_MAPBOX_TOKEN` -> Mapas frontend
 - `AGROAPP_USER` / `AGROAPP_PASSWORD` -> API externa AgroApp
-- `OPENROUTER_API_KEY` -> LEGACY — ya no se usa (ver AUT-261)
+- `LINEAR_API_KEY` -> Linear MCP/scripts
+- `OPENROUTER_API_KEY` -> LEGACY, eliminado (ver AUT-261)
+- `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` -> LEGACY post-NextAuth
 
 **AgroApp**
 - API externa: `http://agroapp.cl:8080/AgroAppWebV18/`
