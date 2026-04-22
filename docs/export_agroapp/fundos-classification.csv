@@ -1,79 +1,79 @@
-nombre_agroapp,total_filas,tipo,notas
-San Pedro,94557,,
-feedlot,86855,,
-Mollendo,31602,,
-Medieria FT,15992,,
-Arriendo Santa Isabel,11772,,
-Arriendo las quebradas,11602,,
-Medieria Frival,8230,,
-Recría Feedlot,6588,,
-Recría FT,1645,,
-Corrales del Sur,1351,,
-Medieria Oller,447,,
-Aguas Buenas,348,,
-Chacaipulli,288,,
-Fegosa Puerto Montt,266,,
-Agrícola Valdivia,107,,
-Fegosa Puerto Montt (1),97,,
-Pta Arena,90,,
-Fegosa Purranque,82,,
-Santa Isabel (1),61,,
-Santa Isabel (2),61,,
-Ag Santa Alejandra (2),56,,
-Doña Charo (1),55,,
-Ag Santa Alejandra (1),55,,
-Ag Santa Isabel,55,,
-Doña Charo (2),55,,
-sta isabel,55,,
-Agrícola los Lingues,54,,
-Mollendo 12-03,54,,
-El Pampero,54,,
-Mario Hernandez,53,,
-Hugo Reyes,53,,
-Mantos Verdes (1),52,,
-Mantos Verdes (2),52,,
-Agrícola Mantos Verdes,52,,
-Fegosa Pto Montt,50,,
-Futrono,50,,
-Ag Mantos Verdes (2),50,,
-Inversiones El Rocio,50,,
-Mantos Verdes,50,,
-Ag Mantos Verdes (1),50,,
-Mantos Verdes (12-03-26),50,,
-Agrícola Gondesende (1),48,,
-Agrícola Gondesende (2),48,,
-Agrícola Gondesende,48,,
-Fegosa Puerto Montt (2),47,,
-Ganadera el Pampero,45,,
-Oscar Hitschafeld,43,,
-Mantos Verdes 2,36,,
-Tattersall Coyhaique,32,,
-Mantos Verdes 1,31,,
-Pto Montt,25,,
-AG Mantos Verdes,24,,
-Ag. Rayen Lafquen,22,,
-Fegosa Purranque Osorno,22,,
-Oscar Hitschfeld,20,,
-Feria Remehue,20,,
-Tattersall Río Bueno,19,,
-Fegosa Purranque & Osorno,19,,
-Fegosa Osorno,18,,
-Fegosa Pto montt,17,,
-Tattersall Puerto Varas,16,,
-Arlette Fuentealba,15,,
-ag. Rayen Lafquen,13,,
-Ganadera Viento Sur,13,,
-José Steffen,13,,
-Fegosa Paillaco,11,,
-Oscar H. Bugueno,11,,
-Oscar hitschfeld,7,,
-Pto varas,7,,
-Pto Varas,7,,
-Medieria Chacaipulli,5,,
-Ag Santa Alejandra,2,,
-Purranque,2,,
-Rayen Lafquen,1,,
-buena esperanza,1,,
-Frutillar,1,,
-Oscar hitschafeldt,1,,
-Winkler,1,,
+nombre_agroapp,total_filas,tipo,canonical,notas
+San Pedro,94557,predio_propio,San Pedro,
+feedlot,86855,predio_propio,feedlot,
+Mollendo,31602,hoteleria,Mollendo,cliente hoteleria (no medieria)
+Medieria FT,15992,medieria,Medieria FT,
+Arriendo Santa Isabel,11772,predio_arriendo,Arriendo Santa Isabel,temporal se devuelve
+Arriendo las quebradas,11602,predio_arriendo,Arriendo las quebradas,temporal se devuelve
+Medieria Frival,8230,medieria,Medieria Frival,
+Recría Feedlot,6588,predio_propio,Recría Feedlot,
+Recría FT,1645,predio_propio,Recría FT,
+Corrales del Sur,1351,medieria,Corrales del Sur,
+Medieria Oller,447,medieria,Medieria Oller,
+Aguas Buenas,348,externo,Aguas Buenas,origen previo animal
+Chacaipulli,288,externo,Chacaipulli,origen previo animal
+Fegosa Puerto Montt,266,externo,Fegosa Puerto Montt,feria
+Agrícola Valdivia,107,externo,Agrícola Valdivia,origen previo animal
+Fegosa Puerto Montt (1),97,externo,Fegosa Puerto Montt,feria - variante sufijo
+Pta Arena,90,externo,Punta Arenas,origen previo animal
+Fegosa Purranque,82,externo,Fegosa Purranque,feria
+Santa Isabel (1),61,externo,Santa Isabel,origen previo - NO confundir con Arriendo Santa Isabel
+Santa Isabel (2),61,externo,Santa Isabel,origen previo - variante sufijo
+Ag Santa Alejandra (2),56,externo,Agrícola Santa Alejandra,origen previo animal
+Doña Charo (1),55,externo,Doña Charo,origen previo animal
+Ag Santa Alejandra (1),55,externo,Agrícola Santa Alejandra,origen previo animal
+Ag Santa Isabel,55,externo,Santa Isabel,origen previo animal
+Doña Charo (2),55,externo,Doña Charo,origen previo animal
+sta isabel,55,externo,Santa Isabel,origen previo - typo
+Agrícola los Lingues,54,externo,Agrícola Los Lingues,origen previo animal
+Mollendo 12-03,54,hoteleria,Mollendo,snapshot con fecha - mismo cliente Mollendo
+El Pampero,54,externo,El Pampero,origen previo animal
+Mario Hernandez,53,externo,Mario Hernández,origen previo animal
+Hugo Reyes,53,externo,Hugo Reyes,origen previo animal
+Mantos Verdes (1),52,externo,Mantos Verdes,origen previo - variante
+Mantos Verdes (2),52,externo,Mantos Verdes,origen previo - variante
+Agrícola Mantos Verdes,52,externo,Mantos Verdes,origen previo - variante
+Fegosa Pto Montt,50,externo,Fegosa Puerto Montt,feria - typo
+Futrono,50,externo,Futrono,origen previo animal
+Ag Mantos Verdes (2),50,externo,Mantos Verdes,origen previo - variante
+Inversiones El Rocio,50,externo,Inversiones El Rocío,origen previo animal
+Mantos Verdes,50,externo,Mantos Verdes,origen previo animal
+Ag Mantos Verdes (1),50,externo,Mantos Verdes,origen previo - variante
+Mantos Verdes (12-03-26),50,externo,Mantos Verdes,origen previo - snapshot con fecha
+Agrícola Gondesende (1),48,externo,Agrícola Gondesende,origen previo - variante
+Agrícola Gondesende (2),48,externo,Agrícola Gondesende,origen previo - variante
+Agrícola Gondesende,48,externo,Agrícola Gondesende,origen previo animal
+Fegosa Puerto Montt (2),47,externo,Fegosa Puerto Montt,feria - variante sufijo
+Ganadera el Pampero,45,externo,El Pampero,origen previo - mismo cliente
+Oscar Hitschafeld,43,externo,Oscar Hitschfeld,origen previo - typo
+Mantos Verdes 2,36,externo,Mantos Verdes,origen previo - variante
+Tattersall Coyhaique,32,externo,Tattersall Coyhaique,feria
+Mantos Verdes 1,31,externo,Mantos Verdes,origen previo - variante
+Pto Montt,25,externo,Puerto Montt,origen previo - ubicación
+AG Mantos Verdes,24,externo,Mantos Verdes,origen previo - variante
+Ag. Rayen Lafquen,22,externo,Rayen Lafquen,origen previo animal
+Fegosa Purranque Osorno,22,externo,Fegosa Purranque,feria - variante
+Oscar Hitschfeld,20,externo,Oscar Hitschfeld,origen previo animal
+Feria Remehue,20,externo,Feria Remehue,feria
+Tattersall Río Bueno,19,externo,Tattersall Río Bueno,feria
+Fegosa Purranque & Osorno,19,externo,Fegosa Purranque,feria - variante
+Fegosa Osorno,18,externo,Fegosa Osorno,feria
+Fegosa Pto montt,17,externo,Fegosa Puerto Montt,feria - typo
+Tattersall Puerto Varas,16,externo,Tattersall Puerto Varas,feria
+Arlette Fuentealba,15,externo,Arlette Fuentealba,origen previo animal
+ag. Rayen Lafquen,13,externo,Rayen Lafquen,origen previo - typo
+Ganadera Viento Sur,13,externo,Ganadera Viento Sur,origen previo animal
+José Steffen,13,externo,José Steffen,origen previo animal
+Fegosa Paillaco,11,externo,Fegosa Paillaco,feria
+Oscar H. Bugueno,11,externo,Oscar Hitschfeld,origen previo - mismo dueño
+Oscar hitschfeld,7,externo,Oscar Hitschfeld,origen previo - typo
+Pto varas,7,externo,Puerto Varas,origen previo - typo
+Pto Varas,7,externo,Puerto Varas,origen previo - ubicación
+Medieria Chacaipulli,5,externo,Chacaipulli,DUDA - ¿medieria o externo? fusionado con Chacaipulli por ahora
+Ag Santa Alejandra,2,externo,Agrícola Santa Alejandra,origen previo animal
+Purranque,2,externo,Purranque,origen previo - ubicación
+Rayen Lafquen,1,externo,Rayen Lafquen,origen previo animal
+buena esperanza,1,externo,Buena Esperanza,origen previo animal
+Frutillar,1,externo,Frutillar,origen previo - ubicación
+Oscar hitschafeldt,1,externo,Oscar Hitschfeld,origen previo - typo
+Winkler,1,externo,Winkler,origen previo animal
