@@ -38,16 +38,14 @@ const WRITE_TOOLS = new Set(["registrar_pesaje", "registrar_parto"]);
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface ChatPanelProps {
-  predioId: number;
   initialMessage?: string;
-  nombrePredio?: string | null;
   userName?: string | null;
   className?: string;
 }
 
 // ─── ChatPanel ────────────────────────────────────────────────────────────────
 
-export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: ChatPanelProps) {
+export function ChatPanel({ initialMessage, userName }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeArtifact, setActiveArtifact] = useState<ArtifactData | null>(null);
@@ -179,7 +177,6 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
               mimeType: file.type || "text/csv",
               columnas: parsed.columnas,
               filas: parsed.filas,
-              predio_id: predioId,
             }),
           });
           if (res.ok) {
@@ -206,7 +203,6 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
     try {
       const requestBody: Record<string, unknown> = {
         messages: updatedMessages,
-        predio_id: predioId,
       };
       if (attachmentIds.length > 0) requestBody.attachment_ids = attachmentIds;
       if (webSearch) requestBody.webSearch = webSearch;
@@ -276,7 +272,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
     } finally {
       setIsLoading(false);
     }
-  }, [predioId, parseFile]);
+  }, [parseFile]);
 
   handleSendRef.current = handleSend;
 
@@ -294,7 +290,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
       const res = await fetch("/api/chat/quick-query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ command, predioId }),
+        body: JSON.stringify({ command }),
       });
       if (!res.ok) throw new Error(`quick-query ${res.status}`);
       const result = await res.json() as {
@@ -330,7 +326,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
     } finally {
       setIsLoading(false);
     }
-  }, [predioId]);
+  }, []);
 
   useEffect(() => {
     if (initialMessage && !hasSentInitial.current) {
@@ -340,6 +336,17 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
   }, [initialMessage]);
 
   const handleStop = useCallback(() => { abortControllerRef.current?.abort(); }, []);
+
+  const resetChat = useCallback(() => {
+    setMessages([]);
+    setCurrentSessionTitle("Nueva conversación");
+    setActiveFolder(null);
+    setActiveArtifact(null);
+    setIsArtifactOpen(false);
+    setSearchOpen(false);
+    setSearchQuery("");
+    hasSentInitial.current = false;
+  }, []);
 
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -385,7 +392,11 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
           <span style={{ color: "#666", display: "flex", flexShrink: 0 }}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z"/></svg>
           </span>
-          <span style={{ overflow: "hidden", textOverflow: "ellipsis", flexShrink: 0 }}>{activeFolder ?? "smartcow"}</span>
+          <span
+            onClick={resetChat}
+            title="Nueva conversación"
+            style={{ overflow: "hidden", textOverflow: "ellipsis", flexShrink: 0, cursor: "pointer" }}
+          >{activeFolder ?? "smartcow"}</span>
           <span style={{ color: "#bbb", flexShrink: 0 }}>/</span>
           <span style={{ overflow: "hidden", textOverflow: "ellipsis", color: "#555" }}>{currentSessionTitle}</span>
           <span style={{ color: "#8a8a8a", flexShrink: 0 }}>▾</span>
@@ -395,16 +406,7 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
         <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center", paddingRight: 10 }}>
           <TlBtn
             title="Nuevo chat"
-            onClick={() => {
-              setMessages([]);
-              setCurrentSessionTitle("Nueva conversación");
-              setActiveFolder(null);
-              setActiveArtifact(null);
-              setIsArtifactOpen(false);
-              setSearchOpen(false);
-              setSearchQuery("");
-              hasSentInitial.current = false;
-            }}
+            onClick={resetChat}
           >
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 20h9"/>
@@ -440,7 +442,6 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
         open={sbOpen}
         onClose={() => setSbOpen(false)}
         userName={userName}
-        nombrePredio={nombrePredio}
       />
 
       {/* ── Body split ── */}
@@ -491,7 +492,6 @@ export function ChatPanel({ predioId, initialMessage, nombrePredio, userName }: 
               {messages.length === 0 ? (
                 <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", minHeight: 320 }}>
                   <ChatEmptyState
-                    nombrePredio={nombrePredio}
                     userName={userName}
                     onSuggestionClick={(text, folderLabel) => {
                       if (folderLabel) setActiveFolder(folderLabel);

@@ -15,11 +15,9 @@ interface SlashCommand {
 }
 
 interface ChatEmptyStateProps {
-  nombrePredio: string | null | undefined;
   userName?: string | null;
   onSuggestionClick: (text: string, folderLabel?: string) => void;
   onQuickCommand?: (command: string, label: string) => void;
-  onPredioClick?: (predioId: number, nombre: string) => void;
 }
 
 // AUT-268 — Comandos resueltos por SQL directo sin LLM (endpoint /api/chat/quick-query)

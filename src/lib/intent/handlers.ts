@@ -1,9 +1,8 @@
 /**
  * handlers.ts — Handlers determinísticos SQL para intents interceptables (AUT-287).
  *
- * Extraído de app/api/chat/quick-query/route.ts (AUT-268). El endpoint REST lo
- * sigue usando, y el chat también via tryIntercept() — misma lógica, mismo shape
- * de artifact, sin duplicación.
+ * Refactor AUT-288: handlers operan sobre predioIds[] (todos los predios del
+ * usuario) en vez de un único predio. Elimina el lock a un predio.
  *
  * Cada handler retorna { label, data, artifact } — cost=0, latencia <200ms.
  */
@@ -11,21 +10,21 @@
 import { db } from "@/src/db/client";
 import { sql } from "drizzle-orm";
 
-export type QuickHandler = (predioId: number) => Promise<{
+export type QuickHandler = (predioIds: number[]) => Promise<{
   label: string;
   data: unknown;
   artifact: unknown;
 }>;
 
 export const QUICK_HANDLERS: Record<string, QuickHandler> = {
-  animales: async (predioId) => {
+  animales: async (predioIds) => {
     const r = await db.execute<{ total: number; machos: number; hembras: number }>(
       sql`SELECT
             COUNT(*)::int AS total,
             COUNT(*) FILTER (WHERE sexo = 'M')::int AS machos,
             COUNT(*) FILTER (WHERE sexo = 'H')::int AS hembras
           FROM animales
-          WHERE predio_id = ${predioId} AND estado = 'activo'`
+          WHERE predio_id = ANY(${predioIds}::int[]) AND estado = 'activo'`
     );
     const row = r.rows[0] ?? { total: 0, machos: 0, hembras: 0 };
     return {
@@ -43,7 +42,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
     };
   },
 
-  enfermos: async (predioId) => {
+  enfermos: async (predioIds) => {
     const r = await db.execute<{
       animal_id: number;
       diio: string;
@@ -53,7 +52,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
       sql`SELECT t.animal_id, a.diio, t.fecha::text AS fecha, t.diagnostico
           FROM tratamientos t
           JOIN animales a ON a.id = t.animal_id
-          WHERE t.predio_id = ${predioId}
+          WHERE t.predio_id = ANY(${predioIds}::int[])
             AND t.fecha >= (CURRENT_DATE - INTERVAL '30 days')
           ORDER BY t.fecha DESC
           LIMIT 50`
@@ -72,15 +71,15 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
     };
   },
 
-  feedlot: async (predioId) => {
+  feedlot: async (predioIds) => {
     const r = await db.execute<{ total: number; lotes: number }>(
       sql`SELECT
             (SELECT COUNT(*)::int FROM animales
-              WHERE predio_id = ${predioId}
+              WHERE predio_id = ANY(${predioIds}::int[])
                 AND estado = 'activo'
                 AND modulo_actual IN ('feedlot', 'ambos')) AS total,
             (SELECT COUNT(*)::int FROM lotes
-              WHERE predio_id = ${predioId} AND estado = 'activo') AS lotes`
+              WHERE predio_id = ANY(${predioIds}::int[]) AND estado = 'activo') AS lotes`
     );
     const row = r.rows[0] ?? { total: 0, lotes: 0 };
     return {
@@ -97,7 +96,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
     };
   },
 
-  lotes: async (predioId) => {
+  lotes: async (predioIds) => {
     const r = await db.execute<{
       id: number;
       nombre: string;
@@ -108,7 +107,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
                  COUNT(la.id)::int AS n_animales
           FROM lotes l
           LEFT JOIN lote_animales la ON la.lote_id = l.id AND la.fecha_salida IS NULL
-          WHERE l.predio_id = ${predioId} AND l.estado = 'activo'
+          WHERE l.predio_id = ANY(${predioIds}::int[]) AND l.estado = 'activo'
           GROUP BY l.id, l.nombre, l.fecha_entrada
           ORDER BY l.fecha_entrada DESC`
     );
@@ -126,7 +125,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
     };
   },
 
-  pesajes: async (predioId) => {
+  pesajes: async (predioIds) => {
     const r = await db.execute<{
       fecha: string;
       diio: string;
@@ -135,7 +134,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
       sql`SELECT p.fecha::text AS fecha, a.diio, p.peso_kg::text
           FROM pesajes p
           JOIN animales a ON a.id = p.animal_id
-          WHERE p.predio_id = ${predioId}
+          WHERE p.predio_id = ANY(${predioIds}::int[])
           ORDER BY p.fecha DESC, p.id DESC
           LIMIT 20`
     );
@@ -153,7 +152,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
     };
   },
 
-  partos: async (predioId) => {
+  partos: async (predioIds) => {
     const r = await db.execute<{
       total: number;
       vivos: number;
@@ -166,7 +165,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
             COUNT(*) FILTER (WHERE resultado = 'muerto')::int AS muertos,
             COUNT(*) FILTER (WHERE resultado = 'aborto')::int AS abortos
           FROM partos
-          WHERE predio_id = ${predioId}
+          WHERE predio_id = ANY(${predioIds}::int[])
             AND fecha >= date_trunc('month', CURRENT_DATE)`
     );
     const row = r.rows[0] ?? { total: 0, vivos: 0, muertos: 0, abortos: 0 };
@@ -186,10 +185,10 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
     };
   },
 
-  bajas: async (predioId) => {
+  bajas: async (predioIds) => {
     const r = await db.execute<{ total: number }>(
       sql`SELECT COUNT(*)::int AS total FROM bajas
-          WHERE predio_id = ${predioId}
+          WHERE predio_id = ANY(${predioIds}::int[])
             AND fecha >= date_trunc('month', CURRENT_DATE)`
     );
     const total = Number(r.rows[0]?.total ?? 0);
@@ -197,7 +196,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
       sql`SELECT COALESCE(bm.nombre, 'sin motivo') AS motivo, COUNT(*)::int AS n
           FROM bajas b
           LEFT JOIN baja_motivo bm ON bm.id = b.motivo_id
-          WHERE b.predio_id = ${predioId}
+          WHERE b.predio_id = ANY(${predioIds}::int[])
             AND b.fecha >= date_trunc('month', CURRENT_DATE)
           GROUP BY bm.nombre
           ORDER BY n DESC`
@@ -215,7 +214,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
     };
   },
 
-  ventas: async (predioId) => {
+  ventas: async (predioIds) => {
     const r = await db.execute<{
       total: number;
       peso_total: string | null;
@@ -225,7 +224,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
                  SUM(peso_kg)::float AS peso_total,
                  AVG(peso_kg)::float AS peso_prom
           FROM ventas
-          WHERE predio_id = ${predioId}
+          WHERE predio_id = ANY(${predioIds}::int[])
             AND fecha >= date_trunc('month', CURRENT_DATE)`
     );
     const row = r.rows[0] ?? { total: 0, peso_total: null, peso_prom: null };
@@ -250,7 +249,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
     };
   },
 
-  tratamientos: async (predioId) => {
+  tratamientos: async (predioIds) => {
     const r = await db.execute<{
       diagnostico: string;
       n: number;
@@ -258,7 +257,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
       sql`SELECT COALESCE(diagnostico, 'sin diagnóstico') AS diagnostico,
                  COUNT(*)::int AS n
           FROM tratamientos
-          WHERE predio_id = ${predioId}
+          WHERE predio_id = ANY(${predioIds}::int[])
             AND fecha >= (CURRENT_DATE - INTERVAL '30 days')
           GROUP BY diagnostico
           ORDER BY n DESC
@@ -277,7 +276,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
     };
   },
 
-  preñez: async (predioId) => {
+  preñez: async (predioIds) => {
     const r = await db.execute<{
       total: number;
       prenadas: number;
@@ -290,7 +289,7 @@ export const QUICK_HANDLERS: Record<string, QuickHandler> = {
             COUNT(*) FILTER (WHERE resultado = 'vacia')::int AS vacias,
             COUNT(*) FILTER (WHERE resultado = 'dudosa')::int AS dudosas
           FROM ecografias
-          WHERE predio_id = ${predioId}
+          WHERE predio_id = ANY(${predioIds}::int[])
             AND fecha >= '2026-01-01'`
     );
     const row = r.rows[0] ?? { total: 0, prenadas: 0, vacias: 0, dudosas: 0 };

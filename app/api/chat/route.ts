@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
   // 2. Parsear body
   let body: {
     messages: Array<{ role: "user" | "assistant"; content: string }>;
-    predio_id: number;
+    predio_id?: number | null;
     attachment_ids?: number[];
     webSearch?: boolean;
   };
@@ -127,16 +127,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { messages, predio_id: predioId, attachment_ids: attachmentIds, webSearch = false } = body;
-
-  if (!predioId || typeof predioId !== "number") {
-    return new Response(
-      JSON.stringify({
-        error: `predio_id requerido (recibido: ${typeof predioId}, valor: ${predioId})`,
-      }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
-  }
+  const { messages, predio_id: predioIdOpt, attachment_ids: attachmentIds, webSearch = false } = body;
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return new Response(JSON.stringify({ error: "messages requerido" }), {
@@ -145,11 +136,12 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // 3. Validar acceso al predio
+  // 3. Scope de predios — el chat opera sobre TODOS los predios del usuario (AUT-288).
+  //    predio_id es opcional y solo sirve como contexto (buildSystemPrompt, artifact render).
   const { rol, predios, id: userId, orgId } = session.user;
   const tieneAccesoTotal = rol === "superadmin" || rol === "admin_org";
 
-  if (!tieneAccesoTotal && !predios.includes(predioId)) {
+  if (predioIdOpt && typeof predioIdOpt === "number" && !tieneAccesoTotal && !predios.includes(predioIdOpt)) {
     return new Response(JSON.stringify({ error: "Sin acceso a este predio", code: "FORBIDDEN" }), {
       status: 403,
       headers: { "Content-Type": "application/json" },
@@ -177,6 +169,19 @@ export async function POST(req: NextRequest) {
   const prediosDelScope = tieneAccesoTotal ? await getPredioIdsDeOrg(orgId) : predios;
   const prediosPermitidos = tieneAccesoTotal ? [] : predios;
   const rolRank = ROL_RANK[rol] ?? 0;
+
+  // predioId para contexto (primer predio del scope si no vino en el request).
+  // No limita scope — solo sirve para buildSystemPrompt y artifacts legacy.
+  const predioId = predioIdOpt && typeof predioIdOpt === "number"
+    ? predioIdOpt
+    : prediosDelScope[0];
+
+  if (!predioId) {
+    return new Response(JSON.stringify({ error: "No hay predios disponibles" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   const lastMessage = messages[messages.length - 1]?.content ?? "";
 
@@ -219,11 +224,11 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // 4.5 Pre-LLM intent intercept (AUT-287) — L1 regex/exact match
-  // Cost=0. Si matchea, responde SSE sin llamar Anthropic.
+  // 4.5 Pre-LLM intent intercept (AUT-287, AUT-288) — L1 regex/exact match
+  // Cost=0. Si matchea, responde SSE sin llamar Anthropic. Scope = todos los predios del usuario.
   if (!webSearch && lastMessage.length > 0) {
     try {
-      const intercept = await tryIntercept(lastMessage, predioId);
+      const intercept = await tryIntercept(lastMessage, prediosDelScope);
       if (intercept) {
         console.log(`[intent] ${intercept.layer} HIT intent=${intercept.intentId} handler=${intercept.handlerCommand} latency=${intercept.latencyMs}ms`);
 

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -37,7 +39,6 @@ interface ChatSidebarProps {
   open?: boolean;
   onClose?: () => void;
   userName?: string | null;
-  nombrePredio?: string | null;
   activeSessionId?: number | null;
   // legacy props used by non-chat pages — accepted but ignored
   orgName?: string | null;
@@ -53,7 +54,21 @@ interface ChatSidebarProps {
 // ─── Sidebar ────────────────────────────────────────────────────────────────
 
 export function ChatSidebar({ open = false, onClose, userName, activeSessionId }: ChatSidebarProps) {
+  const router = useRouter();
   const [groups, setGroups] = useState<PredioGroup[]>([]);
+
+  const handleNewSession = () => {
+    onClose?.();
+    router.push("/chat");
+    router.refresh();
+    if (typeof window !== "undefined" && window.location.pathname === "/chat") {
+      window.location.href = "/chat";
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" });
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -112,10 +127,10 @@ export function ChatSidebar({ open = false, onClose, userName, activeSessionId }
 
         {/* Top menu */}
         <div style={{ padding: "2px 8px 6px", display: "flex", flexDirection: "column" }}>
-          <Link href="/chat" style={menuItem} onClick={onClose}>
+          <button onClick={handleNewSession} style={{ ...menuItem, background: "transparent", border: "none", textAlign: "left", width: "100%", font: "inherit" }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
             <span>Nueva sesión</span>
-          </Link>
+          </button>
           <div style={menuItem}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
             <span>Routines</span>
@@ -160,11 +175,15 @@ export function ChatSidebar({ open = false, onClose, userName, activeSessionId }
             </svg>
           </div>
           <span style={{ flex: 1, fontWeight: 500 }}>{userName ?? "Usuario"}</span>
-          <div style={{ width: 24, height: 24, borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", color: "#999", cursor: "pointer" }}>
+          <button
+            onClick={handleLogout}
+            title="Cerrar sesión"
+            style={{ width: 24, height: 24, borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", color: "#999", cursor: "pointer", background: "transparent", border: "none", padding: 0 }}
+          >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
-          </div>
+          </button>
         </div>
       </div>
     </>

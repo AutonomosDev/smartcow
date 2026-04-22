@@ -1,5 +1,5 @@
 /**
- * intent/ — Pre-LLM intent routing (AUT-287).
+ * intent/ — Pre-LLM intent routing (AUT-287, AUT-288).
  *
  * Arquitectura en capas:
  *   L1 (exact)     — regex/substring contra variantes del catálogo  <10ms  $0
@@ -7,9 +7,9 @@
  *   L3 (classify)  — haiku tool_choice forzado (futuro)              <1s   $0.001
  *   L4 (sonnet)    — fallback con tools completas                   2-5s  $0.05
  *
- * Esta fase implementa solo L1 + delegación a L4.
+ * AUT-288: handlers operan sobre predioIds[] (scope completo del usuario).
  *
- * Export principal: tryIntercept(message, predioId) → resultado o null.
+ * Export principal: tryIntercept(message, predioIds) → resultado o null.
  * Si retorna null, el caller debe continuar con el flujo normal de sonnet.
  */
 
@@ -28,13 +28,16 @@ export interface InterceptResult {
 
 /**
  * Intenta resolver el mensaje sin llamar al LLM.
+ * predioIds: scope de predios del usuario (array). Para admin_org es el org completo.
  * Retorna null si ninguna capa puede resolverlo — el caller debe usar sonnet.
  */
 export async function tryIntercept(
   message: string,
-  predioId: number,
+  predioIds: number[],
 ): Promise<InterceptResult | null> {
   const startMs = Date.now();
+
+  if (predioIds.length === 0) return null;
 
   // L1 — exact/substring match
   const l1 = matchExactIntent(message);
@@ -47,7 +50,7 @@ export async function tryIntercept(
       return null;
     }
     try {
-      const out = await handler(predioId);
+      const out = await handler(predioIds);
       return {
         layer: "L1",
         intentId: l1.intent.id,

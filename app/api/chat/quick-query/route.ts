@@ -16,6 +16,7 @@ import { NextRequest } from "next/server";
 import { withAuth, withAuthBearer, AuthError } from "@/src/lib/with-auth";
 import { checkRateLimit, rateLimitHeaders } from "@/src/lib/rate-limit";
 import { QUICK_HANDLERS as HANDLERS } from "@/src/lib/intent/handlers";
+import { getPredioIdsDeOrg } from "@/src/lib/queries/predio";
 
 export async function POST(req: NextRequest) {
   // Auth
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Error de autenticación" }, { status: 401 });
   }
 
-  let body: { command?: string; predioId?: number };
+  let body: { command?: string; predioId?: number; predioIds?: number[] };
   try {
     body = await req.json();
   } catch {
@@ -45,17 +46,34 @@ export async function POST(req: NextRequest) {
   }
 
   const command = String(body.command ?? "").trim().replace(/^\//, "");
-  const predioId = Number(body.predioId);
 
-  if (!command || !predioId) {
-    return Response.json({ error: "command y predioId requeridos" }, { status: 400 });
+  if (!command) {
+    return Response.json({ error: "command requerido" }, { status: 400 });
   }
 
-  // Validar acceso al predio
-  const { rol, predios, id: userId } = session.user;
+  // Scope de predios (AUT-288): usa predioIds[] del body si vino, o scope completo del usuario.
+  const { rol, predios, id: userId, orgId } = session.user;
   const tieneAccesoTotal = rol === "superadmin" || rol === "admin_org";
-  if (!tieneAccesoTotal && !predios.includes(predioId)) {
-    return Response.json({ error: "Sin acceso a este predio" }, { status: 403 });
+  const prediosDelScope = tieneAccesoTotal ? await getPredioIdsDeOrg(orgId) : predios;
+
+  let predioIds: number[];
+  if (Array.isArray(body.predioIds) && body.predioIds.length > 0) {
+    predioIds = body.predioIds.map(Number).filter((id) => prediosDelScope.includes(id));
+    if (predioIds.length === 0) {
+      return Response.json({ error: "Sin acceso a los predios solicitados" }, { status: 403 });
+    }
+  } else if (body.predioId) {
+    const pid = Number(body.predioId);
+    if (!prediosDelScope.includes(pid)) {
+      return Response.json({ error: "Sin acceso a este predio" }, { status: 403 });
+    }
+    predioIds = [pid];
+  } else {
+    predioIds = prediosDelScope;
+  }
+
+  if (predioIds.length === 0) {
+    return Response.json({ error: "No hay predios disponibles" }, { status: 400 });
   }
 
   // Rate limit (AUT-274) — 60 req/min por usuario (SQL directo, más generoso que /api/chat).
@@ -88,7 +106,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const startMs = Date.now();
-    const result = await handler(predioId);
+    const result = await handler(predioIds);
     const latencyMs = Date.now() - startMs;
 
     return Response.json(
