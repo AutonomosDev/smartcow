@@ -18,8 +18,17 @@
  */
 
 import { db } from "@/src/db/client";
-import { predios, medieros, organizaciones } from "@/src/db/schema/index";
-import { PREDIOS_SEED, MEDIEROS_SEED } from "@/src/etl/fundo-resolver";
+import {
+  predios,
+  medieros,
+  organizaciones,
+  proveedores,
+} from "@/src/db/schema/index";
+import {
+  PREDIOS_SEED,
+  MEDIEROS_SEED,
+  PROVEEDORES_SEED,
+} from "@/src/etl/fundo-resolver";
 import { and, eq } from "drizzle-orm";
 
 function parseArgs(argv: string[]): { orgId: number } {
@@ -137,7 +146,34 @@ async function main() {
     }
   }
 
-  // 4) Tabla final
+  // 4) Upsert proveedores (origen comercial del ganado — ferias, criadores)
+  console.log(`\n[seed] proveedores (${PROVEEDORES_SEED.length})`);
+  for (const pv of PROVEEDORES_SEED) {
+    const [existing] = await db
+      .select()
+      .from(proveedores)
+      .where(and(eq(proveedores.orgId, orgId), eq(proveedores.nombre, pv.nombre)));
+
+    if (existing) {
+      if (existing.tipo !== pv.tipo) {
+        await db
+          .update(proveedores)
+          .set({ tipo: pv.tipo })
+          .where(eq(proveedores.id, existing.id));
+        console.log(`  [upd] ${pv.nombre.padEnd(28)} id=${existing.id} tipo=${pv.tipo}`);
+      } else {
+        console.log(`  [ok ] ${pv.nombre.padEnd(28)} id=${existing.id} tipo=${pv.tipo}`);
+      }
+    } else {
+      const [created] = await db
+        .insert(proveedores)
+        .values({ orgId, nombre: pv.nombre, tipo: pv.tipo, activo: true })
+        .returning();
+      console.log(`  [new] ${pv.nombre.padEnd(28)} id=${created.id} tipo=${pv.tipo}`);
+    }
+  }
+
+  // 5) Tabla final
   console.log(`\n=== RESULTADO ===\n`);
   const finalPredios = await db
     .select()
@@ -147,6 +183,10 @@ async function main() {
     .select()
     .from(medieros)
     .where(eq(medieros.orgId, orgId));
+  const finalProveedores = await db
+    .select()
+    .from(proveedores)
+    .where(eq(proveedores.orgId, orgId));
 
   console.log("PREDIOS:");
   for (const p of finalPredios) {
@@ -158,6 +198,13 @@ async function main() {
       `  id=${String(m.id).padStart(3)}  ${m.nombre.padEnd(22)}  ${m.tipoNegocio}  predio_id=${m.predioId}`
     );
   }
+  console.log("\nPROVEEDORES:");
+  const byTipo: Record<string, number> = {};
+  for (const pv of finalProveedores) {
+    console.log(`  id=${String(pv.id).padStart(3)}  ${pv.nombre.padEnd(28)}  ${pv.tipo}`);
+    byTipo[pv.tipo] = (byTipo[pv.tipo] ?? 0) + 1;
+  }
+  console.log(`\n  Resumen proveedores: ${JSON.stringify(byTipo)}`);
 
   process.exit(0);
 }

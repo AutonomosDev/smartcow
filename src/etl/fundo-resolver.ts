@@ -34,7 +34,9 @@
  *   - externos (cola)  : resto (67 valores de origen previo de animales)
  */
 
-export type FundoKind = "predio" | "mediero" | "externo";
+export type FundoKind = "predio" | "mediero" | "proveedor";
+
+export type TipoProveedor = "feria" | "criador" | "intermediario" | "desconocido";
 
 export type FundoResolution =
   | {
@@ -48,8 +50,11 @@ export type FundoResolution =
       tipoNegocio: "medieria" | "hoteleria";
     }
   | {
-      kind: "externo";
+      // AUT-296 feedback Cesar: los "externos" son proveedores (compras).
+      // Se persisten en tabla `proveedores` (no como texto libre).
+      kind: "proveedor";
       canonical: string;
+      tipoProveedor: TipoProveedor;
     };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -78,13 +83,15 @@ const MEDIEROS: Record<string, { canonical: string; tipo: "medieria" | "hoteleri
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Origen externo: predios de terceros detectados en GanadoActual::Origen
-// y Traslados::Origen. Se listan para:
-//   1) confirmar que el resolver los reconoce (no falsos positivos como predio).
-//   2) normalizar typos al nombre canónico.
+// Proveedores: origen comercial del animal al ingresar al cliente.
+// Detectados en GanadoActual::Origen y Traslados::Origen (78 - 11 = 67 variantes
+// que colapsan a ~34 proveedores canónicos tras normalizar typos).
 //
-// NO se crea entidad en DB. El ETL los guarda como texto en
-// `animales.origen_previo` o `traslados.origen_externo`.
+// Map: variante tal como aparece en xlsx → nombre canónico.
+// El tipo (feria/criador/etc) se resuelve vía TIPO_POR_CANONICAL más abajo.
+//
+// Persisten en tabla `proveedores` (AUT-296). Permiten evaluar
+// performance de cada proveedor (% bajas, ADG, costo/kg).
 // ─────────────────────────────────────────────────────────────────────────────
 const EXTERNOS_CANONICOS: Record<string, string> = {
   // Oscar Hitschfeld y variantes
@@ -171,6 +178,60 @@ const EXTERNOS_CANONICOS: Record<string, string> = {
   "winkler": "Winkler",
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Clasificación del proveedor por nombre canónico.
+// Tentativa — Cesar puede refinar editando este map o via UI admin.
+//
+// Criterio:
+//   feria       → nombre contiene "Fegosa", "Tattersall", "Feria", o es remate conocido
+//   criador     → productor / agrícola / dueño individual
+//   desconocido → solo una ubicación geográfica sin identificar el agente comercial
+//                 (ej: "Puerto Varas", "Purranque") — clasificar después
+// ─────────────────────────────────────────────────────────────────────────────
+const TIPO_POR_CANONICAL: Record<string, TipoProveedor> = {
+  // Ferias
+  "Fegosa Puerto Montt": "feria",
+  "Fegosa Purranque": "feria",
+  "Fegosa Osorno": "feria",
+  "Fegosa Paillaco": "feria",
+  "Tattersall Coyhaique": "feria",
+  "Tattersall Puerto Varas": "feria",
+  "Tattersall Río Bueno": "feria",
+  "Feria Remehue": "feria",
+  // Criadores / productores
+  "Oscar Hitschfeld": "criador",
+  "Mantos Verdes": "criador",
+  "Doña Charo": "criador",
+  "Agrícola Gondesende": "criador",
+  "Agrícola Santa Alejandra": "criador",
+  "Rayen Lafquen": "criador",
+  "El Pampero": "criador",
+  "Agrícola Los Lingues": "criador",
+  "Inversiones El Rocío": "criador",
+  "Ganadera Viento Sur": "criador",
+  "Mario Hernández": "criador",
+  "Hugo Reyes": "criador",
+  "José Steffen": "criador",
+  "Arlette Fuentealba": "criador",
+  "Agrícola Valdivia": "criador",
+  "Aguas Buenas": "criador",
+  "Winkler": "criador",
+  "Buena Esperanza": "criador",
+  "Chacaipulli": "criador",
+  "Santa Isabel": "criador", // externo, NO el "Arriendo Santa Isabel"
+  // Ubicaciones ambiguas — pendiente refinar con Cesar
+  "Puerto Montt": "desconocido",
+  "Puerto Varas": "desconocido",
+  "Punta Arenas": "desconocido",
+  "Frutillar": "desconocido",
+  "Futrono": "desconocido",
+  "Purranque": "desconocido",
+};
+
+function tipoDe(canonical: string): TipoProveedor {
+  return TIPO_POR_CANONICAL[canonical] ?? "desconocido";
+}
+
 // Normaliza a clave de lookup: lowercase + trim + colapsa espacios.
 function normalizeKey(raw: string): string {
   return raw.trim().toLowerCase().replace(/\s+/g, " ");
@@ -189,12 +250,13 @@ function stripDateSuffix(s: string): string {
  * Resuelve un nombre de fundo / origen / destino crudo desde AgroApp
  * a una categoría SmartCow + nombre canónico.
  *
- * Si el nombre no está registrado, devuelve `kind: "externo"` con
- * `canonical` = el input trimmeado — se guarda tal cual en el ETL.
+ * Si el nombre no está registrado, devuelve `kind: "proveedor"` con
+ * `canonical` = el input trimmeado y `tipoProveedor: "desconocido"`.
+ * El ETL debe hacer upsert contra tabla `proveedores` antes de persistir.
  */
 export function resolveFundo(rawInput: string | null | undefined): FundoResolution {
   const raw = (rawInput ?? "").trim();
-  if (!raw) return { kind: "externo", canonical: "" };
+  if (!raw) return { kind: "proveedor", canonical: "", tipoProveedor: "desconocido" };
 
   // 1) Intento directo con la clave normalizada
   const k = normalizeKey(raw);
@@ -207,7 +269,8 @@ export function resolveFundo(rawInput: string | null | undefined): FundoResoluti
     return { kind: "mediero", canonical, tipoNegocio: tipo };
   }
   if (k in EXTERNOS_CANONICOS) {
-    return { kind: "externo", canonical: EXTERNOS_CANONICOS[k] };
+    const canonical = EXTERNOS_CANONICOS[k];
+    return { kind: "proveedor", canonical, tipoProveedor: tipoDe(canonical) };
   }
 
   // 2) Retry stripping date suffix (ej: "Mollendo 12-03" → "Mollendo")
@@ -222,12 +285,14 @@ export function resolveFundo(rawInput: string | null | undefined): FundoResoluti
       return { kind: "mediero", canonical, tipoNegocio: tipo };
     }
     if (stripped in EXTERNOS_CANONICOS) {
-      return { kind: "externo", canonical: EXTERNOS_CANONICOS[stripped] };
+      const canonical = EXTERNOS_CANONICOS[stripped];
+      return { kind: "proveedor", canonical, tipoProveedor: tipoDe(canonical) };
     }
   }
 
-  // 3) Desconocido → externo con el valor original (trimmed)
-  return { kind: "externo", canonical: raw };
+  // 3) Desconocido → proveedor con el valor original + tipo desconocido.
+  //    El ETL hará upsert (idempotente). Cesar clasifica después via admin.
+  return { kind: "proveedor", canonical: raw, tipoProveedor: "desconocido" };
 }
 
 /**
@@ -258,3 +323,16 @@ export const MEDIEROS_SEED: Array<{
   { nombre: "Corrales del Sur", tipoNegocio: "medieria", predioNombre: "feedlot" },
   { nombre: "Mollendo", tipoNegocio: "hoteleria", predioNombre: "feedlot" },
 ];
+
+/**
+ * Lista de proveedores canónicos detectados en los 10 xlsx (18-04-2026).
+ * Los 67 valores distintos colapsan a estos ~34 tras normalizar typos y
+ * variantes (Mantos Verdes x10, Oscar Hitschfeld x5, Fegosa Puerto Montt x3,
+ * etc.). Consumida por `scripts/seed-agroapp-predios-medieros.ts`.
+ *
+ * El seed es idempotente (upsert por org_id + nombre). Cesar puede refinar
+ * el tipo / agregar RUT / contacto vía UI admin después.
+ */
+export const PROVEEDORES_SEED: Array<{ nombre: string; tipo: TipoProveedor }> = Object.entries(
+  TIPO_POR_CANONICAL
+).map(([nombre, tipo]) => ({ nombre, tipo }));
