@@ -104,6 +104,17 @@ export async function loadUserByEmail(email: string): Promise<SmartCowSession | 
       .limit(1),
   ]);
 
+  // Org 99 (demo): predios = todos los de la org, sin user_predios explícitos.
+  let predioIds = predioRows.map((r) => r.predioId);
+  if (user.orgId === TRIAL_ORG_ID) {
+    const { predios } = await import("@/src/db/schema/index");
+    const orgPredios = await db
+      .select({ id: predios.id })
+      .from(predios)
+      .where(eq(predios.orgId, TRIAL_ORG_ID));
+    predioIds = orgPredios.map((p) => p.id);
+  }
+
   return {
     expires: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
     user: {
@@ -111,7 +122,7 @@ export async function loadUserByEmail(email: string): Promise<SmartCowSession | 
       email: user.email,
       nombre: user.nombre,
       orgId: user.orgId,
-      predios: predioRows.map((r) => r.predioId),
+      predios: predioIds,
       rol: user.rol as UserRol,
       modulos: (orgRows[0]?.modulos as Record<string, boolean>) ?? {},
       trialUntil: user.trialUntil ? user.trialUntil.toISOString() : null,

@@ -6,7 +6,7 @@
  * Tier por debajo del LLM: intercept (L1/L2/L3) — ver src/lib/intent/.
  */
 
-export type TierName = "light" | "standard";
+export type TierName = "light" | "standard" | "trial";
 
 export interface ModelConfig {
   modelId: string;
@@ -18,6 +18,7 @@ export interface ModelConfig {
 }
 
 // Precios: .claude/references/config/llm-routing-and-budget.yaml § models
+// trial: gemini-3.1-flash-lite-preview via Google AI — AUT-290
 export const MODELS: Record<TierName, ModelConfig> = {
   light: {
     modelId: "claude-haiku-4-5",
@@ -34,6 +35,14 @@ export const MODELS: Record<TierName, ModelConfig> = {
     costPerMtokOut: 15.00,
     cacheWritePerMtok: 3.75,
     cacheReadPerMtok: 0.30,
+  },
+  trial: {
+    modelId: "gemini-3.1-flash-lite-preview",
+    tier: "trial",
+    costPerMtokIn: 0.25,
+    costPerMtokOut: 1.50,
+    cacheWritePerMtok: 0.25,
+    cacheReadPerMtok: 0.03,
   },
 };
 

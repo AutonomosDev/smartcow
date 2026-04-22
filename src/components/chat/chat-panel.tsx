@@ -41,11 +41,13 @@ interface ChatPanelProps {
   initialMessage?: string;
   userName?: string | null;
   className?: string;
+  /** ID de org del usuario. AUT-290: org 99 (demo) oculta adjuntos. */
+  orgId?: number;
 }
 
 // ─── ChatPanel ────────────────────────────────────────────────────────────────
 
-export function ChatPanel({ initialMessage, userName }: ChatPanelProps) {
+export function ChatPanel({ initialMessage, userName, orgId }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeArtifact, setActiveArtifact] = useState<ArtifactData | null>(null);
@@ -566,6 +568,7 @@ export function ChatPanel({ initialMessage, userName }: ChatPanelProps) {
                 onSend={(msg, files, webSearch) => handleSend(msg, files, webSearch)}
                 onStop={handleStop}
                 placeholder="Pregunta sobre tu lote..."
+                disableAttachments={orgId === 99}
               />
 
               {/* Footer row */}

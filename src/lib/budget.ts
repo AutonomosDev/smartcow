@@ -26,8 +26,11 @@ const PLAN_CAPS: Record<PlanName, number> = {
   enterprise: 500,
 };
 
+// trial tier (gemini-flash-lite) habilitado para plan=free → org 99 (demo).
+// AUT-290: routing por email decide provider; aquí solo valida que el plan lo permita.
+// Orden: light último → highestAllowedTier(free)='light' (backward-compat).
 const TIERS_BY_PLAN: Record<PlanName, TierName[]> = {
-  free: ["light"],
+  free: ["trial", "light"],
   pro: ["light", "standard"],
   enterprise: ["light", "standard"],
 };
