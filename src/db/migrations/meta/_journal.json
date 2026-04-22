@@ -169,6 +169,13 @@
       "when": 1745600000000,
       "tag": "0023_pesajes_agroapp_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1745686400000,
+      "tag": "0024_tratamientos_sag_fields",
+      "breakpoints": true
     }
   ]
 }

@@ -58,11 +58,56 @@ function cleanStr(v: unknown, max = 500): string | null {
   return s.length > max ? s.slice(0, max) : s;
 }
 
-function parseMedicamento(nombreReg: string | null, serieVenc: string | null, dosis: string | null) {
-  if (!nombreReg && !serieVenc && !dosis) return null;
-  const nombre = (nombreReg ?? "").split(" - ")[0]?.trim() || null;
-  const lote = (serieVenc ?? "").split(" - ")[0]?.trim() || null;
-  return { nombre, dosis: dosis ?? null, lote };
+/**
+ * Parsea strings AgroApp tipo "30 Días" o "3 días" → 30 / 3.
+ * Acepta también numbers puros. Devuelve null si no es interpretable.
+ */
+function parseDiasInt(v: unknown): number | null {
+  if (v == null || v === "") return null;
+  if (typeof v === "number") return Number.isFinite(v) ? Math.trunc(v) : null;
+  const s = String(v).trim();
+  if (!s) return null;
+  const m = s.match(/^-?\d+/);
+  if (!m) return null;
+  const n = parseInt(m[0], 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Parsea campo "Medicamento-Reg. SAG" formato AgroApp: "Dexabiopen - 0111-B"
+ * → { nombre: "Dexabiopen", regSag: "0111-B" }
+ * Tolera guión en regSag (ej "0111-B"), splitea en el primer " - ".
+ */
+function splitNombreReg(v: unknown): { nombre: string | null; regSag: string | null } {
+  const s = cleanStr(v, 300);
+  if (!s) return { nombre: null, regSag: null };
+  const idx = s.indexOf(" - ");
+  if (idx < 0) return { nombre: s, regSag: null };
+  return { nombre: s.slice(0, idx).trim() || null, regSag: s.slice(idx + 3).trim() || null };
+}
+
+/**
+ * Parsea campo "Serie-Venc." formato AgroApp: "25002788 - 03/2027"
+ * → { lote: "25002788", vencimiento: "2027-03-01" }
+ * Fecha "MM/YYYY" se normaliza a primer día del mes (YYYY-MM-01).
+ */
+function splitSerieVenc(v: unknown): { lote: string | null; vencimiento: string | null } {
+  const s = cleanStr(v, 200);
+  if (!s) return { lote: null, vencimiento: null };
+  const idx = s.indexOf(" - ");
+  const lote = idx < 0 ? s : s.slice(0, idx).trim();
+  const vencRaw = idx < 0 ? "" : s.slice(idx + 3).trim();
+  let vencimiento: string | null = null;
+  const mMy = vencRaw.match(/^(\d{1,2})\/(\d{4})$/);
+  const mDmy = vencRaw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (mMy) {
+    vencimiento = `${mMy[2]}-${mMy[1].padStart(2, "0")}-01`;
+  } else if (mDmy) {
+    vencimiento = `${mDmy[3]}-${mDmy[2].padStart(2, "0")}-${mDmy[1].padStart(2, "0")}`;
+  } else if (/^\d{4}-\d{2}-\d{2}$/.test(vencRaw)) {
+    vencimiento = vencRaw;
+  }
+  return { lote: lote || null, vencimiento };
 }
 
 async function loadSheet(path: string): Promise<Record<string, unknown>[]> {
@@ -128,19 +173,57 @@ async function importTratamientos(filePath: string) {
   const predioMap = await getPredioMap();
   const animalMap = await getAnimalMap();
 
-  let ok = 0;
-  let noAnimal = 0;
-  let errors = 0;
+  // Catálogos para crear animales on-demand (mismo patrón que pesajes v2, AUT-297)
+  const tgRows = await db.select({ id: tipoGanado.id, nombre: tipoGanado.nombre }).from(tipoGanado);
+  const tgMap = new Map(tgRows.map((r) => [r.nombre.toLowerCase().trim(), r.id]));
+  const SEXO_MAP: Record<string, "M" | "H"> = {
+    novillo: "M", ternero: "M", toro: "M",
+    vaca: "H", vaquilla: "H", ternera: "H",
+  };
 
-  // Agrupar tratamientos por (ID + Diio): mismo evento con múltiples medicamentos = 1 fila cada uno en el Excel
-  type Med = { nombre: string | null; dosis: string | null; lote: string | null };
+  const userRows = await db.select({ id: users.id, nombre: users.nombre }).from(users);
+  const userMap = new Map<string, number>();
+  for (const u of userRows) {
+    const k = (u.nombre ?? "").toLowerCase().trim();
+    if (k) userMap.set(k, u.id);
+  }
+
+  // Agrupar por (ID + Diio): un tratamiento puede tener N medicamentos = N filas en el xlsx
+  type Med = {
+    nombre: string | null;
+    regSag: string | null;
+    lote: string | null;
+    vencimiento: string | null;
+    dosis: string | null;
+    via: string | null;
+    repetirCadaDias: number | null;
+    repetirTotal: number | null;
+    resguardoCarneDias: number | null;
+    liberacionCarne: string | null;
+  };
   const grupos = new Map<string, { row: Record<string, unknown>; meds: Med[] }>();
   for (const r of rows) {
-    const id = String(r["ID"] ?? "");
+    const id = String(r["ID"] ?? "").replace(/\.0$/, "");
     const diio = String(r["Diio"] ?? "").replace(/\.0$/, "");
     if (!id || !diio) continue;
     const key = `${id}::${diio}`;
-    const med = parseMedicamento(cleanStr(r["Medicamento-Reg. SAG"]), cleanStr(r["Serie-Venc."]), cleanStr(r["Dosis"]));
+
+    const { nombre, regSag } = splitNombreReg(r["Medicamento-Reg. SAG"]);
+    const { lote, vencimiento } = splitSerieVenc(r["Serie-Venc."]);
+    const dosis = cleanStr(r["Dosis"], 100);
+    const via = cleanStr(r["Vía"], 100);
+    const repetirCada = parseDiasInt(r["Repetir cada"]);
+    const repetirTotal = parseDiasInt(r["Repetir"]);
+    const resguardoCarne = parseDiasInt(r["Resguardo carne"]);
+    const liberacionCarne = toDateStr(r["Liberación carne"]);
+
+    const hasMedData =
+      nombre || regSag || lote || vencimiento || dosis || via ||
+      repetirCada != null || repetirTotal != null || resguardoCarne != null || liberacionCarne;
+    const med: Med | null = hasMedData
+      ? { nombre, regSag, lote, vencimiento, dosis, via, repetirCadaDias: repetirCada, repetirTotal, resguardoCarneDias: resguardoCarne, liberacionCarne }
+      : null;
+
     if (grupos.has(key)) {
       if (med) grupos.get(key)!.meds.push(med);
     } else {
@@ -149,22 +232,77 @@ async function importTratamientos(filePath: string) {
   }
   console.log(`Tratamientos únicos: ${grupos.size.toLocaleString()} (agrupados por ID+Diio)`);
 
+  let ok = 0;
+  let noFecha = 0;
+  let noAnimalPredio = 0;
+  let errors = 0;
+  let animalesCreados = 0;
+  let tgFaltantes = 0;
   let processed = 0;
+
   for (const [, g] of grupos) {
     const r = g.row;
-    const diio = String(r["Diio"] ?? "").replace(/\.0$/, "");
+    const diio = String(r["Diio"] ?? "").replace(/\.0$/, "").trim();
     const fundoNombre = cleanStr(r["Fundo"]);
     const fecha = toDateStr(r["Fecha tratamiento"]);
+    const tipoNombre = cleanStr(r["Tipo ganado"])?.toLowerCase() ?? "";
+    const creadoPor = cleanStr(r["Creado por"]);
 
     processed++;
-    if (!fecha) { errors++; continue; }
+    if (!fecha) { noFecha++; continue; }
 
-    const animal = animalMap.get(diio);
-    if (!animal) { noAnimal++; continue; }
+    // Resolver predio del xlsx
+    const predioIdFromFile = fundoNombre ? await ensurePredio(predioMap, fundoNombre) : null;
 
-    const predioId = fundoNombre
-      ? (await ensurePredio(predioMap, fundoNombre)) ?? animal.predioId
-      : animal.predioId;
+    // Resolver o crear animal (mismo patrón que pesajes v2)
+    let animal = animalMap.get(diio);
+    if (!animal) {
+      if (!predioIdFromFile) { noAnimalPredio++; continue; }
+      const tgId = tgMap.get(tipoNombre);
+      if (!tgId) {
+        tgFaltantes++;
+        if (tgFaltantes <= 5) console.error(`  tipo_ganado desconocido: "${tipoNombre}" diio=${diio}`);
+        continue;
+      }
+      const sexo: "M" | "H" = SEXO_MAP[tipoNombre] ?? "M";
+      try {
+        const ins = await db
+          .insert(animales)
+          .values({
+            predioId: predioIdFromFile,
+            diio,
+            tipoGanadoId: tgId,
+            sexo,
+            estado: "baja", // animal no está en GanadoActual → ya no está vivo
+          })
+          .returning({ id: animales.id, predioId: animales.predioId });
+        if (ins[0]) {
+          animal = { id: ins[0].id, predioId: ins[0].predioId };
+          animalMap.set(diio, animal);
+          animalesCreados++;
+        } else {
+          errors++;
+          continue;
+        }
+      } catch (err) {
+        errors++;
+        if (errors <= 5) console.error(`  ERR crear animal diio=${diio}:`, (err as Error).message);
+        continue;
+      }
+    }
+
+    const predioId = predioIdFromFile ?? animal.predioId;
+
+    const inicio = toDateStr(r["Inicio"]);
+    const fin = toDateStr(r["Fin"]);
+    // Denormalizar: máxima fecha de liberación de carne entre todos los medicamentos
+    const liberacionCarneMax = g.meds
+      .map((m) => m.liberacionCarne)
+      .filter((v): v is string => !!v)
+      .sort()
+      .pop() ?? null;
+
+    const usuarioId = creadoPor ? userMap.get(creadoPor.toLowerCase().trim()) ?? null : null;
 
     try {
       await db
@@ -177,6 +315,10 @@ async function importTratamientos(filePath: string) {
           diagnostico: cleanStr(r["Diagnóstico"], 300),
           observaciones: cleanStr(r["Observaciones"], 500),
           medicamentos: g.meds.length ? g.meds : null,
+          inicio,
+          fin,
+          liberacionCarneMax,
+          usuarioId,
         })
         .onConflictDoNothing();
       ok++;
@@ -186,12 +328,17 @@ async function importTratamientos(filePath: string) {
     }
 
     if (processed % LOG_EVERY === 0) {
-      console.log(`  ${processed}/${grupos.size} | ok:${ok} noAnimal:${noAnimal} err:${errors}`);
+      console.log(
+        `  ${processed}/${grupos.size} | ok:${ok} creados:${animalesCreados} noFecha:${noFecha} noAnimalPredio:${noAnimalPredio} tgFalta:${tgFaltantes} err:${errors}`
+      );
     }
   }
 
   console.log(`\n=== TRATAMIENTOS DONE ===`);
-  console.log(`Inserted: ${ok} | Sin animal: ${noAnimal} | Errores: ${errors}`);
+  console.log(`Insertados: ${ok}`);
+  console.log(`Animales creados on-demand: ${animalesCreados}`);
+  console.log(`Skip — sin fecha: ${noFecha}  sin animal+sin predio: ${noAnimalPredio}  tipo_ganado desconocido: ${tgFaltantes}`);
+  console.log(`Errores insert: ${errors}`);
 }
 
 async function importPartos(filePath: string) {
