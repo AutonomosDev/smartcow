@@ -83,9 +83,18 @@ containers:
       certs: /etc/letsencrypt (certbot auto-renew)
 
 # ─────────────────────────────────────────────────────────────
-# DNS / Dominios (smartcow.cl gestionado en Hostinger)
+# DNS / Dominios
+# Registrar/DNS: GoDaddy (NS: ns53/ns54.domaincontrol.com)
+# Server target: Hostinger VPS 2.24.204.73
+# NOTA: el dominio está en GoDaddy, no en Hostinger. Para cambios
+# de records usar GoDaddy console o su API (no hay MCP GoDaddy
+# conectado actualmente).
 # ─────────────────────────────────────────────────────────────
 dns:
+  registrar: godaddy
+  nameservers:
+    - ns53.domaincontrol.com
+    - ns54.domaincontrol.com
   smartcow.cl:
     target: 2.24.204.73
     upstream: nginx → app:3000
@@ -237,6 +246,20 @@ deploy:
 # Servicios externos conectados
 # ─────────────────────────────────────────────────────────────
 external_services:
+  resend:
+    env: RESEND_API_KEY
+    uso: transactional email (signup verify AUT-292, notifs futuras)
+    plan: free tier 3k/mes, 100/día
+    account: autonomos.dev@gmail.com
+    domain: smartcow.cl
+    domain_id: 020eabe5-5784-4b8b-beb0-01b1e824d137
+    domain_verified: true                 # verificado 2026-04-22 via GoDaddy OAuth
+    sender_actual: noreply@smartcow.cl    # operativo, envíos a cualquier email
+    dns_records:                          # gestionados en GoDaddy (smartcow.cl zone)
+      dkim: resend._domainkey (TXT)
+      spf_txt: send (TXT v=spf1 include:...)
+      spf_mx: send (MX 10 feedback-smtp.sa-east-1.amazonses.com)
+    api_key_scope: restricted (send only) # para lectura de domains necesita full access
   anthropic:
     env: ANTHROPIC_API_KEY
     uso: chat (claude-sonnet-4-6 default, claude-haiku tier light, opus tier heavy)
@@ -283,6 +306,7 @@ env_vars:
     - LANGFUSE_SECRET_KEY
     - LANGFUSE_PUBLIC_KEY
     - LANGFUSE_HOST
+    - RESEND_API_KEY                      # Email provider (signup verify, AUT-292)
   optional_or_feature_flag:
     - FORCE_GEMINI_ALL                    # "1" fuerza todo tráfico a Gemini (testing). Default 0.
     - AGROAPP_USER, AGROAPP_PASSWORD
