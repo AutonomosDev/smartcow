@@ -158,7 +158,7 @@ export async function runGeminiLoop(input: GeminiLoopInput): Promise<GeminiLoopR
       usageDetails: {
         input: iterTokensIn,
         output: iterTokensOut,
-        cache_read_input_tokens: iterCachedTokens,
+        cached_content_token_count: iterCachedTokens,
       },
       metadata: {
         provider: "google",
