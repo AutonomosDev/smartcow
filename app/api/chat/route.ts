@@ -361,9 +361,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Tier downgrade si plan no lo permite (AUT-264 enforcement.order=2)
+  // Tier downgrade si plan no lo permite (AUT-264 enforcement.order=2).
+  // Si el provider es google (trial org 99 o FORCE_GEMINI_ALL), saltar el downgrade:
+  // el routing por email ya es autoritativo y trial no está en TIERS_BY_PLAN de pro/enterprise.
   let downgradeInfo: { from: TierName; to: TierName; reason: string } | null = null;
-  if (!canUseTier(budgetStatus.plan, tier)) {
+  if (provider !== "google" && !canUseTier(budgetStatus.plan, tier)) {
     const target = highestAllowedTier(budgetStatus.plan);
     downgradeInfo = { from: tier, to: target, reason: `plan=${budgetStatus.plan}` };
     tier = target;
