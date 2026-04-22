@@ -95,13 +95,13 @@ export function ChatSidebar({ open = false, onClose, userName, activeSessionId }
       <div
         style={{
           position: "absolute", left: 0, top: 37, bottom: 0,
-          width: 290,
+          width: 310,
           background: "#fff",
           borderRight: "1px solid #e4e4e4",
           boxShadow: "4px 0 20px rgba(0,0,0,.04)",
           zIndex: 50,
           display: "flex", flexDirection: "column",
-          fontSize: 13,
+          fontSize: 14.3,
           transform: open ? "translateX(0)" : "translateX(-100%)",
           opacity: open ? 1 : 0,
           pointerEvents: open ? "auto" : "none",
@@ -120,7 +120,7 @@ export function ChatSidebar({ open = false, onClose, userName, activeSessionId }
               <path d="M4 6h16M4 12h10M4 18h16"/>
             </svg>
           </div>
-          <div style={{ ...tabStyle, width: "auto", padding: "0 10px", gap: 5, fontFamily: "var(--cw-mono)", fontSize: 12, fontWeight: 500, background: "#f1f1f1", color: "#333" }}>
+          <div style={{ ...tabStyle, width: "auto", padding: "0 10px", gap: 5, fontFamily: "var(--cw-mono)", fontSize: 13.2, fontWeight: 500, background: "#f1f1f1", color: "#333" }}>
             <span>smartCow</span>
           </div>
         </div>
@@ -168,19 +168,41 @@ export function ChatSidebar({ open = false, onClose, userName, activeSessionId }
         </div>
 
         {/* Footer */}
-        <div style={{ borderTop: "1px solid #eee", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "#333" }}>
-          <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#555" }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <div style={{ borderTop: "1px solid #eee", padding: "14px 16px", display: "flex", alignItems: "center", gap: 10, fontSize: 14.3, color: "#333" }}>
+          <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#555", flexShrink: 0 }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>
             </svg>
           </div>
-          <span style={{ flex: 1, fontWeight: 500 }}>{userName ?? "Usuario"}</span>
+          <span style={{ flex: 1, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{userName ?? "Usuario"}</span>
+          <button
+            onClick={() => alert("Google Drive — próximamente")}
+            title="Google Drive"
+            style={iconBtn}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12.01 2 7 11l5 8.5L17 11Z"/>
+              <path d="M7 11H2l5 8.5"/>
+              <path d="M17 11h5l-5 8.5"/>
+              <path d="m7 11 5-8.5L17 11"/>
+            </svg>
+          </button>
+          <button
+            onClick={() => alert("Configuración — próximamente")}
+            title="Configuración"
+            style={iconBtn}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+            </svg>
+          </button>
           <button
             onClick={handleLogout}
             title="Cerrar sesión"
-            style={{ width: 24, height: 24, borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", color: "#999", cursor: "pointer", background: "transparent", border: "none", padding: 0 }}
+            style={iconBtn}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
           </button>
@@ -198,15 +220,23 @@ const tabStyle: React.CSSProperties = {
   color: "#777", cursor: "pointer",
 };
 
+const iconBtn: React.CSSProperties = {
+  width: 28, height: 28, borderRadius: 6,
+  display: "flex", alignItems: "center", justifyContent: "center",
+  color: "#777", cursor: "pointer",
+  background: "transparent", border: "none", padding: 0,
+  flexShrink: 0,
+};
+
 const menuItem: React.CSSProperties = {
   display: "flex", alignItems: "center", gap: 10,
-  padding: "7px 10px", borderRadius: 6, cursor: "pointer",
-  color: "#1a1a1a", fontSize: 13, textDecoration: "none",
+  padding: "8px 11px", borderRadius: 6, cursor: "pointer",
+  color: "#1a1a1a", fontSize: 14.3, textDecoration: "none",
 };
 
 function SbSection({ label }: { label: string }) {
   return (
-    <div style={{ padding: "14px 10px 6px", fontSize: 11, color: "#999", fontWeight: 500, letterSpacing: ".1px" }}>
+    <div style={{ padding: "14px 10px 6px", fontSize: 12.1, color: "#999", fontWeight: 500, letterSpacing: ".1px" }}>
       {label}
     </div>
   );
@@ -216,11 +246,11 @@ function SbItem({ label, active }: { label: string; active?: boolean }) {
   return (
     <div style={{
       display: "flex", alignItems: "center", gap: 10,
-      padding: "7px 10px", borderRadius: 6, cursor: "pointer",
+      padding: "8px 11px", borderRadius: 6, cursor: "pointer",
       color: active ? "#1a1a1a" : "#333",
       background: active ? "#ececec" : "transparent",
       whiteSpace: "nowrap", overflow: "hidden",
-      fontSize: 13,
+      fontSize: 14.3,
     }}>
       <span style={{ color: active ? "#777" : "#aaa", flexShrink: 0, display: "flex", alignItems: "center" }}>
         <SessionDot active={active} />
