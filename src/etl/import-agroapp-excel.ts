@@ -25,8 +25,17 @@ import {
   inseminaciones,
   semen,
   users,
+  bajas,
 } from "../db/schema";
-import { tipoGanado, razas, inseminadores } from "../db/schema/catalogos";
+import {
+  tipoGanado,
+  razas,
+  inseminadores,
+  bajaMotivo,
+  bajaCausa,
+  tipoParto,
+  subtipoParto,
+} from "../db/schema/catalogos";
 import { eq, sql } from "drizzle-orm";
 import { resolveFundo } from "./fundo-resolver";
 
@@ -354,27 +363,126 @@ async function importTratamientos(filePath: string) {
   console.log(`Errores insert: ${errors}`);
 }
 
+/**
+ * importPartos — v2 (AUT-300 W5).
+ *
+ * Cambios vs v1:
+ *  - Resuelve/crea catálogos tipo_parto + subtipo_parto con upsert
+ *    (antes el subtipo se perdía como "observaciones").
+ *  - Crea madre on-demand si el DIIO no está en animales (patrón pesajes v2)
+ *    — explica el gap de 2.600 partos: vacas ya vendidas que se registraron
+ *    parto vivo en AgroApp pero no están en GanadoActual.
+ *  - Mapea usuario_id desde "Creado por".
+ *  - observaciones ahora es NULL (no contamina con subtipo_parto).
+ *  - Campo "Collar" EXCLUIDO (fuera de scope, dato lechero).
+ */
 async function importPartos(filePath: string) {
   const rows = await loadSheet(filePath);
   console.log(`Rows en Excel: ${rows.length.toLocaleString()}`);
   const predioMap = await getPredioMap();
   const animalMap = await getAnimalMap();
 
-  let ok = 0, noAnimal = 0, errors = 0;
-  let i = 0;
-  for (const r of rows) {
-    i++;
-    const diio = String(r["Diio"] ?? "").replace(/\.0$/, "");
+  const tgRows = await db.select({ id: tipoGanado.id, nombre: tipoGanado.nombre }).from(tipoGanado);
+  const tgMap = new Map(tgRows.map((r) => [r.nombre.toLowerCase().trim(), r.id]));
+  const SEXO_MAP: Record<string, "M" | "H"> = {
+    novillo: "M", ternero: "M", toro: "M",
+    vaca: "H", vaquilla: "H", ternera: "H",
+  };
+
+  // Catálogos tipo_parto / subtipo_parto
+  const tpRows = await db.select({ id: tipoParto.id, nombre: tipoParto.nombre }).from(tipoParto);
+  const tpMap = new Map<string, number>(tpRows.map((r) => [r.nombre.toLowerCase().trim(), r.id]));
+
+  const stRows = await db
+    .select({ id: subtipoParto.id, nombre: subtipoParto.nombre, tipoPartoId: subtipoParto.tipoPartoId })
+    .from(subtipoParto);
+  const stMap = new Map<string, number>(
+    stRows.map((r) => [`${r.tipoPartoId}::${r.nombre.toLowerCase().trim()}`, r.id])
+  );
+
+  const userRows = await db.select({ id: users.id, nombre: users.nombre }).from(users);
+  const userMap = new Map<string, number>();
+  for (const u of userRows) {
+    const k = (u.nombre ?? "").toLowerCase().trim();
+    if (k) userMap.set(k, u.id);
+  }
+
+  async function getOrCreateTipoParto(nombre: string): Promise<number> {
+    const k = nombre.toLowerCase().trim();
+    const existing = tpMap.get(k);
+    if (existing) return existing;
+    const ins = await db
+      .insert(tipoParto)
+      .values({ nombre: nombre.trim() })
+      .onConflictDoNothing()
+      .returning({ id: tipoParto.id });
+    let id = ins[0]?.id;
+    if (!id) {
+      const row = await db
+        .select({ id: tipoParto.id })
+        .from(tipoParto)
+        .where(eq(tipoParto.nombre, nombre.trim()))
+        .limit(1);
+      id = row[0]?.id;
+    }
+    if (!id) throw new Error(`No se pudo crear/leer tipo_parto "${nombre}"`);
+    tpMap.set(k, id);
+    return id;
+  }
+
+  async function getOrCreateSubtipoParto(tpId: number, nombre: string): Promise<number> {
+    const k = `${tpId}::${nombre.toLowerCase().trim()}`;
+    const existing = stMap.get(k);
+    if (existing) return existing;
+    const ins = await db
+      .insert(subtipoParto)
+      .values({ tipoPartoId: tpId, nombre: nombre.trim() })
+      .returning({ id: subtipoParto.id });
+    const id = ins[0]?.id;
+    if (!id) throw new Error(`No se pudo crear subtipo_parto "${nombre}" (tipo=${tpId})`);
+    stMap.set(k, id);
+    return id;
+  }
+
+  let ok = 0, noAnimal = 0, noFecha = 0, errors = 0;
+  let animalesCreados = 0;
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const diio = String(r["Diio"] ?? "").replace(/\.0$/, "").trim();
     const fundoNombre = cleanStr(r["Fundo"]);
     const fecha = toDateStr(r["Fecha parto"]);
-    if (!fecha || !diio) { errors++; continue; }
+    if (!diio) { errors++; continue; }
+    if (!fecha) { noFecha++; continue; }
 
-    const animal = animalMap.get(diio);
-    if (!animal) { noAnimal++; continue; }
+    const predioIdFromFile = fundoNombre ? await ensurePredio(predioMap, fundoNombre) : null;
 
-    const predioId = fundoNombre
-      ? (await ensurePredio(predioMap, fundoNombre)) ?? animal.predioId
-      : animal.predioId;
+    // Resolver madre on-demand. Tipo ganado de la MADRE no siempre viene en xlsx;
+    // fallback Vaca (Hembra). "Tipo ganado" del xlsx de partos a veces es el de la cría.
+    let animal = animalMap.get(diio);
+    if (!animal) {
+      if (!predioIdFromFile) { noAnimal++; continue; }
+      // La madre es hembra. Tipo ganado default = "vaca".
+      const vacaId = tgMap.get("vaca");
+      if (!vacaId) { noAnimal++; continue; }
+      try {
+        const ins = await db.insert(animales).values({
+          predioId: predioIdFromFile,
+          diio,
+          tipoGanadoId: vacaId,
+          sexo: "H",
+          estado: "baja", // si no está en GanadoActual, no está viva
+        }).returning({ id: animales.id, predioId: animales.predioId });
+        if (ins[0]) {
+          animal = { id: ins[0].id, predioId: ins[0].predioId };
+          animalMap.set(diio, animal);
+          animalesCreados++;
+        }
+      } catch { noAnimal++; continue; }
+      if (!animal) { noAnimal++; continue; }
+    }
+
+    const predioId = predioIdFromFile ?? animal.predioId;
 
     // Mapear Estado del Excel al enum resultado de partos
     const estadoRaw = cleanStr(r["Estado"])?.toLowerCase() ?? "";
@@ -382,6 +490,25 @@ async function importPartos(filePath: string) {
       estadoRaw.includes("muert") ? "muerto" :
       estadoRaw.includes("abort") ? "aborto" :
       estadoRaw.includes("gemel") ? "gemelar" : "vivo";
+
+    const tipoPartoNombre = cleanStr(r["Tipo parto"], 100);
+    const subtipoPartoNombre = cleanStr(r["Subtipo parto"], 100);
+    const tipoPartoId = tipoPartoNombre ? await getOrCreateTipoParto(tipoPartoNombre) : null;
+    const subtipoPartoId =
+      tipoPartoId != null && subtipoPartoNombre
+        ? await getOrCreateSubtipoParto(tipoPartoId, subtipoPartoNombre)
+        : null;
+
+    // Tipo ganado de la cría: derivado del Sexo del parto cuando está vivo.
+    const sexoCria = cleanStr(r["Sexo"])?.toLowerCase() ?? "";
+    const tipoGanadoCriaId = sexoCria.startsWith("h")
+      ? tgMap.get("ternera") ?? null
+      : sexoCria.startsWith("m")
+        ? tgMap.get("ternero") ?? null
+        : null;
+
+    const creadoPor = cleanStr(r["Creado por"]);
+    const usuarioId = creadoPor ? userMap.get(creadoPor.toLowerCase().trim()) ?? null : null;
 
     try {
       await db
@@ -391,8 +518,14 @@ async function importPartos(filePath: string) {
           madreId: animal.id,
           fecha,
           resultado,
-          observaciones: cleanStr(r["Subtipo parto"], 500),
-          numeroPartos: typeof r["Total partos"] === "number" ? Math.floor(r["Total partos"] as number) : null,
+          tipoPartoId,
+          subtipoPartoId,
+          tipoGanadoCriaId,
+          numeroPartos:
+            typeof r["Total partos"] === "number"
+              ? Math.floor(r["Total partos"] as number)
+              : null,
+          usuarioId,
         })
         .onConflictDoNothing();
       ok++;
@@ -401,13 +534,16 @@ async function importPartos(filePath: string) {
       if (errors <= 5) console.error(`  ERR diio=${diio}:`, (err as Error).message);
     }
 
-    if (i % LOG_EVERY === 0) {
-      console.log(`  ${i}/${rows.length} | ok:${ok} noAnimal:${noAnimal} err:${errors}`);
+    if ((i + 1) % LOG_EVERY === 0) {
+      console.log(`  ${i + 1}/${rows.length} | ok:${ok} creados:${animalesCreados} noAnimal:${noAnimal} noFecha:${noFecha} err:${errors}`);
     }
   }
 
   console.log(`\n=== PARTOS DONE ===`);
-  console.log(`Inserted: ${ok} | Sin animal: ${noAnimal} | Errores: ${errors}`);
+  console.log(`Insertados: ${ok}`);
+  console.log(`Madres creadas on-demand: ${animalesCreados}`);
+  console.log(`Skip — sin animal: ${noAnimal}  sin fecha: ${noFecha}  errores: ${errors}`);
+  console.log(`Tipos parto en catálogo: ${tpMap.size} | Subtipos: ${stMap.size}`);
 }
 
 async function importVentas(filePath: string) {
@@ -688,6 +824,18 @@ async function importGanado(filePath: string) {
   console.log(`Insertados: ${ok} | Actualizados: ${skipped} | Errores: ${errors}`);
 }
 
+/**
+ * importBajas — v2 (AUT-300 W5).
+ *
+ * Cambios vs v1:
+ *  - INSERTA en tabla `bajas` (v1 solo marcaba animales.estado='baja').
+ *  - Upsert idempotente de baja_motivo y baja_causa por nombre del xlsx
+ *    ("Motivo" / "Detalle" de AgroApp: Muerte / Neumonía, Abomasitis, etc.).
+ *  - Fecha del xlsx = "Fecha baja" (separada de "Fecha creado").
+ *  - Usuario_id desde "Creado por".
+ *  - Mantiene el patrón on-demand: si el DIIO no existe en animales, se crea
+ *    con estado='baja'.
+ */
 async function importBajas(filePath: string) {
   const rows = await loadSheet(filePath);
   console.log(`Rows en Excel: ${rows.length.toLocaleString()}`);
@@ -700,25 +848,87 @@ async function importBajas(filePath: string) {
   const rzRows = await db.select({ id: razas.id, nombre: razas.nombre }).from(razas);
   const rzMap = new Map(rzRows.map(r => [r.nombre.toLowerCase().trim(), r.id]));
 
+  // Catálogos baja_motivo / baja_causa con upsert en memoria
+  const motivoRows = await db.select({ id: bajaMotivo.id, nombre: bajaMotivo.nombre }).from(bajaMotivo);
+  const motivoMap = new Map<string, number>(motivoRows.map(r => [r.nombre.toLowerCase().trim(), r.id]));
+
+  const causaRows = await db
+    .select({ id: bajaCausa.id, nombre: bajaCausa.nombre, motivoId: bajaCausa.motivoId })
+    .from(bajaCausa);
+  // key = `${motivoId}::${nombre.toLowerCase()}`
+  const causaMap = new Map<string, number>(
+    causaRows.map((r) => [`${r.motivoId}::${r.nombre.toLowerCase().trim()}`, r.id])
+  );
+
+  const userRows = await db.select({ id: users.id, nombre: users.nombre }).from(users);
+  const userMap = new Map<string, number>();
+  for (const u of userRows) {
+    const k = (u.nombre ?? "").toLowerCase().trim();
+    if (k) userMap.set(k, u.id);
+  }
+
   const SEXO_MAP: Record<string, "M" | "H"> = {
     novillo: "M", ternero: "M", toro: "M",
     vaca: "H", vaquilla: "H", ternera: "H",
   };
 
-  let ok = 0, created = 0, noAnimal = 0, errors = 0;
+  async function getOrCreateMotivo(nombre: string): Promise<number> {
+    const k = nombre.toLowerCase().trim();
+    const existing = motivoMap.get(k);
+    if (existing) return existing;
+    const ins = await db
+      .insert(bajaMotivo)
+      .values({ nombre: nombre.trim() })
+      .onConflictDoNothing()
+      .returning({ id: bajaMotivo.id });
+    let id = ins[0]?.id;
+    if (!id) {
+      // Conflict — releer
+      const row = await db
+        .select({ id: bajaMotivo.id })
+        .from(bajaMotivo)
+        .where(eq(bajaMotivo.nombre, nombre.trim()))
+        .limit(1);
+      id = row[0]?.id;
+    }
+    if (!id) throw new Error(`No se pudo crear/leer baja_motivo "${nombre}"`);
+    motivoMap.set(k, id);
+    return id;
+  }
+
+  async function getOrCreateCausa(motivoId: number, nombre: string): Promise<number> {
+    const k = `${motivoId}::${nombre.toLowerCase().trim()}`;
+    const existing = causaMap.get(k);
+    if (existing) return existing;
+    const ins = await db
+      .insert(bajaCausa)
+      .values({ motivoId, nombre: nombre.trim() })
+      .returning({ id: bajaCausa.id });
+    const id = ins[0]?.id;
+    if (!id) throw new Error(`No se pudo crear baja_causa "${nombre}" (motivo=${motivoId})`);
+    causaMap.set(k, id);
+    return id;
+  }
+
+  let ok = 0, created = 0, noAnimal = 0, noFecha = 0, errors = 0;
 
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i];
     const diio = String(r["Diio"] ?? "").replace(/\.0$/, "").trim();
     const fundoNombre = cleanStr(r["Fundo"]);
+    const fechaBaja = toDateStr(r["Fecha baja"]) ?? toDateStr(r["Fecha creado"]);
+    const motivoNombre = cleanStr(r["Motivo"], 100);
+    const detalleNombre = cleanStr(r["Detalle"], 100);
+    const creadoPor = cleanStr(r["Creado por"]);
+
     if (!diio || !fundoNombre) { errors++; continue; }
+    if (!fechaBaja) { noFecha++; continue; }
 
     const predioId = await ensurePredio(predioMap, fundoNombre);
     if (!predioId) { errors++; continue; }
 
     let animal = animalMap.get(diio);
     if (!animal) {
-      // El animal fue dado de baja — lo creamos en estado "baja"
       const tipoNombre = cleanStr(r["Tipo ganado"])?.toLowerCase() ?? "";
       const tgId = tgMap.get(tipoNombre);
       if (!tgId) { noAnimal++; continue; }
@@ -740,19 +950,43 @@ async function importBajas(filePath: string) {
           created++;
         }
       } catch { noAnimal++; continue; }
+      if (!animal) { noAnimal++; continue; }
     } else {
-      // Marcar como baja si no lo está
       await db.update(animales).set({ estado: "baja" }).where(eq(animales.diio, diio));
     }
 
-    ok++;
+    // Resolver motivo/causa con upsert. Si no hay motivo en xlsx, skip insert en bajas.
+    if (!motivoNombre) { errors++; continue; }
+    const motivoId = await getOrCreateMotivo(motivoNombre);
+    const causaId = detalleNombre ? await getOrCreateCausa(motivoId, detalleNombre) : null;
+    const usuarioId = creadoPor ? userMap.get(creadoPor.toLowerCase().trim()) ?? null : null;
+
+    try {
+      await db
+        .insert(bajas)
+        .values({
+          predioId,
+          animalId: animal.id,
+          fecha: fechaBaja,
+          motivoId,
+          causaId,
+          usuarioId,
+        })
+        .onConflictDoNothing();
+      ok++;
+    } catch (err) {
+      errors++;
+      if (errors <= 5) console.error(`  ERR insert baja diio=${diio}:`, (err as Error).message);
+    }
+
     if ((i + 1) % LOG_EVERY === 0) {
-      console.log(`  ${i + 1}/${rows.length} | ok:${ok} creados:${created} sinAnimal:${noAnimal} err:${errors}`);
+      console.log(`  ${i + 1}/${rows.length} | ok:${ok} creados:${created} sinAnimal:${noAnimal} sinFecha:${noFecha} err:${errors}`);
     }
   }
 
   console.log(`\n=== BAJAS DONE ===`);
-  console.log(`Procesados: ${ok} | Animales creados: ${created} | Sin animal: ${noAnimal} | Errores: ${errors}`);
+  console.log(`Insertados: ${ok} | Animales creados: ${created} | Sin animal: ${noAnimal} | Sin fecha: ${noFecha} | Errores: ${errors}`);
+  console.log(`Motivos en catálogo: ${motivoMap.size} | Causas: ${causaMap.size}`);
 }
 
 async function importInseminaciones(filePath: string) {
