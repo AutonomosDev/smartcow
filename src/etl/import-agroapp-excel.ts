@@ -15,19 +15,32 @@ import { db } from "../db/client";
 import {
   animales,
   predios,
+  medieros,
   tratamientos,
   partos,
   pesajes,
   ventas,
   traslados,
+  inventarios,
   inseminaciones,
   semen,
   users,
 } from "../db/schema";
 import { tipoGanado, razas, inseminadores } from "../db/schema/catalogos";
 import { eq, sql } from "drizzle-orm";
+import { resolveFundo } from "./fundo-resolver";
 
-type Tipo = "tratamientos" | "partos" | "ventas" | "ganado" | "bajas" | "traslados" | "inseminaciones" | "pesajes" | "stubs";
+type Tipo =
+  | "tratamientos"
+  | "partos"
+  | "ventas"
+  | "ganado"
+  | "bajas"
+  | "traslados"
+  | "inventarios"
+  | "inseminaciones"
+  | "pesajes"
+  | "stubs";
 
 const LOG_EVERY = 1000;
 
@@ -865,12 +878,232 @@ async function importStubsFromTratamientos(filePath: string) {
   console.log(`Creados: ${ok} | Errores: ${errors}`);
 }
 
+/**
+ * Parsea multi-línea "Novillo: 126\nVaquilla: 3" → { novillo: 126, vaquilla: 3 }.
+ * Acepta también comas, puntos y coma, o un solo valor "Novillo: 126".
+ * Keys normalizadas a lowercase sin tildes.
+ */
+function parseTipoGanadoDesglose(v: unknown): Record<string, number> | null {
+  if (v == null) return null;
+  const s = String(v).trim();
+  if (!s) return null;
+  const result: Record<string, number> = {};
+  const lines = s.split(/[\n,;]/).map((l) => l.trim()).filter(Boolean);
+  for (const line of lines) {
+    const m = line.match(/^(.+?)\s*:\s*(\d+)$/);
+    if (!m) continue;
+    const key = m[1]
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, "_")
+      .trim();
+    const n = parseInt(m[2], 10);
+    if (key && Number.isFinite(n)) result[key] = n;
+  }
+  return Object.keys(result).length ? result : null;
+}
+
+/**
+ * Carga medieros en memoria indexados por nombre canónico lowercase.
+ */
+async function getMedieroMap() {
+  const rows = await db
+    .select({ id: medieros.id, nombre: medieros.nombre, predioId: medieros.predioId })
+    .from(medieros);
+  const m = new Map<string, { id: number; predioId: number }>();
+  for (const r of rows) m.set(r.nombre.toLowerCase().trim(), { id: r.id, predioId: r.predioId });
+  return m;
+}
+
+/**
+ * Resuelve un string de Origen/Destino/Fundo del xlsx AgroApp a
+ * { predioId?, medieroId?, nombre } usando fundo-resolver (AUT-296).
+ * Si es proveedor externo, devuelve solo el nombre canónico.
+ */
+async function resolveFundoRef(
+  raw: string | null,
+  predioMap: Map<string, number>,
+  medieroMap: Map<string, { id: number; predioId: number }>,
+): Promise<{ predioId: number | null; medieroId: number | null; nombre: string | null }> {
+  if (!raw) return { predioId: null, medieroId: null, nombre: null };
+  const res = resolveFundo(raw);
+  if (res.kind === "predio") {
+    const pid = predioMap.get(res.canonical.toLowerCase().trim()) ?? null;
+    return { predioId: pid, medieroId: null, nombre: res.canonical };
+  }
+  if (res.kind === "mediero") {
+    const med = medieroMap.get(res.canonical.toLowerCase().trim());
+    return {
+      predioId: med?.predioId ?? null,
+      medieroId: med?.id ?? null,
+      nombre: res.canonical,
+    };
+  }
+  // Proveedor externo — no FK, solo texto histórico
+  return { predioId: null, medieroId: null, nombre: res.canonical };
+}
+
+async function importTraslados(filePath: string) {
+  const rows = await loadSheet(filePath);
+  console.log(`Rows en Excel: ${rows.length.toLocaleString()}`);
+  const predioMap = await getPredioMap();
+  const medieroMap = await getMedieroMap();
+
+  const userRows = await db.select({ id: users.id, nombre: users.nombre }).from(users);
+  const userMap = new Map<string, number>();
+  for (const u of userRows) {
+    const k = (u.nombre ?? "").toLowerCase().trim();
+    if (k) userMap.set(k, u.id);
+  }
+
+  let ok = 0;
+  let noFecha = 0;
+  let errors = 0;
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const fecha = toDateStr(r["Fecha traslado"]);
+    if (!fecha) { noFecha++; continue; }
+
+    const origen = await resolveFundoRef(cleanStr(r["Origen"]), predioMap, medieroMap);
+    const destino = await resolveFundoRef(cleanStr(r["Destino"]), predioMap, medieroMap);
+    const nAnimalesRaw = r["Animales"];
+    const nAnimales =
+      typeof nAnimalesRaw === "number"
+        ? Math.trunc(nAnimalesRaw)
+        : nAnimalesRaw != null
+          ? parseInt(String(nAnimalesRaw), 10)
+          : null;
+    const tipoGanadoDesglose = parseTipoGanadoDesglose(r["Tipo ganado"]);
+    const nGuia = cleanStr(r["N° Guía"], 50);
+    const estado = cleanStr(r["Estado"], 20);
+    const observacion = cleanStr(r["Observaciones"], 500);
+    const creadoPor = cleanStr(r["Creado por"]);
+    const usuarioId = creadoPor ? userMap.get(creadoPor.toLowerCase().trim()) ?? null : null;
+
+    try {
+      await db
+        .insert(traslados)
+        .values({
+          fecha,
+          idAgroapp: String(r["ID"] ?? "").replace(/\.0$/, "") || null,
+          predioOrigenId: origen.predioId,
+          medieroOrigenId: origen.medieroId,
+          fundoOrigenNombre: origen.nombre,
+          predioDestinoId: destino.predioId,
+          medieroDestinoId: destino.medieroId,
+          fundoDestinoNombre: destino.nombre,
+          nAnimales: nAnimales != null && Number.isFinite(nAnimales) ? nAnimales : null,
+          tipoGanadoDesglose,
+          nGuia,
+          estado,
+          observacion,
+          usuarioId,
+        })
+        .onConflictDoNothing();
+      ok++;
+    } catch (err) {
+      errors++;
+      if (errors <= 5) console.error(`  ERR id=${r["ID"]}:`, (err as Error).message);
+    }
+
+    if ((i + 1) % LOG_EVERY === 0) {
+      console.log(`  ${i + 1}/${rows.length} | ok:${ok} noFecha:${noFecha} err:${errors}`);
+    }
+  }
+
+  console.log(`\n=== TRASLADOS DONE ===`);
+  console.log(`Insertados: ${ok} | Sin fecha: ${noFecha} | Errores: ${errors}`);
+}
+
+async function importInventarios(filePath: string) {
+  const rows = await loadSheet(filePath);
+  console.log(`Rows en Excel: ${rows.length.toLocaleString()}`);
+  const predioMap = await getPredioMap();
+  const medieroMap = await getMedieroMap();
+
+  const userRows = await db.select({ id: users.id, nombre: users.nombre }).from(users);
+  const userMap = new Map<string, number>();
+  for (const u of userRows) {
+    const k = (u.nombre ?? "").toLowerCase().trim();
+    if (k) userMap.set(k, u.id);
+  }
+
+  let ok = 0;
+  let noPredio = 0;
+  let noFecha = 0;
+  let errors = 0;
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const fecha = toDateStr(r["Fecha creado"]);
+    if (!fecha) { noFecha++; continue; }
+
+    const fundoRef = await resolveFundoRef(cleanStr(r["Fundo"]), predioMap, medieroMap);
+    // Inventario requiere predio_id (NOT NULL en schema) — resolveFundo puede dar
+    // proveedor externo sin predio; en ese caso fallback a crear/resolver predio por nombre.
+    let predioId = fundoRef.predioId;
+    if (!predioId) {
+      const fundoName = cleanStr(r["Fundo"]);
+      if (fundoName) predioId = await ensurePredio(predioMap, fundoName);
+    }
+    if (!predioId) { noPredio++; continue; }
+
+    const nEncontradosRaw = r["Encontrados"];
+    const nEncontrados =
+      typeof nEncontradosRaw === "number"
+        ? Math.trunc(nEncontradosRaw)
+        : nEncontradosRaw != null
+          ? parseInt(String(nEncontradosRaw), 10)
+          : null;
+    const nFaltantesRaw = r["Faltantes"];
+    const nFaltantes =
+      typeof nFaltantesRaw === "number"
+        ? Math.trunc(nFaltantesRaw)
+        : nFaltantesRaw != null
+          ? parseInt(String(nFaltantesRaw), 10)
+          : null;
+
+    const tgEncontrados = parseTipoGanadoDesglose(r["T.G. Encontrados"]);
+    const tgFaltantes = parseTipoGanadoDesglose(r["T.G. Faltantes"]);
+    const estado = cleanStr(r["Estado"], 20);
+    const creadoPor = cleanStr(r["Creado por"]);
+    const usuarioId = creadoPor ? userMap.get(creadoPor.toLowerCase().trim()) ?? null : null;
+
+    try {
+      await db
+        .insert(inventarios)
+        .values({
+          idAgroapp: String(r["ID"] ?? "").replace(/\.0$/, "") || null,
+          predioId,
+          medieroId: fundoRef.medieroId,
+          fecha,
+          nEncontrados: nEncontrados != null && Number.isFinite(nEncontrados) ? nEncontrados : null,
+          tgEncontrados,
+          nFaltantes: nFaltantes != null && Number.isFinite(nFaltantes) ? nFaltantes : null,
+          tgFaltantes,
+          estado,
+          usuarioId,
+        })
+        .onConflictDoNothing();
+      ok++;
+    } catch (err) {
+      errors++;
+      if (errors <= 5) console.error(`  ERR id=${r["ID"]}:`, (err as Error).message);
+    }
+  }
+
+  console.log(`\n=== INVENTARIOS DONE ===`);
+  console.log(`Insertados: ${ok} | Sin predio: ${noPredio} | Sin fecha: ${noFecha} | Errores: ${errors}`);
+}
+
 async function main() {
   const tipo = process.argv[2] as Tipo;
   const filePath = process.argv[3];
   if (!tipo || !filePath) {
     console.error("Uso: npx tsx src/etl/import-agroapp-excel.ts <tipo> <archivo.xlsx>");
-    console.error("Tipos: tratamientos, partos, ventas, ganado, bajas, inseminaciones, pesajes");
+    console.error("Tipos: tratamientos, partos, ventas, ganado, bajas, inseminaciones, pesajes, traslados, inventarios, stubs");
     process.exit(1);
   }
 
@@ -899,8 +1132,11 @@ async function main() {
       await importInseminaciones(filePath);
       break;
     case "traslados":
-      console.error(`Traslados son agregados por lote (sin DIIO) — no importar en tabla traslados`);
-      process.exit(1);
+      await importTraslados(filePath);
+      break;
+    case "inventarios":
+      await importInventarios(filePath);
+      break;
     case "stubs":
       await importStubsFromTratamientos(filePath);
       break;
@@ -909,7 +1145,7 @@ async function main() {
       process.exit(1);
   }
 
-  void sql; void ventas; void traslados; void eq;
+  void sql; void ventas; void eq;
 
   process.exit(0);
 }

@@ -176,6 +176,13 @@
       "when": 1745686400000,
       "tag": "0024_tratamientos_sag_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1745772800000,
+      "tag": "0025_traslados_inventarios_agregados",
+      "breakpoints": true
     }
   ]
 }

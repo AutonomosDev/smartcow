@@ -27,6 +27,7 @@ export * from "./movimientos_potrero";
 export * from "./ventas";
 export * from "./tratamientos";
 export * from "./traslados";
+export * from "./inventarios";
 
 // Datos de mercado externo
 export * from "./precios-feria";
