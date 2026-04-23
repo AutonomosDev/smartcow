@@ -554,6 +554,8 @@ export async function POST(req: NextRequest) {
           const response = await client.messages.create({
             model: modelId,
             max_tokens: 8192,
+            temperature: 0.3,
+            top_p: 0.9,
             system: [
               {
                 type: "text",
