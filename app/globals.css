@@ -1,25 +1,37 @@
 @import "tailwindcss";
 
 @theme {
+  /* Brand palette — fuente de verdad (docs/design/design_tokens_extraction.md) */
   --color-brand-dark: #06200F;
   --color-brand-light: #9ADF59;
+
+  /* Surfaces */
   --color-farm-base: #F4F6F5;
   --color-farm-surface: #FFFFFF;
-  --color-accent-warning: #F97316;
-  --color-accent-neutral: #8B7280;
+
+  /* Ink scale */
   --color-ink-title: #111827;
   --color-ink-body: #4B5563;
   --color-ink-meta: #9CA3AF;
+  --color-ink-muted: #BBBBBB;
 
+  /* Accents */
+  --color-accent-warning: #F97316;
+  --color-accent-neutral: #8B7280;
+
+  /* Elevation */
   --shadow-float: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
   --shadow-card: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
 
+  /* Radii */
   --radius-card: 1.5rem;
   --radius-pill: 9999px;
   --radius-inner: 0.75rem;
 
-  --font-jakarta: "Plus Jakarta Sans", sans-serif;
-  --font-manrope: "Manrope", sans-serif;
+  /* Typography — cargadas vía next/font en app/layout.tsx */
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-dm-sans);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
 :root {
@@ -68,24 +80,26 @@ body {
   40% { opacity: 0.8; }
 }
 
-/* ── Chat Web Design System ── */
+/* ── Chat Web Design System — aliases sobre la paleta brand ── */
+/* Estos vars quedan por compat con componentes existentes. Valores alineados
+   a @theme (brand-dark, brand-light, ink-*). No agregar nuevos --cw-*; usar
+   clases tailwind contra los tokens brand. */
 :root {
-  --cw-ink1: #1a1a1a;
-  --cw-ink2: #666666;
-  --cw-ink3: #999999;
-  --cw-ink4: #bbbbbb;
-  --cw-bg: #f8f6f1;
+  --cw-ink1: #111827;              /* ≡ --color-ink-title */
+  --cw-ink2: #4B5563;              /* ≡ --color-ink-body */
+  --cw-ink3: #9CA3AF;              /* ≡ --color-ink-meta */
+  --cw-ink4: #BBBBBB;              /* ≡ --color-ink-muted */
+  --cw-bg: #F4F6F5;                /* ≡ --color-farm-base */
   --cw-cream: #ebe9e3;
   --cw-fog: #f0ede8;
-  --cw-green: #1e3a2f;
-  --cw-leaf: #7ecfa0;
+  --cw-green: #06200F;             /* ≡ --color-brand-dark */
+  --cw-leaf: #9ADF59;              /* ≡ --color-brand-light */
   --cw-moss: #e6f3ec;
   --cw-note: #fafaf7;
   --cw-note-bd: #e8e5dd;
   --cw-blue: #eaf0f7;
   --cw-blue-fg: #1a5276;
-  /* --cw-warn/--cw-warn-fg removidos: rojos/naranjas prohibidos en la app */
-  --cw-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --cw-mono: var(--font-jetbrains-mono), ui-monospace, Menlo, monospace;
 }
 
 @keyframes cw-shimmer {

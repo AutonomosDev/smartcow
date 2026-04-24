@@ -8,6 +8,7 @@ import { ChatSidebar } from "@/src/components/chat/chat-sidebar";
 import { NuevaTareaModal } from "@/src/components/chat/nueva-tarea-modal";
 import { MasDropdown } from "@/src/components/chat/mas-dropdown";
 import { PromptInputBox } from "@/src/components/ui/ai-prompt-box";
+import type { DashboardData } from "@/src/components/chat/artifacts/dashboard-artifact";
 
 // ─── SSE types ────────────────────────────────────────────────────────────────
 
@@ -43,11 +44,13 @@ interface ChatPanelProps {
   className?: string;
   /** ID de org del usuario. AUT-290: org 99 (demo) oculta adjuntos. */
   orgId?: number;
+  /** Dashboard del predio pre-cargado server-side. Se abre en el panel derecho al montar. */
+  initialDashboard?: DashboardData | null;
 }
 
 // ─── ChatPanel ────────────────────────────────────────────────────────────────
 
-export function ChatPanel({ initialMessage, userName, orgId }: ChatPanelProps) {
+export function ChatPanel({ initialMessage, userName, orgId, initialDashboard }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeArtifact, setActiveArtifact] = useState<ArtifactData | null>(null);
@@ -336,6 +339,25 @@ export function ChatPanel({ initialMessage, userName, orgId }: ChatPanelProps) {
       handleSendRef.current?.(initialMessage);
     }
   }, [initialMessage]);
+
+  // Auto-open dashboard del predio al montar (solo si no hay initialMessage ni mensajes).
+  const hasAutoOpenedDashboard = useRef(false);
+  useEffect(() => {
+    if (hasAutoOpenedDashboard.current) return;
+    if (!initialDashboard) return;
+    if (initialMessage) return;
+    if (messagesRef.current.length > 0) return;
+    hasAutoOpenedDashboard.current = true;
+    const art: ArtifactData = {
+      id: `art_dashboard_${initialDashboard.predioId}`,
+      title: initialDashboard.predioNombre,
+      content: JSON.stringify(initialDashboard),
+      kind: "dashboard",
+    };
+    setActiveArtifact(art);
+    setTurnArtifacts([art]);
+    setIsArtifactOpen(true);
+  }, [initialDashboard, initialMessage]);
 
   const handleStop = useCallback(() => { abortControllerRef.current?.abort(); }, []);
 
