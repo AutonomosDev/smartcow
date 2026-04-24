@@ -1,6 +1,8 @@
 # docker-compose.staging.yml — AUT-286
 # Staging stack isolated from prod: puerto 3001 (app), 5433 (db), volumen separado.
 # Reutiliza red smartcow_default para compartir langfuse/nginx con prod.
+# Project name fijo (smartcow-staging) para evitar "orphan containers" warning en deploy prod.
+# Volúmenes anclados external con nombre legacy para preservar data al renombrar project.
 #
 # Deploy:
 #   docker compose -f docker-compose.staging.yml up -d
@@ -9,6 +11,8 @@
 #   scripts/sync-staging-from-prod.sh
 #
 # Ver AUT-286 para DNS/cert/firewall manual steps.
+
+name: smartcow-staging
 
 services:
   app-staging:
@@ -85,7 +89,11 @@ services:
 
 volumes:
   postgres_staging_data:
+    external: true
+    name: smartcow_postgres_staging_data
   redis_staging_data:
+    external: true
+    name: smartcow_redis_staging_data
 
 networks:
   smartcow_default:
