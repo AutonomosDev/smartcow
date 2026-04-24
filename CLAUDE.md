@@ -19,20 +19,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Comandos
 
 ```bash
-npm run dev          # Dev server (Next.js, puerto 3003)
-npm run build        # Production build
-npm run typecheck    # TypeScript check — debe pasar antes de reportar done
-npm run db:generate  # Generar migration desde schema
-npm run db:migrate   # Aplicar migrations
-npm run db:push      # Push schema directo (solo dev)
-npm run db:studio    # Drizzle Studio UI (puerto 4983)
-npm run mobile       # Metro bundler + iOS simulator (Metro en 8081)
-npm run mobile:dev   # Next.js (3003) + Metro (8081) concurrentemente
+npm run dev                  # Dev server (Next.js, puerto 3003)
+npm run build                # Production build
+npm run typecheck            # TypeScript check — debe pasar antes de reportar done
+npm run db:generate          # Generar migration desde schema
+npm run db:migrate           # Aplicar migrations
+npm run db:push              # Push schema directo (solo dev)
+npm run db:studio            # Drizzle Studio UI (puerto 4983)
+npm run mobile               # Metro bundler + iOS simulator (Metro en 8081)
+npm run mobile:dev           # Next.js (3003) + Metro (8081) concurrentemente
+npm run etl:precios-feria    # ETL boletines ODEPA/AFECH a tabla precios_feria
 ```
+
+ETLs sin script npm se corren con `tsx` directo, ej: `npx tsx src/etl/import-agroapp-excel.ts <tipo> <file.xlsx>`.
 
 Deploy web: `./deploy.sh` desde local (requiere SSH alias `smartcow-vps`). Hace git pull en VPS + docker compose rebuild. `./deploy.sh --migrate` para correr migrations. Detalle en `.claude/references/config/infra-and-security.yaml`.
 
-No hay test suite — verificacion = `npm run typecheck`. Sin Jest, Vitest ni Playwright.
+No hay test suite — verificacion = `npm run typecheck`. Sin Jest, Vitest ni Playwright. Tampoco hay ESLint configurado (no `npm run lint`).
 
 ## Arquitectura
 

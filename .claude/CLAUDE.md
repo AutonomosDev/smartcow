@@ -124,17 +124,3 @@ Antes de reportar "hecho":
 PROHIBIDO: "recarga el browser", "verifica tu", "deberia funcionar", "parece correcto".
 
 Verificacion = `npm run typecheck`. Nada mas.
-
-## Comandos
-
-```bash
-npm run dev          # Dev server (Next.js, puerto 3003)
-npm run build        # Production build
-npm run typecheck    # TypeScript check — debe pasar antes de reportar done
-npm run db:generate  # Generar migration desde schema
-npm run db:migrate   # Aplicar migrations
-npm run db:push      # Push schema directo (solo dev)
-npm run db:studio    # Drizzle Studio UI (puerto 4983)
-npm run mobile       # Metro bundler + iOS simulator (Metro en 8081)
-npm run mobile:dev   # Next.js (3003) + Metro (8081) concurrentemente
-```
