@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 import { ChartBar, ChartLine } from "@/src/components/charts";
+import { DashboardArtifact } from "@/src/components/chat/artifacts/dashboard-artifact";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -71,7 +72,7 @@ export function ArtifactPanel({ artifact, artifacts, onHide }: ArtifactPanelProp
           fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
           fontSize: 13, color: "#555", fontWeight: 400,
         }}>
-          {artifact?.kind ?? "Informe"}
+          {artifact?.kind === "dashboard" ? (artifact.title ?? "Resumen") : (artifact?.kind ?? "Informe")}
         </span>
         <div style={{ marginLeft: "auto", display: "flex", gap: 2, alignItems: "center" }}>
           <ArtBtn title="Guardar" onClick={() => setSaveOpen(true)}>
@@ -439,13 +440,14 @@ function StructuredChart({ data }: { data: { title?: string; variant?: "bar" | "
 
 function ArtifactContent({ artifact }: { artifact: ArtifactData }) {
   // Try to parse structured JSON from backend artifact_block events
-  if (artifact.kind && ["table", "kpi", "alerts", "chart"].includes(artifact.kind)) {
+  if (artifact.kind && ["table", "kpi", "alerts", "chart", "dashboard"].includes(artifact.kind)) {
     try {
       const data = JSON.parse(artifact.content);
-      if (artifact.kind === "table")  return <StructuredTable data={data} />;
-      if (artifact.kind === "kpi")    return <StructuredKpi data={data} />;
-      if (artifact.kind === "alerts") return <StructuredAlerts data={data} />;
-      if (artifact.kind === "chart")  return <StructuredChart data={data} />;
+      if (artifact.kind === "table")     return <StructuredTable data={data} />;
+      if (artifact.kind === "kpi")       return <StructuredKpi data={data} />;
+      if (artifact.kind === "alerts")    return <StructuredAlerts data={data} />;
+      if (artifact.kind === "chart")     return <StructuredChart data={data} />;
+      if (artifact.kind === "dashboard") return <DashboardArtifact data={data} />;
     } catch {
       // fall through to markdown if JSON is malformed
     }
@@ -473,7 +475,7 @@ function ArtifactEmpty() {
         background: "#fff", border: ".5px solid #e8e5df",
         display: "flex", alignItems: "center", justifyContent: "center",
         margin: "0 auto 16px",
-        color: "#1e3a2f",
+        color: "var(--color-brand-dark, #06200F)",
       }}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M10 13h4M10 17h4"/></svg>
       </div>
