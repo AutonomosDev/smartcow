@@ -1,0 +1,1432 @@
+row_num,fundo_u_origen,obs_raw_flat,rx_diio,rx_rut,rx_pesos_kg,rx_pesos_pv,rx_guia,rx_precio_dollar,rx_precio_texto,rx_precio_kg,rx_precio_unitario,rx_cantidad_animal,rx_fecha_dd_mm_yyyy,rx_fecha_texto,rx_patente_auto,rx_camion_prefix,rx_carro_prefix,rx_kw_compra,rx_kw_venta,rx_kw_traslado,rx_kw_tratamiento,rx_nombre_propio,rx_url,rx_porcentaje,obs_lines_joined
+2,Recría Feedlot,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+3,Medieria FT,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+4,Medieria FT,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+5,Medieria FT,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+6,Medieria FT,Úlcera de abomaso,,,,,,,,,,,,,,,,,,,,,,,Úlcera de abomaso
+7,Medieria FT,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+8,Medieria FT,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+9,feedlot,Ptbc,,,,,,,,,,,,,,,,,,,,,,,Ptbc
+10,Medieria FT,Pansaso,,,,,,,,,,,,,,,,,,,,,,,Pansaso
+11,feedlot,Ptbc,,,,,,,,,,,,,,,,,,,,,,,Ptbc
+12,Mollendo,Impactación Ruminal,,,,,,,,,,,,,,,,,,,,Impactación Ruminal,,,Impactación Ruminal
+13,Recría FT,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+14,San Pedro,Enterrada monte,,,,,,,,,,,,,,,,,,,,,,,Enterrada monte
+15,San Pedro,no responde tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde tratamiento
+16,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+17,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+18,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+19,San Pedro,no responde tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde tratamiento
+20,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+21,San Pedro,muerte súbita,,,,,,,,,,,,,,,,,,,,,,,muerte súbita
+22,San Pedro,Enterrada monte,,,,,,,,,,,,,,,,,,,,,,,Enterrada monte
+23,San Pedro,Enteritis Hemorrágica y Abomasitis,,,,,,,,,,,,,,,,,,,,Enteritis Hemorrágica,,,Enteritis Hemorrágica y Abomasitis
+24,San Pedro,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+25,Medieria FT,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+26,Medieria FT,Impactación Ruminal,,,,,,,,,,,,,,,,,,,,Impactación Ruminal,,,Impactación Ruminal
+27,Recría FT,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+28,Medieria FT,ciego flaco,,,,,,,,,,,,,,,,,,,,,,,ciego flaco
+29,Recría FT,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+30,San Pedro,Peritonitis,,,,,,,,,,,,,,,,,,,,,,,Peritonitis
+31,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+32,Recría FT,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+33,Recría FT,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+34,Medieria FT,no responde tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde tratamiento
+35,San Pedro,muerte súbita,,,,,,,,,,,,,,,,,,,,,,,muerte súbita
+36,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+37,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+38,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+39,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+40,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+41,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+42,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+43,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+44,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+45,San Pedro,Enterrada monte,,,,,,,,,,,,,,,,,,,,,,,Enterrada monte
+46,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+47,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+48,Recría FT,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+49,Recría FT,Fractura cadera,,,,,,,,,,,,,,,,,,,,,,,Fractura cadera
+50,Recría FT,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+51,feedlot,colico,,,,,,,,,,,,,,,,,,,,,,,colico
+52,Medieria FT,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+53,feedlot,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+54,feedlot,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+55,feedlot,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+56,feedlot,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+57,feedlot,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+58,Recría FT,Fractura cadera,,,,,,,,,,,,,,,,,,,,,,,Fractura cadera
+59,Recría FT,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+60,Recría FT,Montas por machos,,,,,,,,,,,,,,,,,,,,,,,Montas por machos
+61,San Pedro,muerte súbita,,,,,,,,,,,,,,,,,,,,,,,muerte súbita
+62,San Pedro,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+63,Mollendo,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+64,San Pedro,muerte súbita,,,,,,,,,,,,,,,,,,,,,,,muerte súbita
+65,San Pedro,muerte súbita,,,,,,,,,,,,,,,,,,,,,,,muerte súbita
+66,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+67,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+68,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+69,San Pedro,Enterrada monte,,,,,,,,,,,,,,,,,,,,,,,Enterrada monte
+70,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+71,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+72,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+73,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+74,San Pedro,muerte súbita,,,,,,,,,,,,,,,,,,,,,,,muerte súbita
+75,Recría FT,Montas por machos,,,,,,,,,,,,,,,,,,,,,,,Montas por machos
+76,Recría FT,muerte súbita,,,,,,,,,,,,,,,,,,,,,,,muerte súbita
+77,Recría FT,muerte súbita,,,,,,,,,,,,,,,,,,,,,,,muerte súbita
+78,Recría FT,Fractura columna por monta,,,,,,,,,,,,,,,,,,,,,,,Fractura columna por monta
+79,Mollendo,colico,,,,,,,,,,,,,,,,,,,,,,,colico
+80,Medieria FT,cojo,,,,,,,,,,,,,,,,,,,,,,,cojo
+81,Medieria FT,cuerpo extraño,,,,,,,,,,,,,,,,,,,,,,,cuerpo extraño
+82,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+83,feedlot,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+84,feedlot,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+85,Recría FT,muerte súbita,,,,,,,,,,,,,,,,,,,,,,,muerte súbita
+86,Recría FT,muerte súbita,,,,,,,,,,,,,,,,,,,,,,,muerte súbita
+87,Recría FT,Peritonitis,,,,,,,,,,,,,,,,,,,,,,,Peritonitis
+88,Arriendo Santa Isabel,Abigeato,,,,,,,,,,,,,,,,,,,,,,,Abigeato
+89,Arriendo Santa Isabel,Abigeato,,,,,,,,,,,,,,,,,,,,,,,Abigeato
+90,San Pedro,no responde tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde tratamiento
+91,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+92,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+93,San Pedro,Enterrada monte,,,,,,,,,,,,,,,,,,,,,,,Enterrada monte
+94,San Pedro,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+95,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+96,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+97,feedlot,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+98,feedlot,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+99,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+100,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+101,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+102,San Pedro,no responde tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde tratamiento
+103,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+104,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+105,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+106,Arriendo las quebradas,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+107,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+108,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+109,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+110,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+111,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+112,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+113,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+114,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+115,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+116,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+117,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+118,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+119,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+120,Mollendo,anemia aguda,,,,,,,,,,,,,,,,,,,,,,,anemia aguda
+121,San Pedro,Enteritis Hemorrágica y Abomasitis,,,,,,,,,,,,,,,,,,,,Enteritis Hemorrágica,,,Enteritis Hemorrágica y Abomasitis
+122,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+123,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+124,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+125,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+126,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+127,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+128,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+129,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+130,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+131,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+132,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+133,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+134,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+135,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+136,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+137,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+138,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+139,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+140,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+141,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+142,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+143,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+144,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+145,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+146,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+147,San Pedro,Enterrada monte,,,,,,,,,,,,,,,,,,,,,,,Enterrada monte
+148,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+149,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+150,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+151,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+152,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+153,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+154,Recría Feedlot,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+155,Recría Feedlot,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+156,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+157,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+158,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+159,San Pedro,Enterrada monte,,,,,,,,,,,,,,,,,,,,,,,Enterrada monte
+160,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+161,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+162,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+163,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+164,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+165,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+166,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+167,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+168,Medieria FT,Ptbc,,,,,,,,,,,,,,,,,,,,,,,Ptbc
+169,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+170,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+171,San Pedro,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+172,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+173,Mollendo,Torcion Intestinal,,,,,,,,,,,,,,,,,,,,Torcion Intestinal,,,Torcion Intestinal
+174,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+175,San Pedro,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+176,San Pedro,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+177,San Pedro,Enterrada monte,,,,,,,,,,,,,,,,,,,,,,,Enterrada monte
+178,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+179,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+180,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+181,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+182,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+183,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+184,San Pedro,sin diagnostico (post parto),,,,,,,,,,,,,,,,,,,,,,,sin diagnostico (post parto)
+185,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+186,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+187,San Pedro,Enterrada monte,,,,,,,,,,,,,,,,,,,,,,,Enterrada monte
+188,San Pedro,Pisado vaca,,,,,,,,,,,,,,,,,,,,,,,Pisado vaca
+189,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+190,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+191,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+192,San Pedro,coccidiosis,,,,,,,,,,,,,,,,,,,,,,,coccidiosis
+193,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+194,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+195,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+196,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+197,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+198,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+199,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+200,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+201,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+202,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+203,Medieria FT,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+204,Recría Feedlot,enterrada en el barro,,,,,,,,,,,,,,,,,,,,,,,enterrada en el barro
+205,Recría Feedlot,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+206,Recría Feedlot,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+207,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+208,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+209,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+210,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+211,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+212,San Pedro,Mala calidad o ingesta,,,,,,,,,,,,,,,,,,,,,,,Mala calidad o ingesta
+213,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+214,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+215,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+216,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+217,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+218,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+219,San Pedro,mellizo débil (enteritis),,,,,,,,,,,,,,,,,,,,,,,mellizo débil (enteritis)
+220,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+221,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+222,San Pedro,entumido,,,,,,,,,,,,,,,,,,,,,,,entumido
+223,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+224,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+225,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+226,San Pedro,entumido,,,,,,,,,,,,,,,,,,,,,,,entumido
+227,San Pedro,enterrada en el barro,,,,,,,,,,,,,,,,,,,,,,,enterrada en el barro
+228,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+229,San Pedro,Pisado vaca,,,,,,,,,,,,,,,,,,,,,,,Pisado vaca
+230,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+231,Recría Feedlot,Septicemia,,,,,,,,,,,,,,,,,,,,,,,Septicemia
+232,Recría Feedlot,enterrada en el barro,,,,,,,,,,,,,,,,,,,,,,,enterrada en el barro
+233,Recría Feedlot,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+234,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+235,San Pedro,Impactación Ruminal,,,,,,,,,,,,,,,,,,,,Impactación Ruminal,,,Impactación Ruminal
+236,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+237,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+238,Recría Feedlot,Quebrada paleta,,,,,,,,,,,,,,,,,,,,,,,Quebrada paleta
+239,Recría Feedlot,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+240,Recría Feedlot,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+241,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+242,Recría Feedlot,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+243,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+244,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+245,Medieria FT,Impactación Ruminal,,,,,,,,,,,,,,,,,,,,Impactación Ruminal,,,Impactación Ruminal
+246,Medieria FT,Enteritis Hemorrágica y Abomasitis,,,,,,,,,,,,,,,,,,,,Enteritis Hemorrágica,,,Enteritis Hemorrágica y Abomasitis
+247,Recría Feedlot,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+248,Recría Feedlot,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+249,Recría Feedlot,Neumonia no responde a tratamiento (flaco),,,,,,,,,,,,,,,,,,,tratamiento,,,,Neumonia no responde a tratamiento  (flaco)
+250,Recría Feedlot,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+251,San Pedro,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+252,San Pedro,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+253,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+254,Mollendo,Fractura miembro posterior Izquierdo,,,,,,,,,,,,,,,,,,,,,,,Fractura miembro posterior Izquierdo
+255,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+256,San Pedro,no responde tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde tratamiento
+257,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+258,Recría Feedlot,accidente comedero,,,,,,,,,,,,,,,,,,,,,,,accidente comedero
+259,Arriendo las quebradas,colico,,,,,,,,,,,,,,,,,,,,,,,colico
+260,Recría Feedlot,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+261,Recría Feedlot,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+262,Recría Feedlot,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+263,feedlot,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+264,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+265,Arriendo las quebradas,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+266,San Pedro,venta,,,,,,,,,,,,,,,,,venta,,,,,,venta
+267,San Pedro,Enteritis Hemorrágica y Abomasitis,,,,,,,,,,,,,,,,,,,,Enteritis Hemorrágica,,,Enteritis Hemorrágica y Abomasitis
+268,San Pedro,no responde tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde tratamiento
+269,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+270,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+271,Arriendo las quebradas,Septicemia (pene quebrado),,,,,,,,,,,,,,,,,,,,,,,Septicemia (pene quebrado)
+272,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+273,San Pedro,taco con bola de pelos,,,,,,,,,,,,,,,,,,,,,,,taco con bola de pelos
+274,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+275,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+276,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+277,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+278,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+279,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+280,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+281,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+282,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+283,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+284,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+285,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+286,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+287,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+288,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+289,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+290,San Pedro,no responde tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde tratamiento
+291,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+292,San Pedro,no responde tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde tratamiento
+293,feedlot,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+294,San Pedro,Fractura columna,,,,,,,,,,,,,,,,,,,,,,,Fractura columna
+295,San Pedro,fractura de pene,,,,,,,,,,,,,,,,,,,,,,,fractura de pene
+296,San Pedro,Septicemia,,,,,,,,,,,,,,,,,,,,,,,Septicemia
+297,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+298,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+299,Mollendo,Cólico (pansaso),,,,,,,,,,,,,,,,,,,,,,,Cólico (pansaso)
+300,Arriendo las quebradas,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+301,Arriendo las quebradas,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+302,feedlot,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+303,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+304,Arriendo las quebradas,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+305,Arriendo las quebradas,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+306,Arriendo las quebradas,Neumonia no responde a tratamiento (flaco),,,,,,,,,,,,,,,,,,,tratamiento,,,,Neumonia no responde a tratamiento  (flaco)
+307,Arriendo las quebradas,Neumonia no responde a tratamiento (flaco),,,,,,,,,,,,,,,,,,,tratamiento,,,,Neumonia no responde a tratamiento  (flaco)
+308,Arriendo las quebradas,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+309,Arriendo las quebradas,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+310,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+311,San Pedro,Enteritis Hemorrágica y Abomasitis,,,,,,,,,,,,,,,,,,,,Enteritis Hemorrágica,,,Enteritis Hemorrágica y Abomasitis
+312,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+313,Medieria Frival,ternero grande (descaderada),,,,,,,,,,,,,,,,,,,,,,,ternero grande (descaderada)
+314,San Pedro,Enterrada monte,,,,,,,,,,,,,,,,,,,,,,,Enterrada monte
+315,San Pedro,naylon y pelotas de pelo,,,,,,,,,,,,,,,,,,,,,,,naylon y pelotas de pelo
+316,San Pedro,Quebrada paleta,,,,,,,,,,,,,,,,,,,,,,,Quebrada paleta
+317,San Pedro,enterrada en el barro,,,,,,,,,,,,,,,,,,,,,,,enterrada en el barro
+318,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+319,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+320,Arriendo Santa Isabel,Abigeato,,,,,,,,,,,,,,,,,,,,,,,Abigeato
+321,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+322,San Pedro,Quebrada paleta,,,,,,,,,,,,,,,,,,,,,,,Quebrada paleta
+323,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+324,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+325,feedlot,Enteritis Hemorrágica y Abomasitis,,,,,,,,,,,,,,,,,,,,Enteritis Hemorrágica,,,Enteritis Hemorrágica y Abomasitis
+326,Arriendo las quebradas,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+327,Arriendo las quebradas,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+328,Arriendo las quebradas,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+329,Arriendo las quebradas,Neumonia no responde a tratamiento (flaco),,,,,,,,,,,,,,,,,,,tratamiento,,,,Neumonia no responde a tratamiento  (flaco)
+330,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+331,Arriendo las quebradas,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+332,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+333,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+334,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+335,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+336,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+337,San Pedro,Fractura cadera,,,,,,,,,,,,,,,,,,,,,,,Fractura cadera
+338,San Pedro,colico,,,,,,,,,,,,,,,,,,,,,,,colico
+339,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+340,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+341,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+342,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+343,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+344,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+345,San Pedro,enterrada en el barro,,,,,,,,,,,,,,,,,,,,,,,enterrada en el barro
+346,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+347,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+348,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+349,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+350,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+351,San Pedro,enterrada en el barro,,,,,,,,,,,,,,,,,,,,,,,enterrada en el barro
+352,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+353,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+354,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+355,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+356,Arriendo las quebradas,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+357,Arriendo las quebradas,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+358,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+359,Arriendo las quebradas,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+360,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+361,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+362,Medieria Frival,accidente ( Electrocutado),,,,,,,,,,,,,,,,,,,,,,,accidente ( Electrocutado)
+363,Medieria Frival,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+364,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+365,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+366,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+367,San Pedro,Nylon,,,,,,,,,,,,,,,,,,,,,,,Nylon
+368,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+369,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+370,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+371,San Pedro,Enteritis Hemorrágica y Abomasitis,,,,,,,,,,,,,,,,,,,,Enteritis Hemorrágica,,,Enteritis Hemorrágica y Abomasitis
+372,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+373,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+374,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+375,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+376,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+377,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+378,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+379,Mollendo,Ruptura Vena Cava,,,,,,,,,,,,,,,,,,,,Ruptura Vena Cava,,,Ruptura Vena Cava
+380,feedlot,Neumonia,,,,,,,,,,,,,,,,,,,,,,,Neumonia
+381,San Pedro,Cae canal Misle,,,,,,,,,,,,,,,,,,,,,,,Cae canal Misle
+382,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+383,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+384,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+385,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+386,San Pedro,entumido,,,,,,,,,,,,,,,,,,,,,,,entumido
+387,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+388,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+389,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+390,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+391,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+392,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+393,San Pedro,Pisado vaca,,,,,,,,,,,,,,,,,,,,,,,Pisado vaca
+394,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+395,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+396,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+397,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+398,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+399,San Pedro,Pisado vaca,,,,,,,,,,,,,,,,,,,,,,,Pisado vaca
+400,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+401,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+402,Arriendo las quebradas,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+403,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+404,feedlot,Acidosis ruminal,,,,,,,,,,,,,,,,,,,,,,,Acidosis ruminal
+405,feedlot,Acidosis ruminal,,,,,,,,,,,,,,,,,,,,,,,Acidosis ruminal
+406,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+407,San Pedro,naylon y pelotas de pelo,,,,,,,,,,,,,,,,,,,,,,,naylon y pelotas de pelo
+408,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+409,San Pedro,Caída arbol,,,,,,,,,,,,,,,,,,,,,,,Caída arbol
+410,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+411,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+412,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+413,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+414,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+415,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+416,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+417,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+418,Arriendo las quebradas,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+419,Arriendo Santa Isabel,coccidiosis,,,,,,,,,,,,,,,,,,,,,,,coccidiosis
+420,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+421,San Pedro,Enteritis Hemorrágica y Abomasitis,,,,,,,,,,,,,,,,,,,,Enteritis Hemorrágica,,,Enteritis Hemorrágica y Abomasitis
+422,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+423,San Pedro,Apretada por estampida,,,,,,,,,,,,,,,,,,,,,,,Apretada por estampida
+424,San Pedro,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+425,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+426,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+427,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+428,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+429,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+430,San Pedro,accidente,,,,,,,,,,,,,,,,,,,,,,,accidente
+431,San Pedro,Pisado vaca,,,,,,,,,,,,,,,,,,,,,,,Pisado vaca
+432,Arriendo Santa Isabel,Septicemia,,,,,,,,,,,,,,,,,,,,,,,Septicemia
+433,Medieria Frival,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+434,Medieria Frival,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+435,Medieria Frival,abseso,,,,,,,,,,,,,,,,,,,,,,,abseso
+436,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+437,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+438,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+439,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+440,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+441,San Pedro,entumido,,,,,,,,,,,,,,,,,,,,,,,entumido
+442,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+443,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+444,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+445,San Pedro,muerte subita,,,,,,,,,,,,,,,,,,,,,,,muerte subita
+446,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+447,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+448,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+449,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+450,San Pedro,entumido,,,,,,,,,,,,,,,,,,,,,,,entumido
+451,San Pedro,Enteritis Hemorrágica y Abomasitis,,,,,,,,,,,,,,,,,,,,Enteritis Hemorrágica,,,Enteritis Hemorrágica y Abomasitis
+452,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+453,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+454,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+455,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+456,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+457,feedlot,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+458,Medieria Frival,abseso abdominal,,,,,,,,,,,,,,,,,,,,,,,abseso abdominal
+459,Medieria Frival,Septicemia,,,,,,,,,,,,,,,,,,,,,,,Septicemia
+460,Medieria Frival,abomasitis hemorragica,,,,,,,,,,,,,,,,,,,,,,,abomasitis hemorragica
+461,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+462,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+463,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+464,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+465,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+466,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+467,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+468,feedlot,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+469,feedlot,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+470,feedlot,accidente,,,,,,,,,,,,,,,,,,,,,,,accidente
+471,feedlot,Fractura cadera,,,,,,,,,,,,,,,,,,,,,,,Fractura cadera
+472,Mollendo,accidente,,,,,,,,,,,,,,,,,,,,,,,accidente
+473,San Pedro,Peritonitis,,,,,,,,,,,,,,,,,,,,,,,Peritonitis
+474,Arriendo Santa Isabel,Abigeato,,,,,,,,,,,,,,,,,,,,,,,Abigeato
+475,Arriendo Santa Isabel,Abigeato,,,,,,,,,,,,,,,,,,,,,,,Abigeato
+476,Arriendo Santa Isabel,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+477,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+478,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+479,feedlot,sin registros,,,,,,,,,,,,,,,,,,,,,,,sin registros
+480,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+481,Mollendo,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+482,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+483,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+484,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+485,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+486,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+487,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+488,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+489,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+490,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+491,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+492,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+493,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+494,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+495,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+496,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+497,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+498,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+499,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+500,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+501,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+502,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+503,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+504,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+505,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+506,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+507,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+508,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+509,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+510,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+511,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+512,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+513,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+514,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+515,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+516,feedlot,Eutanasia Doc Benjamin,,,,,,,,,,,,,,,,,,,,Eutanasia Doc Benjamin,,,Eutanasia Doc Benjamin
+517,San Pedro,Cae pozo Ortiz,,,,,,,,,,,,,,,,,,,,,,,Cae pozo Ortiz
+518,San Pedro,colico,,,,,,,,,,,,,,,,,,,,,,,colico
+519,feedlot,colico,,,,,,,,,,,,,,,,,,,,,,,colico
+520,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+521,San Pedro,posible falla hepatica,,,,,,,,,,,,,,,,,,,,,,,posible falla hepatica
+522,Arriendo Santa Isabel,Peritonitis,,,,,,,,,,,,,,,,,,,,,,,Peritonitis
+523,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+524,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+525,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+526,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+527,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+528,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+529,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+530,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+531,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+532,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+533,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+534,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+535,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+536,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+537,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+538,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+539,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+540,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+541,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+542,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+543,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+544,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+545,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+546,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+547,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+548,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+549,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+550,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+551,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+552,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+553,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+554,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+555,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+556,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+557,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+558,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+559,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+560,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+561,San Pedro,Metritis tóxica,,,,,,,,,,,,,,,,,,,,,,,Metritis tóxica
+562,San Pedro,muerte subita,,,,,,,,,,,,,,,,,,,,,,,muerte subita
+563,San Pedro,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+564,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+565,San Pedro,Diios mal ingresado,,,,,,,,,,,,,,,,,,,,,,,Diios mal ingresado
+566,Arriendo Santa Isabel,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+567,Arriendo Santa Isabel,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+568,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+569,Arriendo las quebradas,Flaco (neumonia crónica),,,,,,,,,,,,,,,,,,,,,,,Flaco (neumonia crónica)
+570,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+571,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+572,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+573,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+574,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+575,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+576,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+577,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+578,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+579,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+580,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+581,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+582,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+583,Arriendo Santa Isabel,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+584,Arriendo Santa Isabel,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+585,Arriendo Santa Isabel,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+586,Arriendo las quebradas,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+587,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+588,Arriendo las quebradas,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+589,San Pedro,Impactación Ruminal,,,,,,,,,,,,,,,,,,,,Impactación Ruminal,,,Impactación Ruminal
+590,San Pedro,Impactación Ruminal,,,,,,,,,,,,,,,,,,,,Impactación Ruminal,,,Impactación Ruminal
+591,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+592,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+593,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+594,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+595,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+596,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+597,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+598,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+599,San Pedro,venta,,,,,,,,,,,,,,,,,venta,,,,,,venta
+600,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+601,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+602,San Pedro,cuerpo extraño,,,,,,,,,,,,,,,,,,,,,,,cuerpo extraño
+603,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+604,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+605,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+606,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+607,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+608,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+609,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+610,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+611,San Pedro,Pisado vaca,,,,,,,,,,,,,,,,,,,,,,,Pisado vaca
+612,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+613,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+614,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+615,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+616,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+617,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+618,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+619,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+620,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+621,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+622,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+623,San Pedro,cae cuneta,,,,,,,,,,,,,,,,,,,,,,,cae cuneta
+624,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+625,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+626,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+627,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+628,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+629,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+630,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+631,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+632,San Pedro,cae pozo,,,,,,,,,,,,,,,,,,,,,,,cae pozo
+633,San Pedro,Fractura columna,,,,,,,,,,,,,,,,,,,,,,,Fractura columna
+634,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+635,San Pedro,Cae canal Misle,,,,,,,,,,,,,,,,,,,,,,,Cae canal Misle
+636,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+637,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+638,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+639,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+640,San Pedro,Acidosis ruminal,,,,,,,,,,,,,,,,,,,,,,,Acidosis ruminal
+641,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+642,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+643,San Pedro,Pisado vaca,,,,,,,,,,,,,,,,,,,,,,,Pisado vaca
+644,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+645,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+646,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+647,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+648,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+649,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+650,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+651,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+652,Arriendo las quebradas,Hemorragia post Castración,,,,,,,,,,,,,,,,,,,,,,,Hemorragia post Castración
+653,Arriendo Santa Isabel,Neumonia no responde a tratamiento (flaco),,,,,,,,,,,,,,,,,,,tratamiento,,,,Neumonia no responde a tratamiento  (flaco)
+654,Arriendo Santa Isabel,Infección Pene Post Castración,,,,,,,,,,,,,,,,,,,,Infección Pene Post,,,Infección Pene Post Castración
+655,Arriendo Santa Isabel,Fractura columna por monta,,,,,,,,,,,,,,,,,,,,,,,Fractura columna por monta
+656,Arriendo Santa Isabel,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+657,Arriendo Santa Isabel,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+658,Arriendo Santa Isabel,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+659,Arriendo Santa Isabel,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+660,Arriendo Santa Isabel,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+661,Arriendo las quebradas,Fractura columna,,,,,,,,,,,,,,,,,,,,,,,Fractura columna
+662,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+663,Arriendo las quebradas,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+664,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+665,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+666,San Pedro,cuerpo extraño,,,,,,,,,,,,,,,,,,,,,,,cuerpo extraño
+667,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+668,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+669,San Pedro,posible falla hepatica,,,,,,,,,,,,,,,,,,,,,,,posible falla hepatica
+670,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+671,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+672,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+673,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+674,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+675,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+676,San Pedro,coccidiosis,,,,,,,,,,,,,,,,,,,,,,,coccidiosis
+677,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+678,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+679,San Pedro,prolapso uterino,,,,,,,,,,,,,,,,,,,,,,,prolapso uterino
+680,San Pedro,pisado vacas,,,,,,,,,,,,,,,,,,,,,,,pisado vacas
+681,San Pedro,pisado vacas,,,,,,,,,,,,,,,,,,,,,,,pisado vacas
+682,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+683,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+684,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+685,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+686,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+687,San Pedro,Cae canal Misle,,,,,,,,,,,,,,,,,,,,,,,Cae canal Misle
+688,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+689,San Pedro,Cae canal Misle,,,,,,,,,,,,,,,,,,,,,,,Cae canal Misle
+690,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+691,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+692,San Pedro,muerte subita,,,,,,,,,,,,,,,,,,,,,,,muerte subita
+693,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+694,San Pedro,entumido,,,,,,,,,,,,,,,,,,,,,,,entumido
+695,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+696,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+697,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+698,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+699,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+700,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+701,San Pedro,muerte subita,,,,,,,,,,,,,,,,,,,,,,,muerte subita
+702,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+703,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+704,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+705,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+706,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+707,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+708,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+709,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+710,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+711,Arriendo Santa Isabel,enterrada en el barro,,,,,,,,,,,,,,,,,,,,,,,enterrada en el barro
+712,Arriendo Santa Isabel,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+713,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+714,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+715,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+716,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+717,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+718,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+719,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+720,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+721,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+722,Arriendo las quebradas,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+723,Arriendo Santa Isabel,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+724,San Pedro,Nylon,,,,,,,,,,,,,,,,,,,,,,,Nylon
+725,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+726,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+727,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+728,San Pedro,posible falla hepatica,,,,,,,,,,,,,,,,,,,,,,,posible falla hepatica
+729,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+730,San Pedro,Nylon,,,,,,,,,,,,,,,,,,,,,,,Nylon
+731,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+732,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+733,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+734,San Pedro,entumido,,,,,,,,,,,,,,,,,,,,,,,entumido
+735,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+736,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+737,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+738,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+739,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+740,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+741,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+742,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+743,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+744,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+745,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+746,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+747,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+748,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+749,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+750,San Pedro,jotes (diarrea),,,,,,,,,,,,,,,,,,,,,,,jotes (diarrea)
+751,San Pedro,septicemia (exceso de líquido en utrero),,,,,,,,,,,,,,,,,,,,,,,septicemia (exceso de líquido en utrero)
+752,San Pedro,septicemia (exceso de líquido en utrero),,,,,,,,,,,,,,,,,,,,,,,septicemia (exceso de líquido en utrero)
+753,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+754,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+755,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+756,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+757,San Pedro,pisado vacas,,,,,,,,,,,,,,,,,,,,,,,pisado vacas
+758,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+759,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+760,San Pedro,pisado vacas,,,,,,,,,,,,,,,,,,,,,,,pisado vacas
+761,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+762,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+763,San Pedro,pisado vacas,,,,,,,,,,,,,,,,,,,,,,,pisado vacas
+764,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+765,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+766,San Pedro,enterrada en el barro,,,,,,,,,,,,,,,,,,,,,,,enterrada en el barro
+767,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+768,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+769,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+770,Arriendo las quebradas,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+771,Arriendo Santa Isabel,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+772,feedlot,Cólico (pansaso),,,,,,,,,,,,,,,,,,,,,,,Cólico (pansaso)
+773,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+774,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+775,Arriendo las quebradas,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+776,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+777,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+778,Arriendo Santa Isabel,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+779,San Pedro,naylon y pelotas de pelo,,,,,,,,,,,,,,,,,,,,,,,naylon y pelotas de pelo
+780,feedlot,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+781,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+782,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+783,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+784,Arriendo las quebradas,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+785,San Pedro,venta,,,,,,,,,,,,,,,,,venta,,,,,,venta
+786,feedlot,accidente comedero,,,,,,,,,,,,,,,,,,,,,,,accidente comedero
+787,Arriendo las quebradas,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+788,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+789,San Pedro,Cae canal Misle,,,,,,,,,,,,,,,,,,,,,,,Cae canal Misle
+790,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+791,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+792,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+793,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+794,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+795,San Pedro,Fractura columna,,,,,,,,,,,,,,,,,,,,,,,Fractura columna
+796,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+797,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+798,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+799,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+800,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+801,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+802,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+803,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+804,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+805,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+806,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+807,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+808,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+809,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+810,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+811,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+812,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+813,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+814,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+815,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+816,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+817,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+818,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+819,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+820,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+821,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+822,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+823,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+824,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+825,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+826,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+827,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+828,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+829,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+830,San Pedro,Fractura columna,,,,,,,,,,,,,,,,,,,,,,,Fractura columna
+831,Arriendo Santa Isabel,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+832,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+833,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+834,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+835,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+836,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+837,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+838,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+839,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+840,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+841,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+842,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+843,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+844,San Pedro,sin registros,,,,,,,,,,,,,,,,,,,,,,,sin registros
+845,San Pedro,sin registros,,,,,,,,,,,,,,,,,,,,,,,sin registros
+846,San Pedro,sin registros,,,,,,,,,,,,,,,,,,,,,,,sin registros
+847,San Pedro,sin registros,,,,,,,,,,,,,,,,,,,,,,,sin registros
+848,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+849,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+850,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+851,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+852,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+853,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+854,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+855,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+856,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+857,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+858,San Pedro,Nylon,,,,,,,,,,,,,,,,,,,,,,,Nylon
+859,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+860,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+861,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+862,San Pedro,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+863,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+864,feedlot,sin registros,,,,,,,,,,,,,,,,,,,,,,,sin registros
+865,Arriendo las quebradas,Cólico (pansaso),,,,,,,,,,,,,,,,,,,,,,,Cólico (pansaso)
+866,Arriendo las quebradas,cae pozo,,,,,,,,,,,,,,,,,,,,,,,cae pozo
+867,Arriendo las quebradas,cuerpo extraño,,,,,,,,,,,,,,,,,,,,,,,cuerpo extraño
+868,Arriendo las quebradas,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+869,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+870,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+871,San Pedro,entumido,,,,,,,,,,,,,,,,,,,,,,,entumido
+872,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+873,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+874,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+875,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+876,San Pedro,coccidiosis,,,,,,,,,,,,,,,,,,,,,,,coccidiosis
+877,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+878,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+879,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+880,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+881,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+882,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+883,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+884,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+885,San Pedro,Metritis tóxica,,,,,,,,,,,,,,,,,,,,,,,Metritis tóxica
+886,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+887,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+888,San Pedro,venta,,,,,,,,,,,,,,,,,venta,,,,,,venta
+889,San Pedro,venta,,,,,,,,,,,,,,,,,venta,,,,,,venta
+890,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+891,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+892,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+893,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+894,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+895,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+896,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+897,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+898,feedlot,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+899,feedlot,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+900,San Pedro,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+901,San Pedro,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+902,Arriendo las quebradas,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+903,feedlot,sin registros,,,,,,,,,,,,,,,,,,,,,,,sin registros
+904,feedlot,Cólico (pansaso),,,,,,,,,,,,,,,,,,,,,,,Cólico (pansaso)
+905,San Pedro,ternero grande (descaderada),,,,,,,,,,,,,,,,,,,,,,,ternero grande (descaderada)
+906,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+907,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+908,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+909,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+910,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+911,San Pedro,Septicemia,,,,,,,,,,,,,,,,,,,,,,,Septicemia
+912,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+913,San Pedro,parto distocico (septicemia),,,,,,,,,,,,,,,,,,,,,,,parto distocico (septicemia)
+914,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+915,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+916,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+917,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+918,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+919,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+920,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+921,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+922,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+923,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+924,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+925,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+926,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+927,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+928,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+929,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+930,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+931,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+932,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+933,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+934,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+935,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+936,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+937,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+938,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+939,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+940,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+941,San Pedro,Paratuberculosa,,,,,,,,,,,,,,,,,,,,,,,Paratuberculosa
+942,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+943,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+944,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+945,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+946,San Pedro,Cae canal Misle,,,,,,,,,,,,,,,,,,,,,,,Cae canal Misle
+947,feedlot,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+948,feedlot,Apretada por estampida,,,,,,,,,,,,,,,,,,,,,,,Apretada por estampida
+949,San Pedro,Peritonitis,,,,,,,,,,,,,,,,,,,,,,,Peritonitis
+950,feedlot,Peritonitis,,,,,,,,,,,,,,,,,,,,,,,Peritonitis
+951,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+952,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+953,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+954,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+955,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+956,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+957,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+958,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+959,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+960,San Pedro,muerte subita,,,,,,,,,,,,,,,,,,,,,,,muerte subita
+961,feedlot,Septicemia,,,,,,,,,,,,,,,,,,,,,,,Septicemia
+962,Arriendo Santa Isabel,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+963,feedlot,Impactación Ruminal,,,,,,,,,,,,,,,,,,,,Impactación Ruminal,,,Impactación Ruminal
+964,feedlot,Impactación Ruminal,,,,,,,,,,,,,,,,,,,,Impactación Ruminal,,,Impactación Ruminal
+965,feedlot,Úlcera de abomaso,,,,,,,,,,,,,,,,,,,,,,,Úlcera de abomaso
+966,feedlot,accidente comedero,,,,,,,,,,,,,,,,,,,,,,,accidente comedero
+967,feedlot,Pansaso,,,,,,,,,,,,,,,,,,,,,,,Pansaso
+968,San Pedro,Impactación Ruminal,,,,,,,,,,,,,,,,,,,,Impactación Ruminal,,,Impactación Ruminal
+969,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+970,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+971,feedlot,Pansaso,,,,,,,,,,,,,,,,,,,,,,,Pansaso
+972,feedlot,Nylon,,,,,,,,,,,,,,,,,,,,,,,Nylon
+973,San Pedro,prolapso uterino,,,,,,,,,,,,,,,,,,,,,,,prolapso uterino
+974,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+975,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+976,San Pedro,accidente carro aljibe,,,,,,,,,,,,,,,carro aljibe,,,,,,,,accidente carro aljibe
+977,San Pedro,accidente carro aljibe,,,,,,,,,,,,,,,carro aljibe,,,,,,,,accidente carro aljibe
+978,feedlot,Acidosis ruminal,,,,,,,,,,,,,,,,,,,,,,,Acidosis ruminal
+979,San Pedro,vieja no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,vieja no responde a tratamiento
+980,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+981,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+982,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+983,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+984,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+985,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+986,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+987,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+988,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+989,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+990,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+991,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+992,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+993,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+994,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+995,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+996,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+997,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+998,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+999,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1000,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1001,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1002,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1003,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1004,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1005,San Pedro,Montas por machos,,,,,,,,,,,,,,,,,,,,,,,Montas por machos
+1006,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1007,Medieria Chacaipulli,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+1008,San Pedro,naylon y pelotas de pelo,,,,,,,,,,,,,,,,,,,,,,,naylon y pelotas de pelo
+1009,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+1010,San Pedro,posible falla hepatica,,,,,,,,,,,,,,,,,,,,,,,posible falla hepatica
+1011,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1012,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1013,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1014,San Pedro,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+1015,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+1016,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1017,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1018,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1019,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1020,San Pedro,sin diagnostico (post parto),,,,,,,,,,,,,,,,,,,,,,,sin diagnostico (post parto)
+1021,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1022,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1023,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+1024,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+1025,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+1026,San Pedro,Acidosis ruminal,,,,,,,,,,,,,,,,,,,,,,,Acidosis ruminal
+1027,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1028,San Pedro,posible falla hepatica,,,,,,,,,,,,,,,,,,,,,,,posible falla hepatica
+1029,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+1030,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1031,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+1032,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+1033,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1034,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1035,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+1036,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+1037,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1038,San Pedro,jotes (diarrea),,,,,,,,,,,,,,,,,,,,,,,jotes (diarrea)
+1039,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1040,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1041,feedlot,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1042,feedlot,ternero grande (descaderada),,,,,,,,,,,,,,,,,,,,,,,ternero grande (descaderada)
+1043,feedlot,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1044,Arriendo Santa Isabel,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1045,Arriendo Santa Isabel,Peritonitis,,,,,,,,,,,,,,,,,,,,,,,Peritonitis
+1046,feedlot,Ternero Grande,,,,,,,,,,,,,,,,,,,,Ternero Grande,,,Ternero Grande
+1047,feedlot,Ternero Grande,,,,,,,,,,,,,,,,,,,,Ternero Grande,,,Ternero Grande
+1048,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1049,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1050,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1051,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1052,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1053,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1054,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1055,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1056,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1057,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1058,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1059,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1060,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1061,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1062,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1063,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1064,San Pedro,Cólico (pansaso),,,,,,,,,,,,,,,,,,,,,,,Cólico (pansaso)
+1065,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1066,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+1067,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1068,San Pedro,Cólico (pansaso),,,,,,,,,,,,,,,,,,,,,,,Cólico (pansaso)
+1069,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1070,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1071,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1072,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1073,feedlot,Enteritis,,,,,,,,,,,,,,,,,,,,,,,Enteritis
+1074,feedlot,flaco,,,,,,,,,,,,,,,,,,,,,,,flaco
+1075,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1076,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1077,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+1078,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+1079,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1080,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1081,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1082,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1083,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1084,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1085,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1086,feedlot,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1087,San Pedro,parálisis criminal ( hipomagnesemia),,,,,,,,,,,,,,,,,,,,,,,parálisis criminal ( hipomagnesemia)
+1088,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+1089,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1090,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+1091,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1092,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1093,San Pedro,lengua de palo,,,,,,,,,,,,,,,,,,,,,,,lengua de palo
+1094,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1095,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1096,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1097,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1098,San Pedro,vieja no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,vieja no responde a tratamiento
+1099,Arriendo las quebradas,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1100,feedlot,cae patio (descaderado),,,,,,,,,,,,,,,,,,,,,,,cae patio (descaderado)
+1101,feedlot,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+1102,San Pedro,Cólico (pansaso),,,,,,,,,,,,,,,,,,,,,,,Cólico (pansaso)
+1103,San Pedro,cae pozo,,,,,,,,,,,,,,,,,,,,,,,cae pozo
+1104,Arriendo las quebradas,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+1105,San Pedro,Hip lock,,,,,,,,,,,,,,,,,,,,,,,Hip lock
+1106,feedlot,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1107,Arriendo las quebradas,cae pozo,,,,,,,,,,,,,,,,,,,,,,,cae pozo
+1108,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1109,San Pedro,sin diagnostico,,,,,,,,,,,,,,,,,,,,,,,sin diagnostico
+1110,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1111,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1112,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1113,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1114,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1115,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1116,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1117,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1118,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1119,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1120,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1121,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1122,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1123,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1124,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1125,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1126,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1127,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1128,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1129,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1130,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1131,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1132,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1133,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1134,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1135,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1136,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+1137,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1138,feedlot,enterrada en el barro,,,,,,,,,,,,,,,,,,,,,,,enterrada en el barro
+1139,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+1140,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+1141,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1142,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+1143,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+1144,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1145,San Pedro,Paratuberculosa,,,,,,,,,,,,,,,,,,,,,,,Paratuberculosa
+1146,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+1147,San Pedro,Paratuberculosa,,,,,,,,,,,,,,,,,,,,,,,Paratuberculosa
+1148,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+1149,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1150,San Pedro,mal ingresado nacimiento,,,,,,,,,,,,,,,,,,,,,,,mal ingresado nacimiento
+1151,San Pedro,sin Dignostico (raps),,,,,,,,,,,,,,,,,,,,,,,sin Dignostico (raps)
+1152,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1153,San Pedro,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1154,San Pedro,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1155,San Pedro,Fractura columna,,,,,,,,,,,,,,,,,,,,,,,Fractura columna
+1156,San Pedro,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+1157,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1158,San Pedro,Montas por machos,,,,,,,,,,,,,,,,,,,,,,,Montas por machos
+1159,San Pedro,Cae canal Misle,,,,,,,,,,,,,,,,,,,,,,,Cae canal Misle
+1160,San Pedro,Septicemia (pene quebrado),,,,,,,,,,,,,,,,,,,,,,,Septicemia (pene quebrado)
+1161,San Pedro,Cólico (pansaso),,,,,,,,,,,,,,,,,,,,,,,Cólico (pansaso)
+1162,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1163,San Pedro,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+1164,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1165,San Pedro,jotes (diarrea),,,,,,,,,,,,,,,,,,,,,,,jotes (diarrea)
+1166,San Pedro,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+1167,San Pedro,Cae pozo Ortiz,,,,,,,,,,,,,,,,,,,,,,,Cae pozo Ortiz
+1168,San Pedro,Enteritis,,,,,,,,,,,,,,,,,,,,,,,Enteritis
+1169,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+1170,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1171,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1172,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1173,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1174,San Pedro,Cólico (pansaso),,,,,,,,,,,,,,,,,,,,,,,Cólico (pansaso)
+1175,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1176,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1177,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1178,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1179,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1180,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1181,San Pedro,Metritis tóxica,,,,,,,,,,,,,,,,,,,,,,,Metritis tóxica
+1182,San Pedro,Impactación Ruminal,,,,,,,,,,,,,,,,,,,,Impactación Ruminal,,,Impactación Ruminal
+1183,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1184,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1185,San Pedro,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+1186,San Pedro,prolapso uterino,,,,,,,,,,,,,,,,,,,,,,,prolapso uterino
+1187,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1188,San Pedro,problema desplazamiento ( articulaciones inflamadas),,,,,,,,,,,,,,,,,,,,,,,problema desplazamiento ( articulaciones inflamadas)
+1189,San Pedro,Peritonitis,,,,,,,,,,,,,,,,,,,,,,,Peritonitis
+1190,San Pedro,pisado vacas,,,,,,,,,,,,,,,,,,,,,,,pisado vacas
+1191,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1192,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1193,San Pedro,sin diagnostico (post parto),,,,,,,,,,,,,,,,,,,,,,,sin diagnostico (post parto)
+1194,San Pedro,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+1195,San Pedro,coccidiosis ( no responde a tratamiento),,,,,,,,,,,,,,,,,,,tratamiento,,,,coccidiosis ( no responde a tratamiento)
+1196,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1197,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1198,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1199,San Pedro,problema desplazamiento ( articulaciones inflamadas),,,,,,,,,,,,,,,,,,,,,,,problema desplazamiento ( articulaciones inflamadas)
+1200,San Pedro,sin diagnostico,,,,,,,,,,,,,,,,,,,,,,,sin diagnostico
+1201,San Pedro,sin diagnostico,,,,,,,,,,,,,,,,,,,,,,,sin diagnostico
+1202,San Pedro,coccidiosis,,,,,,,,,,,,,,,,,,,,,,,coccidiosis
+1203,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1204,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1205,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1206,San Pedro,atonía Ruminal ( paja),,,,,,,,,,,,,,,,,,,,,,,atonía Ruminal ( paja)
+1207,San Pedro,naylon y pelotas de pelo,,,,,,,,,,,,,,,,,,,,,,,naylon y pelotas de pelo
+1208,San Pedro,naylon y pelotas de pelo,,,,,,,,,,,,,,,,,,,,,,,naylon y pelotas de pelo
+1209,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1210,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1211,San Pedro,accidente ( pisado tractor),,,,,,,,,,,,,,,,,,,,,,,accidente ( pisado tractor)
+1212,San Pedro,hipotermia (nieve),,,,,,,,,,,,,,,,,,,,,,,hipotermia (nieve)
+1213,San Pedro,hipotermia (nieve),,,,,,,,,,,,,,,,,,,,,,,hipotermia (nieve)
+1214,San Pedro,prolapso uterino,,,,,,,,,,,,,,,,,,,,,,,prolapso uterino
+1215,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1216,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+1217,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1218,San Pedro,hijo de vaca con PTBC,,,,,,,,,,,,,,,,,,,,,,,hijo de vaca con PTBC
+1219,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1220,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1221,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1222,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1223,San Pedro,Cae quebrada,,,,,,,,,,,,,,,,,,,,,,,Cae quebrada
+1224,San Pedro,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1225,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1226,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1227,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1228,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+1229,San Pedro,Metritis tóxica,,,,,,,,,,,,,,,,,,,,,,,Metritis tóxica
+1230,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+1231,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1232,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1233,San Pedro,Pansaso,,,,,,,,,,,,,,,,,,,,,,,Pansaso
+1234,San Pedro,Metritis tóxica,,,,,,,,,,,,,,,,,,,,,,,Metritis tóxica
+1235,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1236,San Pedro,naylon y pelotas de pelo,,,,,,,,,,,,,,,,,,,,,,,naylon y pelotas de pelo
+1237,feedlot,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+1238,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1239,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1240,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1241,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1242,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1243,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1244,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1245,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1246,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1247,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1248,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1249,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1250,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1251,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1252,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1253,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1254,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1255,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1256,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1257,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1258,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1259,feedlot,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+1260,feedlot,Cólico (pansaso),,,,,,,,,,,,,,,,,,,,,,,Cólico (pansaso)
+1261,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1262,feedlot,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1263,San Pedro,Timpanismo (papas),,,,,,,,,,,,,,,,,,,,,,,Timpanismo (papas)
+1264,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1265,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1266,feedlot,Parálisis ruminal. ( posible leucosis),,,,,,,,,,,,,,,,,,,,,,,Parálisis ruminal. ( posible leucosis)
+1267,San Pedro,Timpanismo (papas),,,,,,,,,,,,,,,,,,,,,,,Timpanismo (papas)
+1268,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1269,feedlot,Acidosis ruminal,,,,,,,,,,,,,,,,,,,,,,,Acidosis ruminal
+1270,feedlot,absceso hígado,,,,,,,,,,,,,,,,,,,,,,,absceso hígado
+1271,San Pedro,Peritonitis,,,,,,,,,,,,,,,,,,,,,,,Peritonitis
+1272,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1273,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1274,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+1275,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+1276,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1277,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1278,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1279,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1280,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1281,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1282,San Pedro,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1283,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1284,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1285,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1286,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1287,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1288,San Pedro,ajuste inventario,,,,,,,,,,,,,,,,,,,,,,,ajuste inventario
+1289,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1290,San Pedro,Mastitis por coli,,,,,,,,,,,,,,,,,,,,,,,Mastitis por coli
+1291,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1292,San Pedro,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1293,San Pedro,Abomasitis,,,,,,,,,,,,,,,,,,,,,,,Abomasitis
+1294,San Pedro,coccidiosis,,,,,,,,,,,,,,,,,,,,,,,coccidiosis
+1295,San Pedro,abomasitis hemorragica,,,,,,,,,,,,,,,,,,,,,,,abomasitis hemorragica
+1296,San Pedro,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1297,San Pedro,infección intestinal,,,,,,,,,,,,,,,,,,,,,,,infección intestinal
+1298,San Pedro,lengua de palo,,,,,,,,,,,,,,,,,,,,,,,lengua de palo
+1299,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1300,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1301,San Pedro,naylon y pelotas de pelo,,,,,,,,,,,,,,,,,,,,,,,naylon y pelotas de pelo
+1302,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1303,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1304,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+1305,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1306,San Pedro,Perros,,,,,,,,,,,,,,,,,,,,,,,Perros
+1307,San Pedro,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1308,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1309,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1310,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1311,San Pedro,coccidiosis,,,,,,,,,,,,,,,,,,,,,,,coccidiosis
+1312,San Pedro,posible falla hepatica,,,,,,,,,,,,,,,,,,,,,,,posible falla hepatica
+1313,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+1314,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1315,San Pedro,mellizo débil (enteritis),,,,,,,,,,,,,,,,,,,,,,,mellizo débil (enteritis)
+1316,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1317,San Pedro,parálisis criminal ( hipomagnesemia),,,,,,,,,,,,,,,,,,,,,,,parálisis criminal ( hipomagnesemia)
+1318,San Pedro,vieja no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,vieja no responde a tratamiento
+1319,San Pedro,parto distocico (septicemia),,,,,,,,,,,,,,,,,,,,,,,parto distocico (septicemia)
+1320,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1321,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1322,San Pedro,coccidiosis,,,,,,,,,,,,,,,,,,,,,,,coccidiosis
+1323,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1324,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1325,San Pedro,infección intestinal,,,,,,,,,,,,,,,,,,,,,,,infección intestinal
+1326,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1327,San Pedro,infección intestinal,,,,,,,,,,,,,,,,,,,,,,,infección intestinal
+1328,San Pedro,septicemia (exceso de líquido en utrero),,,,,,,,,,,,,,,,,,,,,,,septicemia (exceso de líquido en utrero)
+1329,San Pedro,vieja no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,vieja no responde a tratamiento
+1330,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1331,San Pedro,neumonía cronica,,,,,,,,,,,,,,,,,,,,,,,neumonía cronica
+1332,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1333,San Pedro,caída ternero grande,,,,,,,,,,,,,,,,,,,,,,,caída ternero grande
+1334,feedlot,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+1335,San Pedro,hipermatosis,,,,,,,,,,,,,,,,,,,,,,,hipermatosis
+1336,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1337,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1338,San Pedro,hipermatosis,,,,,,,,,,,,,,,,,,,,,,,hipermatosis
+1339,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1340,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1341,San Pedro,hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,hipomagnesemia
+1342,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1343,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1344,San Pedro,guachero sin madre,,,,,,,,,,,,,,,,,,,,,,,guachero sin madre
+1345,San Pedro,pisado vacas,,,,,,,,,,,,,,,,,,,,,,,pisado vacas
+1346,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+1347,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1348,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+1349,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1350,San Pedro,Pisado vaca,,,,,,,,,,,,,,,,,,,,,,,Pisado vaca
+1351,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+1352,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+1353,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1354,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+1355,San Pedro,hipotermia,,,,,,,,,,,,,,,,,,,,,,,hipotermia
+1356,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1357,San Pedro,panzaso,,,,,,,,,,,,,,,,,,,,,,,panzaso
+1358,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1359,feedlot,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1360,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1361,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1362,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1363,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1364,San Pedro,baja inventario,,,,,,,,,,,,,,,,,,,,,,,baja inventario
+1365,San Pedro,abomasitis hemorragica,,,,,,,,,,,,,,,,,,,,,,,abomasitis hemorragica
+1366,San Pedro,neumonia cronica,,,,,,,,,,,,,,,,,,,,,,,neumonia cronica
+1367,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1368,San Pedro,septicemia mandivula,,,,,,,,,,,,,,,,,,,,,,,septicemia mandivula
+1369,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1370,San Pedro,prolapso uterino,,,,,,,,,,,,,,,,,,,,,,,prolapso uterino
+1371,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1372,San Pedro,Tumor rectal,,,,,,,,,,,,,,,,,,,,,,,Tumor rectal
+1373,San Pedro,Flaca PTBc,,,,,,,,,,,,,,,,,,,,,,,Flaca PTBc
+1374,San Pedro,cojera,,,,,,,,,,,,,,,,,,,,,,,cojera
+1375,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1376,San Pedro,sin madre,,,,,,,,,,,,,,,,,,,,,,,sin madre
+1377,San Pedro,posible falla hepatica,,,,,,,,,,,,,,,,,,,,,,,posible falla hepatica
+1378,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1379,San Pedro,Edema ventral,,,,,,,,,,,,,,,,,,,,,,,Edema ventral
+1380,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1381,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1382,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1383,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1384,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1385,San Pedro,perros,,,,,,,,,,,,,,,,,,,,,,,perros
+1386,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1387,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1388,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+1389,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1390,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1391,San Pedro,empacho,,,,,,,,,,,,,,,,,,,,,,,empacho
+1392,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1393,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1394,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1395,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1396,San Pedro,paralisis ruminal,,,,,,,,,,,,,,,,,,,,,,,paralisis ruminal
+1397,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1398,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1399,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+1400,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1401,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1402,San Pedro,diarrea,,,,,,,,,,,,,,,,,,,,,,,diarrea
+1403,San Pedro,enterrada parque,,,,,,,,,,,,,,,,,,,,,,,enterrada parque
+1404,San Pedro,entumido,,,,,,,,,,,,,,,,,,,,,,,entumido
+1405,San Pedro,taco con bola de pelos,,,,,,,,,,,,,,,,,,,,,,,taco con bola de pelos
+1406,San Pedro,muerte,,,,,,,,,,,,,,,,,,,,,,,muerte
+1407,San Pedro,sin detalle,,,,,,,,,,,,,,,,,,,,,,,sin detalle
+1408,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+1409,San Pedro,temporal,,,,,,,,,,,,,,,,,,,,,,,temporal
+1410,San Pedro,Baja condición corporal,,,,,,,,,,,,,,,,,,,,,,,Baja condición corporal
+1411,San Pedro,Pisado vaca,,,,,,,,,,,,,,,,,,,,,,,Pisado vaca
+1412,San Pedro,Neumonia fulminante,,,,,,,,,,,,,,,,,,,,,,,Neumonia fulminante
+1413,San Pedro,jotes,,,,,,,,,,,,,,,,,,,,,,,jotes
+1414,San Pedro,muerte subita,,,,,,,,,,,,,,,,,,,,,,,muerte subita
+1415,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1416,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1417,San Pedro,no responde a tratamiento,,,,,,,,,,,,,,,,,,,tratamiento,,,,no responde a tratamiento
+1418,San Pedro,Problemas digestivos,,,,,,,,,,,,,,,,,,,,,,,Problemas digestivos
+1419,San Pedro,Diarrea,,,,,,,,,,,,,,,,,,,,,,,Diarrea
+1420,San Pedro,Otras causas,,,,,,,,,,,,,,,,,,,,,,,Otras causas
+1421,San Pedro,Otras causas,,,,,,,,,,,,,,,,,,,,,,,Otras causas
+1422,San Pedro,Otras causas,,,,,,,,,,,,,,,,,,,,,,,Otras causas
+1423,San Pedro,Hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,Hipomagnesemia
+1424,San Pedro,Problemas digestivos,,,,,,,,,,,,,,,,,,,,,,,Problemas digestivos
+1425,San Pedro,Ataque de perros,,,,,,,,,,,,,,,,,,,,,,,Ataque de perros
+1426,San Pedro,Ataque de perros,,,,,,,,,,,,,,,,,,,,,,,Ataque de perros
+1427,San Pedro,Otras causas,,,,,,,,,,,,,,,,,,,,,,,Otras causas
+1428,San Pedro,Ataque de perros,,,,,,,,,,,,,,,,,,,,,,,Ataque de perros
+1429,San Pedro,Problemas respiratorios,,,,,,,,,,,,,,,,,,,,,,,Problemas respiratorios
+1430,San Pedro,Hipomagnesemia,,,,,,,,,,,,,,,,,,,,,,,Hipomagnesemia
+1431,San Pedro,Otras causas,,,,,,,,,,,,,,,,,,,,,,,Otras causas
+1432,San Pedro,Problemas digestivos,,,,,,,,,,,,,,,,,,,,,,,Problemas digestivos

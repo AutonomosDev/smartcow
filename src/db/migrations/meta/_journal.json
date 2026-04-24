@@ -148,6 +148,41 @@
       "when": 1745280000008,
       "tag": "0020_trial_user_support",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1745366400000,
+      "tag": "0021_agroapp_tenencia_negocio",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1745370000000,
+      "tag": "0022_agroapp_proveedores",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1745600000000,
+      "tag": "0023_pesajes_agroapp_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1745686400000,
+      "tag": "0024_tratamientos_sag_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1745772800000,
+      "tag": "0025_traslados_inventarios_agregados",
+      "breakpoints": true
     }
   ]
 }

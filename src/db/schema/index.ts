@@ -10,6 +10,9 @@ export * from "./catalogos";
 // Mediería (antes de animales — animales importa desde aquí)
 export * from "./medieros";
 
+// Proveedores de ganado (AUT-296: ferias, criadores, intermediarios)
+export * from "./proveedores";
+
 // Dominio ganadero
 export * from "./animales";
 export * from "./lotes";
@@ -24,6 +27,7 @@ export * from "./movimientos_potrero";
 export * from "./ventas";
 export * from "./tratamientos";
 export * from "./traslados";
+export * from "./inventarios";
 
 // Datos de mercado externo
 export * from "./precios-feria";

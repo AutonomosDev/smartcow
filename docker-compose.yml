@@ -21,6 +21,7 @@ services:
       - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
       - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
       - LANGFUSE_HOST=${LANGFUSE_HOST:-http://langfuse-web:3000}
+      - RESEND_API_KEY=${RESEND_API_KEY}
       - FORCE_GEMINI_ALL=${FORCE_GEMINI_ALL:-0}
       - NODE_ENV=production
     depends_on:
