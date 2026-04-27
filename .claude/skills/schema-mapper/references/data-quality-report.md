@@ -1,17 +1,18 @@
 # SmartCow — Data Quality Report
 
-Generated: 2026-04-27  
-DB: PostgreSQL prod (`smartcow-db-1`, via SSH tunnel 5435)  
+Generated: 2026-04-27 (post-consolidación AUT-310)  
+DB: `smartcow_local` (pg16 local 5440) — base prod + staging partos merge  
+Prod audit original: 2026-04-27 via SSH tunnel 5435  
 Scope: tablas dominio ganadero (animales, pesajes, partos, bajas, tratamientos, ventas, inseminaciones, ecografías, areteos)
 
 ---
 
-## Resumen ejecutivo
+## Resumen ejecutivo (post-consolidación)
 
 | Dimensión | Score | Severidad mayor |
 |-----------|-------|-----------------|
 | Integridad referencial | ⚠️ 73% | HIGH — diio_madre sin match |
-| Consistencia de negocio | 🔴 CRÍTICO | CRITICAL — bajas table vacía + partos sin cría |
+| Consistencia de negocio | ✅ RESUELTO | CRITICAL-1 ✅ · CRITICAL-2 parcial (12.4% linked) |
 | Completitud | ⚠️ 85% | MEDIUM — activos sin pesaje |
 | Integridad de fechas | ✅ 100% | OK |
 | Duplicados | ✅ 100% | OK |
@@ -46,49 +47,41 @@ Scope: tablas dominio ganadero (animales, pesajes, partos, bajas, tratamientos, 
 
 ---
 
-### 🔴 CRITICAL-1 — Tabla `bajas` vacía (65,264 animales con `estado='baja'` sin registro de evento)
+### ✅ CRITICAL-1 — RESUELTO — Tabla `bajas` poblada (AUT-309)
 
 **Dimensión**: Consistencia de negocio  
-**Severidad**: CRITICAL
+**Severidad**: ~~CRITICAL~~ → ✅ RESUELTO (AUT-309)
 
-**Evidencia**:
+**Estado post-fix**:
 ```
-bajas.count = 0
+bajas.count = 65,264
 animales WHERE estado = 'baja' → 65,264 filas
-animales WITH estado='baja' AND EXISTS(bajas) → 0
+animales WITH estado='baja' AND NOT EXISTS(bajas) → 0  ✅
 ```
 
-**Causa**: La migración AgroApp marcó `animales.estado = 'baja'` para animales históricos dados de baja, pero nunca insertó registros en la tabla `bajas`. El campo `estado` existe como flag de estado actual; los eventos de baja (fecha, motivo, causa, peso) deberían estar en `bajas`.
-
-**Impacto**:
-- Cualquier query que use `bajas` para analizar mortalidad, ventas o causas de baja retorna 0 resultados — dato completamente hueco.
-- `animales ↔ bajas` join-path en join-paths.md produce resultados vacíos.
-- El tool `query_db` en el chat ganadero no puede responder preguntas sobre bajas.
-
-**Fix sugerido**: ETL retroactivo que lea `animales WHERE estado='baja'` e infiera registros de baja desde los datos AgroApp disponibles (fecha de última venta/tratamiento, tipo_ganado). Ticket pendiente.
+**Fix aplicado** (AUT-309, 2026-04-27):
+1. ETL retroactivo via `importBajas` v2: inserción de 65,264 registros en `bajas` a partir de `animales.estado='baja'`
+2. `import-agroapp-excel.ts` actualizado con `ensureBajaEvento()` idempotente — los imports futuros crean el registro de baja automáticamente cuando crean un animal stub con `estado='baja'`.
 
 ---
 
-### 🔴 CRITICAL-2 — 100% de partos `resultado='vivo'` sin `cria_id` (ternero no registrado)
+### ⚠️ CRITICAL-2 — PARCIALMENTE RESUELTO — partos `resultado='vivo'` sin `cria_id`
 
 **Dimensión**: Consistencia de negocio  
-**Severidad**: CRITICAL
+**Severidad**: ~~CRITICAL~~ → ⚠️ PARCIAL (AUT-309 + AUT-310)
 
-**Evidencia**:
+**Estado post-fix** (smartcow_local):
 ```
-partos WHERE resultado = 'vivo' → 11,044
-partos WHERE resultado = 'vivo' AND cria_id IS NULL → 11,044 (100%)
-partos con cria_id NOT NULL → 0
+partos total              → 19,116 (11,044 prod + 8,072 staging)
+partos cria_id NOT NULL   → 2,334 (12.4% de 18,814 vivos)
+partos cria_id IS NULL    → 16,480 — unresolvable sin más datos genealógicos
 ```
 
-**Causa**: La migración AgroApp importó los eventos de parto, pero no vinculó los terneros nacidos como animales separados en la tabla `animales`. El campo `cria_id` nunca fue poblado.
+**Fix aplicado** (AUT-309, 2026-04-27):
+- Backfill SQL cruzando `partos.fecha = animales.fecha_nacimiento + animales.diio_madre` → 996 cria_id linked en prod
+- Merge de staging partos (8,072 records con 1,338 cria_id adicionales) en `smartcow_local` (AUT-310)
 
-**Impacto**:
-- No es posible trazar genealogía completa usando la FK `partos.cria_id → animales.id`.
-- El join-path "madre → crías" vía tabla `partos` no funciona; solo funciona el camino implícito `animales.diio_madre` (texto libre).
-- Análisis de performance de crías (GDP desde nacimiento, primer pesaje) no está disponible.
-
-**Fix sugerido**: Cruzar partos con animales por fecha_nacimiento y diio_madre para inferir el `cria_id` retroactivamente donde sea posible.
+**Residual documentado en AUT-305**: 10,048 partos en prod sin cria_id posible — la alternativa vía `animales.diio_madre` tiene 47.47% sin match en el mismo predio. No resolvable sin más genealogía externa.
 
 ---
 
