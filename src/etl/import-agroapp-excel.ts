@@ -189,6 +189,25 @@ async function ensurePredio(predioMap: Map<string, number>, nombre: string): Pro
   return newId;
 }
 
+// baja_motivo.id=4 "Baja" — usado para stubs sin datos específicos de baja
+const MOTIVO_STUB_ID = 4;
+
+async function ensureBajaEvento(animalId: number, predioId: number, fecha: string): Promise<void> {
+  const existing = await db
+    .select({ id: bajas.id })
+    .from(bajas)
+    .where(eq(bajas.animalId, animalId))
+    .limit(1);
+  if (existing.length) return;
+  await db.insert(bajas).values({
+    predioId,
+    animalId,
+    fecha,
+    motivoId: MOTIVO_STUB_ID,
+    observaciones: "ETL stub: sin registro de baja en AgroApp",
+  });
+}
+
 async function importTratamientos(filePath: string) {
   const rows = await loadSheet(filePath);
   console.log(`Rows en Excel: ${rows.length.toLocaleString()}`);
@@ -302,6 +321,7 @@ async function importTratamientos(filePath: string) {
           animal = { id: ins[0].id, predioId: ins[0].predioId };
           animalMap.set(diio, animal);
           animalesCreados++;
+          await ensureBajaEvento(ins[0].id, predioIdFromFile, fecha);
         } else {
           errors++;
           continue;
@@ -477,6 +497,7 @@ async function importPartos(filePath: string) {
           animal = { id: ins[0].id, predioId: ins[0].predioId };
           animalMap.set(diio, animal);
           animalesCreados++;
+          await ensureBajaEvento(ins[0].id, predioIdFromFile, fecha);
         }
       } catch { noAnimal++; continue; }
       if (!animal) { noAnimal++; continue; }
@@ -538,6 +559,20 @@ async function importPartos(filePath: string) {
       console.log(`  ${i + 1}/${rows.length} | ok:${ok} creados:${animalesCreados} noAnimal:${noAnimal} noFecha:${noFecha} err:${errors}`);
     }
   }
+
+  // Post-proceso: vincular cria_id en partos vivos por fecha_nacimiento + diio_madre
+  console.log(`\n[post] Vinculando cria_id en partos vivos...`);
+  const linkedCrias = await db.execute(sql`
+    UPDATE partos p
+    SET cria_id = a.id
+    FROM animales a
+    WHERE a.predio_id = p.predio_id
+      AND a.fecha_nacimiento = p.fecha
+      AND a.diio_madre = (SELECT diio FROM animales WHERE id = p.madre_id)
+      AND p.cria_id IS NULL
+      AND p.resultado = 'vivo'
+  `);
+  console.log(`  Crías vinculadas: ${(linkedCrias as unknown as { rowCount?: number }).rowCount ?? 0}`);
 
   console.log(`\n=== PARTOS DONE ===`);
   console.log(`Insertados: ${ok}`);
@@ -661,6 +696,7 @@ async function importPesajes(filePath: string) {
           animal = { id: ins[0].id, predioId: ins[0].predioId };
           animalMap.set(diio, animal);
           animalesCreados++;
+          await ensureBajaEvento(ins[0].id, predioId!, fecha);
         } else {
           errorsInsert++;
           continue;

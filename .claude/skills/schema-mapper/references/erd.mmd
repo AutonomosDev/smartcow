@@ -1,0 +1,562 @@
+erDiagram
+    %% ──────────────────────────────────────────────
+    %% CORE TENANT
+    %% ──────────────────────────────────────────────
+    organizaciones {
+        serial id PK
+        varchar nombre
+        varchar rut UK
+        text plan
+        numeric usage_cap_usd
+        jsonb modulos
+        jsonb config
+        timestamp creado_en
+    }
+
+    predios {
+        serial id PK
+        integer org_id FK
+        varchar nombre
+        varchar region
+        tipo_tenencia tipo_tenencia
+        jsonb config
+        timestamp creado_en
+    }
+
+    users {
+        serial id PK
+        integer org_id FK
+        varchar email UK
+        varchar password_hash
+        varchar nombre
+        rol rol
+        timestamp trial_until
+        timestamp creado_en
+    }
+
+    user_predios {
+        integer user_id FK
+        integer predio_id FK
+        rol rol
+    }
+
+    %% ──────────────────────────────────────────────
+    %% THIRD PARTIES
+    %% ──────────────────────────────────────────────
+    medieros {
+        serial id PK
+        integer org_id FK
+        integer predio_id FK
+        varchar nombre
+        varchar rut
+        numeric porcentaje_part
+        tipo_negocio tipo_negocio
+        boolean activo
+    }
+
+    proveedores {
+        serial id PK
+        integer org_id FK
+        varchar nombre UK
+        tipo_proveedor tipo
+        varchar rut
+        boolean activo
+    }
+
+    %% ──────────────────────────────────────────────
+    %% CATALOGOS
+    %% ──────────────────────────────────────────────
+    tipo_ganado {
+        serial id PK
+        varchar nombre UK
+    }
+
+    razas {
+        serial id PK
+        varchar nombre UK
+    }
+
+    estado_reproductivo {
+        serial id PK
+        varchar nombre UK
+    }
+
+    tipo_parto {
+        serial id PK
+        varchar nombre UK
+    }
+
+    subtipo_parto {
+        serial id PK
+        integer tipo_parto_id FK
+        varchar nombre
+    }
+
+    baja_motivo {
+        serial id PK
+        varchar nombre UK
+    }
+
+    baja_causa {
+        serial id PK
+        integer motivo_id FK
+        varchar nombre
+    }
+
+    semen {
+        serial id PK
+        integer predio_id FK
+        varchar toro
+    }
+
+    inseminadores {
+        serial id PK
+        integer predio_id FK
+        varchar nombre
+    }
+
+    %% ──────────────────────────────────────────────
+    %% DOMINIO GANADERO — MASTER
+    %% ──────────────────────────────────────────────
+    animales {
+        serial id PK
+        integer predio_id FK
+        varchar diio
+        varchar eid
+        integer tipo_ganado_id FK
+        integer raza_id FK
+        sexo sexo
+        date fecha_nacimiento
+        integer estado_reproductivo_id FK
+        estado_animal estado
+        varchar diio_madre
+        tipo_propiedad tipo_propiedad
+        integer mediero_id FK
+        modulo_animal modulo_actual
+        boolean desecho
+        timestamp creado_en
+    }
+
+    %% ──────────────────────────────────────────────
+    %% DOMINIO GANADERO — EVENTOS
+    %% ──────────────────────────────────────────────
+    pesajes {
+        serial id PK
+        integer predio_id FK
+        integer animal_id FK
+        numeric peso_kg
+        date fecha
+        varchar dispositivo
+        numeric edad_meses
+        boolean es_peso_llegada
+        integer usuario_id FK
+        timestamp creado_en
+    }
+
+    partos {
+        serial id PK
+        integer predio_id FK
+        integer madre_id FK
+        date fecha
+        resultado_parto resultado
+        integer cria_id FK
+        integer tipo_ganado_cria_id FK
+        integer tipo_parto_id FK
+        integer subtipo_parto_id FK
+        integer semen_id FK
+        integer inseminador_id FK
+        integer numero_partos
+        integer usuario_id FK
+        timestamp creado_en
+    }
+
+    inseminaciones {
+        serial id PK
+        integer predio_id FK
+        integer animal_id FK
+        date fecha
+        integer semen_id FK
+        integer inseminador_id FK
+        resultado_inseminacion resultado
+        integer usuario_id FK
+        timestamp creado_en
+    }
+
+    ecografias {
+        serial id PK
+        integer predio_id FK
+        integer animal_id FK
+        date fecha
+        resultado_ecografia resultado
+        integer dias_gestacion
+        integer usuario_id FK
+        timestamp creado_en
+    }
+
+    areteos {
+        serial id PK
+        integer predio_id FK
+        integer animal_id FK
+        tipo_areteo tipo
+        date fecha
+        varchar diio_nuevo
+        varchar diio_anterior
+        integer usuario_id FK
+        timestamp creado_en
+    }
+
+    bajas {
+        serial id PK
+        integer predio_id FK
+        integer animal_id FK
+        date fecha
+        integer motivo_id FK
+        integer causa_id FK
+        numeric peso_kg
+        integer usuario_id FK
+        timestamp creado_en
+    }
+
+    tratamientos {
+        serial id PK
+        integer predio_id FK
+        integer animal_id FK
+        date fecha
+        time hora_registro
+        varchar id_agroapp
+        varchar diagnostico
+        jsonb medicamentos
+        date inicio
+        date fin
+        date liberacion_carne_max
+        integer usuario_id FK
+        timestamp creado_en
+    }
+
+    ventas {
+        serial id PK
+        integer predio_id FK
+        integer animal_id FK
+        date fecha
+        numeric peso_kg
+        numeric peso_estimado
+        integer venta_id_agroapp
+        varchar destino
+        timestamp creado_en
+    }
+
+    traslados {
+        serial id PK
+        integer animal_id FK
+        date fecha
+        varchar id_agroapp
+        integer predio_origen_id FK
+        integer mediero_origen_id FK
+        integer predio_destino_id FK
+        integer mediero_destino_id FK
+        integer n_animales
+        jsonb tipo_ganado_desglose
+        varchar n_guia
+        integer usuario_id FK
+        timestamp creado_en
+    }
+
+    %% ──────────────────────────────────────────────
+    %% LOTES (feedlot)
+    %% ──────────────────────────────────────────────
+    lotes {
+        serial id PK
+        integer predio_id FK
+        integer org_id FK
+        varchar nombre
+        date fecha_entrada
+        date fecha_salida_estimada
+        numeric objetivo_peso_kg
+        varchar estado
+        timestamp creado_en
+    }
+
+    lote_animales {
+        serial id PK
+        integer lote_id FK
+        integer animal_id FK
+        date fecha_entrada
+        date fecha_salida
+        numeric peso_entrada_kg
+        numeric peso_salida_kg
+        timestamp creado_en
+    }
+
+    %% ──────────────────────────────────────────────
+    %% POTREROS (crianza)
+    %% ──────────────────────────────────────────────
+    potreros {
+        serial id PK
+        integer predio_id FK
+        integer org_id FK
+        varchar nombre
+        decimal hectareas
+        integer capacidad_animales
+        tipo_potrero tipo
+        timestamp creado_en
+    }
+
+    movimientos_potrero {
+        serial id PK
+        integer animal_id FK
+        integer predio_id FK
+        integer org_id FK
+        integer potrero_id FK
+        date fecha_entrada
+        date fecha_salida
+        timestamp creado_en
+    }
+
+    %% ──────────────────────────────────────────────
+    %% INVENTARIOS (schema only — not in prod DB yet)
+    %% ──────────────────────────────────────────────
+    inventarios {
+        serial id PK
+        integer predio_id FK
+        integer mediero_id FK
+        date fecha
+        integer n_encontrados
+        jsonb tg_encontrados
+        integer n_faltantes
+        jsonb tg_faltantes
+        integer usuario_id FK
+        timestamp creado_en
+    }
+
+    %% ──────────────────────────────────────────────
+    %% MERCADO
+    %% ──────────────────────────────────────────────
+    precios_feria {
+        serial id PK
+        text fuente
+        text feria
+        text categoria
+        text peso_rango
+        date fecha
+        numeric precio_kg_clp
+        numeric precio_cabeza_clp
+        text moneda
+        timestamp created_at
+    }
+
+    %% ──────────────────────────────────────────────
+    %% CHAT SYSTEM
+    %% ──────────────────────────────────────────────
+    conversaciones {
+        serial id PK
+        integer user_id FK
+        integer predio_id FK
+        varchar titulo
+        jsonb mensajes
+        timestamp creado_en
+    }
+
+    chat_sessions {
+        serial id PK
+        integer user_id FK
+        integer predio_id FK
+        text titulo
+        timestamp created_at
+    }
+
+    chat_attachments {
+        serial id PK
+        integer user_id FK
+        integer predio_id FK
+        integer session_id FK
+        text filename
+        text mime_type
+        jsonb contenido_json
+        integer filas_count
+        timestamp created_at
+    }
+
+    chat_usage {
+        bigserial id PK
+        integer org_id FK
+        integer user_id FK
+        text session_id
+        integer predio_id
+        text model_id
+        text tier
+        integer tokens_in
+        integer tokens_out
+        numeric cost_usd
+        integer tool_calls
+        timestamp created_at
+    }
+
+    chat_cache {
+        serial id PK
+        integer predio_id
+        integer user_id
+        text question_hash
+        text response_text
+        jsonb artifact_json
+        text model_used
+        integer hits
+        timestamp created_at
+        timestamp expires_at
+    }
+
+    slash_commands {
+        serial id PK
+        text comando UK
+        text label
+        text modulo
+        text prompt_template
+        integer orden
+    }
+
+    user_tasks {
+        serial id PK
+        integer user_id FK
+        integer org_id FK
+        text titulo
+        integer asignado_a FK
+        text estado
+        timestamp due_at
+        timestamp created_at
+    }
+
+    user_memory {
+        serial id PK
+        integer user_id FK
+        text key
+        text value
+        timestamp updated_at
+    }
+
+    kb_documents {
+        serial id PK
+        integer predio_id
+        text nombre
+        text mime_type
+        text file_uri
+        text google_file_name
+        timestamp expires_at
+        timestamp creado_en
+    }
+
+    %% ──────────────────────────────────────────────
+    %% RELATIONSHIPS
+    %% ──────────────────────────────────────────────
+
+    %% Tenant hierarchy
+    organizaciones ||--o{ predios : "org_id"
+    organizaciones ||--o{ users : "org_id"
+    predios ||--o{ user_predios : "predio_id"
+    users ||--o{ user_predios : "user_id"
+
+    %% Third parties
+    organizaciones ||--o{ medieros : "org_id"
+    predios ||--o{ medieros : "predio_id"
+    organizaciones ||--o{ proveedores : "org_id"
+
+    %% Catalogs scoped to predio
+    predios ||--o{ semen : "predio_id"
+    predios ||--o{ inseminadores : "predio_id"
+
+    %% Catalog hierarchy
+    tipo_parto ||--o{ subtipo_parto : "tipo_parto_id"
+    baja_motivo ||--o{ baja_causa : "motivo_id"
+
+    %% Animals (master)
+    predios ||--o{ animales : "predio_id"
+    tipo_ganado ||--o{ animales : "tipo_ganado_id"
+    razas ||--o{ animales : "raza_id"
+    estado_reproductivo ||--o{ animales : "estado_reproductivo_id"
+    medieros ||--o{ animales : "mediero_id"
+
+    %% Event tables → animales
+    animales ||--o{ pesajes : "animal_id"
+    animales ||--o{ partos : "madre_id"
+    animales ||--o{ inseminaciones : "animal_id"
+    animales ||--o{ ecografias : "animal_id"
+    animales ||--o{ areteos : "animal_id"
+    animales ||--o{ bajas : "animal_id"
+    animales ||--o{ tratamientos : "animal_id"
+    animales ||--o{ ventas : "animal_id"
+    animales ||--o{ traslados : "animal_id"
+
+    %% Partos — cría (hijo)
+    animales ||--o{ partos : "cria_id"
+
+    %% Event tables → predio
+    predios ||--o{ pesajes : "predio_id"
+    predios ||--o{ partos : "predio_id"
+    predios ||--o{ inseminaciones : "predio_id"
+    predios ||--o{ ecografias : "predio_id"
+    predios ||--o{ areteos : "predio_id"
+    predios ||--o{ bajas : "predio_id"
+    predios ||--o{ tratamientos : "predio_id"
+    predios ||--o{ ventas : "predio_id"
+
+    %% Event tables → users (audit)
+    users ||--o{ pesajes : "usuario_id"
+    users ||--o{ partos : "usuario_id"
+    users ||--o{ inseminaciones : "usuario_id"
+    users ||--o{ ecografias : "usuario_id"
+    users ||--o{ areteos : "usuario_id"
+    users ||--o{ bajas : "usuario_id"
+    users ||--o{ tratamientos : "usuario_id"
+
+    %% Partos → catalogs
+    tipo_parto ||--o{ partos : "tipo_parto_id"
+    subtipo_parto ||--o{ partos : "subtipo_parto_id"
+    tipo_ganado ||--o{ partos : "tipo_ganado_cria_id"
+    semen ||--o{ partos : "semen_id"
+    inseminadores ||--o{ partos : "inseminador_id"
+
+    %% Inseminaciones → catalogs
+    semen ||--o{ inseminaciones : "semen_id"
+    inseminadores ||--o{ inseminaciones : "inseminador_id"
+
+    %% Bajas → catalogs
+    baja_motivo ||--o{ bajas : "motivo_id"
+    baja_causa ||--o{ bajas : "causa_id"
+
+    %% Traslados → origen/destino
+    predios ||--o{ traslados : "predio_origen_id"
+    predios ||--o{ traslados : "predio_destino_id"
+    medieros ||--o{ traslados : "mediero_origen_id"
+    medieros ||--o{ traslados : "mediero_destino_id"
+    users ||--o{ traslados : "usuario_id"
+
+    %% Lotes (feedlot)
+    predios ||--o{ lotes : "predio_id"
+    organizaciones ||--o{ lotes : "org_id"
+    lotes ||--o{ lote_animales : "lote_id"
+    animales ||--o{ lote_animales : "animal_id"
+
+    %% Potreros (crianza)
+    predios ||--o{ potreros : "predio_id"
+    organizaciones ||--o{ potreros : "org_id"
+    potreros ||--o{ movimientos_potrero : "potrero_id"
+    animales ||--o{ movimientos_potrero : "animal_id"
+    predios ||--o{ movimientos_potrero : "predio_id"
+    organizaciones ||--o{ movimientos_potrero : "org_id"
+
+    %% Inventarios (schema only)
+    predios ||--o{ inventarios : "predio_id"
+    medieros ||--o{ inventarios : "mediero_id"
+
+    %% Chat system
+    users ||--o{ conversaciones : "user_id"
+    predios ||--o{ conversaciones : "predio_id"
+    users ||--o{ chat_sessions : "user_id"
+    predios ||--o{ chat_sessions : "predio_id"
+    users ||--o{ chat_attachments : "user_id"
+    predios ||--o{ chat_attachments : "predio_id"
+    chat_sessions ||--o{ chat_attachments : "session_id"
+    organizaciones ||--o{ chat_usage : "org_id"
+    users ||--o{ chat_usage : "user_id"
+    users ||--o{ user_tasks : "user_id"
+    users ||--o{ user_tasks : "asignado_a"
+    organizaciones ||--o{ user_tasks : "org_id"
+    users ||--o{ user_memory : "user_id"

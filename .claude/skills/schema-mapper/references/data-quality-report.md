@@ -1,0 +1,231 @@
+# SmartCow — Data Quality Report
+
+Generated: 2026-04-27  
+DB: PostgreSQL prod (`smartcow-db-1`, via SSH tunnel 5435)  
+Scope: tablas dominio ganadero (animales, pesajes, partos, bajas, tratamientos, ventas, inseminaciones, ecografías, areteos)
+
+---
+
+## Resumen ejecutivo
+
+| Dimensión | Score | Severidad mayor |
+|-----------|-------|-----------------|
+| Integridad referencial | ⚠️ 73% | HIGH — diio_madre sin match |
+| Consistencia de negocio | 🔴 CRÍTICO | CRITICAL — bajas table vacía + partos sin cría |
+| Completitud | ⚠️ 85% | MEDIUM — activos sin pesaje |
+| Integridad de fechas | ✅ 100% | OK |
+| Duplicados | ✅ 100% | OK |
+| Rangos / Outliers | ✅ 100% | OK |
+
+---
+
+## Row counts (snapshot 2026-04-27)
+
+| Tabla | Filas |
+|-------|-------|
+| pesajes | 79,848 |
+| animales | 77,050 |
+| tratamientos | 65,454 |
+| ventas | 31,204 |
+| precios_feria | 14,196 |
+| partos | 11,044 |
+| inseminaciones | 4,822 |
+| ecografias | 2,732 |
+| areteos | 1,384 |
+| **bajas** | **0** |
+| lotes | 0 |
+| lote_animales | 0 |
+| potreros | 0 |
+| movimientos_potrero | 0 |
+
+`animales` por estado: 65,264 `baja` · 11,786 `activo`
+
+---
+
+## Hallazgos
+
+---
+
+### 🔴 CRITICAL-1 — Tabla `bajas` vacía (65,264 animales con `estado='baja'` sin registro de evento)
+
+**Dimensión**: Consistencia de negocio  
+**Severidad**: CRITICAL
+
+**Evidencia**:
+```
+bajas.count = 0
+animales WHERE estado = 'baja' → 65,264 filas
+animales WITH estado='baja' AND EXISTS(bajas) → 0
+```
+
+**Causa**: La migración AgroApp marcó `animales.estado = 'baja'` para animales históricos dados de baja, pero nunca insertó registros en la tabla `bajas`. El campo `estado` existe como flag de estado actual; los eventos de baja (fecha, motivo, causa, peso) deberían estar en `bajas`.
+
+**Impacto**:
+- Cualquier query que use `bajas` para analizar mortalidad, ventas o causas de baja retorna 0 resultados — dato completamente hueco.
+- `animales ↔ bajas` join-path en join-paths.md produce resultados vacíos.
+- El tool `query_db` en el chat ganadero no puede responder preguntas sobre bajas.
+
+**Fix sugerido**: ETL retroactivo que lea `animales WHERE estado='baja'` e infiera registros de baja desde los datos AgroApp disponibles (fecha de última venta/tratamiento, tipo_ganado). Ticket pendiente.
+
+---
+
+### 🔴 CRITICAL-2 — 100% de partos `resultado='vivo'` sin `cria_id` (ternero no registrado)
+
+**Dimensión**: Consistencia de negocio  
+**Severidad**: CRITICAL
+
+**Evidencia**:
+```
+partos WHERE resultado = 'vivo' → 11,044
+partos WHERE resultado = 'vivo' AND cria_id IS NULL → 11,044 (100%)
+partos con cria_id NOT NULL → 0
+```
+
+**Causa**: La migración AgroApp importó los eventos de parto, pero no vinculó los terneros nacidos como animales separados en la tabla `animales`. El campo `cria_id` nunca fue poblado.
+
+**Impacto**:
+- No es posible trazar genealogía completa usando la FK `partos.cria_id → animales.id`.
+- El join-path "madre → crías" vía tabla `partos` no funciona; solo funciona el camino implícito `animales.diio_madre` (texto libre).
+- Análisis de performance de crías (GDP desde nacimiento, primer pesaje) no está disponible.
+
+**Fix sugerido**: Cruzar partos con animales por fecha_nacimiento y diio_madre para inferir el `cria_id` retroactivamente donde sea posible.
+
+---
+
+### 🟠 HIGH-1 — 47.47% de `diio_madre` sin match en predio (1,371 de 2,888)
+
+**Dimensión**: Integridad referencial implícita  
+**Severidad**: HIGH
+
+**Evidencia**:
+```
+animales WHERE diio_madre IS NOT NULL → 2,888
+sin match en animales.diio (mismo predio) → 1,371 (47.47%)
+```
+
+**Causa**: La genealogía se almacena como texto libre en `animales.diio_madre`. Las madres referenciadas pueden:
+1. Estar dadas de baja (estado='baja') antes de la ventana de importación
+2. Pertenecer a otro predio
+3. Ser datos incompletos de AgroApp
+
+**Impacto**: La alternativa de genealogía vía `diio_madre` (join-paths.md — "Genealogy Join using implicit diio_madre") tiene tasa de éxito del 52.53%.
+
+**Fix sugerido**: Documentar como expected behavior de datos AgroApp. El join-path vía `partos` (FK-backed) es más confiable cuando esté disponible.
+
+---
+
+### 🟡 MEDIUM-1 — 2,922 animales `activo` sin ningún pesaje
+
+**Dimensión**: Completitud  
+**Severidad**: MEDIUM
+
+**Evidencia**:
+```
+animales WHERE estado='activo' AND no pesajes → 2,922
+Desglose por tipo_ganado:
+  Ternero   1,160
+  Ternera     996
+  Vaca        354
+  Novillo     328
+  Vaquilla     82
+  Toro          2
+```
+
+**Causa probable**: Animales importados recientemente o terneros nacidos que aún no han pasado por báscula. Los terneros/terneras (2,156 de 2,922) son los más frecuentes — es normal que recién nacidos no tengan pesaje inicial.
+
+**Impacto**: GDP no calculable para estos animales. El chat ganadero responde "sin datos de peso" para estas consultas.
+
+---
+
+### 🟡 MEDIUM-2 — `inseminaciones.resultado` = 100% `'pendiente'` (4,822 registros)
+
+**Dimensión**: Completitud  
+**Severidad**: MEDIUM
+
+**Evidencia**:
+```
+SELECT DISTINCT resultado FROM inseminaciones → {'pendiente'}
+Total inseminaciones → 4,822
+```
+
+**Causa**: El campo `resultado` nunca fue actualizado después del registro inicial. La confirmación de preñez se hace via `ecografias` (tabla separada, 2,732 registros), pero el campo `inseminaciones.resultado` permanece en su valor default.
+
+**Impacto**: Tasa de concepción directa desde `inseminaciones.resultado` = no calculable. Hay que cruzar con `ecografias` para inferirlo.
+
+---
+
+### 🟡 MEDIUM-3 — Módulos feedlot y crianza sin datos operativos (4 tablas vacías)
+
+**Dimensión**: Completitud  
+**Severidad**: MEDIUM (informativo)
+
+**Evidencia**:
+```
+lotes                = 0 filas
+lote_animales        = 0 filas
+potreros             = 0 filas
+movimientos_potrero  = 0 filas
+```
+
+**Causa**: Los módulos feedlot y crianza están en el schema y en el código, pero no han sido habilitados operativamente para ningún predio/org todavía.
+
+**Impacto**: Las queries del chat ganadero sobre lotes, GDP feedlot y ubicación en potreros retornarán vacío.
+
+---
+
+## Checks sin hallazgos (OK ✅)
+
+| Check | Resultado |
+|-------|-----------|
+| Pesajes huérfanos (sin animal) | 0 |
+| Animales `activo` con registro en bajas | 0 |
+| Pesajes futuros | 0 |
+| Partos futuros | 0 |
+| Nacimientos futuros | 0 |
+| fecha_nacimiento > primer pesaje | 0 |
+| Parto con madre ya dada de baja | 0 |
+| DIIOs duplicados en mismo predio | 0 |
+| Pesajes duplicados (mismo animal, fecha, peso) | 0 |
+| Pesajes mismo animal mismo día distinto peso | 0 |
+| Peso fuera de rango (≤0 o >1500 kg) | 0 |
+| Partos con numero_partos > 20 | 0 |
+| Tratamientos con liberacion_carne > fecha+365d | 0 |
+| Tratamientos con medicamentos null/vacío | 0 |
+| Animales activos sin fecha_nacimiento | 0 |
+| Animales mediería sin mediero_id | 0 |
+
+### Rango de pesos (sanity)
+
+```
+min: 0.30 kg  |  max: 940 kg  |  avg: 458.2 kg
+p01: 180 kg   |  p99: 634 kg
+```
+
+Rango dentro de valores bovinos normales (ternero recién nacido ~30 kg mínimo real, pero 0.30 kg podría ser entrada de arete sin pesaje real — revisar si es dato AgroApp).
+
+---
+
+## Impacto en el chat ganadero (query_db)
+
+| Pregunta | ¿Funciona? | Motivo |
+|----------|-----------|--------|
+| "¿Cuántos animales activos hay?" | ✅ | |
+| "¿Cuál es el GDP de los novillos?" | ✅ parcial | Solo animales con ≥2 pesajes |
+| "¿Cuáles fueron las bajas del último año?" | 🔴 NO | bajas table vacía |
+| "¿Cuántos partos hubo esta temporada?" | ✅ | partos table OK |
+| "¿Qué terneros nacieron de la vaca X?" | ⚠️ solo vía diio_madre | cria_id siempre NULL |
+| "¿Qué animales están en resguardo de carne?" | ✅ | tratamientos.liberacion_carne_max OK |
+| "Tasa de preñez por IA" | ⚠️ | Requiere cruzar con ecografias |
+| "Animales en lote X" | 🔴 NO | lote_animales vacío |
+
+---
+
+## Acciones recomendadas
+
+| Prioridad | Acción | Impacto |
+|-----------|--------|---------|
+| P0 | ETL retroactivo `bajas`: poblar tabla `bajas` desde `animales.estado='baja'` + datos AgroApp | Desbloquea análisis de mortalidad/ventas |
+| P0 | Poblar `partos.cria_id` retroactivamente cruzando por fecha_nacimiento + diio_madre | Desbloquea genealogía y performance de crías |
+| P1 | Documentar que `inseminaciones.resultado` requiere update manual post-IA | Evita confusión en consultas reproductivas |
+| P2 | Investigar los 2,922 activos sin pesaje — ¿son importaciones recientes? | Completitud para GDP |
+| P3 | Mínimo 1 pesaje de referencia para el 0.30 kg outlier | Calidad de dato extremo |
