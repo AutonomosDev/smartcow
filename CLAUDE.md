@@ -16,6 +16,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **EAS BUILD** — Verificar estado con `cd apps/mobile && npx eas-cli build:view <build-id>`. Lanzar builds con `--no-wait`. Nunca monitorear el proceso local con tail.
 
+**ROUTER EN EVOLUCION** — `pickModel()` actual es heuristica simple (AUT-262, Done). AUT-287 IN PROGRESS está implementando router 4 capas (regex → intent → embeddings → sonnet) para bajar costo ~70%. Antes de refactorar `src/lib/router.ts` revisar el estado del ticket.
+
 ## Comandos
 
 ```bash
@@ -46,7 +48,7 @@ Monorepo con web (Next.js) en raiz y mobile (Expo) en `apps/mobile/`.
 - PostgreSQL + Drizzle ORM (`src/db/`) — NUNCA raw queries con `pg`
 - NextAuth v5 (JWT strategy, cookie `__session`, 8h) — `auth.config.ts`
 - Anthropic SDK (`@anthropic-ai/sdk`, modelo `claude-sonnet-4-6`) — chat ganadero SSE con prompt caching
-- Google AI SDK (`@google/genai`, `gemini-3.1-flash-lite-preview`) — chat trial org 99 (AUT-290)
+- Google AI SDK (`@google/genai`, `gemini-3.1-flash-lite-preview`) — chat trial org 99 + `FORCE_GEMINI_ALL=1` (AUT-290, activo en prod)
 - TailwindCSS v4, Radix UI, Recharts, Framer Motion
 - Produccion: Hostinger VPS único (ver `.claude/references/config/infra-and-security.yaml`)
 
@@ -84,7 +86,8 @@ src/
     chat/
       llm-routing.ts          — pickProvider() — anthropic vs google por email/org (AUT-290)
       gemini-loop.ts          — Tool loop Gemini (thoughtSignature preserved, Langfuse tracing AUT-291)
-      anthropic-loop.ts       — Tool loop Anthropic
+    intent/                   — Intercept pre-LLM: catalog.ts + handlers SQL-directo (AUT-287/288)
+    cache.ts                  — Query cache pre-LLM (bypass: header X-Cache-Bypass: 1)
   components/
     chat/                     — Chat panel, sidebar, message renderer
     dashboard/                — Dashboard widgets
@@ -104,13 +107,15 @@ packages/                     — Shared packages
 
 - `conversaciones` — historial de sesiones de chat
 - `chat_sessions` — metadata de sesion
-- `chat_attachments` — PDFs/docs adjuntos al chat
-- `chat_usage` — tracking de tokens, costo, tier por request
+- `chat_attachments` — PDFs/docs adjuntos al chat (trial org 99: bloqueado)
+- `chat_usage` — tracking de tokens, costo, tier por request (incluye cache tokens para costo exacto)
+- `chat_cache` — caché L2/L3 respuestas pre-LLM (`src/lib/cache.ts`, AUT-265)
 - `slash_commands` — comandos guardados por usuario
 - `user_tasks` — tareas generadas por IA
-- `user_memory` — memoria persistente del usuario (embeddings)
-- `kb_documents` — base de conocimiento (PDFs/docs indexados)
+- `user_memory` — memoria persistente del usuario (embeddings, cargada en system prompt)
+- `kb_documents` — base de conocimiento (PDFs/docs indexados, campo `expiresAt`)
 - `precios_feria` — precios de mercado ODEPA (ETL externo)
+- `proveedores` — ferias, criadores, intermediarios (AUT-296)
 
 ### Flujo de auth
 
@@ -119,36 +124,37 @@ packages/                     — Shared packages
 3. **Dev**: `auth()` retorna `DEV_SESSION` sin verificar cookie (NODE_ENV=development)
 4. **Middleware** (Edge): solo verifica presencia de cookie/Bearer, no decodifica JWT
 
-### Flujo del chat ganadero
+### Flujo del chat ganadero (6 capas en orden)
 
-1. Client POST `/api/chat` con messages + predio_id
-2. `withAuth()`/`withAuthBearer()` valida sesion y acceso al predio
-3. `checkRateLimit()` + `checkBudget()` / `highestAllowedTier()` — `src/lib/budget.ts`
-4. `pickModel()` selecciona tier (light/standard/heavy) — `src/lib/router.ts`
-5. Tools declarados en formato Google AI SDK (`CATTLE_TOOLS`), convertidos a Anthropic por `toAnthropicTools()` en `app/api/chat/route.ts`
-6. Anthropic (claude-sonnet-4-6) procesa con CATTLE_TOOLS via SSE
-7. `ejecutarTool()` ejecuta tools contra la DB via Drizzle, valida `predio_id`
-8. `writeChatUsage()` trackea tokens/costo/tier en tabla `chat_usage`
-9. Langfuse trace via `src/lib/langfuse.ts`
-10. Respuesta SSE: text_delta, tool_use, tool_result, done
+1. **Auth + Guards** — `withAuth()`/`withAuthBearer()` + bloqueo horario org 99 (00:00–05:59 CLT) + bloqueo adjuntos org 99
+2. **Rate limit** — 20 req/min por usuario via Redis; fallback in-memory (`src/lib/rate-limit.ts`)
+3. **Query cache** — `tryCache()` en `src/lib/cache.ts`. HIT → SSE inmediato con `done.cached=true`. Bypass: header `X-Cache-Bypass: 1` o si `webSearch=true`
+4. **Intent intercept** — `tryIntercept()` en `src/lib/intent/`. L1 activo: regex contra `catalog.ts`, QUICK_HANDLERS ejecutan SQL directo sin LLM (costo=0, `chat_usage` escribe `modelId="intercept-L1"`). L2 pgvector y L3 haiku definidos, no implementados aún (AUT-287/288)
+5. **Provider + tier routing** — `pickProvider()` selecciona anthropic vs google; `pickModel()` selecciona tier. Tier válidos en código: `light | standard | trial` (`heavy` eliminado en AUT-287, solo existe en YAML). Si provider=google, tier se fuerza a `"trial"` antes del budget check; budget downgrade se skippea para google
+6. **LLM loop** — Anthropic: loop inline en `app/api/chat/route.ts` (max 8 iteraciones, prompt caching `cache_control: ephemeral` en system + tools). Gemini: `runGeminiLoop()` en `src/lib/chat/gemini-loop.ts` (iterar `candidates[0].content.parts` raw — NO usar `chunk.functionCalls` — para preservar `thoughtSignature`)
+
+SSE events emitidos: `text_delta`, `tool_use`, `tool_result`, `artifact_block`, `done`, `error`, `model_selected`, `tier_downgraded`, `budget_warn`. El cliente DEBE consumir `artifact_block` para renderizar tablas/KPIs (AUT-258).
+
+`CATTLE_TOOLS` declarados en formato Google AI SDK en `src/lib/claude.ts`. Para Anthropic, `toAnthropicTools()` normaliza `type` a minúsculas recursivamente. `ejecutarTool()` valida `predio_id` contra `prediosPermitidos`. `query_db` bloquea `users`, `organizaciones`, `sessions` (AUT-275). System prompt prohíbe al modelo revelar model/tier/env vars (AUT-280).
 
 ### LLM Routing y Budget
 
-- **Tiers**: `light` (haiku), `standard` (sonnet-4-6, default), `heavy` (opus) — ver `.claude/references/config/llm-routing-and-budget.yaml`
-- **Router** (`src/lib/router.ts`): `pickModel()` selecciona tier por heuristica (largo query, tool_calls, web_search)
+- **Tiers en código**: `light` (haiku), `standard` (sonnet-4-6, default), `trial` (gemini). `heavy` eliminado del código (AUT-287) pero aparece en YAML — ignorar YAML en este punto
+- **Router** (`src/lib/router.ts`): `pickModel()` — LIGHT_REGEX (frases conversacionales cortas), TOOL_HINT_REGEX (términos dominio), webSearch → standard. Override: env `CHAT_FORCE_TIER`
 - **Budget** (`src/lib/budget.ts`): `checkBudget()`, `canUseTier()`, `highestAllowedTier()` — planes Free/Pro/Enterprise
 - **Tracking**: tabla `chat_usage` — org_id, user_id, model_id, tier, tokens_in/out, cost_usd, tool_calls, latency_ms
 - **Observabilidad**: Langfuse (`src/lib/langfuse.ts`) — traces por request
 
 ### Roles y permisos
-- Jerarquia: `viewer(0) < operador(1) < veterinario(2) < admin_fundo(3) < admin_org(4) < superadmin(5)`
+- Jerarquia: `trial(-1) < viewer(0) < operador(1) < veterinario(2) < admin_fundo(3) < admin_org(4) < superadmin(5)`
+- `trial` = org 99 demo; `rolRank = -1`, bloqueado por cualquier `rolMinimo`. `trialUntil` en users tabla — `withAuth()` verifica expiración
 - `withAuth({ rolMinimo, modulo, predioId })` para server actions
 - Tools de escritura (registrar_pesaje, registrar_parto) requieren rol >= operador
 
 ### AgroApp — estado de migracion (actualizado 2026-04-21, AUT-283)
 - API externa: `http://agroapp.cl:8080/AgroAppWebV18/`
 - Integracion en `src/agroapp/`, ETL en `src/etl/`
-- **Importadas en prod**: animales (7,404), pesajes (10,545), partos (5,522), tratamientos (32,727), inseminaciones (4,822), ecografias (2,732), areteos (1,384), bajas (1,429 via `animales.estado='baja'`), catalogos
+- **Importadas en prod**: animales (7,404), pesajes (10,545), partos (5,522), tratamientos (32,727 — AUT-298 in review re-importa ~74.8k con trazabilidad SAG), inseminaciones (4,822), ecografias (2,732), areteos (1,384), bajas (1,429 via `animales.estado='baja'`), catalogos
 - **Pendientes**:
   - `ventas` — requiere `AGROAPP_PASSWORD` en prod `.env` para `src/etl/import-ventas-detalle.ts`
   - `traslados` — no hay ETL (agregados por lote sin DIIO; `import-agroapp-excel.ts` tiene early-exit explicito)
