@@ -348,9 +348,13 @@ export function ChatPanel({ initialMessage, userName, orgId, initialDashboard }:
     if (initialMessage) return;
     if (messagesRef.current.length > 0) return;
     hasAutoOpenedDashboard.current = true;
+    const ids = initialDashboard.predios.map((p) => p.predioId).join("_");
+    const title = initialDashboard.predios.length === 1
+      ? initialDashboard.predios[0].predioNombre
+      : "Resumen del rebaño";
     const art: ArtifactData = {
-      id: `art_dashboard_${initialDashboard.predioId}`,
-      title: initialDashboard.predioNombre,
+      id: `art_dashboard_${ids}`,
+      title,
       content: JSON.stringify(initialDashboard),
       kind: "dashboard",
     };
