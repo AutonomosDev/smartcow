@@ -1,6 +1,7 @@
 // Tablas base
 export * from "./organizaciones";
 export * from "./kb_documents";
+export * from "./holdings";
 export * from "./predios";
 export * from "./users";
 
@@ -28,6 +29,7 @@ export * from "./ventas";
 export * from "./tratamientos";
 export * from "./traslados";
 export * from "./inventarios";
+export * from "./corrales";
 
 // Datos de mercado externo
 export * from "./precios-feria";
