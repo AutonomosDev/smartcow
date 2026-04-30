@@ -16,7 +16,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **EAS BUILD** — Verificar estado con `cd apps/mobile && npx eas-cli build:view <build-id>`. Lanzar builds con `--no-wait`. Nunca monitorear el proceso local con tail.
 
-**ROUTER EN EVOLUCION** — `pickModel()` actual es heuristica simple (AUT-262, Done). AUT-287 IN PROGRESS está implementando router 4 capas (regex → intent → embeddings → sonnet) para bajar costo ~70%. Antes de refactorar `src/lib/router.ts` revisar el estado del ticket.
+**ROUTER EN EVOLUCION** — `pickModel()` actual es heuristica simple (AUT-262, Done). AUT-287/288 implementan router 4 capas (regex → intent → embeddings → sonnet); L1 (intent intercept SQL-directo) ya activo, L2/L3 pendientes. Antes de refactorar `src/lib/router.ts` o `src/lib/intent/` revisar estado en Linear.
+
+**REFERENCIAS DEL PROYECTO** — Antes de actuar en su dominio, leer:
+- `.claude/references/config/*.yaml` — fuente de verdad operacional (infra-and-security, llm-routing-and-budget, agroapp-inventory, agroapp-schema, chat-queries-catalog)
+- `.claude/skills/*/SKILL.md` — skills locales: cattle-domain, schema-mapper, query-validation, data-quality-audit, programmatic-eda, metric-reconciliation, front-end
+- `scripts/` — utilidades operacionales (audit-schema-sync, sync-staging-from-prod, purge-demo-predios, backfill-cria-id-local, merge-tratamientos-staging, etc.) — correr con `tsx`
 
 ## Comandos
 
@@ -90,7 +95,7 @@ src/
     cache.ts                  — Query cache pre-LLM (bypass: header X-Cache-Bypass: 1)
   components/
     chat/                     — Chat panel, sidebar, message renderer
-    dashboard/                — Dashboard widgets
+    dashboard/                — Dashboard widgets (multi-predio + donuts por categoría, AUT-288 commit 364a4fd)
     ui/                       — Primitivos UI (ai-prompt-box, etc.)
   agroapp/                    — Integracion API externa AgroApp
   etl/                        — Pipelines de importacion datos
@@ -137,6 +142,8 @@ SSE events emitidos: `text_delta`, `tool_use`, `tool_result`, `artifact_block`, 
 
 `CATTLE_TOOLS` declarados en formato Google AI SDK en `src/lib/claude.ts`. Para Anthropic, `toAnthropicTools()` normaliza `type` a minúsculas recursivamente. `ejecutarTool()` valida `predio_id` contra `prediosPermitidos`. `query_db` bloquea `users`, `organizaciones`, `sessions` (AUT-275). System prompt prohíbe al modelo revelar model/tier/env vars (AUT-280).
 
+`buildSystemPrompt()` inyecta `CATTLE_DOMAIN_CONTEXT` (AUT-320, commit b8c8144) — terminología, KPIs y reglas de dominio ganadero cargadas en cada request. Si se modifica el contexto, validar que el cache de prompt (`cache_control: ephemeral`) siga rindiendo.
+
 ### LLM Routing y Budget
 
 - **Tiers en código**: `light` (haiku), `standard` (sonnet-4-6, default), `trial` (gemini). `heavy` eliminado del código (AUT-287) pero aparece en YAML — ignorar YAML en este punto
@@ -151,10 +158,11 @@ SSE events emitidos: `text_delta`, `tool_use`, `tool_result`, `artifact_block`, 
 - `withAuth({ rolMinimo, modulo, predioId })` para server actions
 - Tools de escritura (registrar_pesaje, registrar_parto) requieren rol >= operador
 
-### AgroApp — estado de migracion (actualizado 2026-04-21, AUT-283)
+### AgroApp — estado de migracion (actualizado 2026-04-29, AUT-283)
 - API externa: `http://agroapp.cl:8080/AgroAppWebV18/`
 - Integracion en `src/agroapp/`, ETL en `src/etl/`
-- **Importadas en prod**: animales (7,404), pesajes (10,545), partos (5,522), tratamientos (32,727 — AUT-298 in review re-importa ~74.8k con trazabilidad SAG), inseminaciones (4,822), ecografias (2,732), areteos (1,384), bajas (1,429 via `animales.estado='baja'`), catalogos
+- **Importadas en prod** (snapshot 2026-04-21 — re-verificar con `audit-schema-sync.ts` antes de citar): animales (7,404), pesajes (10,545), partos (5,522), tratamientos (32,727 — AUT-298 re-importa ~74.8k con trazabilidad SAG), inseminaciones (4,822), ecografias (2,732), areteos (1,384), bajas (1,429 via `animales.estado='baja'`), catalogos
+- **Demo data purgada (AUT-317, commit 7aabcfd)**: 149,343 filas eliminadas de predios 14-26 (`scripts/purge-demo-predios.ts`)
 - **Pendientes**:
   - `ventas` — requiere `AGROAPP_PASSWORD` en prod `.env` para `src/etl/import-ventas-detalle.ts`
   - `traslados` — no hay ETL (agregados por lote sin DIIO; `import-agroapp-excel.ts` tiene early-exit explicito)

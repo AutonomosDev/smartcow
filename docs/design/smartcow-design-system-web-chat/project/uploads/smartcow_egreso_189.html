@@ -1,0 +1,188 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{font-family:'DM Sans',sans-serif;display:flex;gap:24px;justify-content:center;padding:32px 16px;background:#fff;flex-wrap:wrap}
+.iphone{width:260px;background:#1c1c1e;border-radius:48px;padding:8px;box-shadow:0 0 0 1.5px #3a3a3c,0 0 0 3px #2c2c2e,0 20px 50px rgba(0,0,0,0.3);position:relative;flex-shrink:0}
+.bl1{position:absolute;left:-2px;top:96px;width:3px;height:26px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl2{position:absolute;left:-2px;top:134px;width:3px;height:34px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl3{position:absolute;left:-2px;top:180px;width:3px;height:34px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.br{position:absolute;right:-2px;top:116px;width:3px;height:56px;background:#3a3a3c;border-radius:0 2px 2px 0}
+.screen{background:#f8f6f1;border-radius:40px;overflow:hidden;padding-bottom:14px}
+.di{width:86px;height:22px;background:#1c1c1e;border-radius:0 0 14px 14px;margin:0 auto}
+.sb{display:flex;justify-content:space-between;padding:3px 18px 0;font-size:10px;font-weight:600;color:#1a1a1a}
+.hdr{padding:6px 13px 4px}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.back{width:22px;height:22px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center;font-size:12px;color:#444}
+.title{font-size:15px;font-weight:600;color:#1a1a1a}
+.sub{font-size:10px;color:#999}
+.hero{margin:0 11px 7px;background:#1e3a2f;border-radius:12px;padding:10px 12px}
+.hl{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:3px}
+.hv{font-size:16px;font-weight:600;color:#fff;margin-bottom:2px}
+.hs{font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:8px}
+.hg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.hi{background:rgba(255,255,255,0.1);border-radius:6px;padding:5px 6px}
+.hil{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:1px}
+.hiv{font-size:12px;font-weight:600;color:#fff}
+.hiv.ok{color:#7ecfa0}
+.card{margin:0 11px 6px;background:#fff;border-radius:12px;padding:10px 12px}
+.ct{font-size:11px;font-weight:600;color:#1a1a1a;margin-bottom:7px}
+.fl{font-size:9px;color:#bbb;margin-bottom:3px}
+.fv{font-size:13px;font-weight:600;color:#1a1a1a}
+.fv.scan{color:#1e3a2f}
+.divider{height:0.5px;background:#f0ede8;margin:7px 0}
+.field{margin-bottom:7px}
+.field:last-child{margin-bottom:0}
+.row{display:flex;gap:6px;margin-bottom:6px}
+.row:last-child{margin-bottom:0}
+.btn-sel{flex:1;border-radius:10px;padding:8px 4px;text-align:center;font-size:10px;font-weight:500;border:1.5px solid #e0ddd8;color:#888;background:#fff}
+.btn-sel.active{background:#1e3a2f;color:#fff;border-color:#1e3a2f}
+.btn-sel.danger{background:#fde8e8;color:#c0392b;border-color:#fde8e8}
+.cta{margin:0 11px;background:#1e3a2f;border-radius:11px;padding:11px;text-align:center;color:#fff;font-size:12px;font-weight:500}
+.peso-row{display:flex;gap:6px;margin:0 11px 6px}
+.peso-box{flex:1;background:#fff;border-radius:10px;padding:8px 10px}
+.peso-label{font-size:9px;color:#bbb;margin-bottom:2px}
+.peso-val{font-size:18px;font-weight:600;color:#1a1a1a}
+.peso-unit{font-size:10px;color:#888}
+.animal-row{margin:0 11px 5px;background:#fff;border-radius:10px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center}
+.ar-diio{font-size:11px;font-weight:600;color:#1a1a1a}
+.ar-info{font-size:10px;color:#888}
+.ar-badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px}
+.sec-hdr{display:flex;justify-content:space-between;padding:0 11px;margin-bottom:5px}
+.sh{font-size:11px;font-weight:600;color:#1a1a1a}
+.sl2{font-size:10px;color:#1e3a2f}
+.prog-card{margin:0 11px 6px;background:#fff;border-radius:12px;padding:10px 12px}
+.prog-track{background:#f0ede8;border-radius:4px;height:5px;margin:5px 0 3px}
+.prog-fill{height:5px;border-radius:4px;background:#1e3a2f}
+.prog-labels{display:flex;justify-content:space-between}
+.prog-label{font-size:9px;color:#bbb}
+</style>
+
+<div class="wrap">
+
+  <!-- PANTALLA 1 — EGRESO INDIVIDUAL -->
+  <div class="iphone">
+    <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+    <div class="screen">
+      <div class="di"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+      <div class="hdr">
+        <div class="hdr-top">
+          <div class="back">‹</div>
+          <span style="font-size:9px;color:#c0392b;font-weight:500">EGRESO</span>
+        </div>
+        <div class="title">Registro egreso</div>
+        <div class="sub">Lote Norte · 14 abr 2026</div>
+      </div>
+
+      <div class="card">
+        <div class="fl">DIIO ESCANEADO</div>
+        <div class="fv scan" style="margin-bottom:4px">276000204581234</div>
+        <div class="divider"></div>
+        <div class="field">
+          <div class="fl">IDENTIFICADO COMO</div>
+          <div class="fv">Novillo · Angus · Lote Norte · 47 días</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ct">Motivo de egreso</div>
+        <div class="row">
+          <div class="btn-sel active">Venta</div>
+          <div class="btn-sel">Faena</div>
+          <div class="btn-sel">Traslado</div>
+        </div>
+        <div class="row">
+          <div class="btn-sel danger">Muerte</div>
+          <div class="btn-sel">Otro</div>
+        </div>
+      </div>
+
+      <div class="peso-row">
+        <div class="peso-box">
+          <div class="peso-label">PESO SALIDA</div>
+          <div class="peso-val">387 <span class="peso-unit">kg</span></div>
+        </div>
+        <div class="peso-box">
+          <div class="peso-label">DESTINO</div>
+          <div style="font-size:12px;font-weight:600;color:#1a1a1a;margin-top:2px">Frigorífico Sur</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="field">
+          <div class="fl">FECHA EGRESO</div>
+          <div class="fv">14 abr 2026</div>
+        </div>
+        <div class="divider"></div>
+        <div class="field">
+          <div class="fl">GUÍA DE TRASLADO SAG</div>
+          <div class="fv">GT-2026-00421</div>
+        </div>
+      </div>
+
+      <div class="cta">Guardar y siguiente</div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 2 — SESIÓN EGRESO MASIVO -->
+  <div class="iphone">
+    <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+    <div class="screen">
+      <div class="di"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+      <div class="hdr">
+        <div class="hdr-top">
+          <div class="back">‹</div>
+          <span style="font-size:9px;color:#c0392b;font-weight:500">EN PROGRESO</span>
+        </div>
+        <div class="title">Egreso lote faena</div>
+        <div class="sub">Lote Central · 155 Angus · Frigorífico Sur</div>
+      </div>
+
+      <div class="hero">
+        <div class="hl">SESIÓN EGRESO</div>
+        <div class="hv">Lote Central → Faena</div>
+        <div class="hs">14 abr · Jaime · Frigorífico Sur</div>
+        <div class="hg">
+          <div class="hi"><div class="hil">Egresados</div><div class="hiv ok">98</div></div>
+          <div class="hi"><div class="hil">Restantes</div><div class="hiv">57</div></div>
+          <div class="hi"><div class="hil">Peso prom.</div><div class="hiv">412 kg</div></div>
+        </div>
+      </div>
+
+      <div class="prog-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+          <span style="font-size:11px;font-weight:600;color:#1a1a1a">Progreso</span>
+          <span style="font-size:11px;color:#888">63%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" style="width:63%"></div></div>
+        <div class="prog-labels">
+          <span class="prog-label">0 animales</span>
+          <span class="prog-label">155 total</span>
+        </div>
+      </div>
+
+      <div class="sec-hdr">
+        <div class="sh">Últimos egresados</div>
+        <div class="sl2">Ver todos →</div>
+      </div>
+
+      <div class="animal-row">
+        <div><div class="ar-diio">...581234</div><div class="ar-info">387 kg · Angus · 09:14</div></div>
+        <span class="ar-badge" style="background:#e6f3ec;color:#1e3a2f">OK</span>
+      </div>
+      <div class="animal-row">
+        <div><div class="ar-diio">...581228</div><div class="ar-info">412 kg · Angus · 09:12</div></div>
+        <span class="ar-badge" style="background:#e6f3ec;color:#1e3a2f">OK</span>
+      </div>
+      <div class="animal-row">
+        <div><div class="ar-diio">...581219</div><div class="ar-info">398 kg · Angus · 09:10</div></div>
+        <span class="ar-badge" style="background:#e6f3ec;color:#1e3a2f">OK</span>
+      </div>
+
+      <div style="height:6px"></div>
+      <div class="cta">Cerrar y sincronizar</div>
+    </div>
+  </div>
+
+</div>

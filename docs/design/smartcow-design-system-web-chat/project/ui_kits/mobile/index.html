@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>SmartCow — Mobile UI Kit</title>
+<link rel="stylesheet" href="kit.css">
+</head>
+<body>
+<div class="stage">
+
+<div class="kit-hdr">
+  <h1>SmartCow — Mobile UI Kit</h1>
+  <p>Hi-fi recreation of the Expo React Native app. Two personas, two flows: <b>JP</b> (dueño del fundo — overview, chat con SmartCow, ficha animal) and <b>Jaime</b> (operario en terreno — pesaje en manga, registro de nacimiento, vacunación, movimientos).</p>
+  <div class="kit-meta"><b>Colores</b> verde bosque #1e3a2f · cream #f8f6f1 · DM Sans · radius 12–16 · iconografía Lucide · Chilean Spanish</div>
+</div>
+
+<!-- ═══════════════════════════════════════ SECTION 1: JP OWNER ═══════════════════════════════════════ -->
+<div>
+  <div class="sec-hdr"><h2>JP — Dueño del fundo</h2><p>Vista estratégica. Comienza en Home (hero con foto del fundo, clima, KPIs macro, alertas críticas). Navega a la Ficha animal y al Chat con SmartCow AI.</p></div>
+  <div class="row" style="margin-top:20px">
+
+    <!-- PHONE 1: HOME -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+        <div class="screen photo">
+          <div style="position:absolute;inset:0"><img src="../../assets/hero_cows.jpg" style="width:100%;height:100%;object-fit:cover;object-position:center 35%;filter:saturate(1.08) brightness(1.04)"></div>
+          <!-- soft top darken for status bar legibility only -->
+          <div style="position:absolute;top:0;left:0;right:0;height:90px;background:linear-gradient(to bottom,rgba(10,22,14,.4) 0%,transparent 100%)"></div>
+          <!-- subtle bottom fade for swipe pill legibility -->
+          <div style="position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to top,rgba(18,34,22,.45) 0%,transparent 100%)"></div>
+
+          <div style="position:relative;z-index:2;height:100%;display:flex;flex-direction:column">
+            <div class="di"></div>
+            <div class="sb light"><span>9:41</span><span>●●●</span></div>
+            <!-- header: all right-aligned, compact, lifted up -->
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:9px;padding:6px 14px 0">
+              <div style="text-align:right">
+                <div style="font-size:9px;color:rgba(255,255,255,.72);letter-spacing:.2px">Buenos días</div>
+                <div style="font-size:15px;font-weight:600;color:#fff;letter-spacing:-.3px;margin-top:-1px">Juan Pablo</div>
+                <div style="font-size:8px;color:rgba(255,255,255,.55);margin-top:1px">Fundo San Pedro · Los Lagos</div>
+              </div>
+              <div style="width:32px;height:32px;border-radius:50%;background:rgba(20,36,25,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:.5px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff">JP</div>
+            </div>
+
+            <!-- content stack: weather big (widget style), then KPIs, then alert -->
+            <div style="padding:24px 11px 0;display:flex;flex-direction:column;gap:7px">
+              <!-- WEATHER widget — iOS style: forecast row on top, temp big below -->
+              <div style="background:rgba(12,26,17,.22);backdrop-filter:blur(22px) saturate(1.3);-webkit-backdrop-filter:blur(22px) saturate(1.3);border:.5px solid rgba(255,255,255,.18);border-radius:18px;padding:11px 11px 13px">
+                <!-- forecast row: 6 day pills, "hoy" highlighted -->
+                <div style="display:flex;gap:4px;margin-bottom:11px">
+                  <div style="flex:1;background:rgba(255,255,255,.14);border-radius:12px;padding:8px 3px;display:flex;flex-direction:column;align-items:center;gap:4px;border:.5px solid rgba(255,255,255,.16)">
+                    <div style="font-size:8px;color:rgba(255,255,255,.65);font-weight:600;font-feature-settings:'tnum'">HOY</div>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="10" r="5" fill="#e8edf2" opacity=".95"/><circle cx="15" cy="12" r="5" fill="#cbd4dc" opacity=".9"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3" stroke="#8fb8da" stroke-width="1.4" stroke-linecap="round"/></svg>
+                    <div style="font-size:11px;font-weight:600;color:#fff;font-feature-settings:'tnum'">6°</div>
+                  </div>
+                  <div style="flex:1;border-radius:12px;padding:8px 3px;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="font-size:8px;color:rgba(255,255,255,.55);font-weight:600;font-feature-settings:'tnum'">SÁB</div>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="11" r="5" fill="#cbd4dc"/><circle cx="15" cy="12" r="4" fill="#a8b4be"/><path d="M9 18l-1 2M13 18l-1 2" stroke="#8fb8da" stroke-width="1.3" stroke-linecap="round"/></svg>
+                    <div style="font-size:11px;font-weight:500;color:rgba(255,255,255,.88);font-feature-settings:'tnum'">8°</div>
+                  </div>
+                  <div style="flex:1;border-radius:12px;padding:8px 3px;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="font-size:8px;color:rgba(255,255,255,.55);font-weight:600;font-feature-settings:'tnum'">DOM</div>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="9" r="4" fill="#f2c46a"/><circle cx="14" cy="12" r="5" fill="#e8edf2"/></svg>
+                    <div style="font-size:11px;font-weight:500;color:rgba(255,255,255,.88);font-feature-settings:'tnum'">11°</div>
+                  </div>
+                  <div style="flex:1;border-radius:12px;padding:8px 3px;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="font-size:8px;color:rgba(255,255,255,.55);font-weight:600;font-feature-settings:'tnum'">LUN</div>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="11" r="5" fill="#f2c46a"/><g stroke="#f2c46a" stroke-width="1.4" stroke-linecap="round"><path d="M12 4v2M12 16v2M4 11h2M18 11h2M6 5l1.5 1.5M16.5 15.5L18 17M6 17l1.5-1.5M16.5 6.5L18 5"/></g></svg>
+                    <div style="font-size:11px;font-weight:500;color:rgba(255,255,255,.88);font-feature-settings:'tnum'">13°</div>
+                  </div>
+                  <div style="flex:1;border-radius:12px;padding:8px 3px;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="font-size:8px;color:rgba(255,255,255,.55);font-weight:600;font-feature-settings:'tnum'">MAR</div>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="11" r="5" fill="#f2c46a"/><g stroke="#f2c46a" stroke-width="1.4" stroke-linecap="round"><path d="M12 4v2M12 16v2M4 11h2M18 11h2M6 5l1.5 1.5M16.5 15.5L18 17M6 17l1.5-1.5M16.5 6.5L18 5"/></g></svg>
+                    <div style="font-size:11px;font-weight:500;color:rgba(255,255,255,.88);font-feature-settings:'tnum'">14°</div>
+                  </div>
+                  <div style="flex:1;border-radius:12px;padding:8px 3px;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="font-size:8px;color:rgba(255,255,255,.55);font-weight:600;font-feature-settings:'tnum'">MIÉ</div>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="11" r="5" fill="#cbd4dc"/><circle cx="15" cy="12" r="4" fill="#a8b4be"/></svg>
+                    <div style="font-size:11px;font-weight:500;color:rgba(255,255,255,.88);font-feature-settings:'tnum'">12°</div>
+                  </div>
+                </div>
+                <!-- main temp + description -->
+                <div style="display:flex;justify-content:space-between;align-items:flex-end">
+                  <div>
+                    <div style="font-size:9px;color:rgba(255,255,255,.5);font-weight:500;margin-bottom:1px">Viernes, 18 abr</div>
+                    <div style="font-size:32px;font-weight:500;color:#fff;line-height:.95;letter-spacing:-1.2px;font-feature-settings:'tnum'">6°<span style="font-size:14px;color:rgba(255,255,255,.5);margin-left:1px">C</span></div>
+                  </div>
+                  <div style="text-align:right;padding-bottom:2px">
+                    <div style="display:flex;align-items:center;gap:4px;justify-content:flex-end">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="10" r="5" fill="#e8edf2"/><circle cx="15" cy="12" r="5" fill="#cbd4dc"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3" stroke="#8fb8da" stroke-width="1.5" stroke-linecap="round"/></svg>
+                      <div style="font-size:10px;font-weight:500;color:#fff">Lluvia leve</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:4px;justify-content:flex-end;margin-top:3px">
+                      <span style="width:5px;height:5px;border-radius:50%;background:#8fd9ab"></span>
+                      <div style="font-size:9px;color:#8fd9ab;font-weight:500">Drone no vuela hoy</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- KPIs row -->
+              <div style="display:flex;gap:5px">
+                <div style="flex:1;background:rgba(12,26,17,.22);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:.5px solid rgba(255,255,255,.16);border-radius:13px;padding:9px 11px">
+                  <div style="font-size:7px;color:rgba(255,255,255,.55);margin-bottom:2px;font-weight:600;letter-spacing:.5px">DÓLAR</div>
+                  <div style="font-size:14px;font-weight:600;color:#fff;font-feature-settings:'tnum';letter-spacing:-.3px">$938</div>
+                  <div style="font-size:8px;color:#8fd9ab;margin-top:1px;font-feature-settings:'tnum'">+$4 hoy</div>
+                </div>
+                <div style="flex:1;background:rgba(12,26,17,.22);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:.5px solid rgba(255,255,255,.16);border-radius:13px;padding:9px 11px">
+                  <div style="font-size:7px;color:rgba(255,255,255,.55);margin-bottom:2px;font-weight:600;letter-spacing:.5px">ODEPA</div>
+                  <div style="font-size:14px;font-weight:600;color:#fff;font-feature-settings:'tnum';letter-spacing:-.3px">$1.840</div>
+                  <div style="font-size:8px;color:rgba(255,255,255,.5);margin-top:1px">/kg vivo</div>
+                </div>
+                <div style="flex:1;background:rgba(12,26,17,.22);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:.5px solid rgba(255,255,255,.16);border-radius:13px;padding:9px 11px">
+                  <div style="font-size:7px;color:rgba(255,255,255,.55);margin-bottom:2px;font-weight:600;letter-spacing:.5px">ANIMALES</div>
+                  <div style="font-size:14px;font-weight:600;color:#8fd9ab;font-feature-settings:'tnum';letter-spacing:-.3px">242</div>
+                  <div style="font-size:8px;color:rgba(255,255,255,.5);margin-top:1px">activos</div>
+                </div>
+              </div>
+
+              <!-- alert row, slim -->
+              <div style="background:rgba(185,50,42,.45);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-radius:13px;padding:9px 12px;display:flex;align-items:center;gap:9px;border:.5px solid rgba(255,255,255,.18)">
+                <div style="width:7px;height:7px;border-radius:50%;background:#fff;flex-shrink:0;box-shadow:0 0 0 3px rgba(255,255,255,.22)"></div>
+                <div style="font-size:10px;color:#fff;line-height:1.3;flex:1"><b style="font-weight:600">Bebedero Corral 3 vacío</b> · 38 animales · 13 h sin agua</div>
+                <div style="font-size:12px;color:rgba(255,255,255,.65)">›</div>
+              </div>
+            </div>
+
+            <!-- swipe-up pill at very bottom, minimal, no cajón -->
+            <div style="position:absolute;bottom:10px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:3;pointer-events:none">
+              <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:500;letter-spacing:.3px">Desliza para hablar con SmartCow</div>
+              <div style="width:120px;height:4px;border-radius:2px;background:rgba(255,255,255,.35)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-cap">Home (JP)</div>
+      <div class="phone-sub">Hero foto Angus, glassmorphism en paleta (verde bosque translúcido, sin blanco). Sin cajón "hablar con SmartCow" — swipe-up pill abajo abre el chat.</div>
+    </div>
+
+    <!-- PHONE 2: CHAT SMARTCOW -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+        <div class="screen">
+          <div class="di"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="hdr">
+            <div class="hdr-top">
+              <div class="back">‹</div>
+              <div style="font-size:9px;font-weight:600;color:#1e3a2f;background:#e6f3ec;padding:3px 8px;border-radius:10px">EN LÍNEA</div>
+            </div>
+            <div class="tt">SmartCow AI</div>
+            <div class="tsub">Tu asistente del fundo</div>
+          </div>
+
+          <div style="padding:8px 13px 70px;display:flex;flex-direction:column;gap:7px">
+            <div style="align-self:flex-start;max-width:80%;display:flex;gap:6px;align-items:flex-end">
+              <div style="width:20px;height:20px;border-radius:50%;background:#1e3a2f;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;color:#7ecfa0;flex-shrink:0">SC</div>
+              <div style="background:#fff;border-radius:14px 14px 14px 4px;padding:8px 11px">
+                <div style="font-size:11px;color:#1a1a1a;line-height:1.4">Buenos días JP. Resumen de tus 4 lotes listo.</div>
+              </div>
+            </div>
+
+            <div style="align-self:flex-end;max-width:85%;background:#fff;border-radius:12px;padding:9px 11px;border:.5px solid #e8e5df">
+              <div style="font-size:9px;color:#888;margin-bottom:4px;font-weight:600;letter-spacing:.3px">📊 ESTADO DE LOTES</div>
+              <div style="display:flex;flex-direction:column;gap:5px">
+                <div style="display:flex;justify-content:space-between;font-size:10px"><span style="color:#1a1a1a;font-weight:600">Lote Norte</span><span style="color:#1e3a2f;font-weight:600">1.8 kg/d ↑</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:10px"><span style="color:#1a1a1a;font-weight:600">Lote Sur</span><span style="color:#1e3a2f;font-weight:600">1.6 kg/d →</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:10px"><span style="color:#1a1a1a;font-weight:600">Lote Central</span><span style="color:#e74c3c;font-weight:600">1.2 kg/d ↓</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:10px"><span style="color:#1a1a1a;font-weight:600">Lote Este</span><span style="color:#1e3a2f;font-weight:600">1.7 kg/d ↑</span></div>
+              </div>
+            </div>
+
+            <div style="align-self:flex-start;max-width:82%;display:flex;gap:6px;align-items:flex-end">
+              <div style="width:20px;height:20px;border-radius:50%;background:#1e3a2f;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;color:#7ecfa0;flex-shrink:0">SC</div>
+              <div style="background:#fff;border-radius:14px 14px 14px 4px;padding:8px 11px">
+                <div style="font-size:11px;color:#1a1a1a;line-height:1.4">Lote Central preocupa — GDP cayó esta semana. Revisa comedero, el silo B está bajo 18%.</div>
+              </div>
+            </div>
+
+            <div style="align-self:flex-end;max-width:75%;background:#1e3a2f;border-radius:14px 14px 4px 14px;padding:8px 11px">
+              <div style="font-size:11px;color:#fff;line-height:1.4">¿Qué costo tengo por kg ganado esta semana?</div>
+            </div>
+
+            <div style="align-self:flex-start;display:flex;gap:6px;align-items:flex-end">
+              <div style="width:20px;height:20px;border-radius:50%;background:#1e3a2f;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;color:#7ecfa0;flex-shrink:0">SC</div>
+              <div style="background:#fff;border-radius:14px 14px 14px 4px;padding:6px 10px">
+                <div style="display:flex;gap:3px"><div style="width:5px;height:5px;border-radius:50%;background:#bbb"></div><div style="width:5px;height:5px;border-radius:50%;background:#bbb"></div><div style="width:5px;height:5px;border-radius:50%;background:#bbb"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat composer drawer -->
+          <div style="position:absolute;bottom:0;left:0;right:0;background:#f8f6f1;border-top:.5px solid #ebe9e3;padding:8px 10px 10px;display:flex;flex-direction:column;gap:7px">
+            <!-- quick suggestions chip row -->
+            <div style="display:flex;gap:5px;overflow:hidden">
+              <div style="background:#fff;border:.5px solid #e0ddd8;border-radius:14px;padding:5px 9px;font-size:9px;color:#1a1a1a;white-space:nowrap">Lote Central</div>
+              <div style="background:#fff;border:.5px solid #e0ddd8;border-radius:14px;padding:5px 9px;font-size:9px;color:#1a1a1a;white-space:nowrap">Costos de la semana</div>
+              <div style="background:#fff;border:.5px solid #e0ddd8;border-radius:14px;padding:5px 9px;font-size:9px;color:#1a1a1a;white-space:nowrap">Proyección faena</div>
+            </div>
+            <!-- input pill -->
+            <div style="background:#fff;border:.5px solid #e0ddd8;border-radius:20px;padding:6px 6px 6px 10px;display:flex;align-items:center;gap:6px">
+              <!-- attach -->
+              <div style="width:26px;height:26px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11l-9 9a5 5 0 0 1-7-7l9-9a3.5 3.5 0 0 1 5 5l-9 9a2 2 0 1 1-3-3l8-8"/></svg>
+              </div>
+              <!-- input text -->
+              <div style="flex:1;font-size:11px;color:#aaa;padding:2px 0">Escribe a SmartCow…</div>
+              <!-- web -->
+              <div style="width:26px;height:26px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
+              </div>
+              <!-- mic -->
+              <div style="width:26px;height:26px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+              </div>
+              <!-- send -->
+              <div style="width:30px;height:30px;border-radius:50%;background:#1e3a2f;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-cap">Chat con SmartCow AI</div>
+      <div class="phone-sub">AI data-first: artifacts embebidos (tabla de GDPs), voz declarativa. Sin emojis en respuestas; headers con icono como shorthand.</div>
+    </div>
+
+    <!-- PHONE 3: FICHA ANIMAL -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+        <div class="screen">
+          <div class="di"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="hdr">
+            <div class="hdr-top"><div class="back">‹</div><span style="font-size:9px;color:#888;font-weight:500">DIIO</span></div>
+            <div class="tt">Ficha animal</div>
+            <div class="tsub">Lote Norte · Fundo San Pedro</div>
+          </div>
+
+          <div class="hero">
+            <div class="hl">IDENTIFICACIÓN</div>
+            <div class="hv">276000204581234</div>
+            <div class="hs">Novillo · Angus · Macho · 4 años</div>
+            <div class="grid3">
+              <div class="hi"><div class="hil">Peso</div><div class="hiv ok">387 kg</div></div>
+              <div class="hi"><div class="hil">GDP</div><div class="hiv ok">1.8 kg/d</div></div>
+              <div class="hi"><div class="hil">Estado</div><div class="hiv">Activo</div></div>
+            </div>
+          </div>
+
+          <div class="tabs">
+            <div class="tab on">Datos</div>
+            <div class="tab off">Pesajes</div>
+            <div class="tab off">Sanidad</div>
+            <div class="tab off">Eventos</div>
+          </div>
+
+          <div class="card">
+            <div class="ct">Información general</div>
+            <div class="grid2">
+              <div class="field"><div class="fl">RAZA</div><div class="fv">Angus negro</div></div>
+              <div class="field"><div class="fl">SEXO</div><div class="fv">Macho</div></div>
+              <div class="field"><div class="fl">NACIMIENTO</div><div class="fv">12 mar 2022</div></div>
+              <div class="field"><div class="fl">EDAD</div><div class="fv">4 a 1 m</div></div>
+              <div class="field"><div class="fl">MADRE</div><div class="fv">...581198</div></div>
+              <div class="field"><div class="fl">POTRERO</div><div class="fv">Norte</div></div>
+            </div>
+            <div class="divider"></div>
+            <div class="field"><div class="fl">INGRESO AL PREDIO</div><div class="fv">Agropecuaria González · 15 feb 2026</div></div>
+            <div class="divider"></div>
+            <div class="field"><div class="fl">DÍAS EN ENGORDA</div><div class="fv">58 días · Obj. faena 420 kg</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-cap">Ficha animal — Datos</div>
+      <div class="phone-sub">Hero verde con identificación + KPIs. Tabs: Datos / Pesajes / Sanidad / Eventos. Card con grid 2-col de metadatos.</div>
+    </div>
+
+    <!-- PHONE 4: FICHA — EVENTOS -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+        <div class="screen">
+          <div class="di"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="hdr">
+            <div class="hdr-top"><div class="back">‹</div><span style="font-size:9px;color:#888;font-weight:500">...581234</span></div>
+            <div class="tt">Ficha animal</div>
+            <div class="tsub">Angus · 387 kg · GDP 1.8 kg/d</div>
+          </div>
+          <div class="tabs">
+            <div class="tab off">Datos</div>
+            <div class="tab off">Pesajes</div>
+            <div class="tab off">Sanidad</div>
+            <div class="tab on">Eventos</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0 11px;margin-bottom:5px">
+            <span style="font-size:11px;font-weight:600">Historial completo</span>
+            <span style="font-size:10px;color:#1e3a2f">14 eventos</span>
+          </div>
+          <div class="event"><div class="ev-dot" style="background:#1e3a2f"></div><div class="ev-content"><div class="ev-title">Pesaje — 387 kg</div><div class="ev-meta">GDP 1.8 · CC 3 · Jaime</div></div><div class="ev-date">14 abr</div></div>
+          <div class="event"><div class="ev-dot" style="background:#1a5276"></div><div class="ev-content"><div class="ev-title">Vacuna — Bovilis RSP</div><div class="ev-meta">5ml s.c. · Dr. Muñoz</div></div><div class="ev-date">10 abr</div></div>
+          <div class="event"><div class="ev-dot" style="background:#1e3a2f"></div><div class="ev-content"><div class="ev-title">Pesaje — 362 kg</div><div class="ev-meta">GDP 1.6 · CC 3 · Jaime</div></div><div class="ev-date">27 mar</div></div>
+          <div class="event"><div class="ev-dot" style="background:#f39c12"></div><div class="ev-content"><div class="ev-title">Movimiento potrero</div><div class="ev-meta">Sur → Norte · Jaime</div></div><div class="ev-date">20 mar</div></div>
+          <div class="event"><div class="ev-dot" style="background:#e74c3c"></div><div class="ev-content"><div class="ev-title">Tratamiento — Oxitetra.</div><div class="ev-meta">Neumonía · Dr. Muñoz · 7 d</div></div><div class="ev-date">12 mar</div></div>
+          <div class="event"><div class="ev-dot" style="background:#9b5e1a"></div><div class="ev-content"><div class="ev-title">Ingreso al predio</div><div class="ev-meta">Agrop. González · 298 kg</div></div><div class="ev-date">15 feb</div></div>
+        </div>
+      </div>
+      <div class="phone-cap">Ficha — Eventos</div>
+      <div class="phone-sub">Historial color-coded: verde pesaje · azul sanidad · naranja movimiento · rojo tratamiento · marrón ingreso.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SECTION 2: JAIME OPERARIO ═══════════════════════════════════════ -->
+<div>
+  <div class="sec-hdr"><h2>Jaime — Operario en terreno</h2><p>Tareas rápidas en la manga. Offline-first, escaneo con bastón XRS2i, CTAs grandes para guantes. Captura > lee — su día es registrar eventos, no consultarlos.</p></div>
+  <div class="row" style="margin-top:20px">
+
+    <!-- PHONE 5: NACIMIENTO -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+        <div class="screen">
+          <div class="di"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="hdr">
+            <div class="hdr-top"><div class="back">‹</div><span class="badge b-ok">NUEVO PARTO</span></div>
+            <div class="tt">Registro nacimiento</div>
+            <div class="tsub">Lunes 14 abr · 06:30 · Jaime</div>
+          </div>
+
+          <div class="offline"><div class="dot"></div>Funciona sin internet — sync al volver señal</div>
+
+          <div class="card">
+            <div class="ct">Identificación</div>
+            <div class="field"><div class="fl">DIIO MADRE (escaneado)</div><div class="fv" style="color:#1e3a2f">276000204581198</div></div>
+            <div class="divider"></div>
+            <div class="field"><div class="fl">MADRE</div><div class="fv">Vaca Angus · Lote Sur · Ing. 10 ene 24</div></div>
+            <div class="divider"></div>
+            <div class="field"><div class="fl">DIIO CRÍA (arete nuevo)</div><div class="fv" style="color:#ddd;font-weight:400">Escanear cuando esté colocado…</div></div>
+          </div>
+
+          <div class="card">
+            <div class="ct">Tipo de parto</div>
+            <div style="display:flex;gap:5px">
+              <div style="flex:1;background:#1e3a2f;color:#fff;border-radius:10px;padding:9px 6px;text-align:center;font-size:10px;font-weight:500">Normal</div>
+              <div style="flex:1;background:#fff;border:1.5px solid #e0ddd8;color:#888;border-radius:10px;padding:9px 6px;text-align:center;font-size:10px;font-weight:500">Distócico</div>
+              <div style="flex:1;background:#fff;border:1.5px solid #e0ddd8;color:#888;border-radius:10px;padding:9px 6px;text-align:center;font-size:10px;font-weight:500">C. asistido</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:64px">
+            <div class="ct">Cría</div>
+            <div class="grid2">
+              <div class="field"><div class="fl">SEXO</div><div class="fv">Hembra</div></div>
+              <div class="field"><div class="fl">PESO NACER</div><div class="fv">34 kg</div></div>
+              <div class="field"><div class="fl">VITALIDAD</div><div class="fv" style="color:#1e3a2f">Buena</div></div>
+              <div class="field"><div class="fl">MAMADA</div><div class="fv" style="color:#1e3a2f">OK · 20 min</div></div>
+            </div>
+          </div>
+
+          <div class="cta-bar"><div class="cta">Guardar nacimiento</div></div>
+        </div>
+      </div>
+      <div class="phone-cap">Nacimiento (AUT-184)</div>
+      <div class="phone-sub">Offline-first. Escaneo DIIO madre → cría. Segmented para tipo de parto. CTA fijo inferior.</div>
+    </div>
+
+    <!-- PHONE 6: PESAJE / BASTÓN XRS2i -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+        <div class="screen">
+          <div class="di"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="hdr">
+            <div class="hdr-top"><div class="back">‹</div><span class="badge b-info">MANGA</span></div>
+            <div class="tt">Pesaje en manga</div>
+            <div class="tsub">Lote Norte · 24/110 pesados</div>
+          </div>
+
+          <div class="offline" style="background:#e6f3ec;color:#1e3a2f"><div class="dot" style="background:#7ecfa0;box-shadow:0 0 0 4px rgba(126,207,160,.2)"></div>Bastón XRS2i conectado · Báscula TruTest S3</div>
+
+          <div style="margin:0 11px 6px;background:#1e3a2f;border-radius:12px;padding:20px 14px;text-align:center">
+            <div class="hl" style="margin-bottom:5px">DIIO ACTUAL</div>
+            <div style="font-size:18px;font-weight:600;color:#fff;letter-spacing:-.3px;font-feature-settings:'tnum'">276000204581234</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.6);margin-top:3px">Novillo Angus · Lote Norte</div>
+            <div style="margin-top:14px;padding-top:12px;border-top:.5px solid rgba(255,255,255,.1)">
+              <div class="hl">PESO</div>
+              <div style="font-size:40px;font-weight:600;color:#7ecfa0;line-height:1;letter-spacing:-1.5px;font-feature-settings:'tnum'">387<span style="font-size:18px;font-weight:400;color:rgba(255,255,255,.5);margin-left:4px">kg</span></div>
+              <div style="font-size:10px;color:rgba(255,255,255,.6);margin-top:4px">Pesaje anterior 362 kg · <span style="color:#7ecfa0">+25 en 18d · 1.4 kg/d</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ct">Condición corporal</div>
+            <div style="display:flex;gap:4px">
+              <div style="flex:1;background:#fff;border:1.5px solid #e0ddd8;border-radius:8px;padding:8px;text-align:center;font-size:11px;color:#888">1</div>
+              <div style="flex:1;background:#fff;border:1.5px solid #e0ddd8;border-radius:8px;padding:8px;text-align:center;font-size:11px;color:#888">2</div>
+              <div style="flex:1;background:#1e3a2f;color:#fff;border-radius:8px;padding:8px;text-align:center;font-size:11px;font-weight:600">3</div>
+              <div style="flex:1;background:#fff;border:1.5px solid #e0ddd8;border-radius:8px;padding:8px;text-align:center;font-size:11px;color:#888">4</div>
+              <div style="flex:1;background:#fff;border:1.5px solid #e0ddd8;border-radius:8px;padding:8px;text-align:center;font-size:11px;color:#888">5</div>
+            </div>
+          </div>
+
+          <div class="cta-bar" style="display:flex;gap:6px"><div class="cta sec" style="flex:1">Saltar</div><div class="cta" style="flex:2">Confirmar y siguiente</div></div>
+        </div>
+      </div>
+      <div class="phone-cap">Pesaje en manga (bastón)</div>
+      <div class="phone-sub">Hero verde con DIIO + peso grande + GDP implícito. Condición corporal 1–5. Dos CTAs: saltar / confirmar.</div>
+    </div>
+
+    <!-- PHONE 7: VACUNACIÓN -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+        <div class="screen">
+          <div class="di"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="hdr">
+            <div class="hdr-top"><div class="back">‹</div><span class="badge b-info">LOTE</span></div>
+            <div class="tt">Vacunación masiva</div>
+            <div class="tsub">Bovilis RSP · Lote Sur</div>
+          </div>
+
+          <div class="card" style="background:#1e3a2f">
+            <div class="hl">PROGRESO</div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:3px;margin-bottom:6px">
+              <div style="font-size:22px;font-weight:600;color:#fff;letter-spacing:-.5px">68 / 94</div>
+              <div style="font-size:11px;color:#7ecfa0;font-weight:500">72%</div>
+            </div>
+            <div style="background:rgba(255,255,255,.1);border-radius:4px;height:5px"><div style="height:5px;border-radius:4px;background:#7ecfa0;width:72%"></div></div>
+          </div>
+
+          <div class="card">
+            <div class="ct">Producto</div>
+            <div class="grid2">
+              <div class="field"><div class="fl">LABORATORIO</div><div class="fv">MSD Salud Animal</div></div>
+              <div class="field"><div class="fl">LOTE</div><div class="fv">BR-2026-014</div></div>
+              <div class="field"><div class="fl">DOSIS</div><div class="fv">5 ml s.c.</div></div>
+              <div class="field"><div class="fl">VENCIMIENTO</div><div class="fv">08 nov 2026</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ct">Último escaneado</div>
+            <div class="field"><div class="fl">DIIO</div><div class="fv" style="color:#1e3a2f">276000204581221</div></div>
+            <div class="divider"></div>
+            <div style="display:flex;gap:5px">
+              <div style="flex:1;background:#1e3a2f;color:#fff;border-radius:8px;padding:8px;text-align:center;font-size:10px;font-weight:500">✓ Dosis OK</div>
+              <div style="flex:1;background:#fdf0e6;color:#9b5e1a;border-radius:8px;padding:8px;text-align:center;font-size:10px;font-weight:500">Reacción</div>
+              <div style="flex:1;background:#fff;border:1.5px solid #e0ddd8;color:#888;border-radius:8px;padding:8px;text-align:center;font-size:10px;font-weight:500">Saltar</div>
+            </div>
+          </div>
+
+          <div class="cta-bar"><div class="cta">Siguiente animal</div></div>
+        </div>
+      </div>
+      <div class="phone-cap">Vacunación (AUT-187)</div>
+      <div class="phone-sub">Modo sesión: progreso arriba, producto fijo, acción rápida por animal escaneado.</div>
+    </div>
+
+    <!-- PHONE 8: MOVIMIENTO POTRERO -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+        <div class="screen">
+          <div class="di"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="hdr">
+            <div class="hdr-top"><div class="back">‹</div><span class="badge b-warn">MOVIMIENTO</span></div>
+            <div class="tt">Traslado de lote</div>
+            <div class="tsub">Sur → Norte · 110 animales</div>
+          </div>
+
+          <div class="card">
+            <div class="ct">Origen → destino</div>
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 0">
+              <div style="flex:1;background:#ebe9e3;border-radius:8px;padding:8px 10px">
+                <div class="fl">DESDE</div>
+                <div class="fv">Potrero Sur</div>
+                <div style="font-size:9px;color:#888;margin-top:2px">8.4 ha · aforado 62%</div>
+              </div>
+              <div style="font-size:18px;color:#1e3a2f">→</div>
+              <div style="flex:1;background:#e6f3ec;border-radius:8px;padding:8px 10px">
+                <div class="fl">HACIA</div>
+                <div class="fv">Potrero Norte</div>
+                <div style="font-size:9px;color:#1e3a2f;margin-top:2px">12.1 ha · aforado 88%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ct">Animales</div>
+            <div class="grid3" style="gap:6px">
+              <div class="hi" style="background:#ebe9e3"><div style="font-size:9px;color:#888">A trasladar</div><div style="font-size:15px;font-weight:600;color:#1a1a1a">110</div></div>
+              <div class="hi" style="background:#ebe9e3"><div style="font-size:9px;color:#888">Escaneados</div><div style="font-size:15px;font-weight:600;color:#1e3a2f">73</div></div>
+              <div class="hi" style="background:#ebe9e3"><div style="font-size:9px;color:#888">Faltan</div><div style="font-size:15px;font-weight:600;color:#f39c12">37</div></div>
+            </div>
+            <div class="divider"></div>
+            <div style="background:#f0ede8;border-radius:3px;height:5px;margin-top:4px"><div style="height:5px;border-radius:3px;background:#1e3a2f;width:66%"></div></div>
+            <div style="font-size:9px;color:#888;margin-top:4px">Acercar bastón XRS2i al arete de cada animal al cruzar la portera</div>
+          </div>
+
+          <div class="card">
+            <div class="ct">Ritmo de aforo</div>
+            <svg width="100%" height="48" viewBox="0 0 230 48" preserveAspectRatio="none">
+              <polyline points="0,38 30,32 60,36 90,22 120,26 150,16 180,20 210,10 230,14" fill="none" stroke="#1e3a2f" stroke-width="1.5"/>
+              <circle cx="210" cy="10" r="2.5" fill="#1e3a2f"/>
+            </svg>
+            <div style="display:flex;justify-content:space-between;font-size:8px;color:#bbb;margin-top:2px"><span>08:00</span><span>09:00</span><span>10:00</span><span>ahora</span></div>
+          </div>
+
+          <div class="cta-bar" style="display:flex;gap:6px"><div class="cta sec" style="flex:1">Pausar</div><div class="cta" style="flex:2">Cerrar traslado</div></div>
+        </div>
+      </div>
+      <div class="phone-cap">Movimiento potrero (AUT-188)</div>
+      <div class="phone-sub">Origen → destino con aforos, contador de escaneados vs faltantes, gráfico de ritmo temporal.</div>
+    </div>
+
+    <!-- PHONE 9: FEEDLOT / ALIMENTACIÓN -->
+    <div class="phone-wrap">
+      <div class="iphone">
+        <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+        <div class="screen">
+          <div class="di"></div>
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="hdr">
+            <div class="hdr-top"><div class="back">‹</div><span class="badge b-urg">2 ALERTAS</span></div>
+            <div class="tt">Feedlot · Corrales</div>
+            <div class="tsub">242 animales · 6 corrales activos</div>
+          </div>
+
+          <div class="card" style="background:#fde8e8">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="font-size:14px">🚨</div>
+              <div style="flex:1">
+                <div style="font-size:11px;font-weight:600;color:#c0392b">Bebedero Corral 3 vacío</div>
+                <div style="font-size:10px;color:#9b3628;margin-top:1px">38 animales sin agua 13 hrs · en camino Jaime</div>
+              </div>
+              <div style="font-size:13px;color:#c0392b">›</div>
+            </div>
+          </div>
+
+          <div class="card" style="background:#fdf0e6">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="font-size:14px">⚠️</div>
+              <div style="flex:1">
+                <div style="font-size:11px;font-weight:600;color:#9b5e1a">Silo B bajo — 18%</div>
+                <div style="font-size:10px;color:#8a5318;margin-top:1px">Alcanza 2 días · pedir maíz</div>
+              </div>
+              <div style="font-size:13px;color:#9b5e1a">›</div>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;padding:6px 13px 4px">
+            <span style="font-size:11px;font-weight:600">Corrales</span>
+            <span style="font-size:10px;color:#1e3a2f">Ver mapa</span>
+          </div>
+
+          <div class="card" style="padding:9px 12px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+              <div style="font-size:12px;font-weight:600">Corral 1 · Wagyu F1</div>
+              <div style="font-size:10px;color:#1e3a2f;font-weight:500">GDP 1.9 kg/d</div>
+            </div>
+            <div style="font-size:10px;color:#888">42 animales · 421 kg prom · día 62/90</div>
+            <div style="background:#f0ede8;border-radius:3px;height:4px;margin-top:5px"><div style="height:4px;border-radius:3px;background:#1e3a2f;width:69%"></div></div>
+          </div>
+          <div class="card" style="padding:9px 12px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+              <div style="font-size:12px;font-weight:600">Corral 3 · Angus</div>
+              <div style="font-size:10px;color:#c0392b;font-weight:500">Sin agua</div>
+            </div>
+            <div style="font-size:10px;color:#888">38 animales · 362 kg prom · día 47/90</div>
+            <div style="background:#f0ede8;border-radius:3px;height:4px;margin-top:5px"><div style="height:4px;border-radius:3px;background:#e74c3c;width:52%"></div></div>
+          </div>
+          <div class="card" style="padding:9px 12px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+              <div style="font-size:12px;font-weight:600">Corral 4 · Angus</div>
+              <div style="font-size:10px;color:#1e3a2f;font-weight:500">GDP 1.7 kg/d</div>
+            </div>
+            <div style="font-size:10px;color:#888">54 animales · 395 kg prom · día 51/90</div>
+            <div style="background:#f0ede8;border-radius:3px;height:4px;margin-top:5px"><div style="height:4px;border-radius:3px;background:#1e3a2f;width:56%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-cap">Feedlot (AUT-191/192/193)</div>
+      <div class="phone-sub">Alertas operacionales arriba (emoji aquí es shorthand funcional). Cards de corral con progreso hacia objetivo de faena.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SECTION 3: PATRONES COMPARTIDOS ═══════════════════════════════════════ -->
+<div>
+  <div class="sec-hdr"><h2>Patrones compartidos</h2><p>Notas de uso. Copia estos pedazos, no los mayorices.</p></div>
+  <div class="row" style="margin-top:18px">
+
+    <div style="flex:1;min-width:320px;background:#fff;border-radius:14px;padding:16px 18px;max-width:420px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px">Anatomía de pantalla</div>
+      <ol style="padding-left:20px;font-size:12px;color:#555;line-height:1.7">
+        <li>Dynamic island 86×22 (sólo mock)</li>
+        <li>Status bar 10/600 #1a1a1a</li>
+        <li>Header: back-chip 22px + right slot + title 15/600 + subtitle 10/400 #999</li>
+        <li>Hero verde cuando hay identidad fuerte (ficha, registro)</li>
+        <li>Tabs de sección (4 cols, radius 8)</li>
+        <li>Cards blancas adyacentes, gap 6–8px</li>
+        <li>CTA fijo al fondo con fade #f8f6f1</li>
+      </ol>
+    </div>
+
+    <div style="flex:1;min-width:320px;background:#fff;border-radius:14px;padding:16px 18px;max-width:420px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px">Voz (Chilean Spanish)</div>
+      <table style="width:100%;font-size:11px;border-collapse:collapse">
+        <tr style="border-bottom:.5px solid #f0ede8"><td style="padding:5px 0;color:#c0392b;width:50%">❌ ¡Registro exitoso!</td><td style="padding:5px 0;color:#1e3a2f">✓ Nacimiento guardado</td></tr>
+        <tr style="border-bottom:.5px solid #f0ede8"><td style="padding:5px 0;color:#c0392b">❌ Great question!</td><td style="padding:5px 0;color:#1e3a2f">✓ Resumen de tus 4 lotes</td></tr>
+        <tr style="border-bottom:.5px solid #f0ede8"><td style="padding:5px 0;color:#c0392b">❌ Ver Mapa Del Fundo</td><td style="padding:5px 0;color:#1e3a2f">✓ Ver mapa del fundo</td></tr>
+        <tr style="border-bottom:.5px solid #f0ede8"><td style="padding:5px 0;color:#c0392b">❌ Tu lote está listo 🎉</td><td style="padding:5px 0;color:#1e3a2f">✓ Lote listo · Jaime 08:14</td></tr>
+        <tr><td style="padding:5px 0;color:#c0392b">❌ Tap here to continue</td><td style="padding:5px 0;color:#1e3a2f">✓ Siguiente animal</td></tr>
+      </table>
+    </div>
+
+    <div style="flex:1;min-width:320px;background:#fff;border-radius:14px;padding:16px 18px;max-width:420px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px">Do / don't</div>
+      <div style="font-size:11px;color:#555;line-height:1.6">
+        <div style="color:#1e3a2f;margin-bottom:4px"><b>✓ Do</b></div>
+        <div>Cards planas, hairlines 0.5px, radius 14 card / 16 hero / 12 chip.</div>
+        <div>Números en <code style="font-feature-settings:'tnum'">tnum</code>, `kg / Ton / kg/d`.</div>
+        <div>CTA fijo al fondo, primaria verde bosque única por pantalla.</div>
+        <div style="color:#c0392b;margin:10px 0 4px"><b>✗ Don't</b></div>
+        <div>Gradientes bluish-purple, emoji en cuerpo, Title Case.</div>
+        <div>Shadows en cards planas, radius 24px (antigua dirección).</div>
+        <div>Imágenes de stock corporativo frío; solo Angus cálido.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+</body>
+</html>

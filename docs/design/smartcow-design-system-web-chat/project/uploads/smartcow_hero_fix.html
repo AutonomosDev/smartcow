@@ -1,0 +1,120 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{font-family:'DM Sans',sans-serif;display:flex;justify-content:center;padding:40px 16px;background:#fff}
+.iphone{width:270px;background:#1c1c1e;border-radius:50px;padding:9px;box-shadow:0 0 0 1.5px #3a3a3c,0 0 0 3px #2c2c2e,0 24px 60px rgba(0,0,0,0.35);position:relative;flex-shrink:0}
+.btn-l1{position:absolute;left:-3px;top:100px;width:3px;height:28px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.btn-l2{position:absolute;left:-3px;top:140px;width:3px;height:36px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.btn-l3{position:absolute;left:-3px;top:188px;width:3px;height:36px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.btn-r{position:absolute;right:-3px;top:120px;width:3px;height:60px;background:#3a3a3c;border-radius:0 2px 2px 0}
+.screen{background:#f8f6f1;border-radius:42px;overflow:hidden;padding-bottom:16px}
+.di{width:90px;height:24px;background:#1c1c1e;border-radius:0 0 16px 16px;margin:0 auto}
+.sb{display:flex;justify-content:space-between;padding:4px 20px 0;font-size:10px;font-weight:600;color:#1a1a1a}
+
+/* HEADER */
+.hdr{padding:7px 14px 4px}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.back{width:24px;height:24px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center}
+.ba{width:6px;height:6px;border-left:1.5px solid #444;border-bottom:1.5px solid #444;transform:rotate(45deg) translate(1px,-1px)}
+.hdr-title{font-size:15px;font-weight:600;color:#1a1a1a}
+.hdr-sub{font-size:10px;color:#999}
+
+/* HERO CARD — estilo idéntico a Costos */
+.hero{margin:0 12px 8px;background:#1e3a2f;border-radius:14px;padding:12px 14px}
+.hero-label{font-size:9px;color:rgba(255,255,255,0.5);letter-spacing:0.3px;margin-bottom:4px}
+.hero-main{font-size:22px;font-weight:600;color:#fff;line-height:1;margin-bottom:3px}
+.hero-sub{font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:10px}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.hg-item{background:rgba(255,255,255,0.1);border-radius:7px;padding:6px 7px}
+.hg-label{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:2px}
+.hg-val{font-size:13px;font-weight:600;color:#fff}
+.hg-val.ok{color:#7ecfa0}
+.hg-val.warn{color:#f39c12}
+.hg-val.bad{color:#ff6b6b}
+
+/* STATS */
+.stats{display:flex;gap:6px;margin:0 12px 8px}
+.stat{flex:1;background:#fff;border-radius:10px;padding:8px;text-align:center}
+.stat-val{font-size:15px;font-weight:600;color:#1a1a1a}
+.stat-val.bad{color:#e74c3c}
+.stat-label{font-size:9px;color:#bbb;margin-top:1px}
+
+/* MISSION CARDS */
+.mission{margin:0 12px 6px;background:#fff;border-radius:12px;padding:10px 12px}
+.m-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.m-nombre{font-size:12px;font-weight:600;color:#1a1a1a}
+.m-tipo{font-size:10px;color:#aaa}
+.m-badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px}
+.m-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.mg-label{font-size:9px;color:#bbb}
+.mg-val{font-size:11px;font-weight:600;color:#1a1a1a}
+
+/* CTA */
+.cta{margin:0 12px;background:#1e3a2f;border-radius:11px;padding:12px;text-align:center;color:#fff;font-size:12px;font-weight:500}
+</style>
+
+<div class="wrap">
+  <div class="iphone">
+    <div class="btn-l1"></div><div class="btn-l2"></div><div class="btn-l3"></div><div class="btn-r"></div>
+    <div class="screen">
+      <div class="di"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+
+      <div class="hdr">
+        <div class="hdr-top">
+          <div class="back"><div class="ba"></div></div>
+          <span style="font-size:10px;color:#888;font-weight:500">DJI M3E · MSDK V5</span>
+        </div>
+        <div class="hdr-title">Drone</div>
+        <div class="hdr-sub">Fundo San Pedro · Mavic 3 Enterprise</div>
+      </div>
+
+      <!-- HERO CARD — mismo estilo que Costos -->
+      <div class="hero">
+        <div class="hero-label">ESTADO DEL EQUIPO</div>
+        <div class="hero-main">DJI Mavic 3E</div>
+        <div class="hero-sub">Batería 87% · Listo para volar · Viento 18 km/h</div>
+        <div class="hero-grid">
+          <div class="hg-item"><div class="hg-label">Batería</div><div class="hg-val ok">87%</div></div>
+          <div class="hg-item"><div class="hg-label">Estado</div><div class="hg-val ok">Listo</div></div>
+          <div class="hg-item"><div class="hg-label">Viento</div><div class="hg-val warn">18 km/h</div></div>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats">
+        <div class="stat"><div class="stat-val">7</div><div class="stat-label">Vuelos mes</div></div>
+        <div class="stat"><div class="stat-val bad">4</div><div class="stat-label">Cancelados</div></div>
+        <div class="stat"><div class="stat-val">2 km²</div><div class="stat-label">Cobertura</div></div>
+      </div>
+
+      <!-- MISSION 1 -->
+      <div class="mission">
+        <div class="m-top">
+          <div><div class="m-nombre">Vigilancia matutina</div><div class="m-tipo">Conteo + Bebederos + Cercos</div></div>
+          <span class="m-badge" style="background:#e6f3ec;color:#1e3a2f">Completada</span>
+        </div>
+        <div class="m-grid">
+          <div><div class="mg-label">Hora</div><div class="mg-val">08:14</div></div>
+          <div><div class="mg-label">Duración</div><div class="mg-val">22 min</div></div>
+          <div><div class="mg-label">Fotos</div><div class="mg-val">148</div></div>
+        </div>
+      </div>
+
+      <!-- MISSION 2 -->
+      <div class="mission">
+        <div class="m-top">
+          <div><div class="m-nombre">Mapeo Potrero Este</div><div class="m-tipo">Fotogrametría 2D · 80m</div></div>
+          <span class="m-badge" style="background:#e6f0f8;color:#1a5276">Sáb 08:00</span>
+        </div>
+        <div class="m-grid">
+          <div><div class="mg-label">Duración est.</div><div class="mg-val">35 min</div></div>
+          <div><div class="mg-label">Altitud</div><div class="mg-val">80 m</div></div>
+          <div><div class="mg-label">Fotos est.</div><div class="mg-val">~220</div></div>
+        </div>
+      </div>
+
+      <div class="cta">Iniciar vuelo manual</div>
+    </div>
+  </div>
+</div>

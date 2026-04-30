@@ -1,0 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'DM Sans',system-ui,sans-serif;background:#f8f6f1;color:#1a1a1a}
+body{padding:20px;overflow:hidden}
+.pv{display:flex;flex-direction:column;gap:14px}
+.pv-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.pv-col{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.pv-lbl{font-size:10px;color:#888;font-weight:500;letter-spacing:.3px}
+.pv-hex{font-size:10px;color:#bbb;font-weight:400;letter-spacing:.2px;font-feature-settings:"tnum"}
+.pv-note{font-size:10px;color:#bbb}

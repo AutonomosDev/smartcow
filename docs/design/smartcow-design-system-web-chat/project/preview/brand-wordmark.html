@@ -1,0 +1,68 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+body{padding:0;background:#f8f6f1}
+.wrap{padding:20px;display:flex;flex-direction:column;gap:18px}
+.row{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.logo-lg{font-size:34px;font-weight:600;letter-spacing:-.8px;color:#1e3a2f;display:flex;align-items:center;gap:12px}
+.logo-lg .k{color:#7ecfa0}
+.logo-sm{font-size:18px;font-weight:600;letter-spacing:-.4px;color:#1e3a2f;display:flex;align-items:center;gap:7px}
+.av-lg{width:48px;height:48px;border-radius:8px;background:#1e3a2f;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.av-md{width:32px;height:32px;border-radius:8px;background:#1e3a2f;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.av-sm{width:24px;height:24px;border-radius:50%;background:#1e3a2f;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.ask{background:#fff;border:.5px dashed #d6d3cd;border-radius:8px;padding:12px 14px;font-size:11px;color:#666;line-height:1.5;max-width:480px}
+.ask b{color:#1a1a1a}
+.ask code{font-size:10px;color:#1e3a2f;background:#e6f3ec;padding:1px 5px;border-radius:4px}
+</style>
+
+<!-- placeholder: cow-robot avatar as inline SVG, will be replaced by public/cow_robot.png -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="cowbot" viewBox="0 0 48 48">
+    <!-- head -->
+    <ellipse cx="24" cy="26" rx="15" ry="13" fill="#7ecfa0"/>
+    <!-- ears -->
+    <ellipse cx="10" cy="20" rx="4" ry="5" fill="#7ecfa0" transform="rotate(-20 10 20)"/>
+    <ellipse cx="38" cy="20" rx="4" ry="5" fill="#7ecfa0" transform="rotate(20 38 20)"/>
+    <!-- horns (robot antennae) -->
+    <line x1="17" y1="13" x2="15" y2="7" stroke="#7ecfa0" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="15" cy="6.5" r="1.4" fill="#7ecfa0"/>
+    <line x1="31" y1="13" x2="33" y2="7" stroke="#7ecfa0" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="33" cy="6.5" r="1.4" fill="#7ecfa0"/>
+    <!-- snout -->
+    <ellipse cx="24" cy="31" rx="7" ry="5" fill="#1e3a2f"/>
+    <circle cx="21" cy="31" r="0.9" fill="#7ecfa0"/>
+    <circle cx="27" cy="31" r="0.9" fill="#7ecfa0"/>
+    <!-- eyes (LED style) -->
+    <rect x="17" y="22" width="4" height="1.8" rx="0.9" fill="#1e3a2f"/>
+    <rect x="27" y="22" width="4" height="1.8" rx="0.9" fill="#1e3a2f"/>
+    <!-- circuit patch on forehead -->
+    <circle cx="24" cy="16" r="1.2" fill="#1e3a2f"/>
+    <line x1="24" y1="17" x2="24" y2="19.5" stroke="#1e3a2f" stroke-width="0.9" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<div class="wrap">
+  <div class="row">
+    <div class="logo-lg">
+      <div class="av-lg"><svg width="38" height="38"><use href="#cowbot"/></svg></div>
+      smart<span class="k">Cow</span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="logo-sm">
+      <div class="av-md"><svg width="26" height="26"><use href="#cowbot"/></svg></div>
+      smartCow
+    </div>
+    <div class="logo-sm">
+      <div class="av-sm"><svg width="18" height="18"><use href="#cowbot"/></svg></div>
+      <span style="font-size:13px">SmartCow AI</span>
+    </div>
+    <div class="av-md" title="Monogram only"><svg width="26" height="26"><use href="#cowbot"/></svg></div>
+    <div class="av-sm" title="Monogram only"><svg width="18" height="18"><use href="#cowbot"/></svg></div>
+  </div>
+
+  <div class="ask">
+    <b>Ajuste pendiente — subir <code>cow_robot.png</code></b> (vaca agéntica oficial de <code>public/cow_robot.png</code>).<br>
+    El ícono de arriba es un placeholder SVG mientras llega el asset real. <b>Import automático no soporta binarios</b> — adjunta el PNG al chat y lo reemplazamos.
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+.dep{background:#fde8e8;border:.5px solid #f5c2bc;border-radius:8px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.dep .ic{width:24px;height:24px;border-radius:50%;background:#c0392b;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0}
+.dep .txt{flex:1;font-size:11px;color:#8a2a1f;line-height:1.5}
+.dep .txt b{color:#c0392b;display:block;margin-bottom:2px;font-size:12px}
+
+/* banned pattern preview */
+.bad-wrap{position:relative;margin-bottom:14px;max-width:360px}
+.bad-wrap::before{content:"PROHIBIDO";position:absolute;top:-9px;right:10px;background:#c0392b;color:#fff;font-size:9px;font-weight:600;padding:2px 8px;border-radius:8px;letter-spacing:.3px;z-index:2}
+.host-dark{background:#1e3a2f;padding:12px;border-radius:8px;opacity:.6}
+.row-dark{display:flex;align-items:center;gap:8px;background:rgba(160,30,20,.38);border:.5px solid rgba(255,100,80,.2);border-radius:8px;padding:10px 13px;color:#fff}
+.row-dark .dot{width:7px;height:7px;border-radius:50%;background:#ff6b6b;flex-shrink:0}
+.row-dark .t{font-size:12px;line-height:1.4;flex:1}
+
+/* approved pattern */
+.ok-wrap{max-width:360px}
+.ok-row{display:flex;align-items:center;gap:10px;background:#fff;border:.5px solid #ebe9e3;border-radius:8px;padding:10px 13px}
+.ok-row .dot{width:8px;height:8px;border-radius:50%;background:#c0392b;flex-shrink:0}
+.ok-row .t{flex:1;font-size:12px;color:#1a1a1a;line-height:1.4}
+.ok-row .t b{color:#c0392b}
+.ok-row .arr{font-size:14px;color:#bbb}
+.label{font-size:10px;color:#1e3a2f;font-weight:600;margin-bottom:5px;display:block}
+</style>
+
+<div class="pv">
+  <div class="dep">
+    <div class="ic">✕</div>
+    <div class="txt">
+      <b>Componente deprecado</b>
+      Alert tintado rojo sobre fondo verde oscuro: <b style="display:inline;font-size:11px">no usar</b>. Contraste insuficiente y fondo extremadamente oscuro. Reemplazado por la versión blanca con dot a la izquierda.
+    </div>
+  </div>
+
+  <div class="bad-wrap">
+    <span class="label" style="color:#c0392b">✗ Antes (prohibido)</span>
+    <div class="host-dark">
+      <div class="row-dark"><div class="dot"></div><div class="t">Bebedero Corral 3 vacío · 38 animales sin agua 13 hrs</div></div>
+    </div>
+  </div>
+
+  <div class="ok-wrap">
+    <span class="label">✓ Patrón aprobado</span>
+    <div class="ok-row">
+      <div class="dot"></div>
+      <div class="t"><b>Bebedero Corral 3 vacío</b> · 38 animales sin agua 13 hrs</div>
+      <div class="arr">›</div>
+    </div>
+  </div>
+</div>
