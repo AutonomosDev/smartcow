@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ArrowRight } from 'lucide-react-native';
+import { ArrowRight, Radio } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
 import { api, PredioKpis } from '../lib/api';
 
@@ -92,6 +92,14 @@ export default function HomeScreen() {
 
           {/* Row 3: input */}
           <View style={s.wInputRow}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Bastoneo')}
+              activeOpacity={0.7}
+              style={s.bastonBtn}
+              accessibilityLabel="Abrir bastoneo"
+            >
+              <Radio size={18} color={TXT2} />
+            </TouchableOpacity>
             <TextInput
               style={s.input}
               placeholder="Escribe a smartCow..."
@@ -154,6 +162,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 4, paddingVertical: 2, gap: 8,
   },
   sendBtn: { padding: 6 },
+  bastonBtn: { padding: 6 },
   input: {
     flex: 1, color: TXT,
     fontSize: 15, fontFamily: F.regular, paddingVertical: 6,

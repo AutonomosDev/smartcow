@@ -44,6 +44,7 @@ export const pesajes = pgTable(
     edadMeses: numeric("edad_meses", { precision: 5, scale: 1 }),
     observaciones: text("observaciones"),
     esPesoLlegada: boolean("es_peso_llegada").notNull().default(false),
+    tipoPesaje: varchar("tipo_pesaje", { length: 20 }).notNull().default("rutina"),
     usuarioId: integer("usuario_id").references(() => users.id, { onDelete: "set null" }),
     creadoEn: timestamp("creado_en", { withTimezone: true }).defaultNow().notNull(),
   },

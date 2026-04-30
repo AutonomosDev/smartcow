@@ -4,8 +4,11 @@ dist/
 .env
 .env.local
 .env.*.local
+.env.*.bak*
+.env.stress-*
 *.log
 next-env.d.ts
+tsconfig.tsbuildinfo
 
 # Local Claude Code settings (puede contener comandos con API keys de CLI)
 .claude/settings.local.json
@@ -14,3 +17,11 @@ next-env.d.ts
 # Extractos AgroApp demasiado grandes (reconstruibles desde xlsx con scripts/extract-full-agroapp.ts)
 docs/export_agroapp/extract/Pesajes_Historial_18-04-2026_1_raw.csv
 docs/export_agroapp/extract/Tratamientos_Historial_18-04-2026_1_raw.csv
+
+# DB dumps locales — datos reales, nunca commitear
+*.dump
+*.sql.gz
+docs/db/dumps/
+
+# Documentación administrativa CORFO/InnovaChile (no es del proyecto)
+.claude/crea-valida-2026/

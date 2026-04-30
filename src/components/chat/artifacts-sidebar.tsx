@@ -36,10 +36,6 @@ function IcoX() {
 function IcoSidebarRight() {
   return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>;
 }
-function IcoInfo() {
-  return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01" strokeLinecap="round"/></svg>;
-}
-
 // ─── Artifact Panel ───────────────────────────────────────────────────────────
 
 export function ArtifactPanel({ artifact, artifacts, onHide }: ArtifactPanelProps) {
@@ -70,7 +66,7 @@ export function ArtifactPanel({ artifact, artifacts, onHide }: ArtifactPanelProp
       }}>
         <span style={{
           fontFamily: "var(--font-dm-sans, 'DM Sans', system-ui, sans-serif)",
-          fontSize: 13, color: "#555", fontWeight: 400,
+          fontSize: 13, color: "#666", fontWeight: 400,
         }}>
           {artifact?.kind === "dashboard" ? (artifact.title ?? "Resumen") : (artifact?.kind ?? "Informe")}
         </span>
@@ -88,15 +84,6 @@ export function ArtifactPanel({ artifact, artifacts, onHide }: ArtifactPanelProp
             <IcoSidebarRight /><span style={{ fontSize: 9, marginLeft: 1, color: "#aaa" }}>▾</span>
           </ArtBtn>
         </div>
-      </div>
-
-      {/* Comment bar */}
-      <div style={{
-        display: "flex", justifyContent: "center", padding: "4px 0 14px",
-        fontSize: 12.5, color: "#6a6a6a", gap: 6, alignItems: "center", flexShrink: 0,
-      }}>
-        <span style={{ color: "#9a9a9a" }}><IcoInfo /></span>
-        Selecciona texto para dejar un comentario a SmartCow
       </div>
 
       {/* Scroll area */}
@@ -471,11 +458,11 @@ function ArtifactEmpty() {
       color: "#888",
     }}>
       <div style={{
-        width: 44, height: 44, borderRadius: 10,
+        width: 44, height: 44, borderRadius: 8,
         background: "#fff", border: ".5px solid #e8e5df",
         display: "flex", alignItems: "center", justifyContent: "center",
         margin: "0 auto 16px",
-        color: "var(--color-brand-dark, #06200F)",
+        color: "#1e3a2f",
       }}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M10 13h4M10 17h4"/></svg>
       </div>

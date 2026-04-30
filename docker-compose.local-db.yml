@@ -1,0 +1,34 @@
+# docker-compose.local-db.yml
+# Postgres 16 local para desarrollo — paridad exacta con prod/staging (pg 16.x Alpine)
+# Puerto: 5440 (evita conflicto con pg14 homebrew en 5432)
+#
+# Uso:
+#   docker compose -f docker-compose.local-db.yml up -d
+#   docker compose -f docker-compose.local-db.yml down
+#
+# DBs que viven aquí:
+#   smartcow_prod_snapshot    — dump de prod (read reference)
+#   smartcow_staging_snapshot — dump de staging (read reference)
+#   smartcow_local            — DB consolidada para desarrollo
+
+services:
+  db-local:
+    image: postgres:16-alpine
+    container_name: smartcow-db-local
+    environment:
+      POSTGRES_USER: smartcow
+      POSTGRES_PASSWORD: smartcow_local
+      POSTGRES_DB: smartcow_local
+    ports:
+      - "127.0.0.1:5440:5432"
+    volumes:
+      - smartcow_local_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartcow -d smartcow_local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  smartcow_local_data:

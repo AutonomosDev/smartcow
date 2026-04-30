@@ -1,0 +1,26 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="_base.css">
+<style>
+.ban{background:#fde8e8;border:.5px solid #f5c2bc;border-radius:10px;padding:9px 12px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.ban-t{font-size:11px;color:#8a2a1f;line-height:1.4}
+.ban-t b{color:#c0392b}
+.row{display:flex;align-items:center;gap:16px;padding:9px 0;border-bottom:.5px solid #ebe9e3}
+.row:last-child{border-bottom:0}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ring{width:11px;height:11px;border-radius:50%;border:1.5px solid currentColor;flex-shrink:0}
+.lbl{font-size:12px;font-weight:600;flex:1}
+.meta{font-size:10px;color:#bbb;font-feature-settings:"tnum"}
+.bad{background:#f8f6f1;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;text-decoration:line-through;text-decoration-color:#c0392b;text-decoration-thickness:1.5px}
+.bad.u{color:#c0392b}.bad.w{color:#9b5e1a}.bad.o{color:#1e3a2f}.bad.i{color:#1a5276}.bad.n{color:#666}
+</style>
+<div class="pv">
+  <div class="ban">
+    <div style="font-size:14px">🚫</div>
+    <div class="ban-t"><b>Pills tintados prohibidos.</b> No usar fondos #fde8e8 / #fdf0e6 / #e6f3ec / #e6f0f8 como cajones destacadores. Usar color sólo en el texto y/o un punto de 8px.</div>
+  </div>
+
+  <div class="row"><div class="dot" style="background:#c0392b"></div><span class="lbl" style="color:#c0392b">Urgente</span><span class="bad u">Urgente</span><span class="meta">#c0392b</span></div>
+  <div class="row"><div class="dot" style="background:#9b5e1a"></div><span class="lbl" style="color:#9b5e1a">Atención</span><span class="bad w">Atención</span><span class="meta">#9b5e1a</span></div>
+  <div class="row"><div class="dot" style="background:#1e3a2f"></div><span class="lbl" style="color:#1e3a2f">OK</span><span class="bad o">OK</span><span class="meta">#1e3a2f</span></div>
+  <div class="row"><div class="dot" style="background:#1a5276"></div><span class="lbl" style="color:#1a5276">Info</span><span class="bad i">Info</span><span class="meta">#1a5276</span></div>
+  <div class="row"><div class="ring" style="color:#666"></div><span class="lbl" style="color:#666">Neutro</span><span class="bad n">Neutro</span><span class="meta">#666</span></div>
+</div>

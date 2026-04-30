@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartCow — Design System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f8f6f1;padding:40px 20px}
+.ds{max-width:860px;margin:0 auto}
+h1{font-size:22px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+.version{font-size:11px;color:#aaa;margin-bottom:40px}
+.sec{margin-bottom:40px}
+.sec-title{font-size:11px;font-weight:600;color:#888;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;border-bottom:0.5px solid #e8e5df}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+
+/* SWATCHES */
+.swatch{width:56px;height:40px;border-radius:8px;flex-shrink:0}
+.swatch-hex{font-size:11px;font-weight:600;color:#1a1a1a;text-align:center;margin-top:4px}
+.swatch-label{font-size:10px;color:#888;text-align:center}
+
+/* TYPOGRAPHY */
+.type-row{margin-bottom:14px}
+.type-meta{font-size:10px;color:#aaa;margin-top:2px}
+
+/* COMPONENTS */
+.comp{background:#fff;border-radius:14px;padding:14px;border:0.5px solid #e8e5df;margin-bottom:8px}
+.comp-label{font-size:10px;color:#aaa;margin-bottom:8px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase}
+.comp-spec{font-size:10px;color:#aaa;margin-top:6px}
+
+/* DYNAMIC ISLAND */
+.di-demo{width:80px;height:22px;background:#1c1c1e;border-radius:0 0 14px 14px;margin:0 auto}
+
+/* STATUS BAR */
+.sb-demo{display:flex;justify-content:space-between;padding:4px 16px;font-size:11px;font-weight:600;color:#1a1a1a;background:#f8f6f1}
+
+/* HEADER */
+.hdr-demo{padding:8px 16px}
+.back{width:26px;height:26px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center}
+.back-arrow{width:7px;height:7px;border-left:2px solid #444;border-bottom:2px solid #444;transform:rotate(45deg) translate(1px,-1px)}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.hdr-title{font-size:15px;font-weight:600;color:#1a1a1a}
+.hdr-sub{font-size:10px;color:#999}
+
+/* HERO CARD */
+.hero{background:#1e3a2f;border-radius:14px;padding:12px 14px;margin:0 16px 8px}
+.hero-label{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:3px}
+.hero-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:8px}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.hero-item{background:rgba(255,255,255,0.1);border-radius:7px;padding:6px}
+.hero-item-label{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:1px}
+.hero-item-val{font-size:12px;font-weight:600;color:#fff}
+.hero-item-val.ok{color:#7ecfa0}
+.hero-item-val.warn{color:#f39c12}
+.hero-item-val.bad{color:#ff6b6b}
+
+/* CARD BLANCA */
+.card-blanca{background:#fff;border-radius:14px;padding:12px 14px;margin:0 16px 8px}
+.card-title{font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+.card-body{font-size:11px;color:#888}
+
+/* STATS ROW */
+.stats{display:flex;gap:8px;margin:0 16px 8px}
+.stat{flex:1;background:#fff;border-radius:11px;padding:9px;text-align:center}
+.stat-val{font-size:16px;font-weight:600;color:#1a1a1a}
+.stat-label{font-size:9px;color:#bbb;margin-top:1px}
+
+/* BADGES */
+.badges{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px}
+.badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600}
+
+/* PROGRESS BAR */
+.progbar{margin:0 16px 8px;background:#fff;border-radius:11px;padding:10px 12px}
+.prog-track{background:#f0ede8;border-radius:4px;height:6px;margin:6px 0}
+.prog-fill{height:6px;border-radius:4px;background:#1e3a2f}
+
+/* CHIPS */
+.chip-row{display:flex;gap:8px;padding:0 16px;flex-wrap:wrap}
+.chip{background:#fff;border-radius:11px;padding:8px 10px;display:flex;align-items:center;gap:7px}
+.chip-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.chip-title{font-size:11px;font-weight:600;color:#1a1a1a}
+.chip-sub{font-size:10px;color:#aaa}
+
+/* DIVIDER */
+.divider-demo{height:0.5px;background:#f0ede8;margin:8px 16px}
+
+/* CTA */
+.cta{margin:0 16px 8px;background:#1e3a2f;border-radius:12px;padding:13px;text-align:center;color:#fff;font-size:13px;font-weight:500}
+.cta-sec{margin:0 16px 8px;background:#fff;border-radius:12px;padding:12px;text-align:center;color:#1a1a1a;font-size:13px;font-weight:500;border:1px solid #e0ddd8}
+
+/* 3 BOTONES */
+.btn-row{display:flex;gap:8px;margin:0 16px 8px}
+.btn3{flex:1;border-radius:12px;padding:12px 8px;text-align:center;font-size:12px;font-weight:500}
+.btn3.outline{border:1.5px solid #e0ddd8;color:#1a1a1a;background:#fff}
+.btn3.primary{background:#1e3a2f;color:#fff}
+.btn3.danger{background:#fde8e8;color:#c0392b}
+
+/* OFFLINE */
+.offline-badge{margin:0 16px;background:#ebe9e3;border-radius:10px;padding:7px 12px;display:flex;align-items:center;gap:8px}
+.offline-dot{width:6px;height:6px;border-radius:50%;background:#1e3a2f;flex-shrink:0}
+.offline-txt{font-size:10px;color:#666}
+
+/* SPACING */
+.spacing-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:8px}
+.sp-block{background:#e6f3ec}
+.sp-name{font-size:10px;color:#888;margin-top:3px;text-align:center}
+
+/* RADIUS */
+.radius-row{display:flex;gap:12px;flex-wrap:wrap}
+.r-box{background:#f8f6f1;border:1.5px solid #1e3a2f;width:56px;height:40px}
+.r-label{font-size:10px;color:#888;text-align:center;margin-top:4px}
+
+/* RULES */
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rule-card{background:#fff;border-radius:12px;padding:14px;border:0.5px solid #e8e5df}
+.rule-title{font-size:11px;font-weight:600;margin-bottom:8px}
+.rule-body{font-size:11px;color:#555;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="ds">
+
+<h1>SmartCow — Design System</h1>
+<div class="version">v1.0 · Aprobado sesión 11 abril 2026 · Fuente de verdad para implementación</div>
+
+<!-- COLORES -->
+<div class="sec">
+  <div class="sec-title">Colores — tokens exactos</div>
+  <div class="row">
+    <div><div class="swatch" style="background:#f8f6f1;border:1px solid #ddd"></div><div class="swatch-hex">#f8f6f1</div><div class="swatch-label">bg — fondo</div></div>
+    <div><div class="swatch" style="background:#1e3a2f"></div><div class="swatch-hex">#1e3a2f</div><div class="swatch-label">primary</div></div>
+    <div><div class="swatch" style="background:#ffffff;border:1px solid #ddd"></div><div class="swatch-hex">#ffffff</div><div class="swatch-label">card</div></div>
+    <div><div class="swatch" style="background:#ebe9e3"></div><div class="swatch-hex">#ebe9e3</div><div class="swatch-label">cream</div></div>
+    <div><div class="swatch" style="background:#e74c3c"></div><div class="swatch-hex">#e74c3c</div><div class="swatch-label">danger</div></div>
+    <div><div class="swatch" style="background:#f39c12"></div><div class="swatch-hex">#f39c12</div><div class="swatch-label">warning</div></div>
+    <div><div class="swatch" style="background:#1a5276"></div><div class="swatch-hex">#1a5276</div><div class="swatch-label">info</div></div>
+    <div><div class="swatch" style="background:#7ecfa0"></div><div class="swatch-hex">#7ecfa0</div><div class="swatch-label">ok accent</div></div>
+  </div>
+  <div class="row">
+    <div><div class="swatch" style="background:#1a1a1a"></div><div class="swatch-hex">#1a1a1a</div><div class="swatch-label">text primary</div></div>
+    <div><div class="swatch" style="background:#888888"></div><div class="swatch-hex">#888888</div><div class="swatch-label">text secondary</div></div>
+    <div><div class="swatch" style="background:#bbbbbb"></div><div class="swatch-hex">#bbbbbb</div><div class="swatch-label">text muted</div></div>
+    <div><div class="swatch" style="background:#fde8e8"></div><div class="swatch-hex">#fde8e8</div><div class="swatch-label">badge urgente bg</div></div>
+    <div><div class="swatch" style="background:#fdf0e6"></div><div class="swatch-hex">#fdf0e6</div><div class="swatch-label">badge warn bg</div></div>
+    <div><div class="swatch" style="background:#e6f3ec"></div><div class="swatch-hex">#e6f3ec</div><div class="swatch-label">badge ok bg</div></div>
+    <div><div class="swatch" style="background:#e6f0f8"></div><div class="swatch-hex">#e6f0f8</div><div class="swatch-label">badge info bg</div></div>
+  </div>
+</div>
+
+<!-- TIPOGRAFÍA -->
+<div class="sec">
+  <div class="sec-title">Tipografía — DM Sans (única fuente)</div>
+  <div class="type-row"><div style="font-family:'DM Sans',sans-serif;font-size:28px;font-weight:600;color:#1a1a1a">Título grande — 28px / 600</div><div class="type-meta">Títulos hero, números grandes</div></div>
+  <div class="type-row"><div style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:600;color:#1a1a1a">Sección — 20px / 600</div><div class="type-meta">Títulos de sección</div></div>
+  <div class="type-row"><div style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;color:#1a1a1a">Header título — 16px / 600</div><div class="type-meta">Títulos de pantalla</div></div>
+  <div class="type-row"><div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:#1a1a1a">Card título — 14px / 600</div><div class="type-meta">Nombres de lote, títulos de card</div></div>
+  <div class="type-row"><div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#1a1a1a">Card body — 13px / 500</div><div class="type-meta">Contenido principal de cards</div></div>
+  <div class="type-row"><div style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:400;color:#888">Subtítulo — 11px / 400 · color #888</div><div class="type-meta">Subtítulos de header, metadatos</div></div>
+  <div class="type-row"><div style="font-family:'DM Sans',sans-serif;font-size:10px;font-weight:400;color:#bbb">Label — 10px / 400 · color #bbb</div><div class="type-meta">Labels, hints, microcopy</div></div>
+  <div class="type-row"><div style="font-family:'DM Sans',sans-serif;font-size:9px;font-weight:600;color:rgba(255,255,255,0.5);background:#1e3a2f;display:inline-block;padding:2px 6px;border-radius:4px">LABEL HERO — 9px / 600 · rgba(255,255,255,0.5)</div><div class="type-meta">Labels dentro de hero cards oscuras</div></div>
+</div>
+
+<!-- ESPACIADOS -->
+<div class="sec">
+  <div class="sec-title">Espaciados</div>
+  <div class="spacing-row">
+    <div><div class="sp-block" style="width:4px;height:20px"></div><div class="sp-name">xs 4px</div></div>
+    <div><div class="sp-block" style="width:8px;height:28px"></div><div class="sp-name">sm 8px</div></div>
+    <div><div class="sp-block" style="width:12px;height:36px"></div><div class="sp-name">md 12px</div></div>
+    <div><div class="sp-block" style="width:16px;height:44px"></div><div class="sp-name">lg 16px</div></div>
+    <div><div class="sp-block" style="width:24px;height:52px"></div><div class="sp-name">xl 24px</div></div>
+    <div><div class="sp-block" style="width:32px;height:60px"></div><div class="sp-name">xxl 32px</div></div>
+  </div>
+  <div style="font-size:11px;color:#888;margin-top:8px">Padding lateral de pantalla: siempre 16px · Padding interno de cards: 12px top/bottom, 14px left/right</div>
+</div>
+
+<!-- BORDER RADIUS -->
+<div class="sec">
+  <div class="sec-title">Border radius</div>
+  <div class="radius-row">
+    <div><div class="r-box" style="border-radius:8px"></div><div class="r-label">small 8px</div></div>
+    <div><div class="r-box" style="border-radius:12px"></div><div class="r-label">btn 12px</div></div>
+    <div><div class="r-box" style="border-radius:14px"></div><div class="r-label">card 14px</div></div>
+    <div><div class="r-box" style="border-radius:16px"></div><div class="r-label">hero 16px</div></div>
+    <div><div class="r-box" style="border-radius:20px"></div><div class="r-label">chip 20px</div></div>
+    <div><div class="r-box" style="border-radius:999px"></div><div class="r-label">pill ∞</div></div>
+  </div>
+</div>
+
+<!-- COMPONENTES -->
+<div class="sec">
+  <div class="sec-title">Componentes — orden top to bottom</div>
+
+  <div class="comp">
+    <div class="comp-label">1 — Dynamic Island</div>
+    <div style="display:flex;justify-content:center"><div class="di-demo"></div></div>
+    <div class="comp-spec">100px ancho × 28px alto · background #1c1c1e · border-radius 0 0 18px 18px · centrado horizontalmente</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">2 — Status bar</div>
+    <div class="sb-demo"><span>9:41</span><span>●●●</span></div>
+    <div class="comp-spec">11px / 600 · color #1a1a1a · padding 5px 22px 0 · siempre encima de la foto si hay hero con imagen</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">3 — Header</div>
+    <div class="hdr-demo">
+      <div class="hdr-top">
+        <div class="back"><div class="back-arrow"></div></div>
+        <span style="font-size:10px;color:#888;font-weight:500">BADGE OPCIONAL</span>
+      </div>
+      <div class="hdr-title">Título de la pantalla</div>
+      <div class="hdr-sub">subtítulo · información adicional</div>
+    </div>
+    <div class="comp-spec">Back: círculo 26px bg #ebe9e3 · Badge: 10px/500 color según estado · Título: 15-16px/600 #1a1a1a · Subtítulo: 10-11px/400 #999 · padding 8px 16px</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">4 — Hero card (verde oscuro)</div>
+    <div class="hero">
+      <div class="hero-label">LABEL DE SECCIÓN</div>
+      <div class="hero-title">Nombre del módulo</div>
+      <div class="hero-grid">
+        <div class="hero-item"><div class="hero-item-label">ok</div><div class="hero-item-val ok">OK ✓</div></div>
+        <div class="hero-item"><div class="hero-item-label">warning</div><div class="hero-item-val warn">17%</div></div>
+        <div class="hero-item"><div class="hero-item-label">danger</div><div class="hero-item-val bad">–22%</div></div>
+      </div>
+    </div>
+    <div class="comp-spec">background #1e3a2f · border-radius 16px · padding 12px 14px · margin 0 16px · grid items: bg rgba(255,255,255,0.1) · radius 7px · padding 6px · label 9px/rgba(255,255,255,0.5) · val 12px/600</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">5 — Card blanca</div>
+    <div class="card-blanca">
+      <div class="card-title">Título de la card</div>
+      <div class="card-body">Contenido secundario, descripción, datos adicionales del módulo en cuestión.</div>
+    </div>
+    <div class="comp-spec">background #ffffff · border-radius 14px · padding 12px 14px · margin 0 16px · sin sombras</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">6 — Stats row</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val">110</div><div class="stat-label">Animales</div></div>
+      <div class="stat"><div class="stat-val" style="color:#1e3a2f">92%</div><div class="stat-label">Agua</div></div>
+      <div class="stat"><div class="stat-val" style="color:#e74c3c">17%</div><div class="stat-label">Déficit</div></div>
+    </div>
+    <div class="comp-spec">cada stat: bg #fff · border-radius 11px · padding 9px · val 16px/600 · label 9px/400 #bbb · gap 8px · margin 0 16px</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">7 — Badges (5 estados)</div>
+    <div class="badges">
+      <span class="badge" style="background:#fde8e8;color:#c0392b">Urgente</span>
+      <span class="badge" style="background:#fdf0e6;color:#9b5e1a">Atención</span>
+      <span class="badge" style="background:#e6f3ec;color:#1e3a2f">OK</span>
+      <span class="badge" style="background:#e6f0f8;color:#1a5276">Info</span>
+      <span class="badge" style="background:#ebe9e3;color:#666666">Neutro</span>
+    </div>
+    <div class="comp-spec">10px/600 · border-radius 20px · padding 3px 10px · bg y color según tabla arriba</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">8 — Barra de progreso</div>
+    <div class="progbar">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:11px;font-weight:600;color:#1a1a1a">Progreso</span>
+        <span style="font-size:11px;color:#888">65%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" style="width:65%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:3px">
+        <span style="font-size:9px;color:#bbb">inicio</span>
+        <span style="font-size:9px;color:#bbb">fin</span>
+      </div>
+    </div>
+    <div class="comp-spec">track: #f0ede8 · fill: #1e3a2f · height 6px · border-radius 4px · labels 9px/400 #bbb</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">9 — Chips scrolleables (alertas, accesos)</div>
+    <div class="chip-row">
+      <div class="chip">
+        <div class="chip-icon" style="background:#fde8e8">🚨</div>
+        <div><div class="chip-title">Bebedero vacío</div><div class="chip-sub">Jaime en camino</div></div>
+      </div>
+      <div class="chip">
+        <div class="chip-icon" style="background:#fdf0e6">⚠️</div>
+        <div><div class="chip-title">Déficit energía</div><div class="chip-sub">Lote Norte</div></div>
+      </div>
+    </div>
+    <div class="comp-spec">chip: bg #fff · radius 11px · padding 8px 10px · icon box: 28px × 28px · radius 7px · bg según estado · title 11px/600 · sub 10px/400 #aaa · scroll horizontal con gap 8px</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">10 — Divider</div>
+    <div class="divider-demo"></div>
+    <div class="comp-spec">height 0.5px · background #f0ede8 · margin 8px 16px</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">11 — CTA button principal</div>
+    <div class="cta">Acción principal del módulo</div>
+    <div class="comp-spec">background #1e3a2f · color #fff · font 13px/500 · border-radius 12px · padding 13px · margin 0 16px · siempre al fondo de la pantalla</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">12 — Botón secundario</div>
+    <div class="cta-sec">Acción secundaria</div>
+    <div class="comp-spec">background #fff · border 1px solid #e0ddd8 · color #1a1a1a · font 13px/500 · border-radius 12px · padding 12px · margin 0 16px</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">13 — 3 botones HumpaLumpas</div>
+    <div class="btn-row">
+      <div class="btn3 outline">🚗 En camino</div>
+      <div class="btn3 primary">✓ Listo</div>
+      <div class="btn3 danger">⚠ Problema</div>
+    </div>
+    <div class="comp-spec">En camino: bg #fff · border 1.5px #e0ddd8 · color #1a1a1a — Listo: bg #1e3a2f · color #fff — Problema: bg #fde8e8 · color #c0392b — todos: radius 12px · padding 12px 8px · 12px/500</div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-label">14 — Badge offline</div>
+    <div class="offline-badge">
+      <div class="offline-dot"></div>
+      <div class="offline-txt">Funciona sin internet — se sincroniza al volver la señal</div>
+    </div>
+    <div class="comp-spec">background #ebe9e3 · border-radius 10px · padding 7px 12px · dot: 6px círculo #1e3a2f · texto 10px/400 #666 · margin 0 16px</div>
+  </div>
+</div>
+
+<!-- REGLAS -->
+<div class="sec">
+  <div class="sec-title">Reglas absolutas</div>
+  <div class="rules-grid">
+    <div class="rule-card">
+      <div class="rule-title" style="color:#1e3a2f">SIEMPRE</div>
+      <div class="rule-body">
+        DM Sans en todo el texto<br>
+        Fondo #f8f6f1 en toda pantalla<br>
+        Cards #fff con radius 14px<br>
+        Padding lateral 16px<br>
+        Dynamic Island en cada pantalla<br>
+        Status bar visible<br>
+        Todo el contenido visible (sin cortes)<br>
+        StyleSheet nativo React Native<br>
+        Tokens inline: <code>const F = { regular, medium, bold }</code>
+      </div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-title" style="color:#c0392b">NUNCA</div>
+      <div class="rule-body">
+        Inter, Roboto ni ninguna otra fuente<br>
+        Gradientes en elementos sólidos<br>
+        Border radius distinto a los definidos<br>
+        Colores fuera de los tokens<br>
+        NativeWind ni className<br>
+        Tablas en móvil<br>
+        Inventar componentes no aprobados<br>
+        Modificar infra, Firebase, backend<br>
+        Importar desde packages/tokens/theme (path roto)<br>
+        Avanzar sin aprobación de César
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOKENS MOBILE OBLIGATORIOS -->
+<div class="sec">
+  <div class="sec-title">Tokens mobile — patrón obligatorio en todas las screens</div>
+  <div class="comp">
+    <div class="comp-label">Fuentes — inline en cada screen (NO importar desde packages/tokens)</div>
+    <pre style="font-size:11px;color:#444;background:#f8f6f1;padding:10px;border-radius:8px;overflow-x:auto">const F = {
+  regular: 'DMSans_400Regular',
+  medium:  'DMSans_500Medium',
+  bold:    'DMSans_600SemiBold',
+};</pre>
+    <div class="comp-spec">Declarar al tope de cada archivo .tsx. El import desde packages/tokens/theme NO existe en el proyecto mobile — causa error de build.</div>
+  </div>
+  <div class="comp">
+    <div class="comp-label">Colores — valores hexadecimales directos en StyleSheet</div>
+    <pre style="font-size:11px;color:#444;background:#f8f6f1;padding:10px;border-radius:8px;overflow-x:auto">// bg pantalla    → '#f8f6f1'
+// primary        → '#1e3a2f'
+// card           → '#ffffff'
+// cream          → '#ebe9e3'
+// text primario  → '#1a1a1a'
+// text secundario→ '#888888'
+// text muted     → '#bbbbbb'
+// ok accent      → '#7ecfa0'
+// warning        → '#f39c12'
+// danger         → '#e74c3c'
+// badge ok bg    → '#e6f3ec'
+// badge warn bg  → '#fdf0e6'
+// badge danger bg→ '#fde8e8'</pre>
+    <div class="comp-spec">Sin variables CSS. Sin NativeWind. Valores hardcodeados directamente en StyleSheet.create({})</div>
+  </div>
+</div>
+
+<!-- JOURNEY JP (OWNER) -->
+<div class="sec">
+  <div class="sec-title">Journey JP — flujo de navegación del dueño/gerente</div>
+  <div class="comp">
+    <div class="comp-label">Pantallas implementadas — aprobadas</div>
+    <div style="font-size:11px;color:#444;line-height:2">
+      <strong>OwnerDashboard</strong> (raíz JP) → hero fundo + condición + stats + tareas del día + CTA mapa<br>
+      <strong>MapaPredio</strong> → mapa del predio con potreros, alerta bebedero sur en rojo<br>
+      <strong>PotreroDetalle</strong> → métricas del potrero activo<br>
+      <strong>AlertsCenter</strong> → listado alertas urgente/atención/info<br>
+      <strong>CarModeDashboard</strong> → modo conducción: clima, podcast del predio, accesos rápidos
+    </div>
+  </div>
+  <div class="comp">
+    <div class="comp-label">Navegación desde OwnerDashboard</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:11px;color:#444;align-items:center;line-height:2">
+      <span style="background:#ebe9e3;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">Bell</span><span>→ AlertsCenter</span>
+      <span style="background:#ebe9e3;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">Card tarea</span><span>→ JaimeHome (ver la tarea en contexto operacional)</span>
+      <span style="background:#1e3a2f;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;color:#fff">CTA</span><span>→ MapaPredio</span>
+      <span style="background:#ebe9e3;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600">Potrero card</span><span>→ PotreroDetalle</span>
+    </div>
+  </div>
+  <div class="comp">
+    <div class="comp-label">Pantallas pendientes — AUT-140 y siguientes</div>
+    <div style="font-size:11px;color:#888;line-height:2">
+      <strong>MiAnimales / OwnDashboard</strong> → listado animales con búsqueda DIIO · badge alertas · KPIs<br>
+      <strong>FundoSanPedro (Fundo detail)</strong> → indicadores lote, proyección venta, métricas ODEPA<br>
+      <strong>Costos</strong> → resumen financiero con desglose categoría · barra proyección · margen<br>
+      <strong>Clima</strong> → widget temperatura en vivo + impacto energético en el lote<br>
+      <strong>Reunión / MeetingBrief</strong> → pre-meeting con datos del lote para JP<br>
+      <strong>Compra/Venta</strong> → lista lotes activos con proyección precio y rendimiento
+    </div>
+  </div>
+</div>
+
+<!-- MOCKUPS REFERENCIA -->
+<div class="sec">
+  <div class="sec-title">Mockups de referencia — leer antes de implementar cualquier pantalla</div>
+  <div class="comp">
+    <div class="comp-label">Ubicación: docs/design/ui_mockups/</div>
+    <div style="font-size:11px;color:#444;line-height:2">
+      <code>Screenshot 2026-04-13 at 13.41.28.png</code> → AUT-140: MapaPredio + PotreroDetalle<br>
+      <code>Screenshot 2026-04-13 at 20.14.31.png</code> → AUT-142: Clima + Impacto climático<br>
+      <code>Screenshot 2026-04-13 at 20.14.39.png</code> → AUT-148: Alertas + Detalle alerta<br>
+      <code>Screenshot 2026-04-13 at 20.14.48.png</code> → AUT-153: Ficha sanitaria + Tratamiento activo<br>
+      <code>Screenshot 2026-04-13 at 20.14.59.png</code> → AUT-154: Costos + Detalle gasto<br>
+      <code>Screenshot 2026-04-13 at 20.15.10.png</code> → AUT-156: Dieta activa + Análisis forrajero<br>
+      <code>Screenshot 2026-04-13 at 20.15.22.png</code> → AUT-158: Compra/Venta + Agropecuaria Sur<br>
+      <code>Screenshot 2026-04-13 at 20.15.32.png</code> → AUT-159: Car Mode + Podcast del predio<br>
+      <code>Screenshot 2026-04-13 at 20.15.40.png</code> → AUT-167: Reunión + grabación activa<br>
+      <code>Screenshot 2026-04-13 at 20.15.49.png</code> → AUT-175: JaimeHome (operario) + Detalle tarea<br>
+      <code>Screenshot 2026-04-13 at 20.16.05.png</code> → AUT-157: OwnDashboard + Fundo San Pedro KPIs<br>
+      <code>Screenshot 2026-04-13 at 20.16.13.png</code> → AUT-164: Maquinaria dashboard + Tractor detalle<br>
+      <code>Screenshot 2026-04-13 at 20.16.23.png</code> → AUT-159: Drone dashboard + Misión activa<br>
+      <code>Screenshot 2026-04-13 at 20.16.49.png</code> → AUT-161: Resultados CV + Detalle hallazgo<br>
+      <code>Screenshot 2026-04-13 at 20.17.00.png</code> → AUT-162: Suelos + Wagyu nutrición (CIREN)
+    </div>
+    <div class="comp-spec">⚠️ OBLIGATORIO: leer el mockup correspondiente ANTES de implementar cualquier pantalla. Si no hay mockup → no implementar.</div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

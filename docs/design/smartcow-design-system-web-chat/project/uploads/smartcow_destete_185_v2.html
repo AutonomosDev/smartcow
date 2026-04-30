@@ -1,0 +1,178 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{font-family:'DM Sans',sans-serif;display:flex;gap:24px;justify-content:center;padding:32px 16px;background:#fff;flex-wrap:wrap}
+.iphone{width:260px;background:#1c1c1e;border-radius:48px;padding:8px;box-shadow:0 0 0 1.5px #3a3a3c,0 0 0 3px #2c2c2e,0 20px 50px rgba(0,0,0,0.3);position:relative;flex-shrink:0}
+.bl1{position:absolute;left:-2px;top:96px;width:3px;height:26px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl2{position:absolute;left:-2px;top:134px;width:3px;height:34px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl3{position:absolute;left:-2px;top:180px;width:3px;height:34px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.br{position:absolute;right:-2px;top:116px;width:3px;height:56px;background:#3a3a3c;border-radius:0 2px 2px 0}
+.screen{background:#f8f6f1;border-radius:40px;overflow:hidden;padding-bottom:14px}
+.di{width:86px;height:22px;background:#1c1c1e;border-radius:0 0 14px 14px;margin:0 auto}
+.sb{display:flex;justify-content:space-between;padding:3px 18px 0;font-size:10px;font-weight:600;color:#1a1a1a}
+.hdr{padding:6px 13px 4px}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.back{width:22px;height:22px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center;font-size:12px;color:#444}
+.title{font-size:15px;font-weight:600;color:#1a1a1a}
+.sub{font-size:10px;color:#999}
+.hero{margin:0 11px 7px;background:#1e3a2f;border-radius:12px;padding:10px 12px}
+.hl{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:3px}
+.hv{font-size:16px;font-weight:600;color:#fff;margin-bottom:2px}
+.hs{font-size:10px;color:rgba(255,255,255,0.6);margin-bottom:8px}
+.hg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.hi{background:rgba(255,255,255,0.1);border-radius:6px;padding:5px 6px}
+.hil{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:1px}
+.hiv{font-size:12px;font-weight:600;color:#fff}
+.hiv.ok{color:#7ecfa0}
+.card{margin:0 11px 6px;background:#fff;border-radius:12px;padding:10px 12px}
+.ct{font-size:11px;font-weight:600;color:#1a1a1a;margin-bottom:7px}
+.fl{font-size:9px;color:#bbb;margin-bottom:3px}
+.fv{font-size:13px;font-weight:600;color:#1a1a1a}
+.fv.scan{color:#1e3a2f}
+.divider{height:0.5px;background:#f0ede8;margin:7px 0}
+.field{margin-bottom:7px}
+.field:last-child{margin-bottom:0}
+.peso-row{display:flex;gap:6px;margin:0 11px 6px}
+.peso-box{flex:1;background:#fff;border-radius:10px;padding:8px 10px}
+.peso-label{font-size:9px;color:#bbb;margin-bottom:2px}
+.peso-val{font-size:18px;font-weight:600;color:#1a1a1a}
+.peso-unit{font-size:10px;color:#888}
+.cta{margin:0 11px;background:#1e3a2f;border-radius:11px;padding:11px;text-align:center;color:#fff;font-size:12px;font-weight:500}
+.prog-card{margin:0 11px 6px;background:#fff;border-radius:12px;padding:10px 12px}
+.prog-track{background:#f0ede8;border-radius:4px;height:5px;margin:5px 0 3px}
+.prog-fill{height:5px;border-radius:4px;background:#1e3a2f}
+.prog-labels{display:flex;justify-content:space-between}
+.prog-label{font-size:9px;color:#bbb}
+.sec-hdr{display:flex;justify-content:space-between;padding:0 11px;margin-bottom:5px}
+.sh{font-size:11px;font-weight:600;color:#1a1a1a}
+.sl2{font-size:10px;color:#1e3a2f}
+.animal-row{margin:0 11px 5px;background:#fff;border-radius:10px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center}
+.ar-diio{font-size:11px;font-weight:600;color:#1a1a1a}
+.ar-info{font-size:10px;color:#888}
+.ar-badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px}
+</style>
+
+<div class="wrap">
+
+  <!-- PANTALLA 1 — DESTETE INDIVIDUAL (sin botón escanear) -->
+  <div class="iphone">
+    <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+    <div class="screen">
+      <div class="di"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+      <div class="hdr">
+        <div class="hdr-top">
+          <div class="back">‹</div>
+          <span style="font-size:9px;color:#1e3a2f;font-weight:500">DESTETE</span>
+        </div>
+        <div class="title">Registro destete</div>
+        <div class="sub">Potrero crianza · 14 abr 2026</div>
+      </div>
+
+      <div class="card">
+        <div class="fl">DIIO ESCANEADO</div>
+        <div class="fv scan" style="margin-bottom:4px">276000204591022</div>
+        <div class="divider"></div>
+        <div class="field">
+          <div class="fl">IDENTIFICADO COMO</div>
+          <div class="fv">Ternero · Angus · Nacido 12 oct 2025</div>
+        </div>
+        <div class="field">
+          <div class="fl">MADRE</div>
+          <div class="fv">...581198 · Lote Sur</div>
+        </div>
+        <div class="field">
+          <div class="fl">EDAD HOY</div>
+          <div class="fv">185 días</div>
+        </div>
+      </div>
+
+      <div class="peso-row">
+        <div class="peso-box">
+          <div class="peso-label">PESO DESTETE</div>
+          <div class="peso-val">162 <span class="peso-unit">kg</span></div>
+        </div>
+        <div class="peso-box">
+          <div class="peso-label">PESO NACIMIENTO</div>
+          <div class="peso-val">38 <span class="peso-unit">kg</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="field">
+          <div class="fl">FECHA DESTETE</div>
+          <div class="fv">14 abr 2026</div>
+        </div>
+        <div class="divider"></div>
+        <div class="field">
+          <div class="fl">POTRERO DESTINO</div>
+          <div class="fv">Potrero recría Norte</div>
+        </div>
+      </div>
+
+      <div class="cta">Guardar destete</div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 2 — SESIÓN MASIVA (igual que antes) -->
+  <div class="iphone">
+    <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+    <div class="screen">
+      <div class="di"></div>
+      <div class="sb"><span>9:41</span><span>●●●</span></div>
+      <div class="hdr">
+        <div class="hdr-top">
+          <div class="back">‹</div>
+          <span style="font-size:9px;color:#1e3a2f;font-weight:500">EN PROGRESO</span>
+        </div>
+        <div class="title">Destete lote crianza</div>
+        <div class="sub">14 abr 2026 · Jaime</div>
+      </div>
+
+      <div class="hero">
+        <div class="hl">SESIÓN DESTETE</div>
+        <div class="hv">Potrero Crianza Sur</div>
+        <div class="hs">Terneros nacidos oct–nov 2025 · 180+ días</div>
+        <div class="hg">
+          <div class="hi"><div class="hil">Destetados</div><div class="hiv ok">18</div></div>
+          <div class="hi"><div class="hil">Restantes</div><div class="hiv">14</div></div>
+          <div class="hi"><div class="hil">Peso prom.</div><div class="hiv">158 kg</div></div>
+        </div>
+      </div>
+
+      <div class="prog-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+          <span style="font-size:11px;font-weight:600;color:#1a1a1a">Progreso sesión</span>
+          <span style="font-size:11px;color:#888">56%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" style="width:56%"></div></div>
+        <div class="prog-labels">
+          <span class="prog-label">0 crías</span>
+          <span class="prog-label">32 crías total</span>
+        </div>
+      </div>
+
+      <div class="sec-hdr">
+        <div class="sh">Últimos registrados</div>
+        <div class="sl2">Ver todos →</div>
+      </div>
+
+      <div class="animal-row">
+        <div><div class="ar-diio">...591022</div><div class="ar-info">162 kg · Angus · Potrero recría Norte</div></div>
+        <span class="ar-badge" style="background:#e6f3ec;color:#1e3a2f">OK</span>
+      </div>
+      <div class="animal-row">
+        <div><div class="ar-diio">...591018</div><div class="ar-info">171 kg · Angus · Potrero recría Norte</div></div>
+        <span class="ar-badge" style="background:#e6f3ec;color:#1e3a2f">OK</span>
+      </div>
+      <div class="animal-row">
+        <div><div class="ar-diio">...591003</div><div class="ar-info">148 kg · Angus · Potrero recría Norte</div></div>
+        <span class="ar-badge" style="background:#fdf0e6;color:#9b5e1a">Bajo peso</span>
+      </div>
+
+      <div style="height:6px"></div>
+      <div class="cta">Cerrar y sincronizar</div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,322 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{font-family:'DM Sans',sans-serif;background:#fff;padding:32px 16px}
+.title-sec{font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px;padding-bottom:6px;border-bottom:0.5px solid #f0ede8}
+.row{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-bottom:8px}
+.iphone{width:210px;background:#1c1c1e;border-radius:40px;padding:7px;box-shadow:0 0 0 1.5px #3a3a3c,0 20px 50px rgba(0,0,0,0.2);position:relative;flex-shrink:0}
+.screen{background:#f8f6f1;border-radius:34px;overflow:hidden;padding-bottom:12px}
+.di{width:72px;height:18px;background:#1c1c1e;border-radius:0 0 11px 11px;margin:0 auto}
+.sb{display:flex;justify-content:space-between;padding:2px 14px 0;font-size:9px;font-weight:600;color:#1a1a1a}
+.hdr{padding:5px 10px 3px}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.back{width:19px;height:19px;border-radius:50%;background:#ebe9e3;display:flex;align-items:center;justify-content:center;font-size:10px;color:#444}
+.ttl{font-size:12px;font-weight:600;color:#1a1a1a}
+.sub{font-size:9px;color:#999}
+.hero{margin:0 9px 5px;background:#1e3a2f;border-radius:10px;padding:8px 10px}
+.hl{font-size:8px;color:rgba(255,255,255,0.5);margin-bottom:2px}
+.hv{font-size:13px;font-weight:600;color:#fff;margin-bottom:1px}
+.hs{font-size:9px;color:rgba(255,255,255,0.6);margin-bottom:6px}
+.hg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px}
+.hi{background:rgba(255,255,255,0.1);border-radius:5px;padding:4px 5px}
+.hil{font-size:8px;color:rgba(255,255,255,0.5);margin-bottom:1px}
+.hiv{font-size:11px;font-weight:600;color:#fff}
+.hiv.ok{color:#7ecfa0}
+.hiv.warn{color:#f39c12}
+.card{margin:0 9px 5px;background:#fff;border-radius:10px;padding:8px 10px}
+.ct{font-size:10px;font-weight:600;color:#1a1a1a;margin-bottom:5px}
+.fl{font-size:8px;color:#bbb;margin-bottom:2px}
+.fv{font-size:11px;font-weight:600;color:#1a1a1a}
+.fv.green{color:#1e3a2f}
+.divider{height:0.5px;background:#f0ede8;margin:5px 0}
+.field{margin-bottom:5px}
+.field:last-child{margin-bottom:0}
+.row2{display:flex;gap:4px;margin-bottom:4px}
+.btn-s{flex:1;border-radius:7px;padding:6px 3px;text-align:center;font-size:9px;font-weight:500;border:1.5px solid #e0ddd8;color:#888;background:#fff}
+.btn-s.active{background:#1e3a2f;color:#fff;border-color:#1e3a2f}
+.cta{margin:0 9px;background:#1e3a2f;border-radius:9px;padding:9px;text-align:center;color:#fff;font-size:11px;font-weight:500}
+.cta2{margin:0 9px 5px;background:#fff;border-radius:9px;padding:8px;text-align:center;color:#1a1a1a;font-size:11px;font-weight:500;border:1px solid #e0ddd8}
+.list-row{margin:0 9px 4px;background:#fff;border-radius:8px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center}
+.lr-title{font-size:10px;font-weight:600;color:#1a1a1a}
+.lr-sub{font-size:9px;color:#888}
+.lr-val{font-size:10px;font-weight:600;color:#1e3a2f}
+.lr-badge{font-size:8px;font-weight:600;padding:2px 6px;border-radius:20px}
+.sec{display:flex;justify-content:space-between;padding:0 9px;margin-bottom:4px}
+.sh{font-size:10px;font-weight:600;color:#1a1a1a}
+.sl{font-size:9px;color:#1e3a2f}
+.stats{display:flex;gap:4px;margin:0 9px 5px}
+.sc{flex:1;background:#fff;border-radius:8px;padding:6px;text-align:center}
+.sv{font-size:12px;font-weight:600;color:#1a1a1a}
+.slab{font-size:8px;color:#bbb;margin-top:1px}
+.sv.ok{color:#1e3a2f}
+.sv.warn{color:#e74c3c}
+.prog-card{margin:0 9px 5px;background:#fff;border-radius:10px;padding:8px 10px}
+.prog-track{background:#f0ede8;border-radius:4px;height:4px;margin:4px 0 3px}
+.prog-fill{height:4px;border-radius:4px;background:#1e3a2f}
+.prog-ls{display:flex;justify-content:space-between}
+.prog-l{font-size:8px;color:#bbb}
+.ingr-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.ingr-row:last-child{margin-bottom:0}
+.ingr-name{font-size:10px;font-weight:500;color:#1a1a1a}
+.ingr-bar-wrap{flex:1;margin:0 6px;background:#f0ede8;border-radius:3px;height:4px}
+.ingr-bar{height:4px;border-radius:3px;background:#1e3a2f}
+.ingr-kg{font-size:9px;font-weight:600;color:#1e3a2f}
+.label{text-align:center;font-size:9px;color:#888;margin-top:8px;font-family:'DM Sans',sans-serif;font-weight:500}
+.corral-row{margin:0 9px 4px;background:#fff;border-radius:8px;padding:6px 8px}
+.cr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.cr-name{font-size:10px;font-weight:600;color:#1a1a1a}
+.cr-animals{font-size:9px;color:#888}
+.cr-prog{background:#f0ede8;border-radius:3px;height:3px}
+.cr-fill{height:3px;border-radius:3px;background:#1e3a2f}
+.cr-bottom{display:flex;justify-content:space-between;margin-top:2px}
+.cr-b{font-size:8px;color:#bbb}
+.bl1{position:absolute;left:-2px;top:80px;width:2px;height:20px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl2{position:absolute;left:-2px;top:108px;width:2px;height:28px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.bl3{position:absolute;left:-2px;top:144px;width:2px;height:28px;background:#3a3a3c;border-radius:2px 0 0 2px}
+.br{position:absolute;right:-2px;top:94px;width:2px;height:44px;background:#3a3a3c;border-radius:0 2px 2px 0}
+</style>
+
+<div class="wrap">
+
+<div class="title-sec">AUT-199 · AUT-200 · AUT-201 — Configuración (JP / AgroBrain)</div>
+<div class="row">
+
+<!-- AUT-199 INGREDIENTES -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div><div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="hdr">
+      <div class="hdr-top"><div class="back">‹</div><span style="font-size:8px;color:#1e3a2f;font-weight:500">ALIMENTACIÓN</span></div>
+      <div class="ttl">Ingredientes</div><div class="sub">Fundo San Pedro · 8 ingredientes</div>
+    </div>
+    <div class="stats">
+      <div class="sc"><div class="sv ok">8</div><div class="slab">Total</div></div>
+      <div class="sc"><div class="sv warn">2</div><div class="slab">Stock bajo</div></div>
+      <div class="sc"><div class="sv">$4.2M</div><div class="slab">Costo mes</div></div>
+    </div>
+    <div class="sec"><div class="sh">Lista ingredientes</div><div class="sl">+ Nuevo →</div></div>
+    <div class="list-row">
+      <div><div class="lr-title">Heno alfalfa</div><div class="lr-sub">MS 88% · $180/kg · 4.2 ton stock</div></div>
+      <span class="lr-badge" style="background:#e6f3ec;color:#1e3a2f">OK</span>
+    </div>
+    <div class="list-row">
+      <div><div class="lr-title">Silaje maíz</div><div class="lr-sub">MS 32% · $95/kg · 8.1 ton stock</div></div>
+      <span class="lr-badge" style="background:#e6f3ec;color:#1e3a2f">OK</span>
+    </div>
+    <div class="list-row">
+      <div><div class="lr-title">Concentrado engorda</div><div class="lr-sub">MS 86% · $420/kg · 1.2 ton stock</div></div>
+      <span class="lr-badge" style="background:#fde8e8;color:#c0392b">Bajo</span>
+    </div>
+    <div class="list-row">
+      <div><div class="lr-title">Afrecho trigo</div><div class="lr-sub">MS 88% · $210/kg · 3.8 ton stock</div></div>
+      <span class="lr-badge" style="background:#e6f3ec;color:#1e3a2f">OK</span>
+    </div>
+    <div class="list-row">
+      <div><div class="lr-title">Minerales mezcla</div><div class="lr-sub">MS 98% · $890/kg · 180 kg stock</div></div>
+      <span class="lr-badge" style="background:#fdf0e6;color:#9b5e1a">Alerta</span>
+    </div>
+    <div style="height:5px"></div>
+    <div class="cta">+ Agregar ingrediente</div>
+  </div>
+</div>
+<div class="label">AUT-199 — Ingredientes</div>
+</div>
+
+<!-- AUT-200 RECETAS TMR -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div><div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="hdr">
+      <div class="hdr-top"><div class="back">‹</div><span style="font-size:8px;color:#1e3a2f;font-weight:500">RECETA TMR</span></div>
+      <div class="ttl">Engorda Angus V2</div><div class="sub">Receta activa · 3 corrales · Actualizada hoy</div>
+    </div>
+    <div class="hero">
+      <div class="hl">RESUMEN RECETA</div>
+      <div class="hv">Engorda Angus V2</div>
+      <div class="hs">12.4 kg MS/animal/día · $1.82/kg MS</div>
+      <div class="hg">
+        <div class="hi"><div class="hil">MS objetivo</div><div class="hiv ok">12.4 kg</div></div>
+        <div class="hi"><div class="hil">Costo/animal</div><div class="hiv">$2.260</div></div>
+        <div class="hi"><div class="hil">Versión</div><div class="hiv">V2.3</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Composición por ingrediente</div>
+      <div class="ingr-row"><span class="ingr-name">Silaje maíz</span><div class="ingr-bar-wrap"><div class="ingr-bar" style="width:55%"></div></div><span class="ingr-kg">8.2 kg</span></div>
+      <div class="ingr-row"><span class="ingr-name">Heno alfalfa</span><div class="ingr-bar-wrap"><div class="ingr-bar" style="width:30%"></div></div><span class="ingr-kg">4.4 kg</span></div>
+      <div class="ingr-row"><span class="ingr-name">Concentrado</span><div class="ingr-bar-wrap"><div class="ingr-bar" style="width:18%"></div></div><span class="ingr-kg">2.6 kg</span></div>
+      <div class="ingr-row"><span class="ingr-name">Afrecho trigo</span><div class="ingr-bar-wrap"><div class="ingr-bar" style="width:10%"></div></div><span class="ingr-kg">1.4 kg</span></div>
+      <div class="ingr-row"><span class="ingr-name">Minerales</span><div class="ingr-bar-wrap"><div class="ingr-bar" style="width:4%"></div></div><span class="ingr-kg">0.12 kg</span></div>
+    </div>
+    <div class="cta2">Ver historial versiones</div>
+    <div class="cta">Editar receta</div>
+  </div>
+</div>
+<div class="label">AUT-200 — Receta TMR</div>
+</div>
+
+<!-- AUT-201 CORRALES ALIMENTACIÓN -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div><div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="hdr">
+      <div class="hdr-top"><div class="back">‹</div><span style="font-size:8px;color:#1e3a2f;font-weight:500">CORRALES</span></div>
+      <div class="ttl">Corrales alimentación</div><div class="sub">11 corrales · 2 pasadas diarias</div>
+    </div>
+    <div class="stats">
+      <div class="sc"><div class="sv">440</div><div class="slab">Animales</div></div>
+      <div class="sc"><div class="sv ok">9</div><div class="slab">Alimentados</div></div>
+      <div class="sc"><div class="sv warn">2</div><div class="slab">Pendientes</div></div>
+    </div>
+    <div class="sec"><div class="sh">Corrales hoy</div><div class="sl">Ver todos →</div></div>
+    <div class="corral-row">
+      <div class="cr-top"><span class="cr-name">Corral 1</span><span style="font-size:8px;color:#1e3a2f;font-weight:600">Alimentado ✓</span></div>
+      <div class="cr-prog"><div class="cr-fill" style="width:100%"></div></div>
+      <div class="cr-bottom"><span class="cr-b">42 animales · Engorda Angus V2</span><span class="cr-b">8:14</span></div>
+    </div>
+    <div class="corral-row">
+      <div class="cr-top"><span class="cr-name">Corral 2</span><span style="font-size:8px;color:#1e3a2f;font-weight:600">Alimentado ✓</span></div>
+      <div class="cr-prog"><div class="cr-fill" style="width:100%"></div></div>
+      <div class="cr-bottom"><span class="cr-b">38 animales · Engorda Angus V2</span><span class="cr-b">8:32</span></div>
+    </div>
+    <div class="corral-row">
+      <div class="cr-top"><span class="cr-name">Corral 3</span><span style="font-size:8px;color:#f39c12;font-weight:600">Pendiente</span></div>
+      <div class="cr-prog"><div class="cr-fill" style="width:0%"></div></div>
+      <div class="cr-bottom"><span class="cr-b">38 animales · Engorda Angus V2</span><span class="cr-b">—</span></div>
+    </div>
+    <div class="corral-row">
+      <div class="cr-top"><span class="cr-name">Corral 4</span><span style="font-size:8px;color:#f39c12;font-weight:600">Pendiente</span></div>
+      <div class="cr-prog"><div class="cr-fill" style="width:0%"></div></div>
+      <div class="cr-bottom"><span class="cr-b">45 animales · Wagyu Premium</span><span class="cr-b">—</span></div>
+    </div>
+    <div style="height:5px"></div>
+    <div class="cta">+ Agregar corral</div>
+  </div>
+</div>
+<div class="label">AUT-201 — Corrales</div>
+</div>
+
+</div>
+
+<div class="title-sec">AUT-202 · AUT-203 · AUT-204 — Ejecución (operador) + Reportes (JP)</div>
+<div class="row">
+
+<!-- AUT-202 BATCHES / ARMAR CARRO -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div><div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="hdr">
+      <div class="hdr-top"><div class="back">‹</div><span style="font-size:8px;color:#1e3a2f;font-weight:500">BATCH #3</span></div>
+      <div class="ttl">Armar el carro</div><div class="sub">Corrales 3 y 4 · 83 animales</div>
+    </div>
+    <div class="hero">
+      <div class="hl">INSTRUCCIONES DE CARGA</div>
+      <div class="hv">Batch #3 — 14 abr</div>
+      <div class="hs">Capacidad carro: 4.200 kg · Carga: 3.890 kg</div>
+      <div class="hg">
+        <div class="hi"><div class="hil">Cargado</div><div class="hiv ok">2.840</div></div>
+        <div class="hi"><div class="hil">Restante</div><div class="hiv warn">1.050</div></div>
+        <div class="hi"><div class="hil">Uso</div><div class="hiv">73%</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Orden de carga</div>
+      <div class="ingr-row"><span class="ingr-name" style="font-size:9px">1. Silaje maíz</span><div class="ingr-bar-wrap"><div class="ingr-bar" style="width:100%;background:#7ecfa0"></div></div><span class="ingr-kg" style="color:#1e3a2f">✓ 2.100</span></div>
+      <div class="ingr-row"><span class="ingr-name" style="font-size:9px">2. Heno alfalfa</span><div class="ingr-bar-wrap"><div class="ingr-bar" style="width:100%;background:#7ecfa0"></div></div><span class="ingr-kg" style="color:#1e3a2f">✓ 740</span></div>
+      <div class="ingr-row"><span class="ingr-name" style="font-size:9px">3. Concentrado</span><div class="ingr-bar-wrap"><div class="ingr-bar" style="width:50%;background:#f39c12"></div></div><span class="ingr-kg" style="color:#f39c12">→ 620</span></div>
+      <div class="ingr-row"><span class="ingr-name" style="font-size:9px">4. Afrecho trigo</span><div class="ingr-bar-wrap"><div class="ingr-bar" style="width:0%"></div></div><span class="ingr-kg" style="color:#bbb">310</span></div>
+      <div class="ingr-row"><span class="ingr-name" style="font-size:9px">5. Minerales</span><div class="ingr-bar-wrap"><div class="ingr-bar" style="width:0%"></div></div><span class="ingr-kg" style="color:#bbb">28</span></div>
+    </div>
+    <div style="height:5px"></div>
+    <div class="cta">Confirmar carga completa</div>
+  </div>
+</div>
+<div class="label">AUT-202 — Armar el carro</div>
+</div>
+
+<!-- AUT-203 RECORRIDO + SOBRAS -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div><div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="hdr">
+      <div class="hdr-top"><div class="back">‹</div><span style="font-size:8px;color:#1e3a2f;font-weight:500">RECORRIDO</span></div>
+      <div class="ttl">Descarga corrales</div><div class="sub">Batch #3 · Corrales 3 y 4</div>
+    </div>
+    <div class="stats">
+      <div class="sc"><div class="sv ok">1</div><div class="slab">Descargado</div></div>
+      <div class="sc"><div class="sv warn">1</div><div class="slab">Pendiente</div></div>
+      <div class="sc"><div class="sv">3.890</div><div class="slab">kg total</div></div>
+    </div>
+    <div class="sec"><div class="sh">Corrales del batch</div><div class="sl">Batch #3</div></div>
+    <div class="list-row">
+      <div><div class="lr-title">Corral 3 · 38 animales</div><div class="lr-sub">1.860 kg · Engorda Angus V2</div></div>
+      <span class="lr-badge" style="background:#e6f3ec;color:#1e3a2f">Listo ✓</span>
+    </div>
+    <div class="card" style="margin-bottom:5px">
+      <div class="ct">Corral 4 · 45 animales — ACTUAL</div>
+      <div class="field"><div class="fl">RACIÓN PLANIFICADA</div><div class="fv">2.030 kg · Wagyu Premium</div></div>
+      <div class="divider"></div>
+      <div class="field"><div class="fl">SOBRAS CORRAL 3 (registrar)</div>
+        <div class="row2" style="margin-top:3px">
+          <div class="btn-s active">Sin sobras</div>
+          <div class="btn-s">1-5%</div>
+          <div class="btn-s">5-10%</div>
+          <div class="btn-s">>10%</div>
+        </div>
+      </div>
+    </div>
+    <div class="cta">Confirmar descarga C4</div>
+  </div>
+</div>
+<div class="label">AUT-203 — Recorrido + sobras</div>
+</div>
+
+<!-- AUT-204 REPORTES -->
+<div>
+<div class="iphone">
+  <div class="bl1"></div><div class="bl2"></div><div class="bl3"></div><div class="br"></div>
+  <div class="screen">
+    <div class="di"></div><div class="sb"><span>9:41</span><span>●●●</span></div>
+    <div class="hdr">
+      <div class="hdr-top"><div class="back">‹</div><span style="font-size:8px;color:#1e3a2f;font-weight:500">REPORTES</span></div>
+      <div class="ttl">Reportes alimentación</div><div class="sub">Abril 2026 · Fundo San Pedro</div>
+    </div>
+    <div class="hero">
+      <div class="hl">RESUMEN MES</div>
+      <div class="hv">Abril 2026</div>
+      <div class="hs">14 días · 440 animales · 11 corrales</div>
+      <div class="hg">
+        <div class="hi"><div class="hil">Costo total</div><div class="hiv">$14.2M</div></div>
+        <div class="hi"><div class="hil">$/animal/día</div><div class="hiv ok">$2.310</div></div>
+        <div class="hi"><div class="hil">Eficiencia</div><div class="hiv ok">96%</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">KPIs clave</div>
+      <div class="field"><div class="fl">MS CONSUMIDA REAL vs PLAN</div><div class="fv">12.1 kg / 12.4 kg · <span style="color:#f39c12">–2.4%</span></div></div>
+      <div class="divider"></div>
+      <div class="field"><div class="fl">SOBRAS PROMEDIO</div><div class="fv">3.8% <span style="color:#1e3a2f;font-size:10px">· dentro del rango</span></div></div>
+      <div class="divider"></div>
+      <div class="field"><div class="fl">INGREDIENTE MÁS COSTOSO</div><div class="fv">Concentrado engorda · $1.8M mes</div></div>
+      <div class="divider"></div>
+      <div class="field"><div class="fl">ERROR OPERADOR PROMEDIO</div><div class="fv">1.2% <span style="color:#1e3a2f;font-size:10px">· excelente</span></div></div>
+    </div>
+    <div class="cta2">Exportar PDF / Excel</div>
+    <div class="cta">Ver detalle por corral</div>
+  </div>
+</div>
+<div class="label">AUT-204 — Reportes</div>
+</div>
+
+</div>
+</div>

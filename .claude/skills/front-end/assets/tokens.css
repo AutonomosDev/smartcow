@@ -1,0 +1,98 @@
+/* SmartCow Design System — Colors & Type
+ * Source of truth. DM Sans exclusively. All colors hardcoded per mobile rules.
+ * ─────────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+
+:root {
+  /* ── Backgrounds ── */
+  --sc-bg:        #f8f6f1;   /* Off-white cream — fondo de toda pantalla */
+  --sc-card:      #ffffff;   /* Blanco puro — cards y surfaces */
+  --sc-cream:     #ebe9e3;   /* Cream — chips, avatares sin foto, offline */
+
+  /* ── Brand ── */
+  --sc-primary:   #1e3a2f;   /* Verde bosque — botones, hero, CTA */
+  --sc-accent:    #7ecfa0;   /* Verde claro — OK / acento sobre oscuro */
+
+  /* ── Semántica ── */
+  --sc-danger:    #e74c3c;
+  --sc-warning:   #f39c12;
+  --sc-info:      #1a5276;
+
+  /* ── Badge fills ── */
+  --sc-badge-urgente-bg: #fde8e8;  --sc-badge-urgente-fg: #c0392b;
+  --sc-badge-warn-bg:    #fdf0e6;  --sc-badge-warn-fg:    #9b5e1a;
+  --sc-badge-ok-bg:      #e6f3ec;  --sc-badge-ok-fg:      #1e3a2f;
+  --sc-badge-info-bg:    #e6f0f8;  --sc-badge-info-fg:    #1a5276;
+  --sc-badge-neutro-bg:  #ebe9e3;  --sc-badge-neutro-fg:  #666666;
+
+  /* ── Ink (text) ── */
+  --sc-ink-1:   #1a1a1a;   /* primary */
+  --sc-ink-2:   #888888;   /* secondary — subtitles, meta */
+  --sc-ink-3:   #bbbbbb;   /* muted — labels, hints */
+  --sc-ink-4:   #f0ede8;   /* dividers */
+
+  /* ── Radius ── UN SOLO RADIO · 8px en TODA la app.
+     Los legacy vars apuntan todos a 8 para que el sistema se arregle solo
+     en pantallas antiguas. Para círculos usar border-radius:50%. */
+  --sc-radius: 8px;
+  --sc-r-sm:   8px;
+  --sc-r-btn:  8px;
+  --sc-r-card: 8px;
+  --sc-r-hero: 8px;
+  --sc-r-chip: 8px;
+  --sc-r-pill: 8px;
+
+  /* ── Spacing ── */
+  --sc-s-xs:  4px;
+  --sc-s-sm:  8px;
+  --sc-s-md: 12px;
+  --sc-s-lg: 16px;   /* padding lateral siempre */
+  --sc-s-xl: 24px;
+  --sc-s-2xl:32px;
+
+  /* ── Type ── */
+  --sc-font: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+  /* size · weight · line-height · color */
+  --sc-t-display:  600 28px/32px var(--sc-font);   /* hero, big numbers */
+  --sc-t-section:  600 20px/24px var(--sc-font);   /* section headers */
+  --sc-t-screen:   600 16px/20px var(--sc-font);   /* screen titles */
+  --sc-t-card:     600 14px/18px var(--sc-font);   /* card titles, lot names */
+  --sc-t-body:     500 13px/18px var(--sc-font);   /* main card content */
+  --sc-t-sub:      400 11px/14px var(--sc-font);   /* subtitles, metadata */
+  --sc-t-label:    400 10px/13px var(--sc-font);   /* labels, hints */
+  --sc-t-micro:    600 9px/12px  var(--sc-font);   /* uppercase labels inside hero */
+}
+
+/* Semantic base */
+html, body { font-family: var(--sc-font); color: var(--sc-ink-1); background: var(--sc-bg); }
+body { margin: 0; -webkit-font-smoothing: antialiased; }
+
+/* Canonical element presets */
+.sc-h1   { font: var(--sc-t-display); color: var(--sc-ink-1); letter-spacing: -0.3px; }
+.sc-h2   { font: var(--sc-t-section); color: var(--sc-ink-1); }
+.sc-h3   { font: var(--sc-t-screen);  color: var(--sc-ink-1); }
+.sc-title{ font: var(--sc-t-card);    color: var(--sc-ink-1); }
+.sc-body { font: var(--sc-t-body);    color: var(--sc-ink-1); }
+.sc-sub  { font: var(--sc-t-sub);     color: var(--sc-ink-2); }
+.sc-label{ font: var(--sc-t-label);   color: var(--sc-ink-3); }
+.sc-micro{ font: var(--sc-t-micro);   color: rgba(255,255,255,.5); letter-spacing: .3px; text-transform: uppercase; }
+
+/* Surfaces */
+.sc-card  { background: var(--sc-card); border-radius: var(--sc-r-card); padding: 12px 14px; }
+.sc-hero  { background: var(--sc-primary); border-radius: var(--sc-r-hero); padding: 12px 14px; color: #fff; }
+.sc-divider { height: .5px; background: var(--sc-ink-4); }
+
+/* Buttons */
+.sc-cta       { background: var(--sc-primary); color: #fff; border-radius: var(--sc-r-btn); padding: 13px; text-align: center; font: 500 13px/1 var(--sc-font); border: 0; }
+.sc-cta--sec  { background: #fff; color: var(--sc-ink-1); border: 1px solid #e0ddd8; }
+.sc-cta--danger { background: var(--sc-badge-urgente-bg); color: var(--sc-badge-urgente-fg); border: 0; }
+
+/* Badges */
+.sc-badge { display:inline-block; padding: 3px 10px; border-radius: var(--sc-r-chip); font: 600 10px/1.2 var(--sc-font); }
+.sc-badge--urgente { background: var(--sc-badge-urgente-bg); color: var(--sc-badge-urgente-fg); }
+.sc-badge--warn    { background: var(--sc-badge-warn-bg);    color: var(--sc-badge-warn-fg); }
+.sc-badge--ok      { background: var(--sc-badge-ok-bg);      color: var(--sc-badge-ok-fg); }
+.sc-badge--info    { background: var(--sc-badge-info-bg);    color: var(--sc-badge-info-fg); }
+.sc-badge--neutro  { background: var(--sc-badge-neutro-bg);  color: var(--sc-badge-neutro-fg); }
