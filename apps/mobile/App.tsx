@@ -19,6 +19,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import SmartCowChatScreen from './src/screens/management/SmartCowChatScreen';
+import BastoneoScreen from './src/screens/management/BastoneoScreen';
 
 export type AuthStackParamList = {
   Splash: undefined;
@@ -28,6 +29,7 @@ export type AuthStackParamList = {
 export type RootStackParamList = {
   Home: undefined;
   SmartCowChat: { initialText?: string } | undefined;
+  Bastoneo: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -65,6 +67,7 @@ function AppNavigator() {
     <AppStack.Navigator id={undefined} initialRouteName="Home" screenOptions={{ headerShown: false }}>
       <AppStack.Screen name="Home" component={HomeScreen} />
       <AppStack.Screen name="SmartCowChat" component={SmartCowChatScreen} />
+      <AppStack.Screen name="Bastoneo" component={BastoneoScreen} />
     </AppStack.Navigator>
   );
 }
