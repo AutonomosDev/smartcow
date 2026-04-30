@@ -77,10 +77,56 @@ containers:
 
   proxy:
     nginx:
+      runtime: docker_container_only        # SMCOW-2 (post-mortem 2026-04-30): nginx vive SOLO como container
       image: nginx:alpine
       port_binding: 0.0.0.0:80, 0.0.0.0:443
       container: smartcow-nginx-1
+      network: smartcow_default              # debe estar en esta red Docker para resolver upstreams
+      config_file: /var/www/smartcow/nginx.conf
       certs: /etc/letsencrypt (certbot auto-renew)
+      hostnames_internos:                    # solo resuelven dentro de smartcow_default
+        - app:3000           # smartcow.cl + www
+        - langfuse-web:3000  # langfuse.smartcow.cl
+        - app-staging:3000   # staging.smartcow.cl
+
+      host_nginx:
+        # nginx del paquete OS Ubuntu (apt) NO debe correr.
+        # Si arranca, pisa puerto 80 y tira el container con Exited (128).
+        status: must_remain_disabled_and_masked
+        comando_proteccion: |
+          sudo systemctl stop nginx
+          sudo systemctl disable nginx
+          sudo systemctl mask nginx           # opcional pero recomendado: previene reactivación
+
+      riesgos_conocidos:
+        - upgrade_nginx_common_reactiva_host:
+            descripcion: |
+              apt upgrade del paquete nginx-common reactiva
+              el servicio nginx del host. Bindea puerto 80 con
+              la default page de Ubuntu, tira el container
+              smartcow-nginx-1 a Exited (128) y deja smartcow.cl
+              + staging + langfuse caídos sin alerta.
+            detectado: 2026-04-29 06:13 UTC (unattended-upgrades)
+            tiempo_caida_publica: ~32h 50min hasta detección
+            fix: stop + disable + mask host nginx + recreate container
+            prevencion: systemctl mask nginx (irreversible salvo unmask explícito)
+            ticket_origen: SMCOW-1 (post-mortem) y SMCOW-2 (fix docs)
+
+      post_upgrade_checklist:
+        # ejecutar tras CUALQUIER apt upgrade en el VPS (manual o unattended)
+        - verificar_containers_up:
+            comando: docker compose -f /var/www/smartcow/docker-compose.yml ps
+            esperado: smartcow-nginx-1 running + 11 containers más up
+        - verificar_nginx_host_inactivo:
+            comando: systemctl is-active nginx
+            esperado: inactive
+        - test_ssl_3_dominios:
+            comandos:
+              - curl -fsS -o /dev/null https://smartcow.cl/login
+              - curl -fsS -o /dev/null https://langfuse.smartcow.cl/
+              - curl -fsS -o /dev/null https://staging.smartcow.cl/
+            esperado: HTTP 2xx/3xx en cada uno
+        - script_helper: scripts/verify-vps-health.sh   # corre todo lo anterior
 
 # ─────────────────────────────────────────────────────────────
 # DNS / Dominios

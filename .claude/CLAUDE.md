@@ -128,6 +128,14 @@ Resumen operativo (detalle en YAML):
 - Env vars Firebase residuales: `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`
 - NO tocar: `artifact-renderer` (lo importa `artifact-mapper`, dead code transitivo intencional)
 
+**Operaciones VPS — nginx-as-container rule (SMCOW-1, SMCOW-2)**
+
+- nginx vive ÚNICAMENTE como container Docker (`smartcow-nginx-1`). NUNCA usar el nginx del host (paquete OS Ubuntu).
+- El nginx del host debe estar `disabled` + `masked` (`systemctl mask nginx`). Si vuelve a activarse pisa puerto 80, tira el container y deja smartcow.cl + staging + langfuse caídos sin alerta.
+- Detalle y comandos en `.claude/references/config/infra-and-security.yaml` → `containers.proxy.nginx.host_nginx`.
+- Tras CUALQUIER `apt upgrade` en el VPS (manual o unattended), correr `bash scripts/verify-vps-health.sh` o seguir `post_upgrade_checklist` del YAML.
+- Bug histórico: 2026-04-29 06:13 UTC unattended-upgrades de `nginx-common` reactivó host nginx. Caída pública ~32h sin detección. Post-mortem en SMCOW-1.
+
 ## HOW — Protocolo de verificacion
 
 Antes de reportar "hecho":
