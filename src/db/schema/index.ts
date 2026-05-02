@@ -34,6 +34,9 @@ export * from "./corrales";
 // Datos de mercado externo
 export * from "./precios-feria";
 
+// KPIs diarios (AUT-391)
+export * from "./kpi_diario";
+
 // Chat
 export * from "./conversaciones";
 export * from "./chat_sessions";
