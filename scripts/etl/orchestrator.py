@@ -31,7 +31,17 @@ TABLAS_CARGA = [
     "predios",
     "animales",
     "pesajes",
-    # (futuro) "partos", "tratamientos", "inseminaciones", etc.
+    "partos",
+    "inseminaciones",
+    "tratamientos",
+    "bajas",
+    "ventas",
+    "traslados",
+    "inventarios",
+    "precios_feria",
+    "ecografias",
+    "areteos",
+    "kpi_diario",
 ]
 
 # TRUNCATE en orden inverso de FK + CASCADE para tablas dependientes
@@ -51,6 +61,8 @@ TABLAS_TRUNCATE_ORDER = [
     "animales",
     "predios",
     "holdings",
+    "precios_feria",  # autocontenida, igual se trunca
+    "baja_motivo",     # catálogo poblado por carga_08
 ]
 
 
@@ -79,6 +91,17 @@ def run_carga(nombre: str, log: logging.Logger) -> dict:
         "predios": "etl.carga_02_predios",
         "animales": "etl.carga_03_animales",
         "pesajes": "etl.carga_04_pesajes",
+        "partos": "etl.carga_05_partos",
+        "inseminaciones": "etl.carga_06_inseminaciones",
+        "tratamientos": "etl.carga_07_tratamientos",
+        "bajas": "etl.carga_08_bajas",
+        "ventas": "etl.carga_09_ventas",
+        "traslados": "etl.carga_10_traslados",
+        "inventarios": "etl.carga_11_inventarios",
+        "precios_feria": "etl.carga_12_precios_feria",
+        "ecografias": "etl.carga_13_ecografias",
+        "areteos": "etl.carga_14_areteos",
+        "kpi_diario": "etl.carga_15_kpi_diario",
     }[nombre]
     log.info("→ %s", module_name)
     t0 = time.time()
@@ -123,8 +146,8 @@ def main(argv: list[str]) -> int:
         except Exception as e:
             log.exception("FALLÓ carga_%s: %s", nombre, e)
             resultados.append({"tabla": nombre, "error": str(e)})
-            log.error("ABORTANDO orchestrator")
-            break
+            # No abortar para que las demás tablas independientes carguen
+            log.warning("CONTINÚA con la siguiente tabla")
 
     elapsed_total = time.time() - t0
     out_dir = REPO / "reports" / "etl-runs"
