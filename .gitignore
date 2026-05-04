@@ -20,3 +20,4 @@ docs/export_agroapp/extract/Tratamientos_Historial_18-04-2026_1_raw.csv
 *.sql.gz
 docs/db/dumps/
 scripts/etl/**/__pycache__/
+tsconfig.tsbuildinfo
