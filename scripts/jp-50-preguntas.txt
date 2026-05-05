@@ -1,0 +1,63 @@
+# 50 preguntas de JP (dueño Holding Agrícola Los Lagos) al asistente IA
+# Lenguaje cliente real, no académico. Cada línea: una pregunta.
+# El runner las ejecuta contra vanna-server.py
+
+# ─── A. STOCK / INVENTARIO (10) ───
+¿cuántos animales tengo en total?
+¿cuántas vacas hay en San Pedro?
+¿cuántos novillos en feedlot?
+¿cuántas vaquillas listas para servicio?
+¿cuántos terneros nacidos este año?
+mostrame el stock por etapa
+¿cuántos animales hay por predio?
+listame los toros que tengo
+¿cuántos animales en engorda hay?
+¿cuántos animales en recría hay en feedlot?
+
+# ─── B. SALUD / VETERINARIA (10) ───
+¿cuántos tratamientos llevamos este mes?
+¿cuáles son las enfermedades más comunes?
+top 5 diagnósticos en tratamientos
+¿hay animales con resguardo de carne activo?
+¿cuántas bajas tuvimos este año?
+¿cuál es el motivo más frecuente de baja?
+listame los animales con neumonía tratada
+¿cuántos animales tienen tratamiento de piojos?
+muéstrame las vacunaciones del último mes
+¿cuántos animales murieron por accidente?
+
+# ─── C. PESO / GANANCIA (10) ───
+¿cuál es el peso promedio del feedlot?
+¿qué animales están listos para venta?
+mostrame los 10 más pesados
+¿cuántos animales pesan más de 450 kg?
+peso promedio en engorda
+peso promedio en recría
+¿qué animales no se han pesado en 60 días?
+¿cuántos pesajes se hicieron este mes?
+¿hay animales con peso menor a 10 kg?
+¿cuál es la edad promedio de los animales?
+
+# ─── D. REPRODUCCIÓN (10) ───
+¿cuántas vacas preñadas tengo?
+¿cuántas vacas vacías?
+¿cuántas inseminaciones se hicieron este año?
+¿cuál es el inseminador con más éxito?
+¿cuántos partos hubo este año?
+¿cuántos partos resultaron muertos?
+¿qué vaquillas están listas para servir?
+¿cuántas inseminaciones esperan resultado?
+top 5 toros más usados
+¿cuál es la tasa de preñez actual?
+
+# ─── E. NEGOCIO / VENTAS / PLATA (10) ───
+¿cuántas ventas hicimos este año?
+¿a qué destinos vendemos más?
+¿cuál es el peso promedio de venta?
+¿cuántos animales vendí en el último mes?
+mostrame las ventas por lote
+¿cuál es el precio del kilo en ferias hoy?
+precio promedio kg novillo engorda en bulnes
+¿cuánto vale un novillo de 500 kg en feria?
+¿cuántos traslados se registraron este año?
+¿cuántos inventarios físicos tenemos hechos?

@@ -813,3 +813,468 @@ export async function getRecentActivity(
     .sort((a, b) => new Date(b.creadoEn).getTime() - new Date(a.creadoEn).getTime())
     .slice(0, limit);
 }
+
+// ─────────────────────────────────────────────
+// DISTRIBUCIÓN POR CATEGORÍA — donut de un predio
+// ─────────────────────────────────────────────
+
+export interface DistribucionCategoria {
+  predioId: number;
+  predioNombre: string;
+  segments: { nombre: string; count: number }[];
+}
+
+/**
+ * Composición de varios predios. Solo retorna predios con animales > 0,
+ * en el mismo orden que `predioIds`.
+ */
+export async function getDistribucionPredios(
+  predioIds: number[]
+): Promise<DistribucionCategoria[]> {
+  const out: DistribucionCategoria[] = [];
+  for (const id of predioIds) {
+    const d = await getDistribucionPredio(id);
+    if (d && d.segments.length > 0) out.push(d);
+  }
+  return out;
+}
+
+/**
+ * Composición de animales activos de un predio agrupada por tipo_ganado,
+ * ordenada de mayor a menor. Si el predio no tiene animales, retorna null.
+ */
+export async function getDistribucionPredio(
+  predioId: number
+): Promise<DistribucionCategoria | null> {
+  const predioRow = await db
+    .select({ id: predios.id, nombre: predios.nombre })
+    .from(predios)
+    .where(eq(predios.id, predioId))
+    .limit(1);
+
+  if (predioRow.length === 0) return null;
+
+  // Filtro multi-fuente: animal vivo = activo CON al menos una actividad
+  // operacional en los últimos 12 meses. Las vacas adultas casi no se pesan,
+  // se ven en partos/ecografías/inseminaciones — un filtro solo por pesaje
+  // las dejaba afuera. Excluye también el zombie histórico del ETL.
+  const rows = await db.execute<{ nombre: string; count: number }>(sql`
+    SELECT COALESCE(tg.nombre, '(sin tipo)') AS nombre, COUNT(*)::int AS count
+    FROM animales a
+    LEFT JOIN tipo_ganado tg ON tg.id = a.tipo_ganado_id
+    WHERE a.predio_id = ${predioId}
+      AND a.estado = 'activo'
+      AND (
+        EXISTS (
+          SELECT 1 FROM pesajes p
+          WHERE p.animal_id = a.id
+            AND p.fecha >= CURRENT_DATE - INTERVAL '12 months'
+        )
+        OR EXISTS (
+          SELECT 1 FROM partos pa
+          WHERE pa.madre_id = a.id
+            AND pa.fecha >= CURRENT_DATE - INTERVAL '12 months'
+        )
+        OR EXISTS (
+          SELECT 1 FROM ecografias e
+          WHERE e.animal_id = a.id
+            AND e.fecha >= CURRENT_DATE - INTERVAL '12 months'
+        )
+        OR EXISTS (
+          SELECT 1 FROM inseminaciones i
+          WHERE i.animal_id = a.id
+            AND i.fecha >= CURRENT_DATE - INTERVAL '12 months'
+            AND i.fecha <= CURRENT_DATE
+        )
+      )
+    GROUP BY tg.nombre
+    ORDER BY COUNT(*) DESC
+  `);
+
+  return {
+    predioId: predioRow[0].id,
+    predioNombre: predioRow[0].nombre,
+    segments: rows.rows.map((r) => ({
+      nombre: r.nombre,
+      count: Number(r.count),
+    })),
+  };
+}
+
+// ─────────────────────────────────────────────
+// MULTI-PREDIO — vista consolidada (gerente)
+// ─────────────────────────────────────────────
+
+/**
+ * Estado actual de un predio en el momento. Solo predios con vivos > 0
+ * son retornados; los vacíos no existen para el dashboard.
+ *
+ * Cada métrica es null cuando el predio no tiene datos para ella
+ * (ej: feedlot sin hembras → prenezPct === null). El render decide
+ * si mostrar la columna basándose en si TODOS son null.
+ */
+export interface PredioConsolidadoRow {
+  predioId: number;
+  predioNombre: string;
+  vivos: number;
+  hembras: number;
+  machos: number;
+  pesoPromKg: number | null;
+  gdpKgDia: number | null;
+  bajasMes: number;
+  partosMes: number;
+  prenezPct: number | null;
+}
+
+export interface DashboardConsolidado {
+  predios: PredioConsolidadoRow[];
+  totales: {
+    vivos: number;
+    hembras: number;
+    machos: number;
+    bajasMes: number;
+    partosMes: number;
+    gdpKgDiaPromedio: number | null;
+  };
+}
+
+/**
+ * Estado consolidado de la operación HOY.
+ * Retorna sólo predios con animales vivos > 0.
+ * Cada métrica es null cuando no hay datos en ese predio.
+ */
+export async function getDashboardConsolidado(
+  predioIds: number[]
+): Promise<DashboardConsolidado> {
+  if (predioIds.length === 0) {
+    return {
+      predios: [],
+      totales: { vivos: 0, hembras: 0, machos: 0, bajasMes: 0, partosMes: 0, gdpKgDiaPromedio: null },
+    };
+  }
+
+  const ids = sql.join(
+    predioIds.map((id) => sql`${id}`),
+    sql`, `
+  );
+
+  // Una sola consulta agregada por predio. Solo retorna predios con vivos > 0.
+  const result = await db.execute<{
+    predio_id: number;
+    predio_nombre: string;
+    vivos: number;
+    hembras: number;
+    machos: number;
+    peso_prom_kg: string | null;
+    gdp_kg_dia: string | null;
+    bajas_mes: number;
+    partos_mes: number;
+    prenez_total_90d: number;
+    prenez_prenadas_90d: number;
+  }>(sql`
+    WITH pesajes_60d AS (
+      SELECT
+        predio_id,
+        animal_id,
+        peso_kg::float AS peso,
+        fecha,
+        ROW_NUMBER() OVER (PARTITION BY animal_id ORDER BY fecha ASC)  AS rn_asc,
+        ROW_NUMBER() OVER (PARTITION BY animal_id ORDER BY fecha DESC) AS rn_desc
+      FROM pesajes
+      WHERE predio_id IN (${ids})
+        AND fecha >= (CURRENT_DATE - INTERVAL '60 days')
+    ),
+    gdp_por_animal AS (
+      SELECT
+        p.predio_id,
+        p.animal_id,
+        (u.peso - p.peso) / NULLIF((u.fecha - p.fecha), 0)::float AS gdp
+      FROM pesajes_60d p
+      JOIN pesajes_60d u
+        ON u.animal_id = p.animal_id
+       AND u.rn_desc = 1
+      WHERE p.rn_asc = 1
+        AND u.fecha > p.fecha
+    ),
+    gdp_predio AS (
+      SELECT predio_id, AVG(gdp)::float AS gdp_kg_dia
+      FROM gdp_por_animal
+      GROUP BY predio_id
+    ),
+    peso_prom_predio AS (
+      SELECT predio_id, AVG(peso)::float AS peso_prom_kg
+      FROM pesajes_60d
+      WHERE rn_desc = 1
+      GROUP BY predio_id
+    ),
+    vivos_predio AS (
+      SELECT
+        predio_id,
+        COUNT(*)::int AS vivos,
+        COUNT(*) FILTER (WHERE sexo = 'H')::int AS hembras,
+        COUNT(*) FILTER (WHERE sexo = 'M')::int AS machos
+      FROM animales
+      WHERE predio_id IN (${ids}) AND estado = 'activo'
+      GROUP BY predio_id
+    ),
+    bajas_mes_predio AS (
+      SELECT predio_id, COUNT(*)::int AS bajas_mes
+      FROM bajas
+      WHERE predio_id IN (${ids})
+        AND fecha >= DATE_TRUNC('month', CURRENT_DATE)
+      GROUP BY predio_id
+    ),
+    partos_mes_predio AS (
+      SELECT predio_id, COUNT(*)::int AS partos_mes
+      FROM partos
+      WHERE predio_id IN (${ids})
+        AND fecha >= DATE_TRUNC('month', CURRENT_DATE)
+      GROUP BY predio_id
+    ),
+    prenez_predio AS (
+      SELECT
+        predio_id,
+        COUNT(*)::int AS total_90d,
+        COUNT(*) FILTER (WHERE resultado = 'preñada')::int AS prenadas_90d
+      FROM ecografias
+      WHERE predio_id IN (${ids})
+        AND fecha >= (CURRENT_DATE - INTERVAL '90 days')
+      GROUP BY predio_id
+    )
+    SELECT
+      p.id::int                          AS predio_id,
+      p.nombre                           AS predio_nombre,
+      COALESCE(v.vivos, 0)               AS vivos,
+      COALESCE(v.hembras, 0)             AS hembras,
+      COALESCE(v.machos, 0)              AS machos,
+      pp.peso_prom_kg                    AS peso_prom_kg,
+      g.gdp_kg_dia                       AS gdp_kg_dia,
+      COALESCE(b.bajas_mes, 0)           AS bajas_mes,
+      COALESCE(pa.partos_mes, 0)         AS partos_mes,
+      COALESCE(pr.total_90d, 0)          AS prenez_total_90d,
+      COALESCE(pr.prenadas_90d, 0)       AS prenez_prenadas_90d
+    FROM predios p
+    LEFT JOIN vivos_predio       v  ON v.predio_id  = p.id
+    LEFT JOIN peso_prom_predio   pp ON pp.predio_id = p.id
+    LEFT JOIN gdp_predio         g  ON g.predio_id  = p.id
+    LEFT JOIN bajas_mes_predio   b  ON b.predio_id  = p.id
+    LEFT JOIN partos_mes_predio  pa ON pa.predio_id = p.id
+    LEFT JOIN prenez_predio      pr ON pr.predio_id = p.id
+    WHERE p.id IN (${ids})
+      AND COALESCE(v.vivos, 0) > 0
+    ORDER BY COALESCE(v.vivos, 0) DESC
+  `);
+
+  const predios: PredioConsolidadoRow[] = result.rows.map((r) => {
+    const total90 = Number(r.prenez_total_90d);
+    const prenadas90 = Number(r.prenez_prenadas_90d);
+    return {
+      predioId: Number(r.predio_id),
+      predioNombre: r.predio_nombre,
+      vivos: Number(r.vivos),
+      hembras: Number(r.hembras),
+      machos: Number(r.machos),
+      pesoPromKg: r.peso_prom_kg !== null ? Number(Number(r.peso_prom_kg).toFixed(1)) : null,
+      gdpKgDia: r.gdp_kg_dia !== null ? Number(Number(r.gdp_kg_dia).toFixed(2)) : null,
+      bajasMes: Number(r.bajas_mes),
+      partosMes: Number(r.partos_mes),
+      prenezPct: total90 >= 5 ? Number(((prenadas90 / total90) * 100).toFixed(0)) : null,
+    };
+  });
+
+  const totales = predios.reduce(
+    (acc, p) => ({
+      vivos: acc.vivos + p.vivos,
+      hembras: acc.hembras + p.hembras,
+      machos: acc.machos + p.machos,
+      bajasMes: acc.bajasMes + p.bajasMes,
+      partosMes: acc.partosMes + p.partosMes,
+    }),
+    { vivos: 0, hembras: 0, machos: 0, bajasMes: 0, partosMes: 0 }
+  );
+
+  const gdpValues = predios.map((p) => p.gdpKgDia).filter((v): v is number => v !== null);
+  const gdpKgDiaPromedio = gdpValues.length > 0
+    ? Number((gdpValues.reduce((a, b) => a + b, 0) / gdpValues.length).toFixed(2))
+    : null;
+
+  return { predios, totales: { ...totales, gdpKgDiaPromedio } };
+}
+
+/**
+ * @deprecated Reemplazada por getDashboardConsolidado. Se mantiene por
+ * compat hasta que se borre el código que la importa.
+ */
+export interface PredioKpisRow {
+  predioId: number;
+  predioNombre: string;
+  totalAnimales: number;
+  totalPesajes: number;
+  totalPartos: number;
+  totalEcografias: number;
+}
+
+export interface MultiPredioKpis {
+  total: {
+    totalAnimales: number;
+    totalPesajes: number;
+    totalPartos: number;
+    totalEcografias: number;
+    ultimoPesaje: { fecha: string; pesoKg: number } | null;
+  };
+  porPredio: PredioKpisRow[];
+}
+
+export async function getMultiPredioKpis(predioIds: number[]): Promise<MultiPredioKpis> {
+  if (predioIds.length === 0) {
+    return {
+      total: { totalAnimales: 0, totalPesajes: 0, totalPartos: 0, totalEcografias: 0, ultimoPesaje: null },
+      porPredio: [],
+    };
+  }
+
+  const [animalesByPredio, pesajesByPredio, partosByPredio, ecografiasByPredio, prediosRows, ultimoPesajeRow] =
+    await Promise.all([
+      db
+        .select({ predioId: animales.predioId, n: count() })
+        .from(animales)
+        .where(and(inArray(animales.predioId, predioIds), eq(animales.estado, "activo")))
+        .groupBy(animales.predioId),
+
+      db
+        .select({ predioId: pesajes.predioId, n: count() })
+        .from(pesajes)
+        .where(inArray(pesajes.predioId, predioIds))
+        .groupBy(pesajes.predioId),
+
+      db
+        .select({ predioId: partos.predioId, n: count() })
+        .from(partos)
+        .where(inArray(partos.predioId, predioIds))
+        .groupBy(partos.predioId),
+
+      db
+        .select({ predioId: ecografias.predioId, n: count() })
+        .from(ecografias)
+        .where(inArray(ecografias.predioId, predioIds))
+        .groupBy(ecografias.predioId),
+
+      db
+        .select({ id: predios.id, nombre: predios.nombre })
+        .from(predios)
+        .where(inArray(predios.id, predioIds)),
+
+      db
+        .select({ fecha: pesajes.fecha, pesoKg: pesajes.pesoKg })
+        .from(pesajes)
+        .where(inArray(pesajes.predioId, predioIds))
+        .orderBy(desc(pesajes.fecha))
+        .limit(1),
+    ]);
+
+  const animalesMap = new Map(animalesByPredio.map((r) => [r.predioId, Number(r.n)]));
+  const pesajesMap = new Map(pesajesByPredio.map((r) => [r.predioId, Number(r.n)]));
+  const partosMap = new Map(partosByPredio.map((r) => [r.predioId, Number(r.n)]));
+  const ecografiasMap = new Map(ecografiasByPredio.map((r) => [r.predioId, Number(r.n)]));
+  const nombresMap = new Map(prediosRows.map((r) => [r.id, r.nombre]));
+
+  const porPredio: PredioKpisRow[] = predioIds.map((id) => ({
+    predioId: id,
+    predioNombre: nombresMap.get(id) ?? `Predio ${id}`,
+    totalAnimales: animalesMap.get(id) ?? 0,
+    totalPesajes: pesajesMap.get(id) ?? 0,
+    totalPartos: partosMap.get(id) ?? 0,
+    totalEcografias: ecografiasMap.get(id) ?? 0,
+  }));
+
+  porPredio.sort((a, b) => b.totalAnimales - a.totalAnimales);
+
+  const total = porPredio.reduce(
+    (acc, p) => ({
+      totalAnimales: acc.totalAnimales + p.totalAnimales,
+      totalPesajes: acc.totalPesajes + p.totalPesajes,
+      totalPartos: acc.totalPartos + p.totalPartos,
+      totalEcografias: acc.totalEcografias + p.totalEcografias,
+    }),
+    { totalAnimales: 0, totalPesajes: 0, totalPartos: 0, totalEcografias: 0 }
+  );
+
+  return {
+    total: {
+      ...total,
+      ultimoPesaje: ultimoPesajeRow[0]
+        ? { fecha: ultimoPesajeRow[0].fecha, pesoKg: Number(ultimoPesajeRow[0].pesoKg) }
+        : null,
+    },
+    porPredio,
+  };
+}
+
+export interface RecentEventMulti extends RecentEvent {
+  predioId: number;
+  predioNombre: string;
+}
+
+/**
+ * Actividad reciente mezclada de varios predios, con nombre del predio en cada evento.
+ */
+export async function getMultiPredioActivity(
+  predioIds: number[],
+  limit = 8
+): Promise<RecentEventMulti[]> {
+  if (predioIds.length === 0) return [];
+
+  const [pesajesRows, partosRows, prediosRows] = await Promise.all([
+    db
+      .select({
+        predioId: pesajes.predioId,
+        fecha: pesajes.fecha,
+        pesoKg: pesajes.pesoKg,
+        creadoEn: pesajes.creadoEn,
+      })
+      .from(pesajes)
+      .where(inArray(pesajes.predioId, predioIds))
+      .orderBy(desc(pesajes.creadoEn))
+      .limit(limit),
+    db
+      .select({
+        predioId: partos.predioId,
+        fecha: partos.fecha,
+        resultado: partos.resultado,
+        creadoEn: partos.creadoEn,
+      })
+      .from(partos)
+      .where(inArray(partos.predioId, predioIds))
+      .orderBy(desc(partos.creadoEn))
+      .limit(limit),
+    db
+      .select({ id: predios.id, nombre: predios.nombre })
+      .from(predios)
+      .where(inArray(predios.id, predioIds)),
+  ]);
+
+  const nombresMap = new Map(prediosRows.map((r) => [r.id, r.nombre]));
+
+  const events: RecentEventMulti[] = [
+    ...pesajesRows.map((p) => ({
+      type: "pesaje" as const,
+      fecha: p.fecha,
+      descripcion: `Pesaje · ${Number(p.pesoKg).toFixed(1)} kg`,
+      creadoEn: p.creadoEn.toISOString(),
+      predioId: p.predioId,
+      predioNombre: nombresMap.get(p.predioId) ?? `Predio ${p.predioId}`,
+    })),
+    ...partosRows.map((p) => ({
+      type: "parto" as const,
+      fecha: p.fecha,
+      descripcion: `Parto · ${p.resultado}`,
+      creadoEn: p.creadoEn.toISOString(),
+      predioId: p.predioId,
+      predioNombre: nombresMap.get(p.predioId) ?? `Predio ${p.predioId}`,
+    })),
+  ];
+
+  return events
+    .sort((a, b) => new Date(b.creadoEn).getTime() - new Date(a.creadoEn).getTime())
+    .slice(0, limit);
+}

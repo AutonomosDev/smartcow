@@ -183,6 +183,24 @@ const MODULOS: ModuloConfig[] = [
     },
     outFile: `Pesajes_Historial_${TODAY}.xlsx`,
   },
+  {
+    nombre: "Traslados",
+    servlet: "Traslado",
+    service: "generarExcelHistorial",
+    filtros: {
+      fundo_origen_id: 0,
+      fundo_destino_id: 0,
+      tipo_ganado: "Todos",
+      estado: "Todos",
+      descripcion: "Todos",
+      usuario_id: 0,
+      order: "Ascendente",
+      tipo_order: "Fecha traslado",
+      desde: DESDE,
+      hasta: TODAY,
+    },
+    outFile: `Traslados_Historial_${TODAY}.xlsx`,
+  },
 ];
 
 async function downloadModulo(m: ModuloConfig): Promise<string> {

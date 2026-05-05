@@ -183,6 +183,27 @@
       "when": 1745772800000,
       "tag": "0025_traslados_inventarios_agregados",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1746000000000,
+      "tag": "0026_jerarquia_holding",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1746000001000,
+      "tag": "0027_corrales",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1746000002000,
+      "tag": "0028_pesajes_tipo_pesaje",
+      "breakpoints": true
     }
   ]
 }
